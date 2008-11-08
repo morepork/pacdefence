@@ -32,6 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +54,8 @@ import towers.Tower;
 public class ControlPanel extends JPanel {
    
    private static final int BASE_TOWER_PRICE = 1000;
+   
+   private static final DecimalFormat ONE_DP = new DecimalFormat("#0.0");
 
    private final BufferedImage backgroundImage = ImageHelper.makeImage("control_panel",
          "blue_lava.png");;
@@ -211,10 +214,10 @@ public class ControlPanel extends JPanel {
    }
    
    private void setStats(Tower t) {
-      damageLabel.setText(t.getDamage());
+      damageLabel.setText(ONE_DP.format(t.getDamage()));
       rangeLabel.setText(t.getRange());
       rateLabel.setText(t.getFireRate());
-      speedLabel.setText(t.getBulletSpeed());
+      speedLabel.setText(ONE_DP.format(t.getBulletSpeed()));
       specialLabel.setText(t.getSpecial());
    }
    
