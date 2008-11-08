@@ -30,19 +30,65 @@ import sprites.Sprite;
 
 public interface Tower extends Cloneable {
    
+   public enum Attribute{
+      
+      /**
+       * The current damage per shot of a Tower
+       */
+      Damage,
+      
+      /**
+       * The current range of a Tower
+       */
+      Range,
+      
+      /**
+       * The rate at which a Tower fires
+       */
+      Rate,
+      
+      /**
+       * The speed that a Tower's bullets travel at
+       */
+      Speed,
+      
+      /**
+       * The special ability of a Tower
+       */
+      Special;
+      
+      public static Attribute fromString(String s) {
+         if(s.equalsIgnoreCase("Damage")) {
+            return Damage;
+         } else if (s.equalsIgnoreCase("Range")) {
+            return Range;
+         } else if (s.equalsIgnoreCase("Rate")) {
+            return Rate;
+         } else if (s.equalsIgnoreCase("Speed")) {
+            return Speed;
+         } else if (s.equalsIgnoreCase("Special")) {
+            return Special;
+         } else {
+            throw new IllegalArgumentException("No attribute is associated to: " + s);
+         }
+      }
+   };
+   
    public void draw(Graphics g);   
    public void drawSelected(Graphics g);   
    public void drawShadow(Graphics g);   
    public Bullet tick(List<Sprite> sprites);   
    public boolean towerClash(Tower t);   
    public boolean contains(Point p);
-   public int getRange();   
    public Point getCentre();
    public void setCentre(Point p);   
    public String getName();   
    public Rectangle getBoundingRectangle();
    public Shape getBounds();
+   public int getAttributeLevel(Attribute a);
+   public void raiseAttributeLevel(Attribute a);
    public double getDamage();
+   public int getRange();   
    public int getFireRate();
    public double getBulletSpeed();
    public String getSpecial();

@@ -37,6 +37,13 @@ public abstract class AbstractTower implements Tower {
    
    // The color of the range of the tower when drawn
    private static final Color rangeColour = new Color(255, 255, 255, 100);
+   private static final float upgradeIncreaseFactor = 1.1F;
+   
+   private int damageLevel = 1;
+   private int rangeLevel = 1;
+   private int rateLevel = 1;
+   private int speedLevel = 1;
+   private int specialLevel = 1;
       
    // The top left point of this tower
    private final Point topLeft;
@@ -46,13 +53,13 @@ public abstract class AbstractTower implements Tower {
    private final Rectangle boundingRectangle = new Rectangle();
    private final String name;
    // The number of clock ticks between each shot
-   private final int fireRate;
+   private int fireRate;
    // The number of clock ticks until this tower's next shot
    private int timeToNextShot = 0;
-   private final int range;
-   private final int twiceRange;
-   private final double bulletSpeed;
-   private final double damage;
+   private int range;
+   private int twiceRange;
+   private double bulletSpeed;
+   private double damage;
    
    // The width/height of the image (as it's square)
    private final int width;
@@ -189,6 +196,48 @@ public abstract class AbstractTower implements Tower {
       centre.setLocation(p);
       setTopLeft();
       setBounds();
+   }
+   
+   @Override
+   public int getAttributeLevel(Attribute a) {
+      if(a == Tower.Attribute.Damage) {
+         return damageLevel;
+      } else if(a == Tower.Attribute.Range) {
+         return rangeLevel;
+      } else if (a == Tower.Attribute.Rate) {
+         return rateLevel;
+      } else if (a == Tower.Attribute.Speed) {
+         return speedLevel;
+      } else if (a == Tower.Attribute.Special) {
+         return specialLevel;
+      } else {
+         throw new RuntimeException("Extra attribute has been added without changing " +
+               "getAttributeLevel in AbstractTower");
+      }
+   }
+   
+   @Override
+   public void raiseAttributeLevel(Attribute a) {
+      if(a == Tower.Attribute.Damage) {
+         damageLevel++;
+         damage *= upgradeIncreaseFactor;
+      } else if(a == Tower.Attribute.Range) {
+         rangeLevel++;
+         range *= upgradeIncreaseFactor;
+         twiceRange = range * 2;
+      } else if (a == Tower.Attribute.Rate) {
+         rateLevel++;
+         fireRate *= upgradeIncreaseFactor;
+      } else if (a == Tower.Attribute.Speed) {
+         speedLevel++;
+         bulletSpeed *= upgradeIncreaseFactor;
+      } else if (a == Tower.Attribute.Special) {
+         specialLevel++;
+         // TODO
+      } else {
+         throw new RuntimeException("Extra attribute has been added without changing " +
+               "raiseAttributeLevel in AbstractTower");
+      }
    }
    
    @Override

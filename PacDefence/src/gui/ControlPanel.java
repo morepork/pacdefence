@@ -32,6 +32,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -59,6 +63,9 @@ public class ControlPanel extends JPanel {
    private MyJLabel damageLabel, rangeLabel, rateLabel, speedLabel, specialLabel;
    // These buttons are in the current tower stats box
    private VanishingButton damageButton, rangeButton, rateButton, speedButton, specialButton;
+   private List<VanishingButton> towerStatsButtons = new ArrayList<VanishingButton>(5);
+   private Map<VanishingButton, Tower.Attribute> buttonAttributes = new HashMap<VanishingButton,
+         Tower.Attribute>(5);
    // These labels are in the level stats box
    private MyJLabel numSpritesLabel, avgHPLabel;
    private final ImageButton start = new ImageButton("start", ".png");
@@ -75,7 +82,7 @@ public class ControlPanel extends JPanel {
       setPreferredSize(new Dimension(width, height));
       setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
       setUpJLabels();
-      setUpVanishingButtons();
+      setUpTowerStatsButtons();
       setUpTopStatsBox();
       setUpNewTowers();
       setUpCurrentTowerStats();
@@ -103,11 +110,13 @@ public class ControlPanel extends JPanel {
    public void selectTower(Tower t) {
       selectedTower = t;
       setStats(t);
+      enableUpgradeButtons(true);
    }
    
    public void deselectTower() {
       if(selectedTower != null) {
          selectedTower = null;
+         enableUpgradeButtons(false);
       }
    }
    
@@ -156,7 +165,7 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   private void setUpVanishingButtons() {
+   private void setUpTowerStatsButtons() {
       for (Field f : getClass().getDeclaredFields()) {
          if (f.getType().equals(VanishingButton.class)) {
             try {
@@ -166,11 +175,37 @@ public class ControlPanel extends JPanel {
                String text = String.valueOf(name.charAt(0)).toUpperCase();
                text += name.substring(1, name.length() - 6);
                VanishingButton v = new VanishingButton(text, textColour);
+               v.setMultiClickThreshhold(5);
+               v.addActionListener(new ActionListener(){
+                  public void actionPerformed(ActionEvent e) {
+                     upgradeButtonPressed(e);
+                  }
+               });
                f.set(this, v);
+               towerStatsButtons.add(v);
+               buttonAttributes.put(v, Tower.Attribute.fromString(text));
             } catch(IllegalAccessException e) {
                // This shouldn't ever be thrown
                System.err.println(e);
             }
+         }
+      }
+   }
+   
+   private void upgradeButtonPressed(ActionEvent e) {
+      if(selectedTower != null) {
+         if(!(e.getSource() instanceof VanishingButton)) {
+            throw new RuntimeException("ActionEvent given doesn't have a VanishingButton as its"
+                  + "source");
+         }
+         VanishingButton b = (VanishingButton)e.getSource();
+         Tower.Attribute a = buttonAttributes.get(b);
+         int currentLevel = selectedTower.getAttributeLevel(a);
+         int cost = Formulae.upgradeCost(currentLevel + 1);
+         if(cost <= money) {
+            money -= cost;
+            selectedTower.raiseAttributeLevel(a);
+            setStats(selectedTower);
          }
       }
    }
@@ -181,6 +216,12 @@ public class ControlPanel extends JPanel {
       rateLabel.setText(t.getFireRate());
       speedLabel.setText(t.getBulletSpeed());
       specialLabel.setText(t.getSpecial());
+   }
+   
+   private void enableUpgradeButtons(boolean a) {
+      for(JButton b : towerStatsButtons) {
+         b.setEnabled(a);
+      }
    }
    
    private void startPressed() {
