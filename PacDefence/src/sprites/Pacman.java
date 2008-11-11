@@ -24,6 +24,8 @@ import images.ImageHelper;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Pacman extends AbstractSprite {
@@ -32,8 +34,27 @@ public class Pacman extends AbstractSprite {
    private static final BufferedImage image = ImageHelper.makeImage("sprites",
          "pacman_yellow.png");
    
+   private static final String imageName = "pacman_yellow";
+   private static final String extension = ".png";
+   private static final int numImages = 9;
+   private static final List<BufferedImage> images = Collections.unmodifiableList(makeImages());
+   
+   
    public Pacman(int hp, List<Point> path) {
-      super(width, image, hp, path);
+      super(images, hp, path);
+   }
+   
+   private static ArrayList<BufferedImage> makeImages() {
+      ArrayList<BufferedImage> images = new ArrayList<BufferedImage>();
+      for(int i = 1; i <= numImages; i++) {
+         // Adds all the images
+         images.add(ImageHelper.makeImage(width, width, "sprites", imageName + i + extension));
+      }
+      for(int i = images.size() - 2; i > 0; i--) {
+         // Adds the images from the second to last to the second again to make a cycle
+         images.add(images.get(i));
+      }
+      return images;
    }
 
 }

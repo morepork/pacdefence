@@ -20,6 +20,7 @@
 package sprites;
 
 import gui.Formulae;
+import gui.Helper;
 import images.ImageHelper;
 
 import java.awt.Graphics;
@@ -29,6 +30,8 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -44,8 +47,11 @@ public abstract class AbstractSprite implements Sprite {
    private final int width;
    private final int halfWidth;
 
-   private final BufferedImage originalImage;
-   private BufferedImage currentImage;
+   //private final BufferedImage originalImage;
+   //private BufferedImage currentImage;
+   private final List<BufferedImage> originalImages;
+   private List<BufferedImage> currentImages;
+   private int currentImageIndex = 0;
    private final Rectangle imageSize;
 
    private final double speed;
@@ -71,11 +77,13 @@ public abstract class AbstractSprite implements Sprite {
    // How many times the image has been shrunk after it died
    private int shrinkCounter = 0;
 
-   public AbstractSprite(int width, BufferedImage image, int hp, List<Point> path) {
-      this.width = width;
+   public AbstractSprite(List<BufferedImage> images, int hp, List<Point> path) {
+      this.width = images.get(1).getWidth();
       halfWidth = width / 2;
-      originalImage = ImageHelper.resize(image, width, width);
-      currentImage = originalImage;
+      // Use two clones here so that currentImages can be edited without
+      // affecting originalImages
+      originalImages = Collections.unmodifiableList(Helper.cloneList(images));
+      currentImages = Helper.cloneList(images);
       imageSize = new Rectangle(0, 0, width, width);      
       speed = calculateSpeed(hp);
       levelHP = hp;
@@ -91,7 +99,9 @@ public abstract class AbstractSprite implements Sprite {
       // System.out.println("Sprite draw called");
       if (onScreen) {
          // System.out.println("Drawing");
-         g.drawImage(currentImage, (int) centre.getX() - halfWidth,
+         currentImageIndex++;
+         currentImageIndex %= originalImages.size();
+         g.drawImage(currentImages.get(currentImageIndex), (int) centre.getX() - halfWidth,
                (int) centre.getY() - halfWidth, null);
       }
    }
@@ -139,7 +149,7 @@ public abstract class AbstractSprite implements Sprite {
       int y = (int) (p.getY() - centre.getY() + halfWidth);
       if (imageSize.contains(x, y)) {
          // RGB of zero means a completely alpha i.e. transparent pixel
-         return currentImage.getRGB(x, y) != 0;
+         return currentImages.get(currentImageIndex).getRGB(x, y) != 0;
       }
       return false;
    }
@@ -213,9 +223,8 @@ public abstract class AbstractSprite implements Sprite {
          // System.out.println("Steps: " + xStep + " " + yStep);
          steps = 0;
          // Invert yStep here as y coord goes down as it increases, rather than
-         // up
-         // as in a conventional coordinate system.
-         currentImage = ImageHelper.rotateImage(originalImage, xStep, -yStep);
+         // up as in a conventional coordinate system.
+         rotateImages(ImageHelper.vectorAngle(xStep, -yStep));
       } else {
          if (nextPoint == null) {
             // System.out.println("Finished");
@@ -229,6 +238,14 @@ public abstract class AbstractSprite implements Sprite {
          }
       }
    }
+   
+   private void rotateImages(double angle) {
+      List<BufferedImage> images = new ArrayList<BufferedImage>(originalImages.size());
+      for(BufferedImage i : originalImages) {
+         images.add(ImageHelper.rotateImage(i, angle));
+      }
+      currentImages = images;
+   }
 
    private void die() {
       if (shrinkCounter > 8) {
@@ -236,16 +253,17 @@ public abstract class AbstractSprite implements Sprite {
          return;
       } else {
          shrinkCounter++;
-         BufferedImage bi = new BufferedImage(currentImage.getWidth(), currentImage.getHeight(),
-               BufferedImage.TYPE_INT_ARGB_PRE);
+         int nextImageIndex = (currentImageIndex + 1) % originalImages.size();
+         int width = currentImages.get(nextImageIndex).getWidth();
+         BufferedImage bi = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
          // Shrinks it by 25%
-         int newWidth = (int) (currentImage.getWidth() * (1 - 0.1 * shrinkCounter));
-         int pos = currentImage.getWidth() / 2 - newWidth / 2;
+         int newWidth = (int) (width * (1 - 0.1 * shrinkCounter));
+         int pos = width / 2 - newWidth / 2;
          Graphics2D g = (Graphics2D) bi.getGraphics();
          g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-         g.drawImage(currentImage, pos, pos, newWidth, newWidth, null);
-         currentImage = bi;
+         g.drawImage(currentImages.get(nextImageIndex), pos, pos, newWidth, newWidth, null);
+         currentImages.set(nextImageIndex, bi);
       }
    }
    
