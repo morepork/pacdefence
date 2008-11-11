@@ -214,7 +214,7 @@ public class GameMap extends JPanel {
       }
       for(Shape s : path) {
          // Checks that the point isn't on the path
-         if(shadowingTower.getBounds().intersects(s.getBounds2D())) {
+         if(shadowingTower.getBounds().intersects(s.getBounds())) {
             return;
          }
       }
@@ -307,11 +307,7 @@ public class GameMap extends JPanel {
    private void drawPathOutline(Graphics g) {
       g.setColor(Color.BLACK);
       for(Shape s : path) {
-         if(s instanceof Polygon) {
-            g.drawPolygon((Polygon)s);
-         } else if(s instanceof Circle) {
-            ((Circle)s).draw(g);
-         }
+         ((Graphics2D) g).draw(s);
       }
    }
    

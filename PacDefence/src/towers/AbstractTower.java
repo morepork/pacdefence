@@ -285,6 +285,7 @@ public abstract class AbstractTower implements Tower {
    
    private void setBounds() {
       boundingRectangle.setBounds((int) topLeft.getX(), (int) topLeft.getY(), width, width);
+      bounds.setLocation(centre);
    }
 
 }

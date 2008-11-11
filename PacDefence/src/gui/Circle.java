@@ -20,6 +20,7 @@
 package gui;
 
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
@@ -34,14 +35,14 @@ public class Circle implements Shape {
    
    private final Point2D centre;
    private final double radius;
-   private final Ellipse2D bounds;
+   private final double twiceRadius;
+   private Ellipse2D bounds;
    
    public Circle(Point2D centre, double radius){
       this.centre = centre;
       this.radius = radius;
-      double twiceRadius = radius * 2;
-      bounds = new Ellipse2D.Double(centre.getX() - radius, centre.getY() - radius, twiceRadius,
-            twiceRadius);
+      twiceRadius = radius * 2;
+      setBounds();
    }
    
    public Circle(double x, double y, double radius) {
@@ -109,6 +110,11 @@ public class Circle implements Shape {
    public PathIterator getPathIterator(AffineTransform at, double flatness) {
       return bounds.getPathIterator(at, flatness);
    }
+   
+   public void setLocation(Point centre) {
+      centre.setLocation(centre);
+      setBounds();
+   }
 
    @Override
    public boolean intersects(Rectangle2D r) {
@@ -118,6 +124,11 @@ public class Circle implements Shape {
    @Override
    public boolean intersects(double x, double y, double w, double h) {
       return bounds.intersects(x, y, w, h);
+   }
+   
+   private void setBounds() {
+      bounds = new Ellipse2D.Double(centre.getX() - radius, centre.getY() - radius, twiceRadius,
+            twiceRadius);
    }
 
 }
