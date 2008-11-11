@@ -227,7 +227,7 @@ public abstract class AbstractTower implements Tower {
          twiceRange = range * 2;
       } else if (a == Tower.Attribute.Rate) {
          rateLevel++;
-         fireRate *= upgradeIncreaseFactor;
+         fireRate /= upgradeIncreaseFactor;
       } else if (a == Tower.Attribute.Speed) {
          speedLevel++;
          bulletSpeed *= upgradeIncreaseFactor;
