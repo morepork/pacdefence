@@ -204,7 +204,7 @@ public class ControlPanel extends JPanel {
          VanishingButton b = (VanishingButton)e.getSource();
          Tower.Attribute a = buttonAttributes.get(b);
          int currentLevel = selectedTower.getAttributeLevel(a);
-         int cost = Formulae.upgradeCost(currentLevel + 1);
+         int cost = Formulae.upgradeCost(currentLevel);
          if(cost <= money) {
             money -= cost;
             selectedTower.raiseAttributeLevel(a);
