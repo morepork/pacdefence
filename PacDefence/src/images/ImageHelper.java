@@ -44,7 +44,8 @@ public class ImageHelper {
    public static BufferedImage makeImage(String... foldersAndFileName) {
       URL imageURL = createImageURL(foldersAndFileName);
       if (imageURL == null) {
-         throw new IllegalArgumentException("Image: '" + imageURL + "' not found.");
+         throw new IllegalArgumentException("Image: '" +
+               foldersAndFileName[foldersAndFileName.length - 1] + "' not found.");
       }
       try {
          return ImageIO.read(imageURL);

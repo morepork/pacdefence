@@ -31,12 +31,10 @@ import java.util.List;
 public class Pacman extends AbstractSprite {
 
    private static final int width = GameMap.PATH_WIDTH * 2 - 10;
-   private static final BufferedImage image = ImageHelper.makeImage("sprites",
-         "pacman_yellow.png");
    
    private static final String imageName = "pacman_yellow";
    private static final String extension = ".png";
-   private static final int numImages = 9;
+   private static final int numImages = 5;
    private static final List<BufferedImage> images = Collections.unmodifiableList(makeImages());
    
    
