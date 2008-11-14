@@ -93,36 +93,9 @@ public class GameMap extends JPanel {
       long beginTime = System.nanoTime();
       if(needsRepaint) {
          needsRepaint = false;
+         // First buffers onto the buffer, then draws it onto screen later
          if(gameOver == null) {
-            // First buffers onto the buffer then draws it onto screen
-            // This should completely cover the old image in the buffer
-            bufferGraphics.drawImage(backgroundImage, 0, 0, null);
-            // Don't use for each loops here to avoid concurrent modification exceptions
-            for(int i = 0; i < towers.size(); i++) {
-               Tower t = towers.get(i);
-               t.draw(bufferGraphics);
-            }
-            for(int i = 0; i < sprites.size(); i++) {
-               Sprite s = sprites.get(i);
-               s.draw(bufferGraphics);
-            }
-            for(int i = 0; i < bullets.size(); i++) {
-               Bullet b = bullets.get(i);
-               b.draw(bufferGraphics);
-            }
-            if(selectedTower != null) {
-               selectedTower.drawSelected(bufferGraphics);
-            }
-            if(debugMode) {
-               drawDebug(bufferGraphics);
-            }
-            if(shadowingTower != null) {
-               Point p = getMousePosition();
-               if (p != null) {
-                  shadowingTower.setCentre(p);
-                  shadowingTower.drawShadow(bufferGraphics);
-               }
-            }
+            drawUpdate(bufferGraphics);
          } else {
             gameOver.draw(bufferGraphics);            
          }
@@ -167,6 +140,37 @@ public class GameMap extends JPanel {
    
    public void setControlPanel(ControlPanel cp) {
       this.cp = cp;
+   }
+   
+   private void drawUpdate(Graphics g) {
+      // This should completely cover the old image in the buffer
+      g.drawImage(backgroundImage, 0, 0, null);
+      // Don't use for each loops here to avoid concurrent modification exceptions
+      for(int i = 0; i < towers.size(); i++) {
+         Tower t = towers.get(i);
+         t.draw(g);
+      }
+      for(int i = 0; i < sprites.size(); i++) {
+         Sprite s = sprites.get(i);
+         s.draw(g);
+      }
+      for(int i = 0; i < bullets.size(); i++) {
+         Bullet b = bullets.get(i);
+         b.draw(g);
+      }
+      if(selectedTower != null) {
+         selectedTower.drawSelected(g);
+      }
+      if(debugMode) {
+         drawDebug(g);
+      }
+      if(shadowingTower != null) {
+         Point p = getMousePosition();
+         if (p != null) {
+            shadowingTower.setCentre(p);
+            shadowingTower.drawShadow(g);
+         }
+      }
    }
    
    private void drawDebug(Graphics g) {
