@@ -49,12 +49,13 @@ public class GameMap extends JPanel {
 
 
    // Time clock takes to update in ms
-   public static final int CLOCK_TICK = 50;
-   
-   public static final int PATH_WIDTH = 35;
+   public static final int CLOCK_TICK = 30;
    
    private final BufferedImage backgroundImage = ImageHelper.makeImage("maps", "mosaic_path.jpg");
    private BufferedImage resizedBackgroundImage = backgroundImage;
+   private BufferedImage buffer = new BufferedImage(OuterPanel.MAP_WIDTH, OuterPanel.MAP_HEIGHT,
+         BufferedImage.TYPE_INT_ARGB);
+   private Graphics2D bufferGraphics = buffer.createGraphics();
    private int lastWidth = getWidth();
    private int lastHeight = getHeight();
    private final Polygon path;
@@ -92,39 +93,38 @@ public class GameMap extends JPanel {
          return;
       }
       long beginTime = System.nanoTime();
-      // First buffers onto this image then redraws it onto screen
-      BufferedImage bi = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
-      Graphics2D biGraphics = bi.createGraphics();
-      paintComponent(biGraphics);
+      // First buffers onto the buffer then draws it onto screen
+      // Paint component should completely cover the old image by drawing the background
+      paintComponent(bufferGraphics);
       // Don't use for each loops here to avoid concurrent modification exceptions
       for(int i = 0; i < towers.size(); i++) {
          Tower t = towers.get(i);
-         t.draw(biGraphics);
+         t.draw(bufferGraphics);
       }
       for(int i = 0; i < sprites.size(); i++) {
          Sprite s = sprites.get(i);
-         s.draw(biGraphics);
+         s.draw(bufferGraphics);
       }
       for(int i = 0; i < bullets.size(); i++) {
          Bullet b = bullets.get(i);
-         b.draw(biGraphics);
+         b.draw(bufferGraphics);
       }
       if(selectedTower != null) {
-         selectedTower.drawSelected(biGraphics);
+         selectedTower.drawSelected(bufferGraphics);
       }
-      biGraphics.setColor(Color.WHITE);
-      biGraphics.drawString("Process time: " + Long.toString(processTime), 10, 15);
-      biGraphics.drawString("Draw time: " + Long.toString(drawTime), 10, 30);
-      drawPath(biGraphics);
-      drawPathOutline(biGraphics);
+      bufferGraphics.setColor(Color.WHITE);
+      bufferGraphics.drawString("Process time: " + Long.toString(processTime), 10, 15);
+      bufferGraphics.drawString("Draw time: " + Long.toString(drawTime), 10, 30);
+      drawPath(bufferGraphics);
+      drawPathOutline(bufferGraphics);
       if(shadowingTower != null) {
          Point p = getMousePosition();
          if (p != null) {
             shadowingTower.setCentre(p);
-            shadowingTower.drawShadow(biGraphics);
+            shadowingTower.drawShadow(bufferGraphics);
          }
       }
-      g.drawImage(bi, 0, 0, null);
+      g.drawImage(buffer, 0, 0, null);
       // Divides by a million to convert to ms
       long elapsedTime = (System.nanoTime() - beginTime) / 1000000;
       //System.out.println(elapsedTime);
@@ -317,7 +317,7 @@ public class GameMap extends JPanel {
    
    private class Clock implements Runnable {
       
-      private int ticksBetweenAddSprite = 20;
+      private int ticksBetweenAddSprite = 40;
       private int addSpriteIn = 0;
       private int processTimesPos = 0;
       private int drawTimesPos = 0;

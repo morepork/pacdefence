@@ -40,7 +40,7 @@ import towers.Bullet;
 
 public abstract class AbstractSprite implements Sprite {
    
-   private static final double baseSpeed = 4;
+   private static final double baseSpeed = 2;
    private static final double maxMult = 2;
    private static final Random rand = new Random();
 
