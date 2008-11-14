@@ -123,6 +123,9 @@ public abstract class AbstractTower implements Tower {
 
    @Override
    public void drawSelected(Graphics g) {
+      if(!isSelected) {
+         throw new RuntimeException("Tower that isn't selected is being drawn as if it was");
+      }
       drawShadow(g);
    }
    
@@ -137,7 +140,7 @@ public abstract class AbstractTower implements Tower {
       g.fillOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
       g.setColor(Color.BLACK);
       g.drawOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
-      // Change this so it's semi-seethrough
+      // TODO Change this so it's semi-seethrough
       g.drawImage(currentImage, topLeftX, topLeftY, width, width, null);
 
    }

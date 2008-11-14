@@ -51,6 +51,8 @@ public class GameMap extends JPanel {
    // Time clock takes to update in ms
    public static final int CLOCK_TICK = 30;
    
+   private final boolean debugMode = true;
+   
    private final BufferedImage backgroundImage = ImageHelper.makeImage("maps", "mosaic_path.jpg");
    private BufferedImage resizedBackgroundImage = backgroundImage;
    private BufferedImage buffer = new BufferedImage(OuterPanel.MAP_WIDTH, OuterPanel.MAP_HEIGHT,
@@ -113,11 +115,9 @@ public class GameMap extends JPanel {
       if(selectedTower != null) {
          selectedTower.drawSelected(bufferGraphics);
       }
-      bufferGraphics.setColor(Color.WHITE);
-      bufferGraphics.drawString("Process time: " + Long.toString(processTime), 10, 15);
-      bufferGraphics.drawString("Draw time: " + Long.toString(drawTime), 10, 30);
-      drawPath(bufferGraphics);
-      drawPathOutline(bufferGraphics);
+      if(debugMode) {
+         drawDebug(bufferGraphics);
+      }
       if(shadowingTower != null) {
          Point p = getMousePosition();
          if (p != null) {
@@ -141,12 +141,6 @@ public class GameMap extends JPanel {
          resizedBackgroundImage = ImageHelper.resize(backgroundImage, lastWidth, lastHeight);
       }
       g.drawImage(resizedBackgroundImage, 0, 0, null);
-   }
-   
-   @Override
-   public void update(Graphics g) {
-      // Normally this would clear the screen before calling paint
-      paint(g);
    }
    
    /**
@@ -184,10 +178,18 @@ public class GameMap extends JPanel {
       this.cp = cp;
    }
    
+   private void drawDebug(Graphics g) {
+      bufferGraphics.setColor(Color.WHITE);
+      bufferGraphics.drawString("Process time: " + Long.toString(processTime), 10, 15);
+      bufferGraphics.drawString("Draw time: " + Long.toString(drawTime), 10, 30);
+      drawPath(bufferGraphics);
+      drawPathOutline(bufferGraphics);
+   }
+   
    private void addMouseListeners() {
       addMouseListener(new MouseAdapter(){
          @Override
-         public void mouseReleased(MouseEvent e) {
+         public void mouseClicked(MouseEvent e) {
             deselectTower();
             if(e.getButton() == MouseEvent.BUTTON3) {
                // Stop everything if it's the right mouse button
@@ -345,10 +347,10 @@ public class GameMap extends JPanel {
                   cp.incrementMoney(doBullets(unmodifiableSprites));
                }
             }
-            repaint();
             // Divides by a million to convert to ms
             long elapsedTime = (System.nanoTime() - beginTime) / 1000000;
             //System.out.println(elapsedTime);
+            repaint();
             calculateProcessTimeTaken(elapsedTime);            
             if(elapsedTime < CLOCK_TICK) {
                try {
