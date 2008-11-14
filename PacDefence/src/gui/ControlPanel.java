@@ -45,6 +45,8 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import towers.BasicTower;
 import towers.Tower;
@@ -71,10 +73,12 @@ public class ControlPanel extends JPanel {
          new HashMap<TowerUpgradeButton, Tower.Attribute>(5);
    // These labels are in the level stats box
    private MyJLabel numSpritesLabel, avgHPLabel;
+   private MyJLabel currentCostLabel;
    private final ImageButton start = new ImageButton("start", ".png");
    private final GameMap map;
    private Tower selectedTower;
    private final Color textColour = Color.YELLOW;
+   private final float defaultTextSize = 12F;
    private int money = 2000;
    private int lives = 10;
    private int livesLostOnThisLevel;
@@ -91,6 +95,7 @@ public class ControlPanel extends JPanel {
       setUpNewTowers();
       setUpCurrentTowerStats();
       setUpLevelStats();
+      setUpCurrentCost();
       setUpStartButton();
       updateMoneyLabel();
       updateLivesLabel();
@@ -159,12 +164,15 @@ public class ControlPanel extends JPanel {
       interestLabel.setText(ONE_DP.format(((interestRate - 1) * 100)) + "%");
    }
    
+   private void updateCurrentCostLabel(int cost) {
+      currentCostLabel.setText(cost);
+   }
+   
    private void setUpJLabels() {
       for (Field f : getClass().getDeclaredFields()) {
          if (f.getType().equals(MyJLabel.class)) {
             try {
                MyJLabel j = new MyJLabel();
-               j.setText("test");
                f.set(this, j);
             } catch(IllegalAccessException e) {
                // This shouldn't ever be thrown
@@ -190,6 +198,11 @@ public class ControlPanel extends JPanel {
                      upgradeButtonPressed(e);
                   }
                });
+               v.addChangeListener(new ChangeListener(){
+                  public void stateChanged(ChangeEvent e) {
+                     upgradeButtonChanged(e);
+                  }
+               });
                f.set(this, v);
                towerStatsButtons.add(v);
                buttonAttributes.put(v, Tower.Attribute.fromString(text));
@@ -204,7 +217,7 @@ public class ControlPanel extends JPanel {
    private void upgradeButtonPressed(ActionEvent e) {
       if(selectedTower != null) {
          if(!(e.getSource() instanceof TowerUpgradeButton)) {
-            throw new RuntimeException("ActionEvent given doesn't have a VanishingButton as its"
+            throw new RuntimeException("ActionEvent given doesn't have a TowerStatsButton as its"
                   + "source");
          }
          TowerUpgradeButton b = (TowerUpgradeButton)e.getSource();
@@ -216,6 +229,21 @@ public class ControlPanel extends JPanel {
             selectedTower.raiseAttributeLevel(a);
             setStats(selectedTower);
          }
+      }
+   }
+   
+   private void upgradeButtonChanged(ChangeEvent e) {
+      if(selectedTower != null) {
+         //System.out.println("Button changed");
+         if(!(e.getSource() instanceof TowerUpgradeButton)) {
+            throw new RuntimeException("ActionEvent given doesn't have a TowerStatsButton as its"
+                  + "source");
+         }
+         TowerUpgradeButton b = (TowerUpgradeButton)e.getSource();
+         Tower.Attribute a = buttonAttributes.get(b);
+         int currentLevel = selectedTower.getAttributeLevel(a);
+         int cost = Formulae.upgradeCost(currentLevel);
+         updateCurrentCostLabel(cost);
       }
    }
    
@@ -251,7 +279,7 @@ public class ControlPanel extends JPanel {
    // -----------------------------------------------------
 
    private void setUpTopStatsBox() {
-      float textSize = 15F;
+      float textSize = defaultTextSize + 3;
       JPanel panel = new JPanel();
       panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
       panel.setBorder(BorderFactory.createEmptyBorder(5, 20, 0, 20));
@@ -304,7 +332,9 @@ public class ControlPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                //System.out.println("Tower button pressed");
                if(canBuildTower()) {
-                  map.towerButtonPressed(new BasicTower());
+                  if(map.towerButtonPressed(new BasicTower())) {
+                     updateCurrentCostLabel(BASE_TOWER_PRICE);
+                  }
                }
             }
          });
@@ -315,7 +345,7 @@ public class ControlPanel extends JPanel {
    }
 
    private void setUpCurrentTowerStats() {
-      float textSize = 12F;
+      float textSize = defaultTextSize;
       JPanel panel = new JPanel();
       panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
       panel.setBorder(BorderFactory.createEmptyBorder(5, 30, 5, 30));
@@ -339,13 +369,34 @@ public class ControlPanel extends JPanel {
    }
    
    private void setUpLevelStats() {
-      float textSize = 12F;
+      float textSize = defaultTextSize;
       JPanel panel = new JPanel();
       panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
       panel.setBorder(BorderFactory.createEmptyBorder(5, 30, 5, 30));
       panel.setOpaque(false);
       panel.add(createLeftRightPanel("Number", textSize, textColour, numSpritesLabel));
       panel.add(createLeftRightPanel("Average HP", textSize, textColour, avgHPLabel));
+      
+      add(panel);
+   }
+
+   private void setUpStartButton() {
+      start.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            //System.out.println("Start pressed");
+            startPressed();
+         }
+      });
+      add(createWrapperPanel(start, 5));
+   }
+   
+   private void setUpCurrentCost() {
+      float textSize = defaultTextSize;
+      JPanel panel = new JPanel();
+      panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+      panel.setBorder(BorderFactory.createEmptyBorder(5, 20, 0, 20));
+      panel.setOpaque(false);
+      panel.add(createLeftRightPanel("Cost", textSize, textColour, currentCostLabel));
       
       add(panel);
    }
@@ -358,16 +409,6 @@ public class ControlPanel extends JPanel {
       button.setEnabled(false);*/
       return createLeftRightPanel(createWrapperPanel(button, 1), textSize, textColour,
             damageLabel);
-   }
-
-   private void setUpStartButton() {
-      start.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
-            //System.out.println("Start pressed");
-            startPressed();
-         }
-      });
-      add(createWrapperPanel(start, 5));
    }
 
    private JPanel createBorderLayedOutJPanel() {

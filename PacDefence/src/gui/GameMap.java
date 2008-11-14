@@ -148,12 +148,20 @@ public class GameMap extends JPanel {
       paint(g);
    }
    
-   public void towerButtonPressed(Tower t) {
+   /**
+    * Notifies the map that a tower button has been pressed.
+    * @param t
+    * @return
+    *        true if a tower is to be shadowed, false if none
+    */
+   public boolean towerButtonPressed(Tower t) {
       if(shadowingTower == null || !shadowingTower.getClass().equals(t.getClass())) {
          deselectTower();
          shadowingTower = t;
+         return true;
       } else {
          shadowingTower = null;
+         return false;
       }
    }
    
@@ -242,7 +250,7 @@ public class GameMap extends JPanel {
    
    private Polygon makePath() {
       // These need to be worked out depending on the image.
-      int[] xPoints = new int[]{0, 274, 274, 139, 139, 598, 598, 66, 66, 202, 202, 0};
+      int[] xPoints = new int[]{0, 274, 274, 139, 139, 600, 600, 66, 66, 202, 202, 0};
       int[] yPoints = new int[]{105, 105, 375, 375, 437, 437, 504, 504, 304, 304, 168, 168};
       return new Polygon(xPoints, yPoints, xPoints.length);
    }
