@@ -75,7 +75,7 @@ public class GameMap extends JPanel {
 
    public GameMap(int width, int height) {
       setPreferredSize(new Dimension(width, height));
-      pathPoints = setPoints();
+      pathPoints = makePathPoints();
       path = makePath();
       //printClickedCoords();
       addMouseListeners();
@@ -221,7 +221,7 @@ public class GameMap extends JPanel {
       }
    }
    
-   private List<Point> setPoints(){
+   private List<Point> makePathPoints(){
       List<Point> list = new ArrayList<Point>();
       list.add(new Point(0, 135));
       list.add(new Point(235, 135));
@@ -279,7 +279,7 @@ public class GameMap extends JPanel {
    }
    
    /**
-    * Test method that draws outlines of the reactangles making up the path.
+    * Test method that draws an outline of the path.
     */
    private void drawPathOutline(Graphics g) {
       g.setColor(Color.BLACK);
@@ -301,10 +301,6 @@ public class GameMap extends JPanel {
    
    private class Clock implements Runnable {
       
-      //private int ticksPerRedraw = 40 / CLOCK_TICK;
-      //private int redraw = 0;
-      //private int ticksPerMoveSprites = 40 / CLOCK_TICK;
-      //private int moveSprites = 0;
       private int ticksBetweenAddSprite = 20;
       private int addSpriteIn = 0;
       private int processTimesPos = 0;
@@ -320,10 +316,7 @@ public class GameMap extends JPanel {
             if(gameOver == null) {
                // I don't want to sort the actual list of sprites as that would
                // affect the order they're drawn which looks weird.
-               List<Sprite> sortedSprites = new ArrayList<Sprite>(sprites.size());
-               for(Sprite s : sprites) {
-                  sortedSprites.add(s);
-               }
+               List<Sprite> sortedSprites = Helper.cloneList(sprites);
                Collections.sort(sortedSprites,
                      AbstractSprite.getTotalDistanceTravelledComparator());
                List<Sprite> unmodifiableSprites = Collections.unmodifiableList(sortedSprites);
@@ -432,7 +425,7 @@ public class GameMap extends JPanel {
    }
    
    /**
-    * Draws game over screens (for both a win or loss)
+    * Draws game over screen for a loss
     * 
     * @author Liam Byrne
     *
