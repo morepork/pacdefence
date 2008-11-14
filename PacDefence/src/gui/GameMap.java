@@ -75,6 +75,7 @@ public class GameMap extends JPanel {
    private int spritesToAdd;
    private int levelHP;
    private boolean levelInProgress = false;
+   private boolean needsRepaint = false;
    private GameOver gameOver = null;
 
    public GameMap(int width, int height) {
@@ -91,6 +92,11 @@ public class GameMap extends JPanel {
    
    @Override
    public void paint(Graphics g) {
+      if(!needsRepaint) {
+         return;
+      } else {
+         needsRepaint = true;
+      }
       if(gameOver != null) {
          gameOver.draw(g);
          return;
@@ -350,6 +356,7 @@ public class GameMap extends JPanel {
             // Divides by a million to convert to ms
             long elapsedTime = (System.nanoTime() - beginTime) / 1000000;
             //System.out.println(elapsedTime);
+            needsRepaint = true;
             repaint();
             calculateProcessTimeTaken(elapsedTime);            
             if(elapsedTime < CLOCK_TICK) {

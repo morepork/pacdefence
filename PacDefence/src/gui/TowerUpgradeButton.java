@@ -20,23 +20,24 @@
 package gui;
 
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Rectangle;
 
-import javax.swing.AbstractButton;
 import javax.swing.JButton;
-import javax.swing.plaf.basic.BasicButtonUI;
+import javax.swing.plaf.metal.MetalButtonUI;
 
 @SuppressWarnings("serial")
 public class TowerUpgradeButton extends JButton {
    
+   private final Color textColour;
+   
    public TowerUpgradeButton(String label, Color textColour) {
       super(label);
+      this.textColour = textColour;
       setForeground(textColour);
       setOpaque(false);
       setContentAreaFilled(false);
       setEnabled(false);
       setUI();
+      
    }
    
    @Override
@@ -46,15 +47,12 @@ public class TowerUpgradeButton extends JButton {
    }
    
    private void setUI() {
-      // Poor, but working means of setting the disabled text colour to be the
-      // same as the enabled text colour.
-      setUI(new BasicButtonUI(){
+      // Makes it so the disabled text colour is the same as the normal one
+      // There may be a better way of doing this
+      setUI(new MetalButtonUI(){
          @Override
-         public void paintText(Graphics g, AbstractButton b, Rectangle textRect, String text) {
-            boolean wasEnabled = b.isEnabled();
-            b.setEnabled(true);
-            super.paintText(g, b, textRect, text);
-            b.setEnabled(wasEnabled);
+         public Color getDisabledTextColor() {
+            return textColour;
          }
       });
    }
