@@ -232,9 +232,10 @@ public abstract class AbstractSprite implements Sprite {
          } else {
             // This flags that the final path has been extended
             nextPoint = null;
-            // Adds 20 steps which should be enough to get the sprite off the
-            // screen
-            distance += 20;
+            double distancePerStep = Math.sqrt(xStep * xStep + yStep * yStep);
+            // This is enough steps to get the sprite off the screen, add one just
+            // to make sure
+            distance += (halfWidth + 1) / distancePerStep;
          }
       }
    }
