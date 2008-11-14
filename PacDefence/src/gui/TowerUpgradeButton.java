@@ -28,9 +28,9 @@ import javax.swing.JButton;
 import javax.swing.plaf.basic.BasicButtonUI;
 
 @SuppressWarnings("serial")
-public class VanishingButton extends JButton {
+public class TowerUpgradeButton extends JButton {
    
-   public VanishingButton(String label, Color textColour) {
+   public TowerUpgradeButton(String label, Color textColour) {
       super(label);
       setForeground(textColour);
       setOpaque(false);

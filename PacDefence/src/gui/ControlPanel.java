@@ -61,14 +61,14 @@ public class ControlPanel extends JPanel {
          "blue_lava.png");;
    private int level = 1;
    // These labels are in the top stats box
-   private MyJLabel levelLabel, moneyLabel, livesLabel;
+   private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel;
    // These labels are in the current tower stats box
    private MyJLabel damageLabel, rangeLabel, rateLabel, speedLabel, specialLabel;
    // These buttons are in the current tower stats box
-   private VanishingButton damageButton, rangeButton, rateButton, speedButton, specialButton;
-   private List<VanishingButton> towerStatsButtons = new ArrayList<VanishingButton>(5);
-   private Map<VanishingButton, Tower.Attribute> buttonAttributes = new HashMap<VanishingButton,
-         Tower.Attribute>(5);
+   private TowerUpgradeButton damageButton, rangeButton, rateButton, speedButton, specialButton;
+   private List<TowerUpgradeButton> towerStatsButtons = new ArrayList<TowerUpgradeButton>(5);
+   private Map<TowerUpgradeButton, Tower.Attribute> buttonAttributes =
+         new HashMap<TowerUpgradeButton, Tower.Attribute>(5);
    // These labels are in the level stats box
    private MyJLabel numSpritesLabel, avgHPLabel;
    private final ImageButton start = new ImageButton("start", ".png");
@@ -78,6 +78,7 @@ public class ControlPanel extends JPanel {
    private int money = 2000;
    private int lives = 10;
    private int livesLostOnThisLevel;
+   private double interestRate = 1.01;
 
    public ControlPanel(int width, int height, GameMap map) {
       this.map = map;
@@ -96,6 +97,7 @@ public class ControlPanel extends JPanel {
    }
    
    public void endLevel() {
+      money *= interestRate;
       money += Formulae.levelEndBonus(level);
       if(livesLostOnThisLevel == 0) {
          money += Formulae.noEnemiesThroughBonus(level);
@@ -153,6 +155,10 @@ public class ControlPanel extends JPanel {
       livesLabel.setText(lives);
    }
    
+   private void updateInterestLabel() {
+      interestLabel.setText(ONE_DP.format(((interestRate - 1) * 100)) + "%");
+   }
+   
    private void setUpJLabels() {
       for (Field f : getClass().getDeclaredFields()) {
          if (f.getType().equals(MyJLabel.class)) {
@@ -170,14 +176,14 @@ public class ControlPanel extends JPanel {
    
    private void setUpTowerStatsButtons() {
       for (Field f : getClass().getDeclaredFields()) {
-         if (f.getType().equals(VanishingButton.class)) {
+         if (f.getType().equals(TowerUpgradeButton.class)) {
             try {
                String name = f.getName();
                // Sets its name to be the name of the field, without the
                // button and the first character capitalised
                String text = String.valueOf(name.charAt(0)).toUpperCase();
                text += name.substring(1, name.length() - 6);
-               VanishingButton v = new VanishingButton(text, textColour);
+               TowerUpgradeButton v = new TowerUpgradeButton(text, textColour);
                v.setMultiClickThreshhold(5);
                v.addActionListener(new ActionListener(){
                   public void actionPerformed(ActionEvent e) {
@@ -197,11 +203,11 @@ public class ControlPanel extends JPanel {
    
    private void upgradeButtonPressed(ActionEvent e) {
       if(selectedTower != null) {
-         if(!(e.getSource() instanceof VanishingButton)) {
+         if(!(e.getSource() instanceof TowerUpgradeButton)) {
             throw new RuntimeException("ActionEvent given doesn't have a VanishingButton as its"
                   + "source");
          }
-         VanishingButton b = (VanishingButton)e.getSource();
+         TowerUpgradeButton b = (TowerUpgradeButton)e.getSource();
          Tower.Attribute a = buttonAttributes.get(b);
          int currentLevel = selectedTower.getAttributeLevel(a);
          int cost = Formulae.upgradeCost(currentLevel);
@@ -253,6 +259,8 @@ public class ControlPanel extends JPanel {
       panel.add(createLevelLabel(textColour));
       panel.add(createLeftRightPanel("Money", textSize, textColour, moneyLabel));
       panel.add(createLeftRightPanel("Lives", textSize, textColour, livesLabel));
+      panel.add(createLeftRightPanel("Interest", textSize, textColour, interestLabel));
+      updateInterestLabel();
 
       add(panel);
    }
