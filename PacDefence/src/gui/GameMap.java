@@ -27,6 +27,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -209,8 +210,15 @@ public class GameMap extends JPanel {
          }
       }
       // Checks that the point isn't on the path
-      if(path.intersects(shadowingTower.getBoundingRectangle())) {
-         return;
+      Shape bounds = shadowingTower.getBounds();
+      if(bounds instanceof Circle) {
+         if(((Circle) bounds).intersects(path)) {
+            return;
+         }
+      } else {
+         if(path.intersects(bounds.getBounds())) {
+            return;
+         }
       }
       if(cp.canBuildTower()) {
          towers.add(shadowingTower.constructNew());

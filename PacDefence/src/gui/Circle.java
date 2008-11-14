@@ -21,13 +21,17 @@ package gui;
 
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
 
 // Not fully implemented
 
@@ -126,9 +130,35 @@ public class Circle implements Shape {
       return bounds.intersects(x, y, w, h);
    }
    
+   public boolean intersects(Polygon p) {
+      if(p.contains(centre)) {
+         return true;
+      }
+      List<Line2D> outline = makePolygonOutline(p);
+      for(Line2D line : outline) {
+         if(line.ptSegDist(centre) <= radius) {
+            return true;
+         }
+      }
+      return false;
+   }
+   
    private void setBounds() {
       bounds = new Ellipse2D.Double(centre.getX() - radius, centre.getY() - radius, twiceRadius,
             twiceRadius);
+   }
+   
+   private List<Line2D> makePolygonOutline(Polygon p) {
+      List<Line2D> outline = new ArrayList<Line2D>();
+      int[] xPoints = p.xpoints;
+      int[] yPoints = p.ypoints;
+      int length = xPoints.length;
+      outline.add(new Line2D.Double(xPoints[length - 1], yPoints[length - 1], xPoints[0],
+            yPoints[0]));
+      for(int i = 1; i < length; i++) {
+         outline.add(new Line2D.Double(xPoints[i - 1], yPoints[i - 1], xPoints[i], yPoints[i]));
+      }
+      return outline;
    }
 
 }
