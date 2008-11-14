@@ -54,7 +54,7 @@ public class GameMap extends JPanel {
    private final BufferedImage backgroundImage = ImageHelper.makeImage("maps", "mosaic_path.jpg");
    private BufferedImage resizedBackgroundImage = backgroundImage;
    private BufferedImage buffer = new BufferedImage(OuterPanel.MAP_WIDTH, OuterPanel.MAP_HEIGHT,
-         BufferedImage.TYPE_INT_ARGB);
+         BufferedImage.TYPE_INT_RGB);
    private Graphics2D bufferGraphics = buffer.createGraphics();
    private int lastWidth = getWidth();
    private int lastHeight = getHeight();
@@ -76,6 +76,7 @@ public class GameMap extends JPanel {
    private GameOver gameOver = null;
 
    public GameMap(int width, int height) {
+      setDoubleBuffered(false);
       setPreferredSize(new Dimension(width, height));
       pathPoints = makePathPoints();
       path = makePath();

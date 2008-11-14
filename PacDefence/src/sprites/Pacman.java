@@ -33,7 +33,7 @@ public class Pacman extends AbstractSprite {
    
    private static final String imageName = "pacman_yellow";
    private static final String extension = ".png";
-   private static final int numImages = 4;
+   private static final int numImages = 8;
    private static final List<BufferedImage> images = Collections.unmodifiableList(makeImages());
    
    
