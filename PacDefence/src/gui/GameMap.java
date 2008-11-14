@@ -27,7 +27,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -56,9 +55,9 @@ public class GameMap extends JPanel {
    private final BufferedImage backgroundImage = ImageHelper.makeImage("maps", "mosaic_path.jpg");
    private BufferedImage resizedBackgroundImage = backgroundImage;
    private int lastWidth = getWidth();
-   private int lastHeight = getHeight();;
-   private final List<Shape> path = new ArrayList<Shape>();
-   private final List<Point> pathPoints = new ArrayList<Point>();
+   private int lastHeight = getHeight();
+   private final Polygon path;
+   private final List<Point> pathPoints;
    private final List<Sprite> sprites = new ArrayList<Sprite>();
    private final List<Tower> towers = new ArrayList<Tower>();
    private final List<Bullet> bullets = new ArrayList<Bullet>();
@@ -76,13 +75,10 @@ public class GameMap extends JPanel {
 
    public GameMap(int width, int height) {
       setPreferredSize(new Dimension(width, height));
-      setPoints();
+      pathPoints = setPoints();
+      path = makePath();
       //printClickedCoords();
       addMouseListeners();
-      //sprites.add(new Sprite(4, Collections.unmodifiableList(pathPoints)));
-      for(int i = 1; i < 10; i++) {
-         //sprites.add(new Sprite(i, Collections.unmodifiableList(pathPoints)));
-      }
       clockRunnable = new Clock();
       clock = new Thread(clockRunnable);
       clock.start();
@@ -212,11 +208,9 @@ public class GameMap extends JPanel {
             return;
          }
       }
-      for(Shape s : path) {
-         // Checks that the point isn't on the path
-         if(shadowingTower.getBounds().intersects(s.getBounds())) {
-            return;
-         }
+      // Checks that the point isn't on the path
+      if(path.intersects(shadowingTower.getBoundingRectangle())) {
+         return;
       }
       if(cp.canBuildTower()) {
          towers.add(shadowingTower.constructNew());
@@ -227,39 +221,22 @@ public class GameMap extends JPanel {
       }
    }
    
-   private void setPoints(){
-      pathPoints.add(new Point(0, 135));
-      pathPoints.add(new Point(235, 135));
-      pathPoints.add(new Point(235, 335));
-      pathPoints.add(new Point(100, 335));
-      pathPoints.add(new Point(100, 470));
-      pathPoints.add(new Point(600, 470));
-      makePath();
+   private List<Point> setPoints(){
+      List<Point> list = new ArrayList<Point>();
+      list.add(new Point(0, 135));
+      list.add(new Point(235, 135));
+      list.add(new Point(235, 335));
+      list.add(new Point(100, 335));
+      list.add(new Point(100, 470));
+      list.add(new Point(600, 470));
+      return Collections.unmodifiableList(list);
    }
    
-   private void makePath() {
-      // Doesn't work right for paths where lines aren't horizontal/vertical
-      for(int i = 1; i < pathPoints.size(); i++) {
-         Point p1 = pathPoints.get(i - 1);
-         Point p2 = pathPoints.get(i);
-         double dx = p2.x - p1.x;
-         double dy = p2.y - p1.y;
-         double theta = Math.atan(dy / dx);
-         int mult = 1;
-         if((dx < 0 || dy < 0) && !(dx < 0 && dy < 0)) {
-            //System.out.println("here");
-            mult = -1;
-         }
-         //System.out.println("Theta: " + theta);
-         int a = mult * (int)(PATH_WIDTH * Math.sin(theta));
-         int b = mult * (int)(PATH_WIDTH * Math.cos(theta));
-         //System.out.println("a: " + a + " b: " + b);
-         int[] xPoints = new int[]{p1.x - a - b, p2.x - a + b, p2.x + a + b, p1.x + a - b};
-         int[] yPoints = new int[]{p1.y - b - a, p2.y - b + a, p2.y + b + a, p1.y + b - a};
-         path.add(new Polygon(xPoints, yPoints, 4));
-         //path.add(new Circle(p1, pathWidth));
-         //path.add(new Circle(p2, pathWidth));
-      }
+   private Polygon makePath() {
+      // These need to be worked out depending on the image.
+      int[] xPoints = new int[]{0, 274, 274, 139, 139, 598, 598, 66, 66, 202, 202, 0};
+      int[] yPoints = new int[]{105, 105, 375, 375, 437, 437, 504, 504, 304, 304, 168, 168};
+      return new Polygon(xPoints, yPoints, xPoints.length);
    }
    
    private void selectTower(Tower t) {
@@ -306,9 +283,7 @@ public class GameMap extends JPanel {
     */
    private void drawPathOutline(Graphics g) {
       g.setColor(Color.BLACK);
-      for(Shape s : path) {
-         ((Graphics2D) g).draw(s);
-      }
+      g.drawPolygon(path);
    }
    
    /**
