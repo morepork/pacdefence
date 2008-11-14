@@ -53,13 +53,11 @@ public class GameMap extends JPanel {
    
    private final boolean debugMode = true;
    
-   private final BufferedImage backgroundImage = ImageHelper.makeImage("maps", "mosaic_path.jpg");
-   private BufferedImage resizedBackgroundImage = backgroundImage;
+   private final BufferedImage backgroundImage = ImageHelper.makeImage(OuterPanel.MAP_WIDTH,
+         OuterPanel.MAP_HEIGHT, "maps", "mosaic_path.jpg");
    private BufferedImage buffer = new BufferedImage(OuterPanel.MAP_WIDTH, OuterPanel.MAP_HEIGHT,
          BufferedImage.TYPE_INT_RGB);
    private Graphics2D bufferGraphics = buffer.createGraphics();
-   private int lastWidth = getWidth();
-   private int lastHeight = getHeight();
    private final Polygon path;
    private final List<Point> pathPoints;
    private final List<Sprite> sprites = new ArrayList<Sprite>();
@@ -91,44 +89,42 @@ public class GameMap extends JPanel {
    }
    
    @Override
-   public void paint(Graphics g) {
-      if(!needsRepaint) {
-         return;
-      } else {
-         needsRepaint = true;
-      }
-      if(gameOver != null) {
-         gameOver.draw(g);
-         return;
-      }
+   public void paintComponent(Graphics g) {
       long beginTime = System.nanoTime();
-      // First buffers onto the buffer then draws it onto screen
-      // Paint component should completely cover the old image by drawing the background
-      paintComponent(bufferGraphics);
-      // Don't use for each loops here to avoid concurrent modification exceptions
-      for(int i = 0; i < towers.size(); i++) {
-         Tower t = towers.get(i);
-         t.draw(bufferGraphics);
-      }
-      for(int i = 0; i < sprites.size(); i++) {
-         Sprite s = sprites.get(i);
-         s.draw(bufferGraphics);
-      }
-      for(int i = 0; i < bullets.size(); i++) {
-         Bullet b = bullets.get(i);
-         b.draw(bufferGraphics);
-      }
-      if(selectedTower != null) {
-         selectedTower.drawSelected(bufferGraphics);
-      }
-      if(debugMode) {
-         drawDebug(bufferGraphics);
-      }
-      if(shadowingTower != null) {
-         Point p = getMousePosition();
-         if (p != null) {
-            shadowingTower.setCentre(p);
-            shadowingTower.drawShadow(bufferGraphics);
+      if(needsRepaint) {
+         needsRepaint = false;
+         if(gameOver == null) {
+            // First buffers onto the buffer then draws it onto screen
+            // This should completely cover the old image in the buffer
+            bufferGraphics.drawImage(backgroundImage, 0, 0, null);
+            // Don't use for each loops here to avoid concurrent modification exceptions
+            for(int i = 0; i < towers.size(); i++) {
+               Tower t = towers.get(i);
+               t.draw(bufferGraphics);
+            }
+            for(int i = 0; i < sprites.size(); i++) {
+               Sprite s = sprites.get(i);
+               s.draw(bufferGraphics);
+            }
+            for(int i = 0; i < bullets.size(); i++) {
+               Bullet b = bullets.get(i);
+               b.draw(bufferGraphics);
+            }
+            if(selectedTower != null) {
+               selectedTower.drawSelected(bufferGraphics);
+            }
+            if(debugMode) {
+               drawDebug(bufferGraphics);
+            }
+            if(shadowingTower != null) {
+               Point p = getMousePosition();
+               if (p != null) {
+                  shadowingTower.setCentre(p);
+                  shadowingTower.drawShadow(bufferGraphics);
+               }
+            }
+         } else {
+            gameOver.draw(bufferGraphics);            
          }
       }
       g.drawImage(buffer, 0, 0, null);
@@ -136,17 +132,6 @@ public class GameMap extends JPanel {
       long elapsedTime = (System.nanoTime() - beginTime) / 1000000;
       //System.out.println(elapsedTime);
       clockRunnable.calculateDrawTimeTaken(elapsedTime);
-   }
-
-   @Override
-   public void paintComponent(Graphics g) {
-      if(lastWidth != getWidth() || lastHeight != getHeight()) {
-         //System.out.println("Resizing background image");
-         lastWidth = getWidth();
-         lastHeight = getHeight();
-         resizedBackgroundImage = ImageHelper.resize(backgroundImage, lastWidth, lastHeight);
-      }
-      g.drawImage(resizedBackgroundImage, 0, 0, null);
    }
    
    /**

@@ -29,7 +29,7 @@ import java.util.List;
 
 public class Pacman extends AbstractSprite {
 
-   private static final int width = 60;
+   private static final int width = 50;
    
    private static final String imageName = "pacman_yellow";
    private static final String extension = ".png";
