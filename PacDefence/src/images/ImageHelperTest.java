@@ -44,7 +44,7 @@ public class ImageHelperTest {
    private static JFrame frame = new JFrame("ImageHelperTest");
    private static MyPanel panel = new MyPanel();
    private static Scanner scan = new Scanner(System.in);
-   private static BufferedImage tower = ImageHelper.makeImage("towers", "basic.png");
+   private BufferedImage tower;
    private static List<BufferedImage> toDraw = new ArrayList<BufferedImage>();
 
    @BeforeClass
@@ -62,6 +62,7 @@ public class ImageHelperTest {
 
    @Before
    public void setUp() throws Exception {
+      tower = ImageHelper.makeImage("towers", "basic.png");
       toDraw.clear();
    }
 
@@ -84,6 +85,13 @@ public class ImageHelperTest {
       toDraw.add(tower);
       toDraw.add(ImageHelper.rotateImage(tower, 1));
       System.out.println("Are two towers drawn, the right one rotated through 1 radian? (y/n)");
+   }
+   
+   @Test
+   public void testClearImage() {
+      ImageHelper.clearImage(tower);
+      toDraw.add(tower);
+      System.out.println("Is the frame blank? (y/n)");
    }
    
    @SuppressWarnings("serial")

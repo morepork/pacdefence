@@ -249,15 +249,14 @@ public abstract class AbstractSprite implements Sprite {
    }
 
    private void die() {
-      if (shrinkCounter > 8) {
+      if (shrinkCounter > 10) {
          onScreen = false;
          return;
       } else {
          shrinkCounter++;
-         int width = currentImages.get(0).getWidth();
-         // Shrinks it by 25%
-         int newWidth = (int) (width * (1 - 0.1 * shrinkCounter));
-         int pos = width / 2 - newWidth / 2;
+         // Shrinks the current image to this size
+         int newWidth = (int) (width * 0.85);
+         int pos = (width - newWidth)/2;
          for(int i = 0; i < currentImages.size(); i++) {
             // It might be faster to clear the old bi than create a new one
             BufferedImage newBI = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB);
