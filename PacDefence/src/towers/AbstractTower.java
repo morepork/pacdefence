@@ -20,6 +20,7 @@
 package towers;
 
 import gui.Circle;
+import gui.Formulae;
 import images.ImageHelper;
 
 import java.awt.Color;
@@ -34,17 +35,17 @@ import java.util.List;
 import sprites.Sprite;
 
 public abstract class AbstractTower implements Tower {
-   
+
    // The color of the range of the tower when drawn
    private static final Color rangeColour = new Color(255, 255, 255, 100);
    private static final float upgradeIncreaseFactor = 1.1F;
-   
+
    private int damageLevel = 1;
    private int rangeLevel = 1;
    private int rateLevel = 1;
    private int speedLevel = 1;
    private int specialLevel = 1;
-      
+
    // The top left point of this tower
    private final Point topLeft;
    // The centre of this tower
@@ -53,14 +54,14 @@ public abstract class AbstractTower implements Tower {
    private final Rectangle boundingRectangle = new Rectangle();
    private final String name;
    // The number of clock ticks between each shot
-   private int fireRate;
+   private double fireRate;
    // The number of clock ticks until this tower's next shot
-   private int timeToNextShot = 0;
+   private double timeToNextShot = 0;
    private int range;
    private int twiceRange;
    private double bulletSpeed;
    private double damage;
-   
+
    // The width/height of the image (as it's square)
    private final int width;
    private final int halfWidth;
@@ -69,12 +70,12 @@ public abstract class AbstractTower implements Tower {
 
    private final BufferedImage originalImage;
    private BufferedImage currentImage;
-   
+
    private boolean isSelected = false;
-   
+
    private double damageDealt = 0;
    private int kills = 0;
-   
+   private int towerLevel = 1;
 
    public AbstractTower(Point p, String name, int fireRate, int range, double bulletSpeed,
          double damage, int width, int turretWidth, BufferedImage image) {
@@ -103,7 +104,7 @@ public abstract class AbstractTower implements Tower {
          if (checkDistance(s)) {
             double dx = s.getPosition().getX() - centre.getX();
             double dy = s.getPosition().getY() - centre.getY();
-            //System.out.println(dx + " " + dy);
+            // System.out.println(dx + " " + dy);
             currentImage = ImageHelper.rotateImage(originalImage, dx, -dy);
             if (timeToNextShot > 0) {
                timeToNextShot--;
@@ -119,19 +120,19 @@ public abstract class AbstractTower implements Tower {
 
    @Override
    public void draw(Graphics g) {
-      if(!isSelected) {
+      if (!isSelected) {
          g.drawImage(currentImage, (int) topLeft.getX(), (int) topLeft.getY(), null);
       }
    }
 
    @Override
    public void drawSelected(Graphics g) {
-      if(!isSelected) {
+      if (!isSelected) {
          throw new RuntimeException("Tower that isn't selected is being drawn as if it was");
       }
       drawShadow(g);
    }
-   
+
    @Override
    public void drawShadow(Graphics g) {
       // System.out.println(p.getX() + " " + p.getY());
@@ -151,19 +152,19 @@ public abstract class AbstractTower implements Tower {
    @Override
    public boolean towerClash(Tower t) {
       Shape s = t.getBounds();
-      if(s instanceof Circle) {
-         Circle c = (Circle)s;
-         double distance = Point.distance(centre.getX(), centre.getY(), t.getCentre().getX(), 
-               t.getCentre().getY());
+      if (s instanceof Circle) {
+         Circle c = (Circle) s;
+         double distance = Point.distance(centre.getX(), centre.getY(), t.getCentre().getX(), t
+               .getCentre().getY());
          return distance < bounds.getRadius() + c.getRadius();
       } else {
          return bounds.intersects(s.getBounds2D());
       }
    }
-   
+
    @Override
    public boolean contains(Point p) {
-      if(boundingRectangle.contains(p)) {
+      if (boundingRectangle.contains(p)) {
          int x = (int) (p.getX() - centre.getX() + halfWidth);
          int y = (int) (p.getY() - centre.getY() + halfWidth);
          // RGB of zero means a completely alpha i.e. transparent pixel
@@ -171,7 +172,7 @@ public abstract class AbstractTower implements Tower {
       }
       return false;
    }
-   
+
    @Override
    public Shape getBounds() {
       return bounds;
@@ -181,34 +182,34 @@ public abstract class AbstractTower implements Tower {
    public Rectangle getBoundingRectangle() {
       return boundingRectangle;
    }
-   
+
    @Override
    public String getName() {
       return name;
    }
-   
+
    @Override
    public int getRange() {
       return range;
    }
-   
+
    @Override
    public Point getCentre() {
       return centre;
    }
-   
+
    @Override
    public void setCentre(Point p) {
       centre.setLocation(p);
       setTopLeft();
       setBounds();
    }
-   
+
    @Override
    public int getAttributeLevel(Attribute a) {
-      if(a == Tower.Attribute.Damage) {
+      if (a == Tower.Attribute.Damage) {
          return damageLevel;
-      } else if(a == Tower.Attribute.Range) {
+      } else if (a == Tower.Attribute.Range) {
          return rangeLevel;
       } else if (a == Tower.Attribute.Rate) {
          return rateLevel;
@@ -217,103 +218,134 @@ public abstract class AbstractTower implements Tower {
       } else if (a == Tower.Attribute.Special) {
          return specialLevel;
       } else {
-         throw new RuntimeException("Extra attribute has been added without changing " +
-               "getAttributeLevel in AbstractTower");
+         throw new RuntimeException("Extra attribute has been added without changing "
+               + "getAttributeLevel in AbstractTower");
       }
    }
-   
+
    @Override
    public void raiseAttributeLevel(Attribute a) {
-      if(a == Tower.Attribute.Damage) {
+      if (a == Tower.Attribute.Damage) {
          damageLevel++;
-         damage *= upgradeIncreaseFactor;
-      } else if(a == Tower.Attribute.Range) {
+         upgradeDamage();
+      } else if (a == Tower.Attribute.Range) {
          rangeLevel++;
-         range *= upgradeIncreaseFactor;
-         twiceRange = range * 2;
+         upgradeRange();
       } else if (a == Tower.Attribute.Rate) {
          rateLevel++;
-         fireRate /= upgradeIncreaseFactor;
+         upgradeFireRate();
       } else if (a == Tower.Attribute.Speed) {
          speedLevel++;
-         bulletSpeed *= upgradeIncreaseFactor;
+         upgradeBulletSpeed();
       } else if (a == Tower.Attribute.Special) {
          specialLevel++;
-         // TODO
+         upgradeSpecial();
       } else {
-         throw new RuntimeException("Extra attribute has been added without changing " +
-               "raiseAttributeLevel in AbstractTower");
+         throw new RuntimeException("Extra attribute has been added without changing "
+               + "raiseAttributeLevel in AbstractTower");
       }
    }
-   
+
    @Override
    public double getDamage() {
       return damage;
    }
-   
+
    @Override
    public int getFireRate() {
-      return fireRate;
+      return (int)(fireRate + 1);
    }
-   
+
    @Override
    public double getBulletSpeed() {
       return bulletSpeed;
    }
-   
+
    @Override
    public String getSpecial() {
-      //TODO Implement this
+      // TODO Implement this
       return "none";
    }
-   
+
    @Override
    public void select(boolean select) {
       isSelected = select;
    }
-   
+
    @Override
    public abstract Tower constructNew();
-   
+
    @Override
    public void increaseDamageDealt(double damage) {
       assert damage > 0 : "Damage given was negative or zero.";
       damageDealt += damage;
    }
-   
+
    @Override
    public void increaseKills(int kills) {
       assert kills > 0 : "Kills given was less than or equal to zero";
       this.kills += kills;
+      if (this.kills >= Formulae.nextUpgradeAt(towerLevel)) {
+         towerLevel++;
+         upgradeAllStats();
+      }
    }
-   
+
    @Override
    public double getDamageDealt() {
       return damageDealt;
    }
-   
+
    @Override
    public int getKills() {
       return kills;
    }
-   
 
    private boolean checkDistance(Sprite s) {
       Point2D sPos = s.getPosition();
-      if(!s.isAlive()) {
+      if (!s.isAlive()) {
          return false;
       }
       double distance = Point.distance(centre.getX(), centre.getY(), sPos.getX(), sPos.getY());
       return distance < range + s.getHalfWidth();
    }
-   
+
    private void setTopLeft() {
       topLeft.setLocation((int) centre.getX() - halfWidth, (int) centre.getY() - halfWidth);
    }
-   
+
    private void setBounds() {
       boundingRectangle.setBounds((int) topLeft.getX(), (int) topLeft.getY(), width, width);
       bounds.setLocation(centre);
+   }
+
+   private void upgradeDamage() {
+      damage *= upgradeIncreaseFactor;
+   }
+
+   private void upgradeRange() {
+      range *= upgradeIncreaseFactor;
+      twiceRange = range * 2;
+   }
+
+   private void upgradeFireRate() {
+      fireRate /= upgradeIncreaseFactor;
+   }
+
+   private void upgradeBulletSpeed() {
+      bulletSpeed *= upgradeIncreaseFactor;
+   }
+
+   private void upgradeSpecial() {
+      // TODO
+   }
+   
+   private void upgradeAllStats() {
+      upgradeDamage();
+      upgradeRange();
+      upgradeFireRate();
+      upgradeBulletSpeed();
+      upgradeSpecial();
    }
 
 }

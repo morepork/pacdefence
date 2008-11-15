@@ -51,5 +51,9 @@ public class Formulae {
    public static double killBonus(int levelHP) {
       return levelHP / moneyDivisor;
    }
+   
+   public static int nextUpgradeAt(int currentLevel) {
+      return currentLevel * currentLevel * 10;
+   }
 
 }

@@ -121,7 +121,7 @@ public class ControlPanel extends JPanel {
    
    public void selectTower(Tower t) {
       selectedTower = t;
-      setStats(t);
+      updateStats();
       updateDamageAndKillsLabel();
       enableUpgradeButtons(true);
    }
@@ -149,6 +149,8 @@ public class ControlPanel extends JPanel {
       updateMoneyLabel();
       // If a tower is selected, more money earnt means it could've done more damage
       updateDamageAndKillsLabel();
+      // And this may have caused its stats to be upgraded
+      updateStats();
    }
    
    public boolean decrementLives(int livesLost) {
@@ -172,6 +174,12 @@ public class ControlPanel extends JPanel {
    
    private void updateCurrentCostLabel(int cost) {
       currentCostLabel.setText(cost);
+   }
+   
+   private void updateStats() {
+      if(selectedTower != null) {
+         setStats(selectedTower);
+      }
    }
    
    private void updateDamageAndKillsLabel() {
