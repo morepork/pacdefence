@@ -253,7 +253,7 @@ public abstract class AbstractTower implements Tower {
 
    @Override
    public int getFireRate() {
-      return (int)(fireRate + 1);
+      return (int)fireRate;
    }
 
    @Override
