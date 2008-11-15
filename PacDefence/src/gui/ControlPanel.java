@@ -338,6 +338,11 @@ public class ControlPanel extends JPanel {
                }
             }
          });
+         button.addChangeListener(new ChangeListener(){
+            public void stateChanged(ChangeEvent e) {
+               updateCurrentCostLabel(BASE_TOWER_PRICE);
+            }
+         });
          panel.add(createWrapperPanel(button, 2));
       }
 
