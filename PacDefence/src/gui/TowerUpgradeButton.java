@@ -44,6 +44,9 @@ public class TowerUpgradeButton extends JButton {
    public void setEnabled(boolean b) {
       super.setEnabled(b);
       setBorderPainted(b);
+      if(!b && isSelected()) {
+         setSelected(false);
+      }
    }
    
    private void setUI() {
