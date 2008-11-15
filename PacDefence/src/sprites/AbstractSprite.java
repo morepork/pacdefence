@@ -254,17 +254,20 @@ public abstract class AbstractSprite implements Sprite {
          return;
       } else {
          shrinkCounter++;
-         int nextImageIndex = (currentImageIndex + 1) % originalImages.size();
-         int width = currentImages.get(nextImageIndex).getWidth();
-         BufferedImage bi = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
+         int width = currentImages.get(0).getWidth();
          // Shrinks it by 25%
          int newWidth = (int) (width * (1 - 0.1 * shrinkCounter));
          int pos = width / 2 - newWidth / 2;
-         Graphics2D g = (Graphics2D) bi.getGraphics();
-         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-               RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-         g.drawImage(currentImages.get(nextImageIndex), pos, pos, newWidth, newWidth, null);
-         currentImages.set(nextImageIndex, bi);
+         for(int i = 0; i < currentImages.size(); i++) {
+            // It might be faster to clear the old bi than create a new one
+            BufferedImage newBI = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = (Graphics2D) newBI.getGraphics();
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                  RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.drawImage(currentImages.get(i), pos, pos, newWidth, newWidth, null);
+            currentImages.set(i, newBI);
+         }
+
       }
    }
    
