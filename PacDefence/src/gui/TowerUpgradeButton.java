@@ -44,9 +44,8 @@ public class TowerUpgradeButton extends JButton {
    public void setEnabled(boolean b) {
       super.setEnabled(b);
       setBorderPainted(b);
-      if(!b && isSelected()) {
-         setSelected(false);
-      }
+      // So a rectangle isn't drawn around the text when a button is selected, but disabled
+      setFocusPainted(b);
    }
    
    private void setUI() {
