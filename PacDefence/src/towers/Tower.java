@@ -94,5 +94,9 @@ public interface Tower extends Cloneable {
    public String getSpecial();
    public Tower constructNew();
    public void select(boolean select);
+   public void increaseDamageDealt(double damage);
+   public void increaseKills(int kills);
+   public double getDamageDealt();
+   public int getKills();
 
 }

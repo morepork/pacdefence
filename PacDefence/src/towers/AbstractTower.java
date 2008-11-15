@@ -72,6 +72,9 @@ public abstract class AbstractTower implements Tower {
    
    private boolean isSelected = false;
    
+   private double damageDealt = 0;
+   private int kills = 0;
+   
 
    public AbstractTower(Point p, String name, int fireRate, int range, double bulletSpeed,
          double damage, int width, int turretWidth, BufferedImage image) {
@@ -107,7 +110,7 @@ public abstract class AbstractTower implements Tower {
                return null;
             } else {
                timeToNextShot = fireRate;
-               return new Bullet(dx, dy, turretWidth, range, bulletSpeed, damage, centre);
+               return new Bullet(this, dx, dy, turretWidth, range, bulletSpeed, damage, centre);
             }
          }
       }
@@ -271,6 +274,28 @@ public abstract class AbstractTower implements Tower {
    
    @Override
    public abstract Tower constructNew();
+   
+   @Override
+   public void increaseDamageDealt(double damage) {
+      assert damage > 0 : "Damage given was negative or zero.";
+      damageDealt += damage;
+   }
+   
+   @Override
+   public void increaseKills(int kills) {
+      assert kills > 0 : "Kills given was less than or equal to zero";
+      this.kills += kills;
+   }
+   
+   @Override
+   public double getDamageDealt() {
+      return damageDealt;
+   }
+   
+   @Override
+   public int getKills() {
+      return kills;
+   }
    
 
    private boolean checkDistance(Sprite s) {

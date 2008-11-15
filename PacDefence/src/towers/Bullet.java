@@ -26,6 +26,7 @@ import java.awt.geom.Point2D;
 import java.util.List;
 
 import sprites.Sprite;
+import sprites.Sprite.DamageReport;
 
 public class Bullet {
 
@@ -41,9 +42,11 @@ public class Bullet {
    private final int twiceRadius = radius * 2;
    private final double damage;
    private boolean alive = true;
+   private final Tower shotBy;
    
-   public Bullet(double dx, double dy, int turretWidth, int range, double speed, double damage,
-         Point p) {
+   public Bullet(Tower shotBy, double dx, double dy, int turretWidth, int range, double speed,
+         double damage, Point p) {
+      this.shotBy = shotBy;
       this.range = range - turretWidth;
       this.speed = speed;
       this.damage = damage;
@@ -85,7 +88,12 @@ public class Bullet {
       }
       for(Sprite s : sprites) {
          if(s.intersects(position)) {
-            return s.hitBy(this);
+            DamageReport d = s.hitBy(this);
+            if(d.wasKill()) {
+               shotBy.increaseKills(1);
+            }
+            shotBy.increaseDamageDealt(d.getDamage());
+            return d.getMoneyEarnt();
          }
       }
       return -1;

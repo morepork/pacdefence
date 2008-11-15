@@ -155,14 +155,17 @@ public abstract class AbstractSprite implements Sprite {
    }
 
    @Override
-   public double hitBy(Bullet b) {
+   public DamageReport hitBy(Bullet b) {
       // System.out.println("Got hit");
       if (hp - b.getDamage() <= 0) {
          alive = false;
-         return Formulae.damageDollars(hp, hpFactor) + Formulae.killBonus(levelHP);
+         double moneyEarnt = Formulae.damageDollars(hp, hpFactor) + Formulae.killBonus(levelHP);
+         return new DamageReport(hp, moneyEarnt, true);
+      } else {
+         hp -= b.getDamage();
+         double moneyEarnt = Formulae.damageDollars(b.getDamage(), hpFactor);
+         return new DamageReport(b.getDamage(), moneyEarnt, false);
       }
-      hp -= b.getDamage();
-      return Formulae.damageDollars(b.getDamage(), hpFactor);
    }
 
    @Override

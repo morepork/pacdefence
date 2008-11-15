@@ -39,13 +39,39 @@ public interface Sprite {
    public Point2D getPosition();
    public double getTotalDistanceTravelled();
    public boolean isAlive();
-   public double hitBy(Bullet b);
+   public DamageReport hitBy(Bullet b);
    public boolean intersects(Point2D p);
    
    /**
     * Returns a double representing initial totalHP / baseHP
     */
    public double getHPFactor();
+   
+   
+   public class DamageReport {
+      
+      private final double damage;
+      private final double moneyEarnt;
+      private final boolean kill;
+      
+      public DamageReport(double damage, double moneyEarnt, boolean kill) {
+         this.damage = damage;
+         this.moneyEarnt = moneyEarnt;
+         this.kill = kill;
+      }
+      
+      public double getDamage() {
+         return damage;
+      }
+      
+      public double getMoneyEarnt() {
+         return moneyEarnt;
+      }
+      
+      public boolean wasKill() {
+         return kill;
+      }
+   }
    
 
 }

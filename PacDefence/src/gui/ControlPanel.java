@@ -58,6 +58,7 @@ public class ControlPanel extends JPanel {
    private static final int BASE_TOWER_PRICE = 1000;
    
    private static final DecimalFormat ONE_DP = new DecimalFormat("#0.0");
+   private static final DecimalFormat ZERO_DP = new DecimalFormat("#0");
 
    private final BufferedImage backgroundImage = ImageHelper.makeImage("control_panel",
          "blue_lava.png");;
@@ -66,6 +67,7 @@ public class ControlPanel extends JPanel {
    private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel;
    // These labels are in the current tower stats box
    private MyJLabel damageLabel, rangeLabel, rateLabel, speedLabel, specialLabel;
+   private MyJLabel damageAndKillsLabel;
    // These buttons are in the current tower stats box
    private TowerUpgradeButton damageButton, rangeButton, rateButton, speedButton, specialButton;
    private List<TowerUpgradeButton> towerStatsButtons = new ArrayList<TowerUpgradeButton>(5);
@@ -120,11 +122,13 @@ public class ControlPanel extends JPanel {
    public void selectTower(Tower t) {
       selectedTower = t;
       setStats(t);
+      updateDamageAndKillsLabel();
       enableUpgradeButtons(true);
    }
    
    public void deselectTower() {
       if(selectedTower != null) {
+         updateDamageAndKillsLabel();
          selectedTower = null;
          enableUpgradeButtons(false);
       }
@@ -143,6 +147,8 @@ public class ControlPanel extends JPanel {
    public void incrementMoney(int earnedMoney) {
       money += earnedMoney;
       updateMoneyLabel();
+      // If a tower is selected, more money earnt means it could've done more damage
+      updateDamageAndKillsLabel();
    }
    
    public boolean decrementLives(int livesLost) {
@@ -168,11 +174,22 @@ public class ControlPanel extends JPanel {
       currentCostLabel.setText(cost);
    }
    
+   private void updateDamageAndKillsLabel() {
+      if(selectedTower == null) {
+         damageAndKillsLabel.setText(" ");
+      } else {
+         damageAndKillsLabel.setText("Kills: " + selectedTower.getKills() + "    Damage Dealt: "
+               + ZERO_DP.format(selectedTower.getDamageDealt()));
+      }
+   }
+   
    private void setUpJLabels() {
       for (Field f : getClass().getDeclaredFields()) {
          if (f.getType().equals(MyJLabel.class)) {
             try {
                MyJLabel j = new MyJLabel();
+               // This means it's actually drawn
+               j.setText(" ");
                f.set(this, j);
             } catch(IllegalAccessException e) {
                // This shouldn't ever be thrown
@@ -324,9 +341,11 @@ public class ControlPanel extends JPanel {
    private void setUpNewTowers() {
       JPanel panel = new JPanel();
       panel.setOpaque(false);
-      panel.setLayout(new GridLayout(4, 6));
+      int height = 4;
+      int width = 6;
+      panel.setLayout(new GridLayout(height, width));
       // TODO Change this to deal with the other towers when implemented
-      for (int a = 0; a < 24; a++) {
+      for (int a = 0; a < height * width; a++) {
          ImageButton button = new ImageButton("Tower", ".png");
          button.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
@@ -343,13 +362,14 @@ public class ControlPanel extends JPanel {
                updateCurrentCostLabel(BASE_TOWER_PRICE);
             }
          });
-         panel.add(createWrapperPanel(button, 2));
+         panel.add(createWrapperPanel(button, 1));
       }
 
       add(panel);
    }
 
    private void setUpCurrentTowerStats() {
+      setUpDamageAndKillsLabel();
       float textSize = defaultTextSize;
       JPanel panel = new JPanel();
       panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -364,13 +384,11 @@ public class ControlPanel extends JPanel {
       add(panel);
    }
    
-   private void setUpCurrentTowerStatsButtons(JButton... buttons) {
-      for(JButton b : buttons) {
-         b.setOpaque(false);
-         b.setForeground(textColour);
-         b.setContentAreaFilled(false);
-         b.setEnabled(false);
-      }
+   private void setUpDamageAndKillsLabel() {
+      damageAndKillsLabel.setForeground(textColour);
+      damageAndKillsLabel.setFont(damageAndKillsLabel.getFont().deriveFont(defaultTextSize - 1));
+      damageAndKillsLabel.setHorizontalAlignment(JLabel.CENTER);
+      add(createBorderLayedOutJPanel(damageAndKillsLabel, BorderLayout.CENTER));
    }
    
    private void setUpLevelStats() {
@@ -408,11 +426,7 @@ public class ControlPanel extends JPanel {
    
    private JPanel createLeftRightButtonPanel(JButton button, float textSize, Color textColour,
          JLabel damageLabel) {
-      /*button.setOpaque(false);
-      button.setForeground(textColour);
-      button.setContentAreaFilled(false);
-      button.setEnabled(false);*/
-      return createLeftRightPanel(createWrapperPanel(button, 1), textSize, textColour,
+      return createLeftRightPanel(createWrapperPanel(button, 0), textSize, textColour,
             damageLabel);
    }
 
