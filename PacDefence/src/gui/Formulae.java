@@ -25,7 +25,7 @@ public class Formulae {
    private static final double moneyDivisor = 10;
    
    public static int numSprites(int level) {
-      return 20 + 5 * level + level * level / 10;
+      return 20 + 2 * (level - 1);
    }
    
    public static int hp(int level) {

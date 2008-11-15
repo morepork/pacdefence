@@ -130,6 +130,7 @@ public class GameMap extends JPanel {
          spritesToAdd = Formulae.numSprites(level);
          levelHP = Formulae.hp(level);
          if(clockRunnable.ticksBetweenAddSprite > 1) {
+            // As the level increases, the sprites start entering closer together
             clockRunnable.ticksBetweenAddSprite--;
          }
          return true;
