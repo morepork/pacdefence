@@ -61,7 +61,7 @@ public class ControlPanel extends JPanel {
    private static final DecimalFormat ZERO_DP = new DecimalFormat("#0");
 
    private final BufferedImage backgroundImage = ImageHelper.makeImage("control_panel",
-         "blue_lava.png");;
+         "blue_lava.jpg");;
    private int level = 1;
    // These labels are in the top stats box
    private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel;
