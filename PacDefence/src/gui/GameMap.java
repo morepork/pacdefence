@@ -185,7 +185,7 @@ public class GameMap extends JPanel {
    private void addMouseListeners() {
       addMouseListener(new MouseAdapter(){
          @Override
-         public void mouseClicked(MouseEvent e) {
+         public void mouseReleased(MouseEvent e) {
             deselectTower();
             if(e.getButton() == MouseEvent.BUTTON3) {
                // Stop everything if it's the right mouse button
