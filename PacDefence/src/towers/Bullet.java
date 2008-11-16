@@ -95,6 +95,7 @@ public class Bullet {
          if(s.intersects(line)) {
             DamageReport d = s.hitBy(this);
             if(d != null) {
+               // Sprite is not already dead
                if(d.wasKill()) {
                   shotBy.increaseKills(1);
                }
