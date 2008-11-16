@@ -391,7 +391,7 @@ public class GameMap extends JPanel {
          }
          if(spritesToAdd > 0) {
             if(addSpriteIn < 1) {
-               sprites.add(new Pacman(levelHP, Collections.unmodifiableList(pathPoints)));
+               sprites.add(new Pacman(levelHP, clonePathPoints()));
                addSpriteIn = ticksBetweenAddSprite;
                spritesToAdd--;
             } else {
@@ -411,6 +411,14 @@ public class GameMap extends JPanel {
          }
          sprites.removeAll(toRemove);
          return livesLost;
+      }
+      
+      private List<Point> clonePathPoints() {
+         List<Point> clone = new ArrayList<Point>(pathPoints.size());
+         for(Point p : pathPoints) {
+            clone.add(new Point(p));
+         }
+         return clone;
       }
       
       private void doTowers(List<Sprite> unmodifiableSprites) {

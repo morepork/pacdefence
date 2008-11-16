@@ -22,6 +22,7 @@ package towers;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class Bullet {
    private final double speed;
    private final double distancePerTick;
    private double distanceTravelled = 0;
+   private final Point2D lastPosition;
    private final Point2D position;
    private final int range;
    private final int radius = 3;
@@ -58,6 +60,7 @@ public class Bullet {
       //System.out.println(dir[0] + " " + dir[1]);
       position = new Point2D.Double(p.getX() + turretWidth * dx / divisor,
             p.getY() + turretWidth * dy / divisor);
+      lastPosition = new Point2D.Double(position.getX(), position.getY());
    }
 
    /**
@@ -73,6 +76,7 @@ public class Bullet {
       }
       distanceTravelled += distancePerTick;
       //System.out.println(distanceTravelled);
+      lastPosition.setLocation(position);
       if(distanceTravelled > range) {
          // This deals with a bullet nearing the edge of its range
          double extraDistance = distanceTravelled - range;
@@ -86,14 +90,17 @@ public class Bullet {
       } else {
          position.setLocation(position.getX() + dir[0], position.getY() + dir[1]);
       }
+      Line2D line = new Line2D.Double(lastPosition, position);
       for(Sprite s : sprites) {
-         if(s.intersects(position)) {
+         if(s.intersects(line)) {
             DamageReport d = s.hitBy(this);
-            if(d.wasKill()) {
-               shotBy.increaseKills(1);
+            if(d != null) {
+               if(d.wasKill()) {
+                  shotBy.increaseKills(1);
+               }
+               shotBy.increaseDamageDealt(d.getDamage());
+               return d.getMoneyEarnt();
             }
-            shotBy.increaseDamageDealt(d.getDamage());
-            return d.getMoneyEarnt();
          }
       }
       return -1;

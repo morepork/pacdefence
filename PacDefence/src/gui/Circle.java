@@ -20,7 +20,6 @@
 package gui;
 
 import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -43,7 +42,7 @@ public class Circle implements Shape {
    private Ellipse2D bounds;
    
    public Circle(Point2D centre, double radius){
-      this.centre = centre;
+      this.centre = new Point2D.Double(centre.getX(), centre.getY());
       this.radius = radius;
       twiceRadius = radius * 2;
       setBounds();
@@ -115,8 +114,12 @@ public class Circle implements Shape {
       return bounds.getPathIterator(at, flatness);
    }
    
-   public void setLocation(Point centre) {
-      centre.setLocation(centre);
+   public void setCentre(Point2D centre) {
+      setCentre(centre.getX(), centre.getY());
+   }
+   
+   public void setCentre(double x, double y) {
+      centre.setLocation(x, y);
       setBounds();
    }
 
@@ -136,11 +139,15 @@ public class Circle implements Shape {
       }
       List<Line2D> outline = makePolygonOutline(p);
       for(Line2D line : outline) {
-         if(line.ptSegDist(centre) <= radius) {
+         if(intersects(line)) {
             return true;
          }
       }
       return false;
+   }
+   
+   public boolean intersects(Line2D line) {
+      return line.ptSegDist(centre) < radius;
    }
    
    private void setBounds() {

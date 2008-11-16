@@ -19,6 +19,7 @@
 
 package sprites;
 
+import gui.Circle;
 import gui.Formulae;
 import gui.Helper;
 import images.ImageHelper;
@@ -28,6 +29,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -46,9 +48,8 @@ public abstract class AbstractSprite implements Sprite {
 
    private final int width;
    private final int halfWidth;
+   private final Circle bounds;
 
-   //private final BufferedImage originalImage;
-   //private BufferedImage currentImage;
    private final List<BufferedImage> originalImages;
    private List<BufferedImage> currentImages;
    private int currentImageIndex = 0;
@@ -62,6 +63,7 @@ public abstract class AbstractSprite implements Sprite {
    private final Point lastPoint = new Point();
    private Point nextPoint;
    private int pointAfterIndex;
+   @SuppressWarnings("serial")
    private final Point2D centre = new Point2D.Double();
    // private double x, y;
    private double xStep, yStep;
@@ -80,6 +82,7 @@ public abstract class AbstractSprite implements Sprite {
    public AbstractSprite(List<BufferedImage> images, int hp, List<Point> path) {
       this.width = images.get(1).getWidth();
       halfWidth = width / 2;
+      bounds = new Circle(path.get(0), halfWidth);
       // Use two clones here so that currentImages can be edited without
       // affecting originalImages
       originalImages = Collections.unmodifiableList(Helper.cloneList(images));
@@ -131,7 +134,7 @@ public abstract class AbstractSprite implements Sprite {
 
    @Override
    public Point2D getPosition() {
-      return (Point2D) centre.clone();
+      return new Point2D.Double(centre.getX(), centre.getY());
    }
 
    @Override
@@ -153,9 +156,21 @@ public abstract class AbstractSprite implements Sprite {
       }
       return false;
    }
+   
+   @Override
+   public boolean intersects(Line2D line) {
+      if(!alive) {
+         // If the sprite is dead or dying it can't be hit
+         return false;
+      }
+      return bounds.intersects(line);
+   }
 
    @Override
    public DamageReport hitBy(Bullet b) {
+      if(!alive) {
+         return null;
+      }
       // System.out.println("Got hit");
       if (hp - b.getDamage() <= 0) {
          alive = false;
@@ -191,6 +206,7 @@ public abstract class AbstractSprite implements Sprite {
    private void move() {
       // System.out.println("Step: " + steps + " Pos: " + x + " " + y);
       centre.setLocation(centre.getX() + xStep, centre.getY() + yStep);
+      bounds.setCentre(centre);
       totalDistanceTravelled += Math.abs(xStep) + Math.abs(yStep);
       steps++;
       if (steps + 1 > distance) {
@@ -215,10 +231,11 @@ public abstract class AbstractSprite implements Sprite {
          // There is still another point to head to
          lastPoint.setLocation(nextPoint);
          centre.setLocation(nextPoint);
+         bounds.setCentre(centre);
          nextPoint.setLocation(path.get(pointAfterIndex));
          pointAfterIndex++;
-         double dx = nextPoint.x - lastPoint.x;
-         double dy = nextPoint.y - lastPoint.y;
+         double dx = nextPoint.getX() - lastPoint.getX();
+         double dy = nextPoint.getY() - lastPoint.getY();
          distance = Math.sqrt(dx * dx + dy * dy) / speed;
          // System.out.println("Distance: " + distance);
          xStep = dx / distance;
