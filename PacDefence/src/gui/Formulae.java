@@ -52,8 +52,12 @@ public class Formulae {
       return levelHP / moneyDivisor;
    }
    
-   public static int nextUpgradeAt(int currentLevel) {
+   public static int nextUpgradeKills(int currentLevel) {
       return currentLevel * currentLevel * 10;
+   }
+   
+   public static int nextUpgradeDamage(int currentLevel) {
+      return currentLevel * currentLevel * currentLevel * 200;
    }
 
 }

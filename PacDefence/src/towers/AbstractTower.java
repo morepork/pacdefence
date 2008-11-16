@@ -75,7 +75,10 @@ public abstract class AbstractTower implements Tower {
 
    private double damageDealt = 0;
    private int kills = 0;
-   private int towerLevel = 1;
+   private int killsLevel = 1;
+   private int damageDealtLevel = 1;
+   private int nextUpgradeDamage = Formulae.nextUpgradeDamage(killsLevel);
+   private int nextUpgradeKills = Formulae.nextUpgradeKills(damageDealtLevel);
 
    public AbstractTower(Point p, String name, int fireRate, int range, double bulletSpeed,
          double damage, int width, int turretWidth, BufferedImage image) {
@@ -279,14 +282,20 @@ public abstract class AbstractTower implements Tower {
    public void increaseDamageDealt(double damage) {
       assert damage > 0 : "Damage given was negative or zero.";
       damageDealt += damage;
+      if(damageDealt >= nextUpgradeDamage) {
+         damageDealtLevel++;
+         nextUpgradeDamage = Formulae.nextUpgradeDamage(damageDealtLevel);
+         upgradeAllStats();
+      }
    }
 
    @Override
    public void increaseKills(int kills) {
       assert kills > 0 : "Kills given was less than or equal to zero";
       this.kills += kills;
-      if (this.kills >= Formulae.nextUpgradeAt(towerLevel)) {
-         towerLevel++;
+      if (this.kills >= nextUpgradeKills) {
+         killsLevel++;
+         nextUpgradeKills = Formulae.nextUpgradeKills(killsLevel);
          upgradeAllStats();
       }
    }
