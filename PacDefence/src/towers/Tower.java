@@ -97,6 +97,8 @@ public interface Tower extends Cloneable {
    public void increaseDamageDealt(double damage);
    public void increaseKills(int kills);
    public double getDamageDealt();
+   public int getDamageDealtForUpgrade();
    public int getKills();
+   public int getKillsForUpgrade();
 
 }

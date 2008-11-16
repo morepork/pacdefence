@@ -304,10 +304,20 @@ public abstract class AbstractTower implements Tower {
    public double getDamageDealt() {
       return damageDealt;
    }
+   
+   @Override
+   public int getDamageDealtForUpgrade() {
+      return nextUpgradeDamage;
+   }
 
    @Override
    public int getKills() {
       return kills;
+   }
+   
+   @Override
+   public int getKillsForUpgrade() {
+      return nextUpgradeKills;
    }
 
    private boolean checkDistance(Sprite s) {

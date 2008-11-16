@@ -67,7 +67,7 @@ public class ControlPanel extends JPanel {
    private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel;
    // These labels are in the current tower stats box
    private MyJLabel damageLabel, rangeLabel, rateLabel, speedLabel, specialLabel;
-   private MyJLabel damageAndKillsLabel;
+   private MyJLabel damageDealtLabel, killsLabel;
    // These buttons are in the current tower stats box
    private TowerUpgradeButton damageButton, rangeButton, rateButton, speedButton, specialButton;
    private List<TowerUpgradeButton> towerStatsButtons = new ArrayList<TowerUpgradeButton>(5);
@@ -122,13 +122,13 @@ public class ControlPanel extends JPanel {
    public void selectTower(Tower t) {
       selectedTower = t;
       updateStats();
-      updateDamageAndKillsLabel();
+      updateDamageAndKillsLabels();
       enableUpgradeButtons(true);
    }
    
    public void deselectTower() {
       if(selectedTower != null) {
-         updateDamageAndKillsLabel();
+         updateDamageAndKillsLabels();
          selectedTower = null;
          enableUpgradeButtons(false);
       }
@@ -148,7 +148,7 @@ public class ControlPanel extends JPanel {
       money += earnedMoney;
       updateMoneyLabel();
       // If a tower is selected, more money earnt means it could've done more damage
-      updateDamageAndKillsLabel();
+      updateDamageAndKillsLabels();
       // And this may have caused its stats to be upgraded
       updateStats();
    }
@@ -182,12 +182,15 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   private void updateDamageAndKillsLabel() {
+   private void updateDamageAndKillsLabels() {
       if(selectedTower == null) {
-         damageAndKillsLabel.setText(" ");
+         killsLabel.setText(" ");
+         damageDealtLabel.setText(" ");
       } else {
-         damageAndKillsLabel.setText("Kills: " + selectedTower.getKills() + "    Damage Dealt: "
-               + ZERO_DP.format(selectedTower.getDamageDealt()));
+         killsLabel.setText("Kills " + selectedTower.getKills() + " (" +
+               selectedTower.getKillsForUpgrade() + ")");
+         damageDealtLabel.setText("Damage " + ZERO_DP.format(selectedTower.getDamageDealt())
+               + " (" + selectedTower.getDamageDealtForUpgrade() + ")");
       }
    }
    
@@ -377,11 +380,11 @@ public class ControlPanel extends JPanel {
    }
 
    private void setUpCurrentTowerStats() {
-      setUpDamageAndKillsLabel();
+      setUpDamageAndKillsLabels();
       float textSize = defaultTextSize;
       JPanel panel = new JPanel();
       panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-      panel.setBorder(BorderFactory.createEmptyBorder(5, 30, 5, 30));
+      panel.setBorder(BorderFactory.createEmptyBorder(1, 20, 1, 20));
       panel.setOpaque(false);
       panel.add(createLeftRightButtonPanel(damageButton, textSize, textColour, damageLabel));
       panel.add(createLeftRightButtonPanel(rangeButton, textSize, textColour, rangeLabel));
@@ -392,11 +395,18 @@ public class ControlPanel extends JPanel {
       add(panel);
    }
    
-   private void setUpDamageAndKillsLabel() {
-      damageAndKillsLabel.setForeground(textColour);
-      damageAndKillsLabel.setFont(damageAndKillsLabel.getFont().deriveFont(defaultTextSize - 1));
-      damageAndKillsLabel.setHorizontalAlignment(JLabel.CENTER);
-      add(createBorderLayedOutJPanel(damageAndKillsLabel, BorderLayout.CENTER));
+   private void setUpDamageAndKillsLabels() {
+      MyJLabel[] labels = new MyJLabel[]{killsLabel, damageDealtLabel};
+      Font f = killsLabel.getFont().deriveFont(defaultTextSize - 1);
+      for(MyJLabel a : labels) {
+         a.setForeground(textColour);
+         a.setFont(f);
+         a.setHorizontalAlignment(JLabel.CENTER);
+      }
+      JPanel panel = createBorderLayedOutJPanel();
+      panel.add(createWrapperPanel(killsLabel), BorderLayout.WEST);
+      panel.add(createWrapperPanel(damageDealtLabel), BorderLayout.EAST);
+      add(panel);
    }
    
    private void setUpLevelStats() {
@@ -434,7 +444,7 @@ public class ControlPanel extends JPanel {
    
    private JPanel createLeftRightButtonPanel(JButton button, float textSize, Color textColour,
          JLabel damageLabel) {
-      return createLeftRightPanel(createWrapperPanel(button, 0), textSize, textColour,
+      return createLeftRightPanel(createWrapperPanel(button), textSize, textColour,
             damageLabel);
    }
 
@@ -456,6 +466,13 @@ public class ControlPanel extends JPanel {
     */
    private Border createEmptyBorder(int width) {
       return BorderFactory.createEmptyBorder(width, width, width, width);
+   }
+   
+   private JPanel createWrapperPanel(JComponent c) {
+      JPanel panel = new JPanel();
+      panel.add(c);
+      panel.setOpaque(false);
+      return panel;
    }
 
    /**

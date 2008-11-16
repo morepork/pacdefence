@@ -29,7 +29,7 @@ public class Formulae {
    }
    
    public static int hp(int level) {
-      return (int)(Math.pow(1.4, level) * 10) - 3;
+      return (int)(Math.pow(1.4, (level - 1)) * 10);
    }
    
    public static int levelEndBonus(int level) {

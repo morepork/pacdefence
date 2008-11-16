@@ -458,7 +458,7 @@ public class GameMap extends JPanel {
       
       private int deltaY, deltaX;
       private BufferedImage img;
-      private int currentX, currentY, i, numTimes;
+      private int currentX, currentY, i, numTimes; 
       
       private GameOver() {
          deltaY = 1;
