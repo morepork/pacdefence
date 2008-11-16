@@ -187,9 +187,9 @@ public class ControlPanel extends JPanel {
          killsLabel.setText(" ");
          damageDealtLabel.setText(" ");
       } else {
-         killsLabel.setText("Kills " + selectedTower.getKills() + " (" +
+         killsLabel.setText("Kills: " + selectedTower.getKills() + " (" +
                selectedTower.getKillsForUpgrade() + ")");
-         damageDealtLabel.setText("Damage " + ZERO_DP.format(selectedTower.getDamageDealt())
+         damageDealtLabel.setText("Dmg: " + ZERO_DP.format(selectedTower.getDamageDealt())
                + " (" + selectedTower.getDamageDealtForUpgrade() + ")");
       }
    }
@@ -397,7 +397,7 @@ public class ControlPanel extends JPanel {
    
    private void setUpDamageAndKillsLabels() {
       MyJLabel[] labels = new MyJLabel[]{killsLabel, damageDealtLabel};
-      Font f = killsLabel.getFont().deriveFont(defaultTextSize - 1);
+      Font f = killsLabel.getFont().deriveFont(defaultTextSize - 1.5f);
       for(MyJLabel a : labels) {
          a.setForeground(textColour);
          a.setFont(f);
