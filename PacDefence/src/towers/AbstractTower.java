@@ -116,7 +116,7 @@ public abstract class AbstractTower implements Tower {
                return null;
             } else {
                timeToNextShot = fireRate;
-               return new AbstractBullet(this, dx, dy, turretWidth, range, bulletSpeed, damage, centre);
+               return makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, centre);
             }
          }
       }
@@ -321,6 +321,9 @@ public abstract class AbstractTower implements Tower {
    public int getKillsForUpgrade() {
       return nextUpgradeKills;
    }
+   
+   protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
+            double speed, double damage, Point p);
 
    private boolean checkDistance(Sprite s) {
       Point2D sPos = s.getPosition();

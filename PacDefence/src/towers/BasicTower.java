@@ -25,4 +25,19 @@ public class BasicTower extends AbstractTower {
       return new BasicTower(getCentre());
    }
 
+   @Override
+   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+         double damage, Point p) {
+      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p);
+   }
+   
+   private static class BasicBullet extends AbstractBullet {
+
+      public BasicBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
+            double speed, double damage, Point p) {
+         super(shotBy, dx, dy, turretWidth, range, speed, damage, p);
+      }
+      
+   }
+
 }

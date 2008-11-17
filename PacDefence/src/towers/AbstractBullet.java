@@ -29,8 +29,7 @@ import java.util.List;
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
 
-// TODO Make this class abstract when I can without breaking the game
-public class AbstractBullet implements Bullet {
+public abstract class AbstractBullet implements Bullet {
 
    // The direction of the bullet, first is dx, second is dy. Should be normalised
    // then multiplied by the speed.
