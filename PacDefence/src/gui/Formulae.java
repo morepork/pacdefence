@@ -37,7 +37,7 @@ public class Formulae {
    }
    
    public static int noEnemiesThroughBonus(int level) {
-      return (int)(100 * Math.pow(level, 1.2));
+      return (int)(Math.pow(level, 1.2)) * 100;
    }
    
    public static int upgradeCost(int currentLevel) {

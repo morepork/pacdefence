@@ -103,6 +103,9 @@ public abstract class AbstractTower implements Tower {
 
    @Override
    public Bullet tick(List<Sprite> sprites) {
+      // Decrements here so it's on every tick, not just when it is able to shoot
+      timeToNextShot--;
+      // Do this for loop even if tower can't shoot so tower rotates to track sprites
       for (Sprite s : sprites) {
          if (checkDistance(s)) {
             double dx = s.getPosition().getX() - centre.getX();
@@ -110,7 +113,6 @@ public abstract class AbstractTower implements Tower {
             // System.out.println(dx + " " + dy);
             currentImage = ImageHelper.rotateImage(originalImage, dx, -dy);
             if (timeToNextShot > 0) {
-               timeToNextShot--;
                return null;
             } else {
                timeToNextShot = fireRate;
