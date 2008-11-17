@@ -88,7 +88,6 @@ public class ControlPanel extends JPanel {
 
    public ControlPanel(int width, int height, GameMap map) {
       this.map = map;
-      map.setControlPanel(this);
       setPreferredSize(new Dimension(width, height));
       setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
       setUpJLabels();
@@ -101,6 +100,7 @@ public class ControlPanel extends JPanel {
       setUpStartButton();
       updateMoneyLabel();
       updateLivesLabel();
+      map.setControlPanel(this);
    }
    
    public void endLevel() {

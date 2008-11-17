@@ -17,7 +17,7 @@ public class BasicTower extends AbstractTower {
    }
    
    private BasicTower(Point p) {
-      super(p, "Basic", 20, 100, 5, 10, 50, 25, image);
+      super(p, "Basic", 40, 100, 5, 10, 50, 25, image);
    }
    
    @Override
