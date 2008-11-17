@@ -116,7 +116,7 @@ public abstract class AbstractTower implements Tower {
                return null;
             } else {
                timeToNextShot = fireRate;
-               return new Bullet(this, dx, dy, turretWidth, range, bulletSpeed, damage, centre);
+               return new AbstractBullet(this, dx, dy, turretWidth, range, bulletSpeed, damage, centre);
             }
          }
       }
