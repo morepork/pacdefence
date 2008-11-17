@@ -104,12 +104,20 @@ public class ControlPanel extends JPanel {
    }
    
    public void endLevel() {
+      int moneyBefore = money; 
       money *= interestRate;
-      money += Formulae.levelEndBonus(level);
+      int interest = money - moneyBefore;
+      int levelEndBonus = Formulae.levelEndBonus(level);
+      int noEnemiesThroughBonus = 0;
+      String text = "Level " + level + " finished. " + interest + " interest earnt. " +
+            levelEndBonus + " for finishing the level.";
       if(livesLostOnThisLevel == 0) {
-         money += Formulae.noEnemiesThroughBonus(level);
+         noEnemiesThroughBonus = Formulae.noEnemiesThroughBonus(level);
+         text += " " + noEnemiesThroughBonus + " bonus for losing no lives.";
       }
+      money += levelEndBonus + noEnemiesThroughBonus;
       updateMoneyLabel();
+      map.displayText(text);
       level++;
       start.setEnabled(true);
    }
@@ -291,6 +299,7 @@ public class ControlPanel extends JPanel {
    
    private void startPressed() {
       if (map.start(level)) {
+         map.removeText();
          updateLevelStats();
          livesLostOnThisLevel = 0;
       }

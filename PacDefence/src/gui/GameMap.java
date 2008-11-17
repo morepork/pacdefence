@@ -75,6 +75,7 @@ public class GameMap extends JPanel {
    private boolean levelInProgress = false;
    private boolean needsRepaint = false;
    private GameOver gameOver = null;
+   private final TextDisplay textDisplay = new TextDisplay(); 
 
    public GameMap(int width, int height) {
       setDoubleBuffered(false);
@@ -96,8 +97,9 @@ public class GameMap extends JPanel {
          // First buffers onto the buffer, then draws it onto screen later
          if(gameOver == null) {
             drawUpdate(bufferGraphics);
+            textDisplay.draw(bufferGraphics);
          } else {
-            gameOver.draw(bufferGraphics);            
+            gameOver.draw(bufferGraphics);
          }
       }
       g.drawImage(buffer, 0, 0, null);
@@ -141,6 +143,14 @@ public class GameMap extends JPanel {
    
    public void setControlPanel(ControlPanel cp) {
       this.cp = cp;
+   }
+   
+   public void displayText(String... lines) {
+      textDisplay.displayText(lines);
+   }
+   
+   public void removeText() {
+      textDisplay.clear();
    }
    
    private void drawUpdate(Graphics g) {
@@ -481,6 +491,82 @@ public class GameMap extends JPanel {
       }
    }
 
+   private static class TextDisplay {
+      
+      private static final Color backgroundColour = new Color(255, 255, 255, 120);
+      private static final Color textColour = Color.BLACK;
+      private final int startPosition = OuterPanel.MAP_HEIGHT;
+      private int currentPosition = startPosition;
+      private int heightToDisplay;
+      private static final int rounding = 40;
+      private static final int aboveTextMargin = 5;
+      private static final int sideMargin = 12;
+      private static final int offset = 5;
+      private static final int width = OuterPanel.MAP_WIDTH - offset * 2;
+      private static final int height = OuterPanel.MAP_HEIGHT;
+      private final BufferedImage display = new BufferedImage(width, height,
+            BufferedImage.TYPE_INT_ARGB_PRE);
+      private final Graphics displayGraphics = display.getGraphics();
+      private boolean displayed = false;
+      private boolean clearingFlag = false;
+      private boolean drawingFlag = false;
+      
+      public void draw(Graphics g) {
+         if (drawingFlag) {
+            currentPosition--;
+            if(currentPosition <= startPosition - heightToDisplay) {
+               drawingFlag = false;
+               displayed = true;
+            }
+         } else if (clearingFlag) {
+            currentPosition++;
+            if(currentPosition >= startPosition) {
+               clearingFlag = false;
+               currentPosition = startPosition;
+               return;
+            }
+         } else if (!displayed) {
+            return;
+         }
+         g.drawImage(display, offset, currentPosition, null);
+      }
+      
+      public void displayText(String... lines) {
+         if(displayed) {
+            throw new RuntimeException("There is already text on display.");
+         }
+         drawImage(lines);
+         drawingFlag = true;
+         clearingFlag = false;
+         displayed = false;
+      }
+      
+      public void clear() {
+         heightToDisplay = 0;
+         clearingFlag = true;
+         drawingFlag = false;
+         displayed = false;
+      }
+      
+      private void drawImage(String[] lines) {
+         clearImage();
+         int lineHeight = displayGraphics.getFontMetrics().getHeight() + aboveTextMargin;
+         displayGraphics.setColor(textColour);
+         for(String s : lines) {
+            heightToDisplay += lineHeight;
+            displayGraphics.drawString(s, sideMargin, heightToDisplay);
+         }
+         heightToDisplay += aboveTextMargin * 2;
+      }
+      
+      private void clearImage() {
+         ImageHelper.clearImage(display);
+         displayGraphics.setColor(backgroundColour);
+         displayGraphics.fillRoundRect(0, 0, width, height, rounding, rounding);
+      }
+      
+   }
+   
    public static void main(String... args) {
    }
 

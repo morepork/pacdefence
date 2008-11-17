@@ -33,7 +33,7 @@ public class Formulae {
    }
    
    public static int levelEndBonus(int level) {
-      return 1000 + 100 * level;
+      return 1000 + 100 * (level - 1);
    }
    
    public static int noEnemiesThroughBonus(int level) {
