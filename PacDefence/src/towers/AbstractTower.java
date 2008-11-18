@@ -30,6 +30,7 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Constructor;
 import java.util.List;
 
 import sprites.Sprite;
@@ -38,7 +39,7 @@ public abstract class AbstractTower implements Tower {
 
    // The color of the range of the tower when drawn
    private static final Color rangeColour = new Color(255, 255, 255, 100);
-   private static final float upgradeIncreaseFactor = 1.1F;
+   protected static final float upgradeIncreaseFactor = 1.1F;
 
    private int damageLevel = 1;
    private int rangeLevel = 1;
@@ -267,10 +268,10 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public String getSpecial() {
-      // TODO Implement this
-      return "none";
-   }
+   public abstract String getSpecial();
+   
+   @Override
+   public abstract String getSpecialName();
 
    @Override
    public void select(boolean select) {
@@ -278,7 +279,21 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public abstract Tower constructNew();
+   public Tower constructNew() {
+      return constructNew(centre);
+   }
+   
+   @Override
+   public Tower constructNew(Point p) {
+      try {
+         Constructor<? extends Tower> c = this.getClass().getConstructor(Point.class);
+         return c.newInstance(p);
+      } catch(Exception e) {
+         // No exception should be thrown if the superclass is reasonably behaved
+         throw new RuntimeException("\nSuperclass of AbstractTower is not well behaved.\n" + e +
+               " was thrown.\n" + "Either fix this, or override constructNew()");
+      }
+   }
 
    @Override
    public void increaseDamageDealt(double damage) {
@@ -322,6 +337,9 @@ public abstract class AbstractTower implements Tower {
       return nextUpgradeKills;
    }
    
+   @Override
+   public abstract BufferedImage getButtonImage();
+   
    protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p);
 
@@ -360,9 +378,7 @@ public abstract class AbstractTower implements Tower {
       bulletSpeed *= upgradeIncreaseFactor;
    }
 
-   private void upgradeSpecial() {
-      // TODO
-   }
+   protected abstract void upgradeSpecial();
    
    private void upgradeAllStats() {
       upgradeDamage();

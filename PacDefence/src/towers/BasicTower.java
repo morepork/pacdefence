@@ -16,13 +16,13 @@ public class BasicTower extends AbstractTower {
       this(new Point());
    }
    
-   private BasicTower(Point p) {
+   public BasicTower(Point p) {
       super(p, "Basic", 40, 100, 5, 10, 50, 25, image);
    }
    
    @Override
-   public Tower constructNew() {
-      return new BasicTower(getCentre());
+   public BufferedImage getButtonImage() {
+      return null;
    }
 
    @Override
@@ -30,5 +30,20 @@ public class BasicTower extends AbstractTower {
          double damage, Point p) {
       return new AbstractBullet(this, dx, dy, turretWidth, range, speed, damage, p){};
    }
+
+   @Override
+   public String getSpecial() {
+      return "none";
+   }
+   
+   @Override
+   public String getSpecialName() {
+      return "Special";
+   }
+
+   @Override
+   protected void upgradeSpecial() {
+      // Basic tower has no special
+   }   
 
 }

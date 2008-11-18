@@ -46,8 +46,8 @@ public abstract class AbstractBullet implements Bullet {
    private boolean alive = true;
    private final Tower shotBy;
    
-   public AbstractBullet(Tower shotBy, double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p) {
+   public AbstractBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
+         double speed, double damage, Point p) {
       this.shotBy = shotBy;
       this.range = range - turretWidth;
       this.speed = speed;
@@ -92,15 +92,12 @@ public abstract class AbstractBullet implements Bullet {
       }
       Line2D line = new Line2D.Double(lastPosition, position);
       for(Sprite s : sprites) {
-         if(s.intersects(line)) {
-            DamageReport d = s.hitBy(this);
-            if(d != null) {
-               // Sprite is not already dead
-               if(d.wasKill()) {
-                  shotBy.increaseKills(1);
-               }
-               shotBy.increaseDamageDealt(d.getDamage());
-               return d.getMoneyEarnt();
+         Point2D p = s.intersects(line);
+         if(p != null) {
+            specialOnHit(p, s);
+            DamageReport d = s.hit(getDamage());
+            if(d != null) { // Sprite is not already dead
+               return processDamageReport(d);
             }
          }
       }
@@ -115,10 +112,24 @@ public abstract class AbstractBullet implements Bullet {
       g.fillOval((int) position.getX() - radius, (int) position.getY() - radius, twiceRadius,
             twiceRadius);
    }
-
    
    public double getDamage() {
       return damage;
+   }
+   
+   /**
+    * To be overriden by subclasses whose bullets do something special on a hit
+    * 
+    * @param p
+    */
+   protected void specialOnHit(Point2D p, Sprite s) {}
+   
+   protected double processDamageReport(DamageReport d) {
+      if(d.wasKill()) {
+         shotBy.increaseKills(1);
+      }
+      shotBy.increaseDamageDealt(d.getDamage());
+      return d.getMoneyEarnt();
    }
 
 }

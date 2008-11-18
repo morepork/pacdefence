@@ -20,10 +20,9 @@
 package sprites;
 
 import java.awt.Graphics;
+import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-
-import towers.Bullet;
 
 
 /**
@@ -39,15 +38,16 @@ public interface Sprite {
    public int getHalfWidth();
    public Point2D getPosition();
    public double getTotalDistanceTravelled();
+   public Shape getBounds();
    public boolean isAlive();
    /**
     * 
     * @param b
     * @return null if the sprite is already dead
     */
-   public DamageReport hitBy(Bullet b);
+   public DamageReport hit(double damage);
    public boolean intersects(Point2D p);
-   public boolean intersects(Line2D line);
+   public Point2D intersects(Line2D line);
    
    /**
     * Returns a double representing initial totalHP / baseHP

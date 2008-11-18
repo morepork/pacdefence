@@ -27,6 +27,12 @@ import sprites.Sprite;
 
 public interface Bullet {
    
+   /**
+    * 
+    * @param sprites
+    * @return The money earnt for the bullet hitting, 0 if it reaches the edge
+    *         of its range and -1 if the Bullet is still going
+    */
    public double tick(List<Sprite> sprites);
    
    public void draw(Graphics g);

@@ -49,6 +49,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import towers.BasicTower;
+import towers.BomberTower;
 import towers.Tower;
 
 
@@ -65,14 +66,15 @@ public class ControlPanel extends JPanel {
    private int level = 1;
    // These labels are in the top stats box
    private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel;
+   private final Map<TowerButton, Tower> towerTypes = new HashMap<TowerButton, Tower>();
    // These labels are in the current tower stats box
    private MyJLabel damageLabel, rangeLabel, rateLabel, speedLabel, specialLabel;
    private MyJLabel damageDealtLabel, killsLabel;
    // These buttons are in the current tower stats box
    private TowerUpgradeButton damageButton, rangeButton, rateButton, speedButton, specialButton;
-   private List<TowerUpgradeButton> towerStatsButtons = new ArrayList<TowerUpgradeButton>(5);
-   private Map<TowerUpgradeButton, Tower.Attribute> buttonAttributes =
-         new HashMap<TowerUpgradeButton, Tower.Attribute>(5);
+   private final List<TowerUpgradeButton> towerStatsButtons = new ArrayList<TowerUpgradeButton>();
+   private final Map<TowerUpgradeButton, Tower.Attribute> buttonAttributes =
+         new HashMap<TowerUpgradeButton, Tower.Attribute>();
    // These labels are in the level stats box
    private MyJLabel numSpritesLabel, avgHPLabel;
    private MyJLabel currentCostLabel;
@@ -288,6 +290,7 @@ public class ControlPanel extends JPanel {
       rangeLabel.setText(t.getRange());
       rateLabel.setText(t.getFireRate());
       speedLabel.setText(ONE_DP.format(t.getBulletSpeed()));
+      specialButton.setText(t.getSpecialName());
       specialLabel.setText(t.getSpecial());
    }
    
@@ -364,14 +367,19 @@ public class ControlPanel extends JPanel {
       int height = 4;
       int width = 6;
       panel.setLayout(new GridLayout(height, width));
-      // TODO Change this to deal with the other towers when implemented
+      List<Tower> towers = getTowerImplementations();
       for (int a = 0; a < height * width; a++) {
-         ImageButton button = new ImageButton("Tower", ".png");
+         Tower t = new BasicTower();
+         if(a < towers.size()) {
+            t = towers.get(a);
+         }
+         TowerButton button = new TowerButton(t.getButtonImage());
+         towerTypes.put(button, t);
          button.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
                //System.out.println("Tower button pressed");
                if(canBuildTower()) {
-                  if(map.towerButtonPressed(new BasicTower())) {
+                  if(map.towerButtonPressed(towerTypes.get(e.getSource()))) {
                      updateCurrentCostLabel(BASE_TOWER_PRICE);
                   }
                }
@@ -382,10 +390,16 @@ public class ControlPanel extends JPanel {
                updateCurrentCostLabel(BASE_TOWER_PRICE);
             }
          });
-         panel.add(createWrapperPanel(button, 1));
+         panel.add(createWrapperPanel(button));
       }
-
       add(panel);
+   }
+   
+   private List<Tower> getTowerImplementations() {
+      List<Tower> towerTypes = new ArrayList<Tower>();
+      towerTypes.add(new BomberTower());
+      // TODO add tower implementations as I code them
+      return towerTypes;
    }
 
    private void setUpCurrentTowerStats() {

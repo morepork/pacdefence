@@ -29,6 +29,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -37,8 +38,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
-
-import towers.Bullet;
 
 public abstract class AbstractSprite implements Sprite {
    
@@ -136,6 +135,11 @@ public abstract class AbstractSprite implements Sprite {
    public Point2D getPosition() {
       return new Point2D.Double(centre.getX(), centre.getY());
    }
+   
+   @Override
+   public Shape getBounds() {
+      return bounds.clone();
+   }
 
    @Override
    public boolean isAlive() {
@@ -158,28 +162,33 @@ public abstract class AbstractSprite implements Sprite {
    }
    
    @Override
-   public boolean intersects(Line2D line) {
+   public Point2D intersects(Line2D line) {
       if(!alive) {
          // If the sprite is dead or dying it can't be hit
-         return false;
+         return null;
       }
-      return bounds.intersects(line);
+      for(Point2D p : Helper.getPointsOnLine(line)) {
+         if(bounds.contains(p)) {
+            return p;
+         }
+      }
+      return null;
    }
 
    @Override
-   public DamageReport hitBy(Bullet b) {
+   public DamageReport hit(double damage) {
       if(!alive) {
          return null;
       }
       // System.out.println("Got hit");
-      if (hp - b.getDamage() <= 0) {
+      if (hp - damage <= 0) {
          alive = false;
          double moneyEarnt = Formulae.damageDollars(hp, hpFactor) + Formulae.killBonus(levelHP);
          return new DamageReport(hp, moneyEarnt, true);
       } else {
-         hp -= b.getDamage();
-         double moneyEarnt = Formulae.damageDollars(b.getDamage(), hpFactor);
-         return new DamageReport(b.getDamage(), moneyEarnt, false);
+         hp -= damage;
+         double moneyEarnt = Formulae.damageDollars(damage, hpFactor);
+         return new DamageReport(damage, moneyEarnt, false);
       }
    }
 

@@ -23,6 +23,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 import sprites.Sprite;
@@ -76,7 +77,12 @@ public interface Tower extends Cloneable {
    
    public void draw(Graphics g);   
    public void drawSelected(Graphics g);   
-   public void drawShadow(Graphics g);   
+   public void drawShadow(Graphics g);
+   /**
+    * 
+    * @param sprites
+    * @return null if no Bullet was shot
+    */
    public Bullet tick(List<Sprite> sprites);   
    public boolean towerClash(Tower t);   
    public boolean contains(Point p);
@@ -92,7 +98,9 @@ public interface Tower extends Cloneable {
    public int getFireRate();
    public double getBulletSpeed();
    public String getSpecial();
+   public String getSpecialName();
    public Tower constructNew();
+   public Tower constructNew(Point p);
    public void select(boolean select);
    public void increaseDamageDealt(double damage);
    public void increaseKills(int kills);
@@ -100,5 +108,6 @@ public interface Tower extends Cloneable {
    public int getDamageDealtForUpgrade();
    public int getKills();
    public int getKillsForUpgrade();
+   public BufferedImage getButtonImage();
 
 }

@@ -20,6 +20,7 @@
 package gui;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -37,14 +38,15 @@ import java.util.List;
 public class Circle implements Shape {
    
    private final Point2D centre;
-   private final double radius;
-   private final double twiceRadius;
+   private double radius;
    private Ellipse2D bounds;
    
    public Circle(Point2D centre, double radius){
       this.centre = new Point2D.Double(centre.getX(), centre.getY());
+      if(radius < 0) {
+         throw new IllegalArgumentException("Radius cannot be less than zero.");
+      }
       this.radius = radius;
-      twiceRadius = radius * 2;
       setBounds();
    }
    
@@ -53,8 +55,11 @@ public class Circle implements Shape {
    }
    
    public void draw(Graphics g) {
-      g.drawOval((int)(centre.getX() - radius), (int)(centre.getY() - radius), (int)(radius*2),
-            (int)(radius*2));
+      ((Graphics2D) g).draw(bounds);
+   }
+   
+   public void fill(Graphics g) {
+      ((Graphics2D) g).fill(bounds);
    }
 
    @Override
@@ -122,6 +127,11 @@ public class Circle implements Shape {
       centre.setLocation(x, y);
       setBounds();
    }
+   
+   public void setRadius(double r) {
+      radius = r;
+      setBounds();
+   }
 
    @Override
    public boolean intersects(Rectangle2D r) {
@@ -146,13 +156,36 @@ public class Circle implements Shape {
       return false;
    }
    
+   public boolean intersects(Circle c) {
+      return Helper.distance(centre, c.getCentre()) < radius + c.getRadius();
+   }
+   
    public boolean intersects(Line2D line) {
       return line.ptSegDist(centre) < radius;
    }
    
+   public boolean intersects(Shape s) {
+      if(s instanceof Circle) {
+         return intersects((Circle) s);
+      } else if(s instanceof Rectangle2D) {
+         return intersects((Rectangle2D) s);
+      } else if(s instanceof Polygon) {
+         return intersects((Polygon) s);
+      } else if(s instanceof Line2D) {
+         return intersects((Line2D) s);
+      } else {
+         return intersects(s.getBounds2D());
+      }
+   }
+   
+   @Override
+   public Circle clone() {
+      return new Circle(centre, radius);
+   }
+   
    private void setBounds() {
-      bounds = new Ellipse2D.Double(centre.getX() - radius, centre.getY() - radius, twiceRadius,
-            twiceRadius);
+      bounds = new Ellipse2D.Double(centre.getX() - radius, centre.getY() - radius, radius * 2,
+            radius * 2);
    }
    
    private List<Line2D> makePolygonOutline(Polygon p) {
