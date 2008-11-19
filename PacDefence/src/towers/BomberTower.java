@@ -27,9 +27,9 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
@@ -81,7 +81,7 @@ public class BomberTower extends AbstractTower {
 
       private boolean exploding = false;
       private boolean expanding = true;
-      private Set<Sprite> hitSprites = new TreeSet<Sprite>();
+      private Set<Sprite> hitSprites = new HashSet<Sprite>();
       private final Color blastColour = new Color(255, 0, 0, 150);
       private final int blastSizeIncrement;
       private final int frames = 5;
