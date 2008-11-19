@@ -48,12 +48,7 @@ public class BomberTower extends AbstractTower {
    }
 
    public BomberTower(Point p) {
-      super(p, "Bomber", 40, 100, 5, 5, 50, 15, image);
-   }
-
-   @Override
-   public BufferedImage getButtonImage() {
-      return buttonImage;
+      super(p, "Bomber", 40, 100, 5, 5, 50, 15, image, buttonImage);
    }
 
    @Override

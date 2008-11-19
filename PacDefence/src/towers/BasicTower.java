@@ -17,12 +17,7 @@ public class BasicTower extends AbstractTower {
    }
    
    public BasicTower(Point p) {
-      super(p, "Basic", 40, 100, 5, 10, 50, 25, image);
-   }
-   
-   @Override
-   public BufferedImage getButtonImage() {
-      return null;
+      super(p, "Basic", 40, 100, 5, 10, 50, 25, image, null);
    }
 
    @Override

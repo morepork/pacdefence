@@ -19,39 +19,32 @@
 
 package towers;
 
-import images.ImageHelper;
-
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
+import sprites.Sprite;
 
-public class SlowLengthTower extends SlowTower {
+
+public abstract class SlowTower extends AbstractTower {
    
-   private static final BufferedImage image = ImageHelper.makeImage("towers", "slowLength.png");
-   private static final BufferedImage buttonImage = ImageHelper.makeImage("buttons",
-         "SlowLengthTower.png");
+   protected double slowFactor = 0.75;
+   protected int slowTicks = 10;
+
+   public SlowTower(Point p, String name, int fireRate, int range, double bulletSpeed,
+         double damage, int width, int turretWidth, BufferedImage image, BufferedImage buttonImage) {
+      super(p, name, fireRate, range, bulletSpeed, damage, width, turretWidth, image, buttonImage);
+   }
    
-   public SlowLengthTower() {
-      this(new Point());
-   }
-   
-   public SlowLengthTower(Point p) {
-      super(p, "Slow (length)", 40, 100, 5, 1, 50, 23, image, buttonImage);
-   }
-
    @Override
-   public String getSpecial() {
-      return Integer.toString(slowTicks);
-   }
-
-   @Override
-   public String getSpecialName() {
-      return "Slow ticks";
-   }
-
-   @Override
-   protected void upgradeSpecial() {
-      slowTicks *= upgradeIncreaseFactor;
+   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+         double damage, Point p) {
+      return new AbstractBullet(this, dx, dy, turretWidth, range, speed, damage, p) {
+         @Override
+         public void specialOnHit(Point2D p, Sprite s) {
+            s.slow(slowFactor, slowTicks);
+         }         
+      };
    }
 
 }

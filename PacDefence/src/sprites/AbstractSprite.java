@@ -70,7 +70,7 @@ public abstract class AbstractSprite implements Sprite {
    // The distance in pixels to the next point from the previous one
    private double distance;
    // The steps taken so far
-   private int steps;
+   private double steps;
    // Whether the sprite is still alive
    private boolean alive = true;
    // Whether the sprite is still on the screen
@@ -246,8 +246,8 @@ public abstract class AbstractSprite implements Sprite {
          }
       }
       bounds.setCentre(centre);
-      totalDistanceTravelled += Math.abs(xStep) + Math.abs(yStep);
-      steps++;
+      totalDistanceTravelled += (Math.abs(xStep) + Math.abs(yStep)) * speedFactor;
+      steps += speedFactor;
       if (steps + 1 > distance) {
          calculateNextMove();
       }

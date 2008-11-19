@@ -23,35 +23,37 @@ import images.ImageHelper;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
 
 
-public class SlowLengthTower extends SlowTower {
+public class SlowFactorTower extends SlowTower {
    
-   private static final BufferedImage image = ImageHelper.makeImage("towers", "slowLength.png");
+   private static final BufferedImage image = ImageHelper.makeImage("towers", "slowFactor.png");
    private static final BufferedImage buttonImage = ImageHelper.makeImage("buttons",
-         "SlowLengthTower.png");
+         "SlowFactorTower.png");
+   private static final DecimalFormat TWO_DP = new DecimalFormat("0.00");
    
-   public SlowLengthTower() {
+   public SlowFactorTower() {
       this(new Point());
    }
    
-   public SlowLengthTower(Point p) {
+   public SlowFactorTower(Point p) {
       super(p, "Slow (length)", 40, 100, 5, 1, 50, 23, image, buttonImage);
    }
 
    @Override
    public String getSpecial() {
-      return Integer.toString(slowTicks);
+      return TWO_DP.format(slowFactor);
    }
 
    @Override
    public String getSpecialName() {
-      return "Slow ticks";
+      return "Slow Factor";
    }
 
    @Override
    protected void upgradeSpecial() {
-      slowTicks *= upgradeIncreaseFactor;
+      slowFactor /= upgradeIncreaseFactor;
    }
 
 }

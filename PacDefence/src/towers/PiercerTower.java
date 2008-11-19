@@ -44,12 +44,7 @@ public class PiercerTower extends AbstractTower {
    }
    
    public PiercerTower(Point p) {
-      super(p, "Piercer", 40, 100, 5, 7, 50, 20, image);
-   }
-
-   @Override
-   public BufferedImage getButtonImage() {
-      return buttonImage;
+      super(p, "Piercer", 40, 100, 5, 7, 50, 20, image, buttonImage);
    }
 
    @Override
@@ -104,10 +99,13 @@ public class PiercerTower extends AbstractTower {
       
       private double processShotResult(double shotResult, List<Sprite> sprites) {
          if(shotResult < 0) {
+            // Bullet didn't hit anything
             return shotResult;
          } else if(shotResult == 0) {
-           return moneyEarnt; 
+           // Bullet has reached the edge of its range
+           return moneyEarnt;
          } else {
+            // Bullet hit something
             moneyEarnt += shotResult;
             if(piercesSoFar >= pierces) {
                return moneyEarnt;

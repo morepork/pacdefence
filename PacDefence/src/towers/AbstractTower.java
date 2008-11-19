@@ -71,6 +71,7 @@ public abstract class AbstractTower implements Tower {
 
    private final BufferedImage originalImage;
    private BufferedImage currentImage;
+   private final BufferedImage buttonImage;
 
    private boolean isSelected = false;
 
@@ -82,7 +83,8 @@ public abstract class AbstractTower implements Tower {
    private int nextUpgradeKills = Formulae.nextUpgradeKills(damageDealtLevel);
 
    public AbstractTower(Point p, String name, int fireRate, int range, double bulletSpeed,
-         double damage, int width, int turretWidth, BufferedImage image) {
+         double damage, int width, int turretWidth, BufferedImage image,
+         BufferedImage buttonImage) {
       centre = new Point(p);
       // Only temporary, it gets actually set later
       topLeft = new Point(0, 0);
@@ -100,6 +102,7 @@ public abstract class AbstractTower implements Tower {
       setBounds();
       originalImage = ImageHelper.resize(image, width, width);
       currentImage = originalImage;
+      this.buttonImage = buttonImage;
    }
 
    @Override
@@ -336,9 +339,11 @@ public abstract class AbstractTower implements Tower {
    public int getKillsForUpgrade() {
       return nextUpgradeKills;
    }
-   
+
    @Override
-   public abstract BufferedImage getButtonImage();
+   public BufferedImage getButtonImage() {
+      return buttonImage;
+   }
    
    protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p);
