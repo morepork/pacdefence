@@ -34,22 +34,23 @@ import java.util.Set;
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
 
-
 public class BomberTower extends AbstractTower {
-   
+
    private static final BufferedImage image = ImageHelper.makeImage("towers", "bomber.png");
    private static final BufferedImage buttonImage = ImageHelper.makeImage("buttons",
          "BomberTower.png");
    private int blastRadius = 20;
-   
+   private final int blastRadiusIncrease = (int) (blastRadius * upgradeIncreaseFactor)
+         - blastRadius;
+
    public BomberTower() {
       this(new Point());
    }
 
    public BomberTower(Point p) {
-      super(p, "Bomber", 40, 100, 5, 10, 50, 15, image);
+      super(p, "Bomber", 40, 100, 5, 5, 50, 15, image);
    }
-   
+
    @Override
    public BufferedImage getButtonImage() {
       return buttonImage;
@@ -59,7 +60,7 @@ public class BomberTower extends AbstractTower {
    public String getSpecial() {
       return Integer.toString(blastRadius);
    }
-   
+
    @Override
    public String getSpecialName() {
       return "Blast Radius";
@@ -67,44 +68,46 @@ public class BomberTower extends AbstractTower {
 
    @Override
    protected void upgradeSpecial() {
-      blastRadius *= upgradeIncreaseFactor;
+      blastRadius += blastRadiusIncrease;
    }
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
          double damage, Point p) {
       // TODO Actually implement this
-      return new Bomb(this, dx, dy, turretWidth, range, speed, damage, p){};
-   }   
-   
+      return new Bomb(this, dx, dy, turretWidth, range, speed, damage, p);
+   }
+
    private class Bomb extends AbstractBullet {
-      
+
       private boolean exploding = false;
       private boolean expanding = true;
       private Set<Sprite> hitSprites = new HashSet<Sprite>();
-      private final Color blastColour = Color.RED;
-      private final int blastSizeIncrement = 3;
+      private final Color blastColour = new Color(255, 0, 0, 150);
+      private final int blastSizeIncrement;
+      private final int frames = 5;
       private final Circle blast = new Circle(new Point(0, 0), 0);
       private double moneyEarnt;
 
       public Bomb(Tower shotBy, double dx, double dy, int turretWidth, int range, double speed,
             double damage, Point p) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p);
+         blastSizeIncrement = blastRadius / frames;
       }
-      
+
       @Override
       public double tick(List<Sprite> sprites) {
-         if(exploding) {
+         if (exploding) {
             double radius = blast.getRadius();
-            if(expanding) {
+            if (expanding) {
                blast.setRadius(radius + blastSizeIncrement);
-               if(blast.getRadius() >= blastRadius) {
+               if (blast.getRadius() >= blastRadius) {
                   blast.setRadius(blastRadius);
                   expanding = false;
                }
             } else {
                blast.setRadius(radius - blastSizeIncrement * 2);
-               if(blast.getRadius() < 0) {
+               if (blast.getRadius() < 0) {
                   return moneyEarnt;
                }
             }
@@ -112,7 +115,7 @@ public class BomberTower extends AbstractTower {
             return -1;
          } else {
             double earnings = super.tick(sprites);
-            if(earnings <= 0) {
+            if (earnings <= 0) {
                return earnings;
             } else {
                moneyEarnt = earnings;
@@ -120,38 +123,39 @@ public class BomberTower extends AbstractTower {
             }
          }
       }
-      
+
       @Override
       public void draw(Graphics g) {
-         if(exploding) {
+         if (exploding) {
             g.setColor(blastColour);
             blast.fill(g);
          } else {
             super.draw(g);
          }
       }
-      
+
       @Override
       protected void specialOnHit(Point2D p, Sprite s) {
-         //System.out.println(p.getX() + " " + p.getY());
+         // System.out.println(p.getX() + " " + p.getY());
          blast.setCentre(p);
          exploding = true;
       }
-      
+
       private void checkForSprites(List<Sprite> sprites) {
-         for(Sprite s : sprites) {
-            if(!hitSprites.contains(s)) { // Sprites are only affected by the blast once
-               if(blast.intersects(s.getBounds())) {
+         for (Sprite s : sprites) {
+            if (!hitSprites.contains(s)) {
+               // Sprites are only affected by the blast once
+               if (blast.intersects(s.getBounds())) {
                   hitSprites.add(s);
                   DamageReport d = s.hit(getDamage() / 5);
-                  if(d != null) {
+                  if (d != null) {
                      moneyEarnt += processDamageReport(d);
                   }
                }
             }
          }
       }
-      
+
    }
 
 }
