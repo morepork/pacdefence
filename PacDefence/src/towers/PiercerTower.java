@@ -81,6 +81,7 @@ public class PiercerTower extends AbstractTower {
       
       private int piercesSoFar = 0;
       private Collection<Sprite> spritesHit = new ArrayList<Sprite>();
+      private int moneyEarnt;
 
       public PiercingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p) {
@@ -102,13 +103,20 @@ public class PiercerTower extends AbstractTower {
       }
       
       private double processShotResult(double shotResult, List<Sprite> sprites) {
-         if(piercesSoFar >= pierces || shotResult <= 0) {
+         if(shotResult < 0) {
             return shotResult;
+         } else if(shotResult == 0) {
+           return moneyEarnt; 
          } else {
-            piercesSoFar++;
-            // Removes the sprite that was last hit so it can't be hit again
-            sprites.removeAll(spritesHit);
-            return processShotResult(super.checkIfSpriteIsHit(sprites), sprites);
+            moneyEarnt += shotResult;
+            if(piercesSoFar >= pierces) {
+               return moneyEarnt;
+            } else {
+               piercesSoFar++;
+               // Removes the sprite that was last hit so it can't be hit again
+               sprites.removeAll(spritesHit);
+               return processShotResult(super.checkIfSpriteIsHit(sprites), sprites);
+            }
          }
       }
       
