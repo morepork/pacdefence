@@ -50,6 +50,7 @@ import javax.swing.event.ChangeListener;
 
 import towers.BasicTower;
 import towers.BomberTower;
+import towers.PiercerTower;
 import towers.Tower;
 
 
@@ -379,7 +380,9 @@ public class ControlPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                //System.out.println("Tower button pressed");
                if(canBuildTower()) {
-                  if(map.towerButtonPressed(towerTypes.get(e.getSource()))) {
+                  Tower t = towerTypes.get(e.getSource());
+                  if(map.towerButtonPressed(t)) {
+                     setStats(t);
                      updateCurrentCostLabel(BASE_TOWER_PRICE);
                   }
                }
@@ -398,6 +401,7 @@ public class ControlPanel extends JPanel {
    private List<Tower> getTowerImplementations() {
       List<Tower> towerTypes = new ArrayList<Tower>();
       towerTypes.add(new BomberTower());
+      towerTypes.add(new PiercerTower());
       // TODO add tower implementations as I code them
       return towerTypes;
    }

@@ -90,18 +90,7 @@ public abstract class AbstractBullet implements Bullet {
       } else {
          position.setLocation(position.getX() + dir[0], position.getY() + dir[1]);
       }
-      Line2D line = new Line2D.Double(lastPosition, position);
-      for(Sprite s : sprites) {
-         Point2D p = s.intersects(line);
-         if(p != null) {
-            specialOnHit(p, s);
-            DamageReport d = s.hit(getDamage());
-            if(d != null) { // Sprite is not already dead
-               return processDamageReport(d);
-            }
-         }
-      }
-      return -1;
+      return checkIfSpriteIsHit(sprites);
    }
 
    public void draw(Graphics g) {
@@ -115,6 +104,21 @@ public abstract class AbstractBullet implements Bullet {
    
    public double getDamage() {
       return damage;
+   }
+   
+   protected double checkIfSpriteIsHit(List<Sprite> sprites) {
+      Line2D line = new Line2D.Double(lastPosition, position);
+      for(Sprite s : sprites) {
+         Point2D p = s.intersects(line);
+         if(p != null) {
+            specialOnHit(p, s);
+            DamageReport d = s.hit(getDamage());
+            if(d != null) { // Sprite is not already dead
+               return processDamageReport(d);
+            }
+         }
+      }
+      return -1;
    }
    
    /**
