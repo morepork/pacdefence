@@ -53,6 +53,7 @@ public interface Sprite {
     * Returns a double representing initial totalHP / baseHP
     */
    public double getHPFactor();
+   public void slow(double factor, int numTicks);
    
    
    public class DamageReport {

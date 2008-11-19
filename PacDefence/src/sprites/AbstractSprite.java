@@ -77,6 +77,8 @@ public abstract class AbstractSprite implements Sprite {
    private boolean onScreen = true;
    // How many times the image has been shrunk after it died
    private int shrinkCounter = 0;
+   private double speedFactor = 1;
+   private double adjustedSpeedTicksLeft = 0;
 
    public AbstractSprite(List<BufferedImage> images, int hp, List<Point> path) {
       this.width = images.get(1).getWidth();
@@ -202,6 +204,27 @@ public abstract class AbstractSprite implements Sprite {
       return hpFactor;
    }
    
+   @Override
+   public void slow(double factor, int numTicks) {
+      if(factor >= 1) {
+         throw new IllegalArgumentException("Factor must be less than 1 in order to slow.");
+      }
+      if(factor < speedFactor) {
+         // New speed is slower, so it is better, even if only for a short
+         // time. Or so I think.
+         speedFactor = factor;
+         adjustedSpeedTicksLeft = numTicks;
+      } else if(Math.abs(factor - speedFactor) < 0.01) {
+         // The new slow speed factor is basically the same as the current
+         // speed, so if it is for longer, lengthen it
+         if(numTicks > adjustedSpeedTicksLeft) {
+            speedFactor = factor;
+            adjustedSpeedTicksLeft = numTicks;
+         }
+      }
+      // Otherwise ignore it as it would increase the sprite's speed
+   }
+   
 
    public static Comparator<Sprite> getTotalDistanceTravelledComparator() {
       return new Comparator<Sprite>() {
@@ -214,7 +237,14 @@ public abstract class AbstractSprite implements Sprite {
 
    private void move() {
       // System.out.println("Step: " + steps + " Pos: " + x + " " + y);
-      centre.setLocation(centre.getX() + xStep, centre.getY() + yStep);
+      centre.setLocation(centre.getX() + xStep * speedFactor,
+            centre.getY() + yStep * speedFactor);
+      if(adjustedSpeedTicksLeft > 0) {
+         adjustedSpeedTicksLeft--;
+         if(adjustedSpeedTicksLeft <= 0) {
+            speedFactor = 1;
+         }
+      }
       bounds.setCentre(centre);
       totalDistanceTravelled += Math.abs(xStep) + Math.abs(yStep);
       steps++;

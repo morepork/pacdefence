@@ -51,6 +51,7 @@ import javax.swing.event.ChangeListener;
 import towers.BasicTower;
 import towers.BomberTower;
 import towers.PiercerTower;
+import towers.SlowLengthTower;
 import towers.Tower;
 
 
@@ -402,6 +403,7 @@ public class ControlPanel extends JPanel {
       List<Tower> towerTypes = new ArrayList<Tower>();
       towerTypes.add(new BomberTower());
       towerTypes.add(new PiercerTower());
+      towerTypes.add(new SlowLengthTower());
       // TODO add tower implementations as I code them
       return towerTypes;
    }
