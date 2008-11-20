@@ -29,7 +29,7 @@ public class Formulae {
    }
    
    public static int hp(int level) {
-      return (int)(Math.pow(1.4, (level - 1)) * 10);
+      return (int)(Math.pow(1.4, level - 1) * 10);
    }
    
    public static int levelEndBonus(int level) {
@@ -57,7 +57,7 @@ public class Formulae {
    }
    
    public static int nextUpgradeDamage(int currentLevel) {
-      return currentLevel * currentLevel * currentLevel * 200;
+      return (int)(Math.pow(2, currentLevel - 1)) * 100;
    }
 
 }

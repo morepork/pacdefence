@@ -183,10 +183,10 @@ public class ControlPanel extends JPanel {
    }
    
    private void updateAll() {
+      // Deliberately doesn't upgrade level stats to avoid confusion
       updateDamageAndKillsLabels();
       updateEndLevelUpgradesLabel();
       updateInterestLabel();
-      updateLevelStats();
       updateLivesLabel();
       updateMoneyLabel();
       updateStats();
@@ -198,6 +198,16 @@ public class ControlPanel extends JPanel {
    
    private void updateLivesLabel() {
       livesLabel.setText(lives);
+   }
+   
+   private void updateLevelStats() {
+      int level = this.level;
+      if(level == 0) {
+         level = 1;
+      }
+      levelLabel.setText("Level " + level);
+      numSpritesLabel.setText(Formulae.numSprites(level));
+      avgHPLabel.setText(Formulae.hp(level));
    }
    
    private void updateInterestLabel() {
@@ -327,7 +337,7 @@ public class ControlPanel extends JPanel {
    }
    
    private void startPressed() {
-      if (map.start(level)) {
+      if (map.start(level + 1)) {
          level++;
          map.removeText();
          updateLevelStats();
@@ -361,16 +371,6 @@ public class ControlPanel extends JPanel {
          }
          updateAll();
       }
-   }
-   
-   private void updateLevelStats() {
-      if(level == 0) {
-         levelLabel.setText("Level " + 1);
-      } else {
-         levelLabel.setText("Level " + level);
-      }
-      numSpritesLabel.setText(Formulae.numSprites(level));
-      avgHPLabel.setText(Formulae.hp(level));
    }
 
    // -----------------------------------------------------
