@@ -71,8 +71,8 @@ public class ControlPanel extends JPanel {
    private int level = 0;
    // These labels are in the top stats box
    private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel, upgradesLabel;
-   private final Map<TowerButton, Tower> towerTypes = new HashMap<TowerButton, Tower>();
-   private TowerButton damageUpgrade, rangeUpgrade, rateUpgrade, speedUpgrade,
+   private final Map<OverlayButton, Tower> towerTypes = new HashMap<OverlayButton, Tower>();
+   private OverlayButton damageUpgrade, rangeUpgrade, rateUpgrade, speedUpgrade,
          specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade; 
    // These labels are in the current tower stats box
    private MyJLabel damageLabel, rangeLabel, rateLabel, speedLabel, specialLabel;
@@ -345,7 +345,7 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   private void endLevelUpgradeButtonPressed(TowerButton b) {
+   private void endLevelUpgradeButtonPressed(OverlayButton b) {
       if(endLevelUpgradesLeft > 0) {
          endLevelUpgradesLeft--;
          Attribute upgradeAttrib = null;
@@ -433,7 +433,7 @@ public class ControlPanel extends JPanel {
          if(a < towers.size()) {
             t = towers.get(a);
          }
-         TowerButton button = new TowerButton(t.getButtonImage());
+         OverlayButton button = OverlayButton.makeTowerButton(t.getButtonImage());
          towerTypes.put(button, t);
          button.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
@@ -473,12 +473,12 @@ public class ControlPanel extends JPanel {
       JPanel panel = new JPanel();
       panel.setOpaque(false);
       panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-      TowerButton[] buttons = new TowerButton[]{damageUpgrade, rangeUpgrade, rateUpgrade,
+      OverlayButton[] buttons = new OverlayButton[]{damageUpgrade, rangeUpgrade, rateUpgrade,
             speedUpgrade, specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade};
-      for(TowerButton b : buttons) {
+      for(OverlayButton b : buttons) {
          b.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
-               endLevelUpgradeButtonPressed((TowerButton) e.getSource());
+               endLevelUpgradeButtonPressed((OverlayButton) e.getSource());
             }
          });
          panel.add(b);
@@ -487,14 +487,14 @@ public class ControlPanel extends JPanel {
    }
    
    private void setEndLevelUpgradeButtons() {
-      damageUpgrade = TowerButton.makeUpgradeButton("DamageUpgrade.png");
-      rangeUpgrade = TowerButton.makeUpgradeButton("RangeUpgrade.png");
-      rateUpgrade = TowerButton.makeUpgradeButton("RateUpgrade.png");
-      speedUpgrade = TowerButton.makeUpgradeButton("SpeedUpgrade.png");
-      specialUpgrade = TowerButton.makeUpgradeButton("SpecialUpgrade.png");
-      livesUpgrade = TowerButton.makeUpgradeButton("LivesUpgrade.png");
-      interestUpgrade = TowerButton.makeUpgradeButton("InterestUpgrade.png");
-      moneyUpgrade = TowerButton.makeUpgradeButton("MoneyUpgrade.png");
+      damageUpgrade = OverlayButton.makeUpgradeButton("DamageUpgrade.png");
+      rangeUpgrade = OverlayButton.makeUpgradeButton("RangeUpgrade.png");
+      rateUpgrade = OverlayButton.makeUpgradeButton("RateUpgrade.png");
+      speedUpgrade = OverlayButton.makeUpgradeButton("SpeedUpgrade.png");
+      specialUpgrade = OverlayButton.makeUpgradeButton("SpecialUpgrade.png");
+      livesUpgrade = OverlayButton.makeUpgradeButton("LivesUpgrade.png");
+      interestUpgrade = OverlayButton.makeUpgradeButton("InterestUpgrade.png");
+      moneyUpgrade = OverlayButton.makeUpgradeButton("MoneyUpgrade.png");
    }
 
    private void setUpCurrentTowerStats() {

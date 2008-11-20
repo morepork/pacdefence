@@ -34,6 +34,7 @@ public abstract class AbstractBullet implements Bullet {
    // The direction of the bullet, first is dx, second is dy. Should be normalised
    // then multiplied by the speed.
    private final double[] dir = new double[2];
+   @SuppressWarnings("unused")
    private final double speed;
    private final double distancePerTick;
    private double distanceTravelled = 0;
