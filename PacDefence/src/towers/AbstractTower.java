@@ -86,8 +86,7 @@ public abstract class AbstractTower implements Tower {
    private List<Bullet> bulletsToAdd = new ArrayList<Bullet>();
 
    public AbstractTower(Point p, String name, int fireRate, int range, double bulletSpeed,
-         double damage, int width, int turretWidth, BufferedImage image,
-         BufferedImage buttonImage) {
+         double damage, int width, int turretWidth, String imageName, String buttonImageName) {
       centre = new Point(p);
       // Only temporary, it gets actually set later
       topLeft = new Point(0, 0);
@@ -103,9 +102,13 @@ public abstract class AbstractTower implements Tower {
       this.turretWidth = turretWidth;
       setTopLeft();
       setBounds();
-      originalImage = ImageHelper.resize(image, width, width);
+      originalImage = ImageHelper.makeImage(width, width, "towers", imageName);
       currentImage = originalImage;
-      this.buttonImage = buttonImage;
+      if(buttonImageName == null) {
+         buttonImage = null;
+      } else {
+         buttonImage = ImageHelper.makeImage("buttons", "towers", buttonImageName);
+      }
    }
 
    @Override

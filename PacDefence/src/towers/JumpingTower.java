@@ -20,11 +20,9 @@
 package towers;
 
 import gui.Helper;
-import images.ImageHelper;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,9 +32,6 @@ import sprites.Sprite;
 
 public class JumpingTower extends AbstractTower {
    
-   private static final BufferedImage image = ImageHelper.makeImage("towers", "jumping.png");
-   private static final BufferedImage buttonImage = ImageHelper.makeImage("buttons",
-         "JumpingTower.png");
    private int jumps = 1;
    private double jumpRangeDividend = 2;
    
@@ -45,7 +40,7 @@ public class JumpingTower extends AbstractTower {
    }
    
    public JumpingTower(Point p) {
-      super(p, "Jumper", 40, 100, 5, 4, 50, 20, image, buttonImage);
+      super(p, "Jumper", 40, 100, 5, 4, 50, 20, "jumping.png", "JumpingTower.png");
    }
 
    @Override
@@ -93,8 +88,8 @@ public class JumpingTower extends AbstractTower {
             for(Sprite a : sprites) {
                if(!hitSprites.contains(a) && checkDistance(a, point, newRange)) {
                   hitsLeft--;
-                  JumpingBullet b = (JumpingBullet)fireBullet(a, point, false, 0,
-                        newRange, getBulletSpeed(), getDamage());
+                  JumpingBullet b = (JumpingBullet)fireBullet(a, point, false, 0, newRange,
+                        getBulletSpeed(), getDamage());
                   b.addHitSprites(hitSprites);
                   b.setHitsLeft(hitsLeft);
                   shotBy.addExtraBullets(b);               

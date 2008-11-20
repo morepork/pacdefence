@@ -21,7 +21,6 @@ package towers;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 import sprites.Sprite;
@@ -33,8 +32,9 @@ public abstract class SlowTower extends AbstractTower {
    protected int slowTicks = 10;
 
    public SlowTower(Point p, String name, int fireRate, int range, double bulletSpeed,
-         double damage, int width, int turretWidth, BufferedImage image, BufferedImage buttonImage) {
-      super(p, name, fireRate, range, bulletSpeed, damage, width, turretWidth, image, buttonImage);
+         double damage, int width, int turretWidth, String imageName, String buttonImageName) {
+      super(p, name, fireRate, range, bulletSpeed, damage, width, turretWidth, imageName,
+            buttonImageName);
    }
    
    @Override

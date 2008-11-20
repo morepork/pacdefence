@@ -20,11 +20,9 @@
 package towers;
 
 import gui.Helper;
-import images.ImageHelper;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,9 +32,6 @@ import sprites.Sprite;
 
 public class PiercerTower extends AbstractTower {
    
-   private static final BufferedImage image = ImageHelper.makeImage("towers", "piercer.png");
-   private static final BufferedImage buttonImage = ImageHelper.makeImage("buttons",
-         "PiercingTower.png");
    private int pierces = 1;
 
    public PiercerTower() {
@@ -44,7 +39,7 @@ public class PiercerTower extends AbstractTower {
    }
    
    public PiercerTower(Point p) {
-      super(p, "Piercer", 40, 100, 5, 7, 50, 20, image, buttonImage);
+      super(p, "Piercer", 40, 100, 5, 7, 50, 20, "piercer.png", "PiercingTower.png");
    }
 
    @Override

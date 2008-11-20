@@ -1,23 +1,18 @@
 package towers;
 
-import images.ImageHelper;
-
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 
 
 
 
 public class BasicTower extends AbstractTower {
    
-   private static final BufferedImage image = ImageHelper.makeImage("towers", "basic.png");
-   
    public BasicTower() {
       this(new Point());
    }
    
    public BasicTower(Point p) {
-      super(p, "Basic", 40, 100, 5, 10, 50, 25, image, null);
+      super(p, "Basic", 40, 100, 5, 10, 50, 25, "basic.png", null);
    }
 
    @Override

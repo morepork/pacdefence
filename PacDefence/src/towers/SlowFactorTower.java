@@ -19,18 +19,12 @@
 
 package towers;
 
-import images.ImageHelper;
-
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 
 
 public class SlowFactorTower extends SlowTower {
    
-   private static final BufferedImage image = ImageHelper.makeImage("towers", "slowFactor.png");
-   private static final BufferedImage buttonImage = ImageHelper.makeImage("buttons",
-         "SlowFactorTower.png");
    private static final DecimalFormat TWO_DP = new DecimalFormat("0.00");
    
    public SlowFactorTower() {
@@ -38,7 +32,7 @@ public class SlowFactorTower extends SlowTower {
    }
    
    public SlowFactorTower(Point p) {
-      super(p, "Slow (length)", 40, 100, 5, 1, 50, 23, image, buttonImage);
+      super(p, "Slow (length)", 40, 100, 5, 1, 50, 23, "slowFactor.png", "SlowFactorTower.png");
    }
 
    @Override

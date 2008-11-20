@@ -19,24 +19,17 @@
 
 package towers;
 
-import images.ImageHelper;
-
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 
 
 public class SlowLengthTower extends SlowTower {
-   
-   private static final BufferedImage image = ImageHelper.makeImage("towers", "slowLength.png");
-   private static final BufferedImage buttonImage = ImageHelper.makeImage("buttons",
-         "SlowLengthTower.png");
    
    public SlowLengthTower() {
       this(new Point());
    }
    
    public SlowLengthTower(Point p) {
-      super(p, "Slow (length)", 40, 100, 5, 1, 50, 23, image, buttonImage);
+      super(p, "Slow (length)", 40, 100, 5, 1, 50, 23, "slowLength.png", "SlowLengthTower.png");
    }
 
    @Override

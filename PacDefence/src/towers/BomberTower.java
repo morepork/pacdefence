@@ -20,13 +20,11 @@
 package towers;
 
 import gui.Circle;
-import images.ImageHelper;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,10 +33,7 @@ import sprites.Sprite;
 import sprites.Sprite.DamageReport;
 
 public class BomberTower extends AbstractTower {
-
-   private static final BufferedImage image = ImageHelper.makeImage("towers", "bomber.png");
-   private static final BufferedImage buttonImage = ImageHelper.makeImage("buttons",
-         "BomberTower.png");
+   
    private int blastRadius = 20;
    private final int blastRadiusIncrease = (int) (blastRadius * upgradeIncreaseFactor)
          - blastRadius;
@@ -48,7 +43,7 @@ public class BomberTower extends AbstractTower {
    }
 
    public BomberTower(Point p) {
-      super(p, "Bomber", 40, 100, 5, 5, 50, 15, image, buttonImage);
+      super(p, "Bomber", 40, 100, 5, 5, 50, 15, "bomber.png", "BomberTower.png");
    }
 
    @Override

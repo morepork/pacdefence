@@ -32,11 +32,11 @@ import javax.swing.JButton;
 public class TowerButton extends JButton {
    
    private static final int width = 30;
-   private static final BufferedImage normalOverlay = ImageHelper.makeImage("buttons",
+   private static final BufferedImage normalOverlay = ImageHelper.makeImage("buttons", "towers",
          "TowerOverlay.png");
    private static final BufferedImage rolledOverOverlay = ImageHelper.makeImage("buttons",
-         "TowerOverlayRolledOver.png");
-   private static final BufferedImage pressedOverlay = ImageHelper.makeImage("buttons",
+         "towers", "TowerOverlayRolledOver.png");
+   private static final BufferedImage pressedOverlay = ImageHelper.makeImage("buttons", "towers",
          "TowerOverlayPressed.png");
    
    public TowerButton(BufferedImage image) {
