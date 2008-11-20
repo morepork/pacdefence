@@ -92,7 +92,7 @@ public interface Tower extends Cloneable {
    public Rectangle getBoundingRectangle();
    public Shape getBounds();
    public int getAttributeLevel(Attribute a);
-   public void raiseAttributeLevel(Attribute a);
+   public void raiseAttributeLevel(Attribute a, boolean boughtUpgrade);
    public double getDamage();
    public int getRange();   
    public int getFireRate();

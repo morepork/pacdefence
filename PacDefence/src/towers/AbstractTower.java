@@ -105,6 +105,7 @@ public abstract class AbstractTower implements Tower {
       originalImage = ImageHelper.makeImage(width, width, "towers", imageName);
       currentImage = originalImage;
       if(buttonImageName == null) {
+         // TODO Remove this when I'm finished
          buttonImage = null;
       } else {
          buttonImage = ImageHelper.makeImage("buttons", "towers", buttonImageName);
@@ -237,21 +238,31 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public void raiseAttributeLevel(Attribute a) {
+   public void raiseAttributeLevel(Attribute a, boolean boughtUpgrade) {
       if (a == Tower.Attribute.Damage) {
-         damageLevel++;
+         if(boughtUpgrade) {
+            damageLevel++;
+         }
          upgradeDamage();
       } else if (a == Tower.Attribute.Range) {
-         rangeLevel++;
+         if(boughtUpgrade) {
+            rangeLevel++;
+         }
          upgradeRange();
       } else if (a == Tower.Attribute.Rate) {
-         rateLevel++;
+         if(boughtUpgrade) {
+            rateLevel++;
+         }
          upgradeFireRate();
       } else if (a == Tower.Attribute.Speed) {
-         speedLevel++;
+         if(boughtUpgrade) {
+            speedLevel++;
+         }
          upgradeBulletSpeed();
       } else if (a == Tower.Attribute.Special) {
-         specialLevel++;
+         if(boughtUpgrade) {
+            specialLevel++;
+         }
          upgradeSpecial();
       } else {
          throw new RuntimeException("Extra attribute has been added without changing "

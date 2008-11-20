@@ -42,6 +42,7 @@ import sprites.Pacman;
 import sprites.Sprite;
 import towers.Bullet;
 import towers.Tower;
+import towers.Tower.Attribute;
 
 
 @SuppressWarnings("serial")
@@ -151,6 +152,12 @@ public class GameMap extends JPanel {
    
    public void removeText() {
       textDisplay.clear();
+   }
+   
+   public void upgradeAll(Attribute a) {
+      for(Tower t : towers) {
+         t.raiseAttributeLevel(a, false);
+      }
    }
    
    private void drawUpdate(Graphics g) {

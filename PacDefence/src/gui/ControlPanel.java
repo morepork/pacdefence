@@ -55,6 +55,7 @@ import towers.PiercerTower;
 import towers.SlowFactorTower;
 import towers.SlowLengthTower;
 import towers.Tower;
+import towers.Tower.Attribute;
 
 
 @SuppressWarnings("serial")
@@ -67,10 +68,12 @@ public class ControlPanel extends JPanel {
 
    private final BufferedImage backgroundImage = ImageHelper.makeImage("control_panel",
          "blue_lava.jpg");;
-   private int level = 1;
+   private int level = 0;
    // These labels are in the top stats box
-   private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel;
+   private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel, upgradesLabel;
    private final Map<TowerButton, Tower> towerTypes = new HashMap<TowerButton, Tower>();
+   private TowerButton damageUpgrade, rangeUpgrade, rateUpgrade, speedUpgrade,
+         specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade; 
    // These labels are in the current tower stats box
    private MyJLabel damageLabel, rangeLabel, rateLabel, speedLabel, specialLabel;
    private MyJLabel damageDealtLabel, killsLabel;
@@ -91,6 +94,10 @@ public class ControlPanel extends JPanel {
    private int lives = 10;
    private int livesLostOnThisLevel;
    private double interestRate = 1.01;
+   private int endLevelUpgradesLeft = 0;
+   private static final int upgradeLives = 5;
+   private static final int upgradeMoney = 1000;
+   private static final float upgradeInterest = 0.001f;
 
    public ControlPanel(int width, int height, GameMap map) {
       this.map = map;
@@ -100,16 +107,18 @@ public class ControlPanel extends JPanel {
       setUpTowerStatsButtons();
       setUpTopStatsBox();
       setUpNewTowers();
+      setUpEndLevelUpgrades();
       setUpCurrentTowerStats();
       setUpLevelStats();
       setUpCurrentCost();
       setUpStartButton();
-      updateMoneyLabel();
-      updateLivesLabel();
+      updateAll();      
       map.setControlPanel(this);
    }
    
    public void endLevel() {
+      endLevelUpgradesLeft++;
+      updateEndLevelUpgradesLabel();
       int moneyBefore = money; 
       money *= interestRate;
       int interest = money - moneyBefore;
@@ -124,7 +133,6 @@ public class ControlPanel extends JPanel {
       money += levelEndBonus + noEnemiesThroughBonus;
       updateMoneyLabel();
       map.displayText(text);
-      level++;
       start.setEnabled(true);
    }
 
@@ -174,6 +182,16 @@ public class ControlPanel extends JPanel {
       return lives <= 0;
    }
    
+   private void updateAll() {
+      updateDamageAndKillsLabels();
+      updateEndLevelUpgradesLabel();
+      updateInterestLabel();
+      updateLevelStats();
+      updateLivesLabel();
+      updateMoneyLabel();
+      updateStats();
+   }
+   
    private void updateMoneyLabel() {
       moneyLabel.setText(money);
    }
@@ -184,6 +202,10 @@ public class ControlPanel extends JPanel {
    
    private void updateInterestLabel() {
       interestLabel.setText(ONE_DP.format(((interestRate - 1) * 100)) + "%");
+   }
+   
+   private void updateEndLevelUpgradesLabel() {
+      upgradesLabel.setText(endLevelUpgradesLeft);
    }
    
    private void updateCurrentCostLabel(int cost) {
@@ -268,7 +290,7 @@ public class ControlPanel extends JPanel {
          int cost = Formulae.upgradeCost(currentLevel);
          if(cost <= money) {
             money -= cost;
-            selectedTower.raiseAttributeLevel(a);
+            selectedTower.raiseAttributeLevel(a, true);
             setStats(selectedTower);
          }
       }
@@ -306,14 +328,47 @@ public class ControlPanel extends JPanel {
    
    private void startPressed() {
       if (map.start(level)) {
+         level++;
          map.removeText();
          updateLevelStats();
          livesLostOnThisLevel = 0;
       }
    }
    
+   private void endLevelUpgradeButtonPressed(TowerButton b) {
+      if(endLevelUpgradesLeft > 0) {
+         endLevelUpgradesLeft--;
+         Attribute upgradeAttrib = null;
+         if(b.equals(damageUpgrade)) {
+            upgradeAttrib = Attribute.Damage;
+         } else if(b.equals(rangeUpgrade)) {
+            upgradeAttrib = Attribute.Range;
+         } else if(b.equals(rateUpgrade)) {
+            upgradeAttrib = Attribute.Rate;
+         } else if(b.equals(speedUpgrade)) {
+            upgradeAttrib = Attribute.Speed;
+         } else if(b.equals(specialUpgrade)) {
+            upgradeAttrib = Attribute.Special;
+         } else if(b.equals(livesUpgrade)) {
+            lives += upgradeLives;
+         } else if(b.equals(interestUpgrade)) {
+            interestRate += upgradeInterest;
+         } else if(b.equals(moneyUpgrade)) {
+            money += upgradeMoney;
+         }
+         if(upgradeAttrib != null) {
+            map.upgradeAll(upgradeAttrib);
+         }
+         updateAll();
+      }
+   }
+   
    private void updateLevelStats() {
-      levelLabel.setText("Level " + level);
+      if(level == 0) {
+         levelLabel.setText("Level " + 1);
+      } else {
+         levelLabel.setText("Level " + level);
+      }
       numSpritesLabel.setText(Formulae.numSprites(level));
       avgHPLabel.setText(Formulae.hp(level));
    }
@@ -332,6 +387,7 @@ public class ControlPanel extends JPanel {
       panel.add(createLeftRightPanel("Money", textSize, textColour, moneyLabel));
       panel.add(createLeftRightPanel("Lives", textSize, textColour, livesLabel));
       panel.add(createLeftRightPanel("Interest", textSize, textColour, interestLabel));
+      panel.add(createLeftRightPanel("Bonuses", textSize, textColour, upgradesLabel));
       updateInterestLabel();
 
       add(panel);
@@ -368,7 +424,7 @@ public class ControlPanel extends JPanel {
    private void setUpNewTowers() {
       JPanel panel = new JPanel();
       panel.setOpaque(false);
-      int height = 4;
+      int height = 3;
       int width = 6;
       panel.setLayout(new GridLayout(height, width));
       List<Tower> towers = getTowerImplementations();
@@ -410,6 +466,35 @@ public class ControlPanel extends JPanel {
       towerTypes.add(new JumpingTower());
       // TODO add tower implementations as I code them
       return towerTypes;
+   }
+   
+   private void setUpEndLevelUpgrades() {
+      setEndLevelUpgradeButtons();
+      JPanel panel = new JPanel();
+      panel.setOpaque(false);
+      panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+      TowerButton[] buttons = new TowerButton[]{damageUpgrade, rangeUpgrade, rateUpgrade,
+            speedUpgrade, specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade};
+      for(TowerButton b : buttons) {
+         b.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e) {
+               endLevelUpgradeButtonPressed((TowerButton) e.getSource());
+            }
+         });
+         panel.add(b);
+      }
+      add(panel);
+   }
+   
+   private void setEndLevelUpgradeButtons() {
+      damageUpgrade = TowerButton.makeUpgradeButton("DamageUpgrade.png");
+      rangeUpgrade = TowerButton.makeUpgradeButton("RangeUpgrade.png");
+      rateUpgrade = TowerButton.makeUpgradeButton("RateUpgrade.png");
+      speedUpgrade = TowerButton.makeUpgradeButton("SpeedUpgrade.png");
+      specialUpgrade = TowerButton.makeUpgradeButton("SpecialUpgrade.png");
+      livesUpgrade = TowerButton.makeUpgradeButton("LivesUpgrade.png");
+      interestUpgrade = TowerButton.makeUpgradeButton("InterestUpgrade.png");
+      moneyUpgrade = TowerButton.makeUpgradeButton("MoneyUpgrade.png");
    }
 
    private void setUpCurrentTowerStats() {

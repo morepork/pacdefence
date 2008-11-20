@@ -31,7 +31,8 @@ import javax.swing.JButton;
 
 public class TowerButton extends JButton {
    
-   private static final int width = 30;
+   private static final int TOWER_BUTTON_WIDTH = 30;
+   private static final int UPGRADE_BUTTON_WIDTH = OuterPanel.CONTROLS_WIDTH / 8;
    private static final BufferedImage normalOverlay = ImageHelper.makeImage("buttons", "towers",
          "TowerOverlay.png");
    private static final BufferedImage rolledOverOverlay = ImageHelper.makeImage("buttons",
@@ -40,16 +41,29 @@ public class TowerButton extends JButton {
          "TowerOverlayPressed.png");
    
    public TowerButton(BufferedImage image) {
+      this(image, TOWER_BUTTON_WIDTH);
+   }
+   
+   public TowerButton(BufferedImage image, int width) {
       setBorderPainted(false);
       setContentAreaFilled(false);
-      setIcon(combine(image, normalOverlay));
-      setRolloverIcon(combine(image, rolledOverOverlay));
-      setPressedIcon(combine(image, pressedOverlay));
-      setPreferredSize(new Dimension(width, width));
+      setIcons(image, width);
       setMultiClickThreshhold(10);
    }
    
-   private ImageIcon combine(BufferedImage... images) {
+   public static TowerButton makeUpgradeButton(String imageName) {
+      return new TowerButton(ImageHelper.makeImage("buttons", "upgrades", imageName),
+            UPGRADE_BUTTON_WIDTH);
+   }
+   
+   private void setIcons(BufferedImage image, int width) {
+      setIcon(combine(width, image, normalOverlay));
+      setRolloverIcon(combine(width, image, rolledOverOverlay));
+      setPressedIcon(combine(width, image, pressedOverlay));
+      setPreferredSize(new Dimension(width, width));
+   }
+   
+   private ImageIcon combine(int width, BufferedImage... images) {
       BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
       Graphics g = image.getGraphics();
       for(BufferedImage b : images) {
