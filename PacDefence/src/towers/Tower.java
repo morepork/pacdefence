@@ -83,7 +83,7 @@ public interface Tower extends Cloneable {
     * @param sprites
     * @return null if no Bullet was shot
     */
-   public Bullet tick(List<Sprite> sprites);   
+   public List<Bullet> tick(List<Sprite> sprites);   
    public boolean towerClash(Tower t);   
    public boolean contains(Point p);
    public Point getCentre();
@@ -109,5 +109,6 @@ public interface Tower extends Cloneable {
    public int getKills();
    public int getKillsForUpgrade();
    public BufferedImage getButtonImage();
+   public void addExtraBullets(Bullet... bullets);
 
 }

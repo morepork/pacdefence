@@ -93,7 +93,7 @@ public class PiercerTower extends AbstractTower {
       }
       
       @Override
-      public void specialOnHit(Point2D p, Sprite s) {
+      public void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
          spritesHit.add(s);
       }
       

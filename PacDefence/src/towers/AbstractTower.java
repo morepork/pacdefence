@@ -31,6 +31,7 @@ import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.List;
 
 import sprites.Sprite;
@@ -81,6 +82,8 @@ public abstract class AbstractTower implements Tower {
    private int damageDealtLevel = 1;
    private int nextUpgradeDamage = Formulae.nextUpgradeDamage(killsLevel);
    private int nextUpgradeKills = Formulae.nextUpgradeKills(damageDealtLevel);
+   
+   private List<Bullet> bulletsToAdd = new ArrayList<Bullet>();
 
    public AbstractTower(Point p, String name, int fireRate, int range, double bulletSpeed,
          double damage, int width, int turretWidth, BufferedImage image,
@@ -106,25 +109,23 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public Bullet tick(List<Sprite> sprites) {
+   public List<Bullet> tick(List<Sprite> sprites) {
       // Decrements here so it's on every tick, not just when it is able to shoot
       timeToNextShot--;
       // Do this for loop even if tower can't shoot so tower rotates to track sprites
       for (Sprite s : sprites) {
-         if (checkDistance(s)) {
-            double dx = s.getPosition().getX() - centre.getX();
-            double dy = s.getPosition().getY() - centre.getY();
-            // System.out.println(dx + " " + dy);
-            currentImage = ImageHelper.rotateImage(originalImage, dx, -dy);
-            if (timeToNextShot > 0) {
-               return null;
-            } else {
+         if (checkDistance(s, centre)) {
+            Bullet b = fireBullet(s, centre, true);
+            if (timeToNextShot <= 0) {
                timeToNextShot = fireRate;
-               return makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, centre);
+               bulletsToAdd.add(b);
             }
+            break;
          }
       }
-      return null;
+      List<Bullet> bullets = bulletsToAdd;
+      bulletsToAdd = new ArrayList<Bullet>();
+      return bullets;
    }
 
    @Override
@@ -345,16 +346,42 @@ public abstract class AbstractTower implements Tower {
       return buttonImage;
    }
    
+   @Override
+   public void addExtraBullets(Bullet... bullets) {
+      for(Bullet b : bullets) {
+         bulletsToAdd.add(b);
+      }
+   }
+   
    protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p);
 
-   private boolean checkDistance(Sprite s) {
+   protected boolean checkDistance(Sprite s, Point p) {
+      return checkDistance(s, p, range + s.getHalfWidth());
+   }
+   
+   protected boolean checkDistance(Sprite s, Point p, int range) {
       Point2D sPos = s.getPosition();
       if (!s.isAlive()) {
          return false;
       }
-      double distance = Point.distance(centre.getX(), centre.getY(), sPos.getX(), sPos.getY());
-      return distance < range + s.getHalfWidth();
+      double distance = Point.distance(p.getX(), p.getY(), sPos.getX(), sPos.getY());
+      return distance < range;
+   }
+   
+   protected Bullet fireBullet(Sprite s, Point p, boolean rotateTurret) {
+      return fireBullet(s, p, rotateTurret, turretWidth, range, bulletSpeed, damage);
+   }
+   
+   protected Bullet fireBullet(Sprite s, Point p, boolean rotateTurret, int turretWidth,
+         int range, double bulletSpeed, double damage) {
+      double dx = s.getPosition().getX() - p.getX();
+      double dy = s.getPosition().getY() - p.getY();
+      // System.out.println(dx + " " + dy);
+      if(rotateTurret) {
+         currentImage = ImageHelper.rotateImage(originalImage, dx, -dy);
+      }
+      return makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p);
    }
 
    private void setTopLeft() {

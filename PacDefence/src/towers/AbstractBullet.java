@@ -44,7 +44,7 @@ public abstract class AbstractBullet implements Bullet {
    private final int twiceRadius = radius * 2;
    private final double damage;
    private boolean alive = true;
-   private final Tower shotBy;
+   protected final Tower shotBy;
    
    public AbstractBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
          double speed, double damage, Point p) {
@@ -111,7 +111,7 @@ public abstract class AbstractBullet implements Bullet {
       for(Sprite s : sprites) {
          Point2D p = s.intersects(line);
          if(p != null) {
-            specialOnHit(p, s);
+            specialOnHit(p, s, sprites);
             DamageReport d = s.hit(getDamage());
             if(d != null) { // Sprite is not already dead
                return processDamageReport(d);
@@ -126,7 +126,7 @@ public abstract class AbstractBullet implements Bullet {
     * 
     * @param p
     */
-   protected void specialOnHit(Point2D p, Sprite s) {}
+   protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {}
    
    protected double processDamageReport(DamageReport d) {
       if(d.wasKill()) {

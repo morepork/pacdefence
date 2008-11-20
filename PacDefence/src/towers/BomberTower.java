@@ -129,7 +129,7 @@ public class BomberTower extends AbstractTower {
       }
 
       @Override
-      protected void specialOnHit(Point2D p, Sprite s) {
+      protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
          // System.out.println(p.getX() + " " + p.getY());
          blast.setCentre(p);
          exploding = true;

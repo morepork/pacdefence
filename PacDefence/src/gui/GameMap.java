@@ -435,9 +435,9 @@ public class GameMap extends JPanel {
          // Don't use for each loop here as a new tower can be built
          for(int i = 0; i < towers.size(); i++ ) {
             Tower t = towers.get(i);
-            Bullet b = t.tick(unmodifiableSprites);
+            List<Bullet> b = t.tick(unmodifiableSprites);
             if(b != null) {
-               bullets.add(b);
+               bullets.addAll(b);
             }
          }
       }

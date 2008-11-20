@@ -61,5 +61,13 @@ public class Helper {
       points.add((Point2D) p2.clone());
       return points;
    }
+   
+   public static <T> List<T> makeListContaining(T... ts) {
+      List<T> list = new ArrayList<T>();
+      for(T t : ts) {
+         list.add(t);
+      }
+      return list;
+   }
 
 }
