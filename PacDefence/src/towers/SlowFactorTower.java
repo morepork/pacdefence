@@ -32,7 +32,7 @@ public class SlowFactorTower extends SlowTower {
    }
    
    public SlowFactorTower(Point p) {
-      super(p, "Slow (length)", 40, 100, 5, 1, 50, 23, "slowFactor.png", "SlowFactorTower.png");
+      super(p, "Slow (factor)", 40, 100, 5, 1, 50, 23, "slowFactor.png", "SlowFactorTower.png");
    }
 
    @Override
