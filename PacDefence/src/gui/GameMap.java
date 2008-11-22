@@ -69,7 +69,7 @@ public class GameMap extends JPanel {
    private ControlPanel cp;
    private long processTime = 0;
    private long drawTime = 0;
-   private Tower shadowingTower = null;
+   private Tower buildingTower = null;
    private Tower selectedTower = null;
    private int spritesToAdd;
    private int levelHP;
@@ -117,12 +117,12 @@ public class GameMap extends JPanel {
     *        true if a tower is to be shadowed, false if none
     */
    public boolean towerButtonPressed(Tower t) {
-      if(shadowingTower == null || !shadowingTower.getClass().equals(t.getClass())) {
+      if(buildingTower == null || !buildingTower.getClass().equals(t.getClass())) {
          deselectTower();
-         shadowingTower = t;
+         buildingTower = t;
          return true;
       } else {
-         shadowingTower = null;
+         clearBuildingTower();
          return false;
       }
    }
@@ -186,11 +186,11 @@ public class GameMap extends JPanel {
       if(debugMode) {
          drawDebug(g);
       }
-      if(shadowingTower != null) {
+      if(buildingTower != null) {
          Point p = getMousePosition();
          if (p != null) {
-            shadowingTower.setCentre(p);
-            shadowingTower.drawShadow(g);
+            buildingTower.setCentre(p);
+            buildingTower.drawShadow(g);
          }
       }
    }
@@ -210,7 +210,7 @@ public class GameMap extends JPanel {
             deselectTower();
             if(e.getButton() == MouseEvent.BUTTON3) {
                // Stop everything if it's the right mouse button
-               shadowingTower = null;
+               clearBuildingTower();
                return;
             }
             Point p = e.getPoint();
@@ -227,18 +227,18 @@ public class GameMap extends JPanel {
    }
    
    private void tryToBuildTower(Point p) {
-      if(shadowingTower == null) {
+      if(buildingTower == null) {
          return;
       }
-      shadowingTower.setCentre(p);
+      buildingTower.setCentre(p);
       for(Tower t : towers) {
          // Checks that the point doesn't clash with another tower
-         if(t.towerClash(shadowingTower)) {
+         if(t.towerClash(buildingTower)) {
             return;
          }
       }
       // Checks that the point isn't on the path
-      Shape bounds = shadowingTower.getBounds();
+      Shape bounds = buildingTower.getBounds();
       if(bounds instanceof Circle) {
          if(((Circle) bounds).intersects(path)) {
             return;
@@ -249,10 +249,10 @@ public class GameMap extends JPanel {
          }
       }
       if(cp.canBuildTower()) {
-         towers.add(shadowingTower.constructNew());
+         towers.add(buildingTower.constructNew());
          if(!cp.buildTower()) {
             // If this returns false another tower can't be afforded
-            shadowingTower = null;
+            clearBuildingTower();
          }
       }
    }
@@ -279,7 +279,7 @@ public class GameMap extends JPanel {
       cp.selectTower(t);
       t.select(true);
       selectedTower = t;
-      shadowingTower = null;
+      clearBuildingTower();
    }
    
    private void deselectTower() {
@@ -288,6 +288,11 @@ public class GameMap extends JPanel {
          selectedTower.select(false);
          selectedTower = null;
       }
+   }
+   
+   private void clearBuildingTower() {
+      buildingTower = null;
+      cp.clearBuildingTower();
    }
    
    private void signalGameOver() {
