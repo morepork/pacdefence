@@ -35,7 +35,6 @@ public class TowerUpgradeButton extends JButton {
       setForeground(textColour);
       setOpaque(false);
       setContentAreaFilled(false);
-      setEnabled(false);
       setUI();
       
    }

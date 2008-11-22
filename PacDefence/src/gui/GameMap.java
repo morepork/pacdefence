@@ -160,6 +160,10 @@ public class GameMap extends JPanel {
       }
    }
    
+   public List<Tower> getTowers() {
+      return Collections.unmodifiableList(towers);
+   }
+   
    private void drawUpdate(Graphics g) {
       // This should completely cover the old image in the buffer
       g.drawImage(backgroundImage, 0, 0, null);
@@ -172,12 +176,12 @@ public class GameMap extends JPanel {
          Sprite s = sprites.get(i);
          s.draw(g);
       }
+      if(selectedTower != null) {
+         selectedTower.drawSelected(g);
+      }
       for(int i = 0; i < bullets.size(); i++) {
          Bullet b = bullets.get(i);
          b.draw(g);
-      }
-      if(selectedTower != null) {
-         selectedTower.drawSelected(g);
       }
       if(debugMode) {
          drawDebug(g);

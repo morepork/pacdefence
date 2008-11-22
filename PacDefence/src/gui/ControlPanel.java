@@ -146,14 +146,12 @@ public class ControlPanel extends JPanel {
       selectedTower = t;
       updateStats();
       updateDamageAndKillsLabels();
-      enableUpgradeButtons(true);
    }
    
    public void deselectTower() {
       if(selectedTower != null) {
          updateDamageAndKillsLabels();
          selectedTower = null;
-         enableUpgradeButtons(false);
       }
    }
    
@@ -290,15 +288,24 @@ public class ControlPanel extends JPanel {
    }
    
    private void upgradeButtonPressed(ActionEvent e) {
-      if(selectedTower != null) {
-         if(!(e.getSource() instanceof TowerUpgradeButton)) {
-            throw new RuntimeException("ActionEvent given doesn't have a TowerStatsButton as its"
-                  + "source");
+      if(!(e.getSource() instanceof TowerUpgradeButton)) {
+         throw new RuntimeException("ActionEvent given doesn't have a TowerStatsButton as its "
+               + "source");
+      }
+      TowerUpgradeButton b = (TowerUpgradeButton)e.getSource();
+      Tower.Attribute a = buttonAttributes.get(b);
+      int cost = 0;
+      if(selectedTower == null) {
+         List<Tower> towers = map.getTowers();
+         cost = costToUpgradeTowers(a, towers);
+         if(cost <= money) {
+            money -= cost;
+            for(Tower t : towers) {
+               t.raiseAttributeLevel(a, true);
+            }
          }
-         TowerUpgradeButton b = (TowerUpgradeButton)e.getSource();
-         Tower.Attribute a = buttonAttributes.get(b);
-         int currentLevel = selectedTower.getAttributeLevel(a);
-         int cost = Formulae.upgradeCost(currentLevel);
+      } else {
+         cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
          if(cost <= money) {
             money -= cost;
             selectedTower.raiseAttributeLevel(a, true);
@@ -308,18 +315,31 @@ public class ControlPanel extends JPanel {
    }
    
    private void upgradeButtonChanged(ChangeEvent e) {
-      if(selectedTower != null) {
-         //System.out.println("Button changed");
-         if(!(e.getSource() instanceof TowerUpgradeButton)) {
-            throw new RuntimeException("ActionEvent given doesn't have a TowerStatsButton as its"
-                  + "source");
-         }
-         TowerUpgradeButton b = (TowerUpgradeButton)e.getSource();
-         Tower.Attribute a = buttonAttributes.get(b);
-         int currentLevel = selectedTower.getAttributeLevel(a);
-         int cost = Formulae.upgradeCost(currentLevel);
-         updateCurrentCostLabel(cost);
+      if(!(e.getSource() instanceof TowerUpgradeButton)) {
+         throw new RuntimeException("ActionEvent given doesn't have a TowerStatsButton as its "
+               + "source");
       }
+      TowerUpgradeButton b = (TowerUpgradeButton)e.getSource();
+      Tower.Attribute a = buttonAttributes.get(b);
+      int cost;
+      if(selectedTower == null) {
+         cost = costToUpgradeAllTowers(a);
+      } else {
+         cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
+      }
+      updateCurrentCostLabel(cost);
+   }
+   
+   private int costToUpgradeAllTowers(Attribute a) {
+      return costToUpgradeTowers(a, map.getTowers());
+   }
+   
+   private int costToUpgradeTowers(Attribute a, List<Tower> towers) {
+      int cost = 0;
+      for(Tower t : towers) {
+         cost += Formulae.upgradeCost(t.getAttributeLevel(a));
+      }
+      return cost;
    }
    
    private void setStats(Tower t) {

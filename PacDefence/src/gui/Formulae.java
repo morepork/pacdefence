@@ -57,7 +57,7 @@ public class Formulae {
    }
    
    public static int nextUpgradeDamage(int currentLevel) {
-      return (int)(Math.pow(2, currentLevel - 1)) * 100;
+      return (int)(Math.pow(2, currentLevel - 1)) * 200;
    }
 
 }

@@ -32,17 +32,16 @@ import java.util.List;
 
 import sprites.Sprite;
 
-
 public class CircleTower extends AbstractTower {
-   
+
    private int hits = 1;
-   
+
    public CircleTower() {
       this(new Point());
    }
-   
+
    public CircleTower(Point p) {
-      super(p, "Circle", 30, 100, 5, 10, 50, 0, "circle.png", "CircleTower.png");
+      super(p, "Circle", 40, 100, 5, 10, 50, 0, "circle.png", "CircleTower.png");
    }
 
    @Override
@@ -63,18 +62,18 @@ public class CircleTower extends AbstractTower {
 
    @Override
    protected void upgradeSpecial() {
-      if(hits + 1 >= hits * upgradeIncreaseFactor) {
+      if (hits + 1 >= hits * upgradeIncreaseFactor) {
          hits++;
       } else {
          hits *= upgradeIncreaseFactor;
       }
    }
-   
+
    private class CirclingBullet extends AbstractBullet {
-      
+
       private final Circle path;
       private final double deltaTheta;
-      private final double arcLength;
+      private final double arcLengthPerTick;
       private final double endAngle;
       private double angle;
       private int hitsLeft = hits;
@@ -85,53 +84,48 @@ public class CircleTower extends AbstractTower {
             double speed, double damage, Point p, Sprite s) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p);
          double distance = Helper.distance(p, s.getPosition()) - s.getHalfWidth();
-         double theta = ImageHelper.vectorAngle(dx, dy) - Math.acos(distance / getRange());
+         double angleToSprite = ImageHelper.vectorAngle(dx, dy);
+         double theta = angleToSprite - Math.acos(distance / getRange());
          double halfRange = getRange() / 2.0;
          double deltaX = halfRange * Math.sin(theta);
          double deltaY = halfRange * Math.cos(theta);
-         //System.out.println(theta + " " + deltaX + " " + deltaY);
-         //int prodX = dx < 0 ? 1 : -1;
-         //int prodY = dy < 0 ? 1 : -1;
          path = new Circle(new Point2D.Double(p.getX() + deltaX, p.getY() + deltaY), halfRange);
-         arcLength = getBulletSpeed();
-         deltaTheta = 2 * Math.PI * arcLength / path.calculateCircumference();
+         arcLengthPerTick = getBulletSpeed();
+         deltaTheta = 2 * Math.PI * arcLengthPerTick / path.calculateCircumference();
          angle = Math.PI + theta;
          endAngle = angle + 2 * Math.PI;
       }
-      
+
       @Override
       public void draw(Graphics g) {
          super.draw(g);
-         //path.draw(g);
       }
-      
+
       @Override
       public double tick(List<Sprite> sprites) {
-         if(angle >= endAngle) {
+         if (angle >= endAngle || hitsLeft <= 0) {
             return moneyEarntSoFar;
          }
-         if(hitsLeft > 0) {
-            List<Sprite> hittableSprites = Helper.cloneList(sprites);
-            hittableSprites.removeAll(hitSprites);
-            moneyEarntSoFar += checkIfSpriteIsHit(hittableSprites);
-         }
+         List<Sprite> hittableSprites = Helper.cloneList(sprites);
+         hittableSprites.removeAll(hitSprites);
+         moneyEarntSoFar += checkIfSpriteIsHit(hittableSprites);
          angle += deltaTheta;
          position.setLocation(path.getPointAt(angle));
          return -1;
       }
-      
+
       @Override
       protected double checkIfSpriteIsHit(List<Sprite> sprites) {
          List<Point2D> points = makeArcPoints();
          double moneyEarnt = 0;
-         for(Sprite s : sprites) {
-            for(Point2D p : points) {
-               if(s.intersects(p)) {
+         for (Sprite s : sprites) {
+            for (Point2D p : points) {
+               if (s.intersects(p)) {
                   specialOnHit(p, s, sprites);
                   moneyEarnt += processDamageReport(s.hit(getDamage()));
                   hitSprites.add(s);
                   hitsLeft--;
-                  if(hitsLeft <= 0) {
+                  if (hitsLeft <= 0) {
                      return moneyEarnt;
                   }
                   break;
@@ -140,16 +134,16 @@ public class CircleTower extends AbstractTower {
          }
          return moneyEarnt;
       }
-      
+
       private List<Point2D> makeArcPoints() {
          List<Point2D> points = new ArrayList<Point2D>();
-         double delta = deltaTheta / arcLength;
-         for(double a = angle + delta; a <= angle + deltaTheta; a+= delta) {
+         double delta = deltaTheta / arcLengthPerTick;
+         for (double a = angle + delta; a <= angle + deltaTheta; a += delta) {
             points.add(path.getPointAt(a));
          }
          return points;
       }
-      
+
    }
 
 }
