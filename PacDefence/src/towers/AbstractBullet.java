@@ -38,8 +38,8 @@ public abstract class AbstractBullet implements Bullet {
    private final double speed;
    private final double distancePerTick;
    private double distanceTravelled = 0;
-   private final Point2D lastPosition;
-   private final Point2D position;
+   protected final Point2D lastPosition;
+   protected final Point2D position;
    private final int range;
    private final int radius = 3;
    private final int twiceRadius = radius * 2;
@@ -64,12 +64,6 @@ public abstract class AbstractBullet implements Bullet {
       lastPosition = new Point2D.Double(position.getX(), position.getY());
    }
 
-   /**
-    * 
-    * @param sprites
-    * @return How much money, if any, the bullet earnt. A negative return
-    *         value means the bullet is still going.
-    */
    public double tick(List<Sprite> sprites) {
       if(distanceTravelled >= range) {
          //System.out.println("Bullet reached edge of range");

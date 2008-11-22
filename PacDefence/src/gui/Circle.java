@@ -183,6 +183,15 @@ public class Circle implements Shape {
       return new Circle(centre, radius);
    }
    
+   public double calculateCircumference() {
+      return 2 * Math.PI * radius;
+   }
+   
+   public Point2D getPointAt(double theta) {
+      return new Point2D.Double(centre.getX() + radius * Math.sin(theta),
+            centre.getY() + radius * Math.cos(theta));
+   }
+   
    private void setBounds() {
       bounds = new Ellipse2D.Double(centre.getX() - radius, centre.getY() - radius, radius * 2,
             radius * 2);

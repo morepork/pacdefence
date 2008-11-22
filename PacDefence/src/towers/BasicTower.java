@@ -2,6 +2,8 @@ package towers;
 
 import java.awt.Point;
 
+import sprites.Sprite;
+
 
 
 
@@ -17,7 +19,7 @@ public class BasicTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p) {
+         double damage, Point p, Sprite s) {
       return new AbstractBullet(this, dx, dy, turretWidth, range, speed, damage, p){};
    }
 

@@ -30,9 +30,11 @@ public interface Bullet {
    /**
     * 
     * @param sprites
-    * @return The money earnt for the bullet hitting, 0 if it reaches the edge
-    *         of its range and -1 if the Bullet is still going
+    * @return How much money, if any, the bullet earnt. A negative return
+    *         value means the bullet is still going and 0 means the bullet
+    *         reached the edge of its range.
     */
+   
    public double tick(List<Sprite> sprites);
    
    public void draw(Graphics g);

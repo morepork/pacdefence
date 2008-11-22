@@ -368,7 +368,7 @@ public abstract class AbstractTower implements Tower {
    }
    
    protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p);
+            double speed, double damage, Point p, Sprite s);
 
    protected boolean checkDistance(Sprite s, Point p) {
       return checkDistance(s, p, range + s.getHalfWidth());
@@ -395,7 +395,7 @@ public abstract class AbstractTower implements Tower {
       if(rotateTurret) {
          currentImage = ImageHelper.rotateImage(originalImage, dx, -dy);
       }
-      return makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p);
+      return makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p, s);
    }
 
    private void setTopLeft() {

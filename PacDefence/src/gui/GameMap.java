@@ -402,7 +402,6 @@ public class GameMap extends JPanel {
       private int doSprites() {
          int livesLost = 0;
          if(levelInProgress && sprites.isEmpty() && spritesToAdd <= 0) {
-            System.out.println("Level finished");
             cp.endLevel();
             levelInProgress = false;
          }

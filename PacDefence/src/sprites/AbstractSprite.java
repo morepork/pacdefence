@@ -170,7 +170,7 @@ public abstract class AbstractSprite implements Sprite {
          return null;
       }
       for(Point2D p : Helper.getPointsOnLine(line)) {
-         if(bounds.contains(p)) {
+         if(intersects(p)) {
             return p;
          }
       }
