@@ -19,11 +19,13 @@
 
 package towers;
 
-import java.awt.Color;
+import images.ImageHelper;
+
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 import sprites.Sprite;
@@ -41,11 +43,12 @@ public abstract class AbstractBullet implements Bullet {
    protected final Point2D lastPosition;
    protected final Point2D position;
    private final int range;
-   private final int radius = 3;
-   private final int twiceRadius = radius * 2;
+   private static final int radius = 3;
    private final double damage;
    private boolean alive = true;
    protected final Tower shotBy;
+   private static final BufferedImage image = ImageHelper.makeImage(radius * 2, radius * 2,
+         "other", "bullet.png");
    
    public AbstractBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
          double speed, double damage, Point p) {
@@ -89,12 +92,9 @@ public abstract class AbstractBullet implements Bullet {
    }
 
    public void draw(Graphics g) {
-      if(!alive) {
-         return;
+      if(alive) {
+         g.drawImage(image, (int) position.getX() - radius, (int) position.getY() - radius, null);
       }
-      g.setColor(Color.BLACK);
-      g.fillOval((int) position.getX() - radius, (int) position.getY() - radius, twiceRadius,
-            twiceRadius);
    }
    
    public double getDamage() {
