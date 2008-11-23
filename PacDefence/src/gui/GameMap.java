@@ -91,7 +91,7 @@ public class GameMap extends JPanel {
    }
    
    @Override
-   public void paintComponent(Graphics g) {
+   public synchronized void paintComponent(Graphics g) {
       long beginTime = System.nanoTime();
       if(needsRepaint) {
          needsRepaint = false;
@@ -350,7 +350,7 @@ public class GameMap extends JPanel {
       private final long[] processTimes = new long[timesLength];
       private final long[] drawTimes = new long[timesLength];
             
-      public void run() {
+      public synchronized void run() {
          while(true) {
             // Used nanoTime as many OS, notably windows, don't record ms times less than 10ms
             long beginTime = System.nanoTime();

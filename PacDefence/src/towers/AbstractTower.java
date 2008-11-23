@@ -24,8 +24,11 @@ import gui.Formulae;
 import gui.Helper;
 import images.ImageHelper;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -141,23 +144,20 @@ public abstract class AbstractTower implements Tower {
       if (!isSelected) {
          throw new RuntimeException("Tower that isn't selected is being drawn as if it was");
       }
-      drawShadow(g);
+      drawRange(g);
+      g.drawImage(currentImage, (int) topLeft.getX(), (int) topLeft.getY(), width, width, null);
    }
 
    @Override
    public void drawShadow(Graphics g) {
-      // System.out.println(p.getX() + " " + p.getY());
-      int topLeftX = (int) topLeft.getX();
-      int topLeftY = (int) topLeft.getY();
-      int topLeftRangeX = (int) centre.getX() - range;
-      int topLeftRangeY = (int) centre.getY() - range;
-      g.setColor(rangeColour);
-      g.fillOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
-      g.setColor(Color.BLACK);
-      g.drawOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
-      // TODO Change this so it's semi-seethrough
-      g.drawImage(currentImage, topLeftX, topLeftY, width, width, null);
-
+      Graphics2D g2D = (Graphics2D) g;
+      drawRange(g2D);
+      // Save the current composite to reset back to later
+      Composite c = g2D.getComposite();
+      // Makes it so what is drawn is partly transparent
+      g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75f));  
+      g2D.drawImage(currentImage, (int) topLeft.getX(), (int) topLeft.getY(), width, width, null);
+      g2D.setComposite(c);
    }
 
    @Override
@@ -414,6 +414,15 @@ public abstract class AbstractTower implements Tower {
          currentImage = ImageHelper.rotateImage(originalImage, dx, -dy);
       }
       return makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p, s);
+   }
+   
+   private void drawRange(Graphics g) {
+      int topLeftRangeX = (int) centre.getX() - range;
+      int topLeftRangeY = (int) centre.getY() - range;
+      g.setColor(rangeColour);
+      g.fillOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
+      g.setColor(Color.BLACK);
+      g.drawOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
    }
 
    private void setTopLeft() {
