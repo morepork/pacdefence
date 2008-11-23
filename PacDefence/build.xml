@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="PacDefence" basedir="." default="buildJars">
+
+	<property name="SrcDir" location="src" />
+	<property name="JarLocation" location="E:/Documents/Liam/programming" />
+	<property name="NoSrcJar" location="${JarLocation}/PacDefence.jar" />
+	<property name="SrcJar" location="${JarLocation}/PacDefenceSrc.jar" />
+	<property name="MainClass" value="gui.Application" />
+
+	<target name="buildJars">
+		<delete file="${NoSrcJar}" />
+		<jar destfile="${NoSrcJar}">
+			<fileset dir="${SrcDir}" casesensitive="yes">
+				<exclude name="**/*.java" />
+				<exclude name="**/*.xcf.gz" />
+				<exclude name="**/*.svg" />
+				<exclude name="images/maps/mosaic_path.png" />
+				<exclude name="images/control_panel/blue_lava.png" />
+				<exclude name="images/sprites/other/" />
+			</fileset>
+			<manifest>
+				<attribute name="Main-Class" value="${MainClass}" />
+			</manifest>
+		</jar>
+		<delete file="${SrcJar}" />
+		<jar destfile="${SrcJar}">
+			<fileset dir="${SrcDir}" casesensitive="yes" />
+			<manifest>
+				<attribute name="Main-Class" value="${MainClass}" />
+			</manifest>
+		</jar>
+	</target>
+
+</project>
