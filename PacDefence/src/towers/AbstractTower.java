@@ -120,7 +120,7 @@ public abstract class AbstractTower implements Tower {
       // Decrements here so it's on every tick, not just when it is able to shoot
       timeToNextShot--;
       Collection<Bullet> fired = fireBullets(sprites);
-      if (timeToNextShot <= 0) {
+      if (timeToNextShot <= 0 && fired.size() > 0) {
          timeToNextShot = fireRate;
          bulletsToAdd.addAll(fired);
       }
@@ -381,20 +381,20 @@ public abstract class AbstractTower implements Tower {
    }
    
    protected boolean checkDistance(Sprite s) {
-      return checkDistance(s, centre, range + s.getHalfWidth());
+      return checkDistance(s, centre, range);
    }
    
    protected boolean checkDistance(Sprite s, Point p) {
-      return checkDistance(s, p, range + s.getHalfWidth());
+      return checkDistance(s, p, range);
    }
    
    protected boolean checkDistance(Sprite s, Point p, int range) {
-      Point2D sPos = s.getPosition();
       if (!s.isAlive()) {
          return false;
       }
+      Point2D sPos = s.getPosition();
       double distance = Point.distance(p.getX(), p.getY(), sPos.getX(), sPos.getY());
-      return distance < range;
+      return distance < range + s.getHalfWidth();
    }
    
    protected Bullet fireBullet(Sprite s, boolean rotateTurret) {

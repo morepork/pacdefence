@@ -163,10 +163,9 @@ public class ControlPanel extends JPanel {
       return money >= getNextTowerCost();
    }
    
-   public boolean buildTower() {
+   public void buildTower() {
       money -= getNextTowerCost();
       updateMoneyLabel();
-      return canBuildTower();
    }
    
    public void incrementMoney(int earnedMoney) {

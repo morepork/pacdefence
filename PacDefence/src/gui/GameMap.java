@@ -249,11 +249,9 @@ public class GameMap extends JPanel {
          }
       }
       if(cp.canBuildTower()) {
-         // Have to build the tower before adding it to the List here
-         // otherwise as there are more towers in the List the cost increases
-         boolean canBuildAnotherTower = cp.buildTower();
+         cp.buildTower();
          towers.add(buildingTower.constructNew());
-         if(!canBuildAnotherTower) {
+         if(!cp.canBuildTower()) {
             clearBuildingTower();
          }
       }
