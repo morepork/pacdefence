@@ -21,6 +21,7 @@ package towers;
 
 import gui.Circle;
 import gui.Formulae;
+import gui.Helper;
 import images.ImageHelper;
 
 import java.awt.Color;
@@ -32,6 +33,8 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import sprites.Sprite;
@@ -116,16 +119,10 @@ public abstract class AbstractTower implements Tower {
    public List<Bullet> tick(List<Sprite> sprites) {
       // Decrements here so it's on every tick, not just when it is able to shoot
       timeToNextShot--;
-      // Do this for loop even if tower can't shoot so tower rotates to track sprites
-      for (Sprite s : sprites) {
-         if (checkDistance(s, centre)) {
-            Bullet b = fireBullet(s, centre, true);
-            if (timeToNextShot <= 0) {
-               timeToNextShot = fireRate;
-               bulletsToAdd.add(b);
-            }
-            break;
-         }
+      Collection<Bullet> fired = fireBullets(sprites);
+      if (timeToNextShot <= 0) {
+         timeToNextShot = fireRate;
+         bulletsToAdd.addAll(fired);
       }
       List<Bullet> bullets = bulletsToAdd;
       bulletsToAdd = new ArrayList<Bullet>();
@@ -370,6 +367,23 @@ public abstract class AbstractTower implements Tower {
    protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, Sprite s);
 
+
+   
+   protected Collection<Bullet> fireBullets(List<Sprite> sprites) {
+      // Do this for loop even if tower can't shoot so tower rotates to track sprites
+      for (Sprite s : sprites) {
+         if (checkDistance(s)) {
+            Bullet b = fireBullet(s, true);
+            return Helper.makeListContaining(b);
+         }
+      }
+      return Collections.emptyList();
+   }
+   
+   protected boolean checkDistance(Sprite s) {
+      return checkDistance(s, centre, range + s.getHalfWidth());
+   }
+   
    protected boolean checkDistance(Sprite s, Point p) {
       return checkDistance(s, p, range + s.getHalfWidth());
    }
@@ -381,6 +395,10 @@ public abstract class AbstractTower implements Tower {
       }
       double distance = Point.distance(p.getX(), p.getY(), sPos.getX(), sPos.getY());
       return distance < range;
+   }
+   
+   protected Bullet fireBullet(Sprite s, boolean rotateTurret) {
+      return fireBullet(s, centre, rotateTurret, turretWidth, range, bulletSpeed, damage);
    }
    
    protected Bullet fireBullet(Sprite s, Point p, boolean rotateTurret) {
