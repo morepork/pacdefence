@@ -29,6 +29,9 @@
 		<jar destfile="${SrcJar}">
 			<fileset dir="${SrcDir}" casesensitive="yes">
 				<exclude name="java.policy.applet" />
+				<!-- This isn't needed as there is an equivalent xcf.gz and then
+				     it's faster to up/download -->
+				<exclude name="images/maps/mosaic_path.png" />
 			</fileset>
 			<manifest>
 				<attribute name="Main-Class" value="${MainClass}" />

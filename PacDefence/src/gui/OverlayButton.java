@@ -35,14 +35,10 @@ public class OverlayButton extends JButton {
    private static final int TOWER_BUTTON_WIDTH = 30;
    // Need the -1 otherwise they overlap slightly
    private static final int UPGRADE_BUTTON_WIDTH = OuterPanel.CONTROLS_WIDTH / 8 - 1;
-   private static final BufferedImage[] towerOverlays = new BufferedImage[]{
-         ImageHelper.makeImage("buttons", "towers", "TowerOverlay.png"),
-         ImageHelper.makeImage("buttons", "towers", "TowerOverlayRolledOver.png"),
-         ImageHelper.makeImage("buttons", "towers", "TowerOverlayPressed.png")};
-   private static final BufferedImage[] upgradeOverlays = new BufferedImage[]{
-         ImageHelper.makeImage("buttons", "upgrades", "UpgradeOverlay.png"),
-         ImageHelper.makeImage("buttons", "upgrades", "UpgradeOverlayRolledOver.png"),
-         ImageHelper.makeImage("buttons", "upgrades", "UpgradeOverlayPressed.png")};
+   private static final BufferedImage[] towerOverlays = makeOverlays("TowerOverlay", ".png",
+         "buttons", "towers");
+   private static final BufferedImage[] upgradeOverlays = makeOverlays("UpgradeOverlay", ".png",
+         "buttons", "upgrades");
 
    private OverlayButton(BufferedImage image, BufferedImage[] overlays, int width) {
       setBorderPainted(false);
@@ -65,6 +61,7 @@ public class OverlayButton extends JButton {
       setIcon(combine(width, image, overlays[0]));
       setRolloverIcon(combine(width, image, overlays[1]));
       setPressedIcon(combine(width, image, overlays[2]));
+      setDisabledIcon(combine(width, image, overlays[3]));
       setPreferredSize(new Dimension(width, width));
    }
 
@@ -79,6 +76,23 @@ public class OverlayButton extends JButton {
          }
       }
       return new ImageIcon(image);
+   }
+   
+   private static BufferedImage[] makeOverlays(String fileName, String extension,
+         String... folders) {
+      BufferedImage[] overlays = new BufferedImage[4];
+      String[] strings = new String[folders.length + 1];
+      System.arraycopy(folders, 0, strings, 0, folders.length);
+      overlays[0] = setLastStringAndMakeImage(fileName + extension, strings);
+      overlays[1] = setLastStringAndMakeImage(fileName + "RolledOver" + extension, strings);
+      overlays[2] = setLastStringAndMakeImage(fileName + "Pressed" + extension, strings);
+      overlays[3] = setLastStringAndMakeImage(fileName + "Disabled" + extension, strings);
+      return overlays;
+   }
+   
+   private static BufferedImage setLastStringAndMakeImage(String s, String[] strings) {
+      strings[strings.length - 1] = s;
+      return ImageHelper.makeImage(strings);
    }
 
 }

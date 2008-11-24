@@ -35,16 +35,7 @@ public class TowerUpgradeButton extends JButton {
       setForeground(textColour);
       setOpaque(false);
       setContentAreaFilled(false);
-      setUI();
-      
-   }
-   
-   @Override
-   public void setEnabled(boolean b) {
-      super.setEnabled(b);
-      setBorderPainted(b);
-      // So a rectangle isn't drawn around the text when a button is selected, but disabled
-      setFocusPainted(b);
+      setUI();     
    }
    
    private void setUI() {

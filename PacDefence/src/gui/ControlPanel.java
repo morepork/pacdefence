@@ -75,7 +75,7 @@ public class ControlPanel extends JPanel {
    private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel, upgradesLabel;
    private final Map<OverlayButton, Tower> towerTypes = new HashMap<OverlayButton, Tower>();
    private OverlayButton damageUpgrade, rangeUpgrade, rateUpgrade, speedUpgrade,
-         specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade; 
+         specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade;
    // These labels are in the current tower stats box
    private MyJLabel damageLabel, rangeLabel, rateLabel, speedLabel, specialLabel;
    private MyJLabel damageDealtLabel, killsLabel;
@@ -89,8 +89,7 @@ public class ControlPanel extends JPanel {
    private MyJLabel currentCostStringLabel, currentCostLabel;
    private final ImageButton start = new ImageButton("start", ".png");
    private final GameMap map;
-   private Tower selectedTower;
-   private Tower buildingTower;
+   private Tower selectedTower, buildingTower, rolloverTower;
    private final Color defaultTextColour = Color.YELLOW;
    private final float defaultTextSize = 12F;
    // This is the initial money
@@ -122,9 +121,10 @@ public class ControlPanel extends JPanel {
    
    public void endLevel() {
       endLevelUpgradesLeft++;
+      enableEndLevelUpgradeButtons(true);
       updateEndLevelUpgradesLabel();
       int moneyBefore = money; 
-      money *= interestRate;
+      multiplyMoney(interestRate);
       int interest = money - moneyBefore;
       int levelEndBonus = Formulae.levelEndBonus(level);
       int noEnemiesThroughBonus = 0;
@@ -134,7 +134,7 @@ public class ControlPanel extends JPanel {
          noEnemiesThroughBonus = Formulae.noEnemiesThroughBonus(level);
          text += " " + noEnemiesThroughBonus + " bonus for losing no lives.";
       }
-      money += levelEndBonus + noEnemiesThroughBonus;
+      increaseMoney(levelEndBonus + noEnemiesThroughBonus);
       updateMoneyLabel();
       map.displayText(text);
       start.setEnabled(true);
@@ -164,12 +164,12 @@ public class ControlPanel extends JPanel {
    }
    
    public void buildTower() {
-      money -= getNextTowerCost();
+      decreaseMoney(getNextTowerCost());
       updateMoneyLabel();
    }
    
-   public void incrementMoney(int earnedMoney) {
-      money += earnedMoney;
+   public void increaseMoney(int amount) {
+      money += amount;
       updateMoneyLabel();
       // If a tower is selected, more money earnt means it could've done more damage
       updateDamageAndKillsLabels();
@@ -186,6 +186,14 @@ public class ControlPanel extends JPanel {
    
    public void clearBuildingTower() {
       setBuildingTower(null);
+   }
+   
+   private void multiplyMoney(double factor) {
+      money *= factor;
+   }
+   
+   private void decreaseMoney(int amount) {
+      money -= amount;
    }
    
    private int getNextTowerCost() {
@@ -238,7 +246,13 @@ public class ControlPanel extends JPanel {
    }
    
    private void updateStats() {
-      if(selectedTower != null) {
+      if(rolloverTower != null) {
+         setStats(rolloverTower);
+         updateCurrentCostLabel(rolloverTower.getName() + " Tower", getNextTowerCost());
+      } else if(buildingTower != null) {
+         setStats(buildingTower);
+         updateCurrentCostLabel(buildingTower.getName() + " Tower", getNextTowerCost());
+      } else {
          setStats(selectedTower);
       }
    }
@@ -285,12 +299,12 @@ public class ControlPanel extends JPanel {
                v.setMultiClickThreshhold(5);
                v.addActionListener(new ActionListener(){
                   public void actionPerformed(ActionEvent e) {
-                     upgradeButtonPressed(e);
+                     processUpgradeButtonPressed((TowerUpgradeButton)e.getSource());
                   }
                });
                v.addChangeListener(new ChangeListener(){
                   public void stateChanged(ChangeEvent e) {
-                     upgradeButtonChanged(e);
+                     processUpgradeButtonChanged((TowerUpgradeButton)e.getSource());
                   }
                });
                f.set(this, v);
@@ -304,19 +318,14 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   private void upgradeButtonPressed(ActionEvent e) {
-      if(!(e.getSource() instanceof TowerUpgradeButton)) {
-         throw new RuntimeException("ActionEvent given doesn't have a TowerStatsButton as its "
-               + "source");
-      }
-      TowerUpgradeButton b = (TowerUpgradeButton)e.getSource();
+   private void processUpgradeButtonPressed(TowerUpgradeButton b) {
       Tower.Attribute a = buttonAttributes.get(b);
       int cost = 0;
       if(selectedTower == null) {
          List<Tower> towers = map.getTowers();
          cost = costToUpgradeTowers(a, towers);
          if(cost <= money) {
-            money -= cost;
+            decreaseMoney(cost);
             for(Tower t : towers) {
                t.raiseAttributeLevel(a, true);
             }
@@ -324,29 +333,26 @@ public class ControlPanel extends JPanel {
       } else {
          cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
          if(cost <= money) {
-            money -= cost;
+            decreaseMoney(cost);
             selectedTower.raiseAttributeLevel(a, true);
-            setStats(selectedTower);
+            updateStats();
          }
       }
    }
    
-   private void upgradeButtonChanged(ChangeEvent e) {
-      if(!(e.getSource() instanceof TowerUpgradeButton)) {
-         throw new RuntimeException("ActionEvent given doesn't have a TowerStatsButton as its "
-               + "source");
+   private void processUpgradeButtonChanged(TowerUpgradeButton b) {
+      if(!checkIfMovedOff(b)) {
+         Tower.Attribute a = buttonAttributes.get(b);
+         String description = a.toString() + " Upgrade";
+         int cost;
+         if(selectedTower == null) {
+            description += " (all)";
+            cost = costToUpgradeAllTowers(a);
+         } else {
+            cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
+         }
+         updateCurrentCostLabel(description, cost);
       }
-      TowerUpgradeButton b = (TowerUpgradeButton)e.getSource();
-      Tower.Attribute a = buttonAttributes.get(b);
-      String description = a.toString() + " Upgrade";
-      int cost;
-      if(selectedTower == null) {
-         description += " (all)";
-         cost = costToUpgradeAllTowers(a);
-      } else {
-         cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
-      }
-      updateCurrentCostLabel(description, cost);
    }
    
    private int costToUpgradeAllTowers(Attribute a) {
@@ -362,17 +368,27 @@ public class ControlPanel extends JPanel {
    }
    
    private void setStats(Tower t) {
-      damageLabel.setText(ONE_DP.format(t.getDamage()));
-      rangeLabel.setText(t.getRange());
-      rateLabel.setText(t.getFireRate());
-      speedLabel.setText(ONE_DP.format(t.getBulletSpeed()));
-      specialButton.setText(t.getSpecialName());
-      specialLabel.setText(t.getSpecial());
+      if(t == null) {
+         damageLabel.setText(" ");
+         rangeLabel.setText(" ");
+         rateLabel.setText(" ");
+         speedLabel.setText(" ");
+         specialButton.setText("Special");
+         specialLabel.setText(" ");
+      } else {
+         damageLabel.setText(ONE_DP.format(t.getDamage()));
+         rangeLabel.setText(t.getRange());
+         rateLabel.setText(t.getFireRate());
+         speedLabel.setText(ONE_DP.format(t.getBulletSpeed()));
+         specialButton.setText(t.getSpecialName());
+         specialLabel.setText(t.getSpecial());
+      }
    }
    
    private void setBuildingTower(Tower t) {
       buildingTower = t;
       enableTowerStatsButtons(t == null);
+      enableEndLevelUpgradeButtons(t == null);
    }
    
    private void startPressed() {
@@ -390,47 +406,43 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   private void processTowerButtonAction(ActionEvent e) {
-      if(canBuildTower()) {
-         Tower t = towerTypes.get(e.getSource());
-         if(map.towerButtonPressed(t)) {
-            setBuildingTower(t);
-            setStats(t);
-            setCurrentCostAndStatsToBuildingTower();
-         }
+   private void processTowerButtonAction(OverlayButton b) {
+      Tower t = towerTypes.get(b);
+      if(map.towerButtonPressed(t)) {
+         setBuildingTower(t);
+         updateStats();
       }
    }
    
-   private void processTowerButtonChangeEvent(ChangeEvent e) {
-      JButton b = (JButton) e.getSource();
-      Tower t = towerTypes.get(b);
+   private void processTowerButtonChangeEvent(OverlayButton b) {
+      rolloverTower = towerTypes.get(b);
       if(!checkIfMovedOff(b)) {
-         setStats(t);
-         setCurrentCostAndStatsToTower(t);
+         updateStats();
       }
    }
    
    private boolean checkIfMovedOff(JButton b) {
-      if(buildingTower != null && b.getMousePosition() == null) {
-         // If the mouse just moved off the button, the price and stats of
-         // the tower to be built should be shown.
-         setCurrentCostAndStatsToBuildingTower();
+      if(b.getMousePosition() == null) {
+         // This means the cursor isn't over the button, so the mouse was moved off it
+         rolloverTower = null;
+         updateCurrentCostLabel(" ", " ");
+         updateStats();
          return true;
       } else {
          return false;
       }
    }
    
-   private void setCurrentCostAndStatsToBuildingTower() {
+   /*private void setCurrentCostAndStatsToBuildingTower() {
       setCurrentCostAndStatsToTower(buildingTower);
-   }
+   }*/
    
-   private void setCurrentCostAndStatsToTower(Tower t) {
+   /*private void setCurrentCostAndStatsToTower(Tower t) {
       if(t != null) {
          setStats(t);
          updateCurrentCostLabel(t.getName() + " Tower", getNextTowerCost());
       }
-   }
+   }*/
    
    private void processEndLevelUpgradeButtonPress(OverlayButton b) {
       if(endLevelUpgradesLeft > 0) {
@@ -441,32 +453,44 @@ public class ControlPanel extends JPanel {
          } else if(b.equals(interestUpgrade)) {
             interestRate += upgradeInterest;
          } else if(b.equals(moneyUpgrade)) {
-            money += upgradeMoney;
+            increaseMoney(upgradeMoney);
          }
          if(upgradeAttrib != null) {
             map.upgradeAll(upgradeAttrib);
          }
          updateAll();
+         if(endLevelUpgradesLeft <= 0) {
+            enableEndLevelUpgradeButtons(true);
+         }
       }
    }
    
    private void processEndLevelUpgradeButtonChanged(OverlayButton b) {
-      if(endLevelUpgradesLeft > 0) {
-         if(!checkIfMovedOff(b)) {
-            String description = " ";
-            String cost = "Free, " + endLevelUpgradesLeft +" left";
-            Attribute a = getAttributeFromButton(b);
-            if(a != null) {
-               description = a.toString() + " Upgrade (all)";
-            } else if(b.equals(livesUpgrade)) {
-               description = upgradeLives + " bonus lives";
-            } else if(b.equals(interestUpgrade)) {
-               description = "+" + upgradeInterest * 100 + "% interest rate";
-            } else if(b.equals(moneyUpgrade)) {
-               description = upgradeMoney + " bonus money";
-            }
-            updateCurrentCostLabel(description, cost);
+      if(!checkIfMovedOff(b)) {
+         String description = " ";
+         String cost = "Free, " + endLevelUpgradesLeft +" left";
+         Attribute a = getAttributeFromButton(b);
+         if(a != null) {
+            description = a.toString() + " Upgrade (all)";
+         } else if(b.equals(livesUpgrade)) {
+            description = upgradeLives + " bonus lives";
+         } else if(b.equals(interestUpgrade)) {
+            description = "+" + upgradeInterest * 100 + "% interest rate";
+         } else if(b.equals(moneyUpgrade)) {
+            description = upgradeMoney + " bonus money";
          }
+         updateCurrentCostLabel(description, cost);
+      }
+   }
+   
+   private void enableEndLevelUpgradeButtons(boolean enable) {
+      if(endLevelUpgradesLeft <= 0) {
+         enable = false;
+      }
+      JButton[] buttons = new JButton[]{damageUpgrade, rangeUpgrade, rateUpgrade, speedUpgrade,
+               specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade};
+      for(JButton b : buttons) {
+         b.setEnabled(enable);
       }
    }
 
@@ -539,12 +563,12 @@ public class ControlPanel extends JPanel {
          towerTypes.put(button, t);
          button.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
-               processTowerButtonAction(e);
+               processTowerButtonAction((OverlayButton) e.getSource());
             }
          });
          button.addChangeListener(new ChangeListener(){
             public void stateChanged(ChangeEvent e) {
-               processTowerButtonChangeEvent(e);
+               processTowerButtonChangeEvent((OverlayButton) e.getSource());
             }
          });
          panel.add(createWrapperPanel(button));
@@ -601,6 +625,7 @@ public class ControlPanel extends JPanel {
          });
          panel.add(b);
       }
+      enableEndLevelUpgradeButtons(endLevelUpgradesLeft > 0);
       add(panel);
    }
    

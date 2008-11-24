@@ -366,7 +366,7 @@ public class GameMap extends JPanel {
                      signalGameOver();
                   }
                   doTowers(unmodifiableSprites);
-                  cp.incrementMoney(doBullets(unmodifiableSprites));
+                  cp.increaseMoney(doBullets(unmodifiableSprites));
                }
             }
             // Divides by a million to convert to ms
