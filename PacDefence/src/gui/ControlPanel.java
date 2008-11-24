@@ -52,7 +52,7 @@ import towers.BasicTower;
 import towers.BomberTower;
 import towers.CircleTower;
 import towers.JumpingTower;
-import towers.MultiShotTower;
+import towers.ScatterTower;
 import towers.PiercerTower;
 import towers.SlowFactorTower;
 import towers.SlowLengthTower;
@@ -600,7 +600,7 @@ public class ControlPanel extends JPanel {
       towerTypes.add(new SlowFactorTower());
       towerTypes.add(new JumpingTower());
       towerTypes.add(new CircleTower());
-      towerTypes.add(new MultiShotTower());
+      towerTypes.add(new ScatterTower());
       // TODO add tower implementations as I code them
       return towerTypes;
    }

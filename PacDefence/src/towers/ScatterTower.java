@@ -27,16 +27,16 @@ import java.util.List;
 import sprites.Sprite;
 
 
-public class MultiShotTower extends AbstractTower {
+public class ScatterTower extends AbstractTower {
    
    private int shots = 2;
    
-   public MultiShotTower() {
+   public ScatterTower() {
       this(new Point());
    }
    
-   public MultiShotTower(Point p) {
-      super(p, "Multi Shot", 40, 100, 5, 5, 50, 0, "multiShot.png", "MultiShotTower.png");
+   public ScatterTower(Point p) {
+      super(p, "Scatter", 40, 100, 5, 5, 50, 0, "scatter.png", "ScatterTower.png");
    }
 
    @Override
