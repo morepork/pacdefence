@@ -22,21 +22,21 @@ package towers;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import sprites.Sprite;
 
 
-public class ScatterTower extends AbstractTower {
+public class MultiShotTower extends AbstractTower {
    
-   private int shots = 2;
+   private static final double speedDividend = 1.1;
+   private int shots = 5;
    
-   public ScatterTower() {
+   public MultiShotTower() {
       this(new Point());
    }
    
-   public ScatterTower(Point p) {
-      super(p, "Scatter", 40, 100, 5, 5, 50, 10, "scatter.png", "ScatterTower.png");
+   public MultiShotTower(Point p) {
+      super(p, "Multi-Shot", 40, 100, 5, 1.3, 50, 5, "multiShot.png", "MultiShotTower.png");
    }
 
    @Override
@@ -48,20 +48,6 @@ public class ScatterTower extends AbstractTower {
    public String getSpecialName() {
       return "Shots";
    }
-   
-   @Override
-   protected Collection<Bullet> fireBullets(List<Sprite> sprites) {
-      Collection<Bullet> fired = new ArrayList<Bullet>();
-      for (Sprite s : sprites) {
-         if (checkDistance(s)) {
-            fired.addAll(fireBullet(s, false));
-            if(fired.size() >= shots) {
-               return fired;
-            }
-         }
-      }
-      return fired;
-   }
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
@@ -71,11 +57,18 @@ public class ScatterTower extends AbstractTower {
 
    @Override
    protected void upgradeSpecial() {
-      if(shots + 1 >= shots * upgradeIncreaseFactor) {
-         shots++;
-      } else {
-         shots *= upgradeIncreaseFactor;
+      shots++;
+   }
+   
+   @Override
+   protected Collection<Bullet> makeBullets(double dx, double dy,  int turretWidth, int range,
+         double bulletSpeed, double damage, Point p, Sprite s) {
+      Collection<Bullet> bullets = new ArrayList<Bullet>();
+      for(int i = 0; i < shots; i++) {
+         bullets.add(makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p, s));
+         bulletSpeed /= speedDividend;
       }
+      return bullets;
    }
 
 }

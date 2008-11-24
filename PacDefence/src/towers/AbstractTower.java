@@ -366,15 +366,18 @@ public abstract class AbstractTower implements Tower {
    
    protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, Sprite s);
-
-
+   
+   protected Collection<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
+            double speed, double damage, Point p, Sprite s) {
+      return Helper.makeListContaining(makeBullet(dx, dy, turretWidth, range, bulletSpeed,
+            damage, p, s));
+   }
    
    protected Collection<Bullet> fireBullets(List<Sprite> sprites) {
       // Do this for loop even if tower can't shoot so tower rotates to track sprites
       for (Sprite s : sprites) {
          if (checkDistance(s)) {
-            Bullet b = fireBullet(s, true);
-            return Helper.makeListContaining(b);
+            return fireBullet(s, true);
          }
       }
       return Collections.emptyList();
@@ -397,23 +400,23 @@ public abstract class AbstractTower implements Tower {
       return distance < range + s.getHalfWidth();
    }
    
-   protected Bullet fireBullet(Sprite s, boolean rotateTurret) {
+   protected Collection<Bullet> fireBullet(Sprite s, boolean rotateTurret) {
       return fireBullet(s, centre, rotateTurret, turretWidth, range, bulletSpeed, damage);
    }
    
-   protected Bullet fireBullet(Sprite s, Point p, boolean rotateTurret) {
+   protected Collection<Bullet> fireBullet(Sprite s, Point p, boolean rotateTurret) {
       return fireBullet(s, p, rotateTurret, turretWidth, range, bulletSpeed, damage);
    }
    
-   protected Bullet fireBullet(Sprite s, Point p, boolean rotateTurret, int turretWidth,
-         int range, double bulletSpeed, double damage) {
+   protected Collection<Bullet> fireBullet(Sprite s, Point p, boolean rotateTurret,
+         int turretWidth, int range, double bulletSpeed, double damage) {
       double dx = s.getPosition().getX() - p.getX();
       double dy = s.getPosition().getY() - p.getY();
       // System.out.println(dx + " " + dy);
       if(rotateTurret) {
          currentImage = ImageHelper.rotateImage(originalImage, dx, -dy);
       }
-      return makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p, s);
+      return makeBullets(dx, dy, turretWidth, range, bulletSpeed, damage, p, s);
    }
    
    private void drawRange(Graphics g) {
