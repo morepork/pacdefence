@@ -22,7 +22,7 @@ package gui;
 
 public class Formulae {
    
-   private static final double moneyDivisor = 10;
+   private static final double moneyDivisor = 25;
    
    public static int numSprites(int level) {
       return 20 + 2 * (level - 1);

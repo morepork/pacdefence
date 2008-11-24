@@ -50,7 +50,7 @@ public interface Sprite {
    public Point2D intersects(Line2D line);
    
    /**
-    * Returns a double representing initial totalHP / baseHP
+    * Returns a double representing initial baseHP / totalHP
     */
    public double getHPFactor();
    public void slow(double factor, int numTicks);

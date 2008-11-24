@@ -91,7 +91,7 @@ public abstract class AbstractSprite implements Sprite {
       imageSize = new Rectangle(0, 0, width, width);      
       speed = calculateSpeed(hp);
       levelHP = hp;
-      hpFactor = this.hp / hp;
+      hpFactor = levelHP / this.hp;
       this.path = path;
       nextPoint = calculateFirstPoint();
       pointAfterIndex = 0;
