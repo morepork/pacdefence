@@ -19,6 +19,8 @@
 
 package towers;
 
+import gui.Helper;
+
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,11 +73,7 @@ public class ScatterTower extends AbstractTower {
 
    @Override
    protected void upgradeSpecial() {
-      if(shots + 1 >= shots * upgradeIncreaseFactor) {
-         shots++;
-      } else {
-         shots *= upgradeIncreaseFactor;
-      }
+      shots = Helper.increaseByAtLeastOne(shots, upgradeIncreaseFactor);
    }
 
 }

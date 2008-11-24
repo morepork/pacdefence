@@ -69,5 +69,11 @@ public class Helper {
       }
       return list;
    }
+   
+   public static int increaseByAtLeastOne(int currentValue, double factor) {
+      int plus = currentValue + 1;
+      int times = (int)(currentValue * factor);
+      return plus > times ? plus : times;
+   }
 
 }

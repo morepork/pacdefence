@@ -61,11 +61,7 @@ public class JumpingTower extends AbstractTower {
 
    @Override
    protected void upgradeSpecial() {
-      if(jumps + 1 >= jumps * upgradeIncreaseFactor) {
-         jumps++;
-      } else {
-         jumps *= upgradeIncreaseFactor;
-      }
+      jumps = Helper.increaseByAtLeastOne(jumps, upgradeIncreaseFactor);
    }
    
    private class JumpingBullet extends AbstractBullet {

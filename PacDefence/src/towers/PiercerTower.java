@@ -60,11 +60,7 @@ public class PiercerTower extends AbstractTower {
 
    @Override
    protected void upgradeSpecial() {
-      if(pierces + 1 >= pierces * upgradeIncreaseFactor) {
-         pierces++;
-      } else {
-         pierces *= upgradeIncreaseFactor;
-      }
+      pierces = Helper.increaseByAtLeastOne(pierces, upgradeIncreaseFactor);
    }
    
    private class PiercingBullet extends AbstractBullet {

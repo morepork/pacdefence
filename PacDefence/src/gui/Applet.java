@@ -31,7 +31,6 @@ public class Applet extends JApplet {
       setSize(OuterPanel.WIDTH, OuterPanel.HEIGHT);
       outer = new OuterPanel();
       add(outer);
-      outer.setVisible(true);
       setVisible(true);
    }
 
