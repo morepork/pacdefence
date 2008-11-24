@@ -21,7 +21,9 @@ package gui;
 
 import images.ImageHelper;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -52,7 +54,8 @@ public class GameMap extends JPanel {
    // Time clock takes to update in ms
    public static final int CLOCK_TICK = 30;
    
-   private final boolean debugMode = true;
+   private final boolean debugTimes = true;
+   private final boolean debugPath = false;
    
    private final BufferedImage backgroundImage = ImageHelper.makeImage(OuterPanel.MAP_WIDTH,
          OuterPanel.MAP_HEIGHT, "maps", "mosaic_path.jpg");
@@ -183,9 +186,7 @@ public class GameMap extends JPanel {
          Bullet b = bullets.get(i);
          b.draw(g);
       }
-      if(debugMode) {
-         drawDebug(g);
-      }
+      drawDebug(g);
       if(buildingTower != null) {
          Point p = getMousePosition();
          if (p != null) {
@@ -196,11 +197,15 @@ public class GameMap extends JPanel {
    }
    
    private void drawDebug(Graphics g) {
-      bufferGraphics.setColor(Color.WHITE);
-      bufferGraphics.drawString("Process time: " + Long.toString(processTime), 10, 15);
-      bufferGraphics.drawString("Draw time: " + Long.toString(drawTime), 10, 30);
-      drawPath(bufferGraphics);
-      drawPathOutline(bufferGraphics);
+      if(debugTimes) {
+         bufferGraphics.setColor(Color.WHITE);
+         bufferGraphics.drawString("Process time: " + Long.toString(processTime), 10, 15);
+         bufferGraphics.drawString("Draw time: " + Long.toString(drawTime), 10, 30);
+      }
+      if(debugPath) {
+         drawPath(bufferGraphics);
+         drawPathOutline(bufferGraphics);
+      }
    }
    
    private void addMouseListeners() {
@@ -270,8 +275,8 @@ public class GameMap extends JPanel {
    
    private Polygon makePath() {
       // These need to be worked out depending on the image.
-      int[] xPoints = new int[]{0, 274, 274, 139, 139, 600, 600, 66, 66, 202, 202, 0};
-      int[] yPoints = new int[]{105, 105, 375, 375, 437, 437, 504, 504, 304, 304, 168, 168};
+      int[] xPoints = new int[]{0, 273, 273, 137, 137, 600, 600, 67, 67, 203, 203, 0};
+      int[] yPoints = new int[]{106, 106, 372, 372, 438, 438, 503, 503, 305, 305, 166, 166};
       return new Polygon(xPoints, yPoints, xPoints.length);
    }
    
@@ -481,28 +486,42 @@ public class GameMap extends JPanel {
     */
    private class GameOver {
       
+      private final int framesBetweenRedraw = 1;
+      private int framesUntilRedraw = 0;
       private int deltaY, deltaX;
       private BufferedImage img;
-      private int currentX, currentY, i, numTimes; 
+      private int currentX, currentY, iterations, numTimes;
       
       private GameOver() {
          deltaY = 1;
-         img = ImageHelper.makeImage("other", "GameOver.png");
-         img = ImageHelper.resize(img, (int)(getWidth()*0.75), (int)(getHeight()*0.2));
-         currentY = img.getHeight();
-         numTimes = ((int)(getHeight()*0.75) - img.getHeight() - currentY)/deltaY;
+         img = ImageHelper.makeImage((int)(getWidth()*0.75), (int)(getHeight()*0.2), "other",
+               "GameOver.png");
+         double mult = 1.2;
+         currentY = (int)(img.getHeight() * mult);
+         numTimes = (int)(((getHeight() * 0.75) - img.getHeight() * mult - currentY)/deltaY);
          currentX = getWidth()/2 - img.getWidth()/2;
-         repaint();
       }
       
       private void draw(Graphics g) {
-         if(i > numTimes) {
+         if(iterations > numTimes) {
             return;
          }
-         currentY += deltaY;
-         currentX += deltaX;
-         i++;         
+         if(framesUntilRedraw > 0) {
+            framesUntilRedraw--;
+         } else {
+            framesUntilRedraw = framesBetweenRedraw;
+            currentY += deltaY;
+            currentX += deltaX;
+            iterations++;
+         }
+         Graphics2D g2D = (Graphics2D)g;
+         // Save the current composite to reset back to later
+         Composite c = g2D.getComposite();
+         // Makes it so what is drawn is partly transparent
+         g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+               0.7f/(framesBetweenRedraw + 1)));
          g.drawImage(img, currentX, currentY, null);
+         g2D.setComposite(c);
       }
    }
 

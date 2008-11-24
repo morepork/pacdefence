@@ -408,10 +408,12 @@ public class ControlPanel extends JPanel {
    }
    
    private void processTowerButtonAction(OverlayButton b) {
-      Tower t = towerTypes.get(b);
-      if(map.towerButtonPressed(t)) {
-         setBuildingTower(t);
-         updateStats();
+      if(money >= getNextTowerCost()) {
+         Tower t = towerTypes.get(b);
+         if(map.towerButtonPressed(t)) {
+            setBuildingTower(t);
+            updateStats();
+         }
       }
    }
    
