@@ -52,8 +52,8 @@ public class ScatterTower extends AbstractTower {
    }
    
    @Override
-   protected Collection<Bullet> fireBullets(List<Sprite> sprites) {
-      Collection<Bullet> fired = new ArrayList<Bullet>();
+   protected List<Bullet> fireBullets(List<Sprite> sprites) {
+      List<Bullet> fired = new ArrayList<Bullet>();
       for (Sprite s : sprites) {
          if (checkDistance(s)) {
             fired.addAll(fireBullet(s, false));

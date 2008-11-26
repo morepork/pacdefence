@@ -19,6 +19,7 @@
 
 package towers;
 
+import gui.OuterPanel;
 import images.ImageHelper;
 
 import java.awt.Graphics;
@@ -70,6 +71,9 @@ public abstract class AbstractBullet implements Bullet {
    public double tick(List<Sprite> sprites) {
       if(distanceTravelled >= range) {
          //System.out.println("Bullet reached edge of range");
+         return 0;
+      }
+      if(checkIfBulletCanBeRemovedAsOffScreen()) {
          return 0;
       }
       distanceTravelled += distancePerTick;
@@ -129,6 +133,11 @@ public abstract class AbstractBullet implements Bullet {
       }
       shotBy.increaseDamageDealt(d.getDamage());
       return d.getMoneyEarnt();
+   }
+   
+   protected boolean checkIfBulletCanBeRemovedAsOffScreen() {
+      return position.getX() < 0 || position.getY() < 0 || position.getX() > OuterPanel.MAP_WIDTH
+            || position.getY() > OuterPanel.MAP_HEIGHT;
    }
 
 }

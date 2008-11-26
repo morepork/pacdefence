@@ -21,7 +21,7 @@ package towers;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import sprites.Sprite;
 
@@ -61,9 +61,9 @@ public class MultiShotTower extends AbstractTower {
    }
    
    @Override
-   protected Collection<Bullet> makeBullets(double dx, double dy,  int turretWidth, int range,
+   protected List<Bullet> makeBullets(double dx, double dy,  int turretWidth, int range,
          double bulletSpeed, double damage, Point p, Sprite s) {
-      Collection<Bullet> bullets = new ArrayList<Bullet>();
+      List<Bullet> bullets = new ArrayList<Bullet>();
       for(int i = 0; i < shots; i++) {
          bullets.add(makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p, s));
          bulletSpeed /= speedDividend;

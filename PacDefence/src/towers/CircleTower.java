@@ -130,6 +130,12 @@ public class CircleTower extends AbstractTower {
          }
          return moneyEarnt;
       }
+      
+      @Override
+      protected boolean checkIfBulletCanBeRemovedAsOffScreen() {
+         // Circle bullets always come back so shouldn't be removed
+         return false;
+      }
 
       private List<Point2D> makeArcPoints() {
          List<Point2D> points = new ArrayList<Point2D>();
