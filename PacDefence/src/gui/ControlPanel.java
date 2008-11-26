@@ -94,7 +94,7 @@ public class ControlPanel extends JPanel {
    private final Color defaultTextColour = Color.YELLOW;
    private final float defaultTextSize = 12F;
    // This is the initial money
-   private int money = 2500;
+   private long money = 2500;
    private int lives = 10;
    private int livesLostOnThisLevel;
    private double interestRate = 1.01;
@@ -128,9 +128,9 @@ public class ControlPanel extends JPanel {
       endLevelUpgradesLeft++;
       enableEndLevelUpgradeButtons(true);
       updateEndLevelUpgradesLabel();
-      int moneyBefore = money; 
+      long moneyBefore = money; 
       multiplyMoney(interestRate);
-      int interest = money - moneyBefore;
+      long interest = money - moneyBefore;
       int levelEndBonus = Formulae.levelEndBonus(level);
       int noEnemiesThroughBonus = 0;
       String text = "Level " + level + " finished. " + interest + " interest earnt. " +

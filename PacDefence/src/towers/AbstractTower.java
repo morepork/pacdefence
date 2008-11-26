@@ -84,11 +84,11 @@ public abstract class AbstractTower implements Tower {
 
    private boolean isSelected = false;
 
-   private double damageDealt = 0;
+   private long damageDealt = 0;
    private int kills = 0;
    private int killsLevel = 1;
    private int damageDealtLevel = 1;
-   private int nextUpgradeDamage = Formulae.nextUpgradeDamage(killsLevel);
+   private long nextUpgradeDamage = Formulae.nextUpgradeDamage(killsLevel);
    private int nextUpgradeKills = Formulae.nextUpgradeKills(damageDealtLevel);
    
    private List<Bullet> bulletsToAdd = new ArrayList<Bullet>();
@@ -337,12 +337,12 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public double getDamageDealt() {
+   public long getDamageDealt() {
       return damageDealt;
    }
    
    @Override
-   public int getDamageDealtForUpgrade() {
+   public long getDamageDealtForUpgrade() {
       return nextUpgradeDamage;
    }
 
