@@ -199,8 +199,9 @@ public class GameMap extends JPanel {
    private void drawDebug(Graphics g) {
       if(debugTimes) {
          bufferGraphics.setColor(Color.WHITE);
-         bufferGraphics.drawString("Process time: " + Long.toString(processTime), 10, 15);
-         bufferGraphics.drawString("Draw time: " + Long.toString(drawTime), 10, 30);
+         bufferGraphics.drawString("Process time: " + processTime, 10, 15);
+         bufferGraphics.drawString("Draw time: " + drawTime, 10, 30);
+         bufferGraphics.drawString("Num bullets: " + bullets.size(), 400, 15);
       }
       if(debugPath) {
          drawPath(bufferGraphics);
@@ -351,7 +352,7 @@ public class GameMap extends JPanel {
       private int addSpriteIn = 0;
       private int processTimesPos = 0;
       private int drawTimesPos = 0;
-      private final int timesLength = 50;
+      private final int timesLength = 20;
       private final long[] processTimes = new long[timesLength];
       private final long[] drawTimes = new long[timesLength];
             

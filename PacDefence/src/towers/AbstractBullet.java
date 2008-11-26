@@ -46,10 +46,11 @@ public abstract class AbstractBullet implements Bullet {
    private final int range;
    private static final int radius = 3;
    private final double damage;
-   private boolean alive = true;
+   private boolean draw = true;
    protected final Tower shotBy;
    private static final BufferedImage image = ImageHelper.makeImage(radius * 2, radius * 2,
          "other", "bullet.png");
+   private static final int halfWidth = image.getWidth() / 2;
    
    public AbstractBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
          double speed, double damage, Point p) {
@@ -69,34 +70,13 @@ public abstract class AbstractBullet implements Bullet {
    }
 
    public double tick(List<Sprite> sprites) {
-      if(distanceTravelled >= range) {
-         //System.out.println("Bullet reached edge of range");
-         return 0;
-      }
-      if(checkIfBulletCanBeRemovedAsOffScreen()) {
-         return 0;
-      }
-      distanceTravelled += distancePerTick;
-      //System.out.println(distanceTravelled);
-      lastPosition.setLocation(position);
-      if(distanceTravelled > range) {
-         // This deals with a bullet nearing the edge of its range
-         double extraDistance = distanceTravelled - range;
-         if(extraDistance < 1) {
-            // If the extra distance is this small it's too trivial to redraw
-            return 0;
-         }
-         double fraction = extraDistance / distancePerTick;
-         position.setLocation(position.getX() + fraction * dir[0],
-               position.getY() + fraction * dir[1]);
-      } else {
-         position.setLocation(position.getX() + dir[0], position.getY() + dir[1]);
-      }
-      return checkIfSpriteIsHit(sprites);
+      double tick = doTick(sprites);
+      draw = tick < 0;
+      return tick;
    }
 
    public void draw(Graphics g) {
-      if(alive) {
+      if(draw && !checkIfBulletIsOffScreen()) {
          g.drawImage(image, (int) position.getX() - radius, (int) position.getY() - radius, null);
       }
    }
@@ -106,7 +86,15 @@ public abstract class AbstractBullet implements Bullet {
    }
    
    protected double checkIfSpriteIsHit(List<Sprite> sprites) {
-      Line2D line = new Line2D.Double(lastPosition, position);
+      return checkIfSpriteIsHit(lastPosition, position, sprites);
+
+   }
+   
+   protected double checkIfSpriteIsHit(Point2D p1, Point2D p2, List<Sprite> sprites) {
+      return checkIfSpriteIsHit(new Line2D.Double(p1, p2), sprites);
+   }
+   
+   protected double checkIfSpriteIsHit(Line2D line, List<Sprite> sprites) {
       for(Sprite s : sprites) {
          Point2D p = s.intersects(line);
          if(p != null) {
@@ -136,8 +124,36 @@ public abstract class AbstractBullet implements Bullet {
    }
    
    protected boolean checkIfBulletCanBeRemovedAsOffScreen() {
-      return position.getX() < 0 || position.getY() < 0 || position.getX() > OuterPanel.MAP_WIDTH
-            || position.getY() > OuterPanel.MAP_HEIGHT;
+      return checkIfBulletIsOffScreen();
+   }
+   
+   private boolean checkIfBulletIsOffScreen() {
+      return position.getX() < -halfWidth || position.getY() < -halfWidth ||
+            position.getX() > OuterPanel.MAP_WIDTH + halfWidth ||
+            position.getY() > OuterPanel.MAP_HEIGHT + halfWidth;
+   }
+   
+   private double doTick(List<Sprite> sprites) {
+      if(distanceTravelled >= range || checkIfBulletCanBeRemovedAsOffScreen()) {
+         return 0;
+      }
+      distanceTravelled += distancePerTick;
+      //System.out.println(distanceTravelled);
+      lastPosition.setLocation(position);
+      if(distanceTravelled > range) {
+         double extraFraction = (distanceTravelled - range) / distancePerTick;
+         position.setLocation(position.getX() + extraFraction * dir[0],
+               position.getY() + extraFraction * dir[1]);
+         double result = checkIfSpriteIsHit(sprites);
+         if(result > 0) {
+            return result;
+         } else {
+            return 0;
+         }
+      } else {
+         position.setLocation(position.getX() + dir[0], position.getY() + dir[1]);
+         return checkIfSpriteIsHit(sprites);
+      }
    }
 
 }

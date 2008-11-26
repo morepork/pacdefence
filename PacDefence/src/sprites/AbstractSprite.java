@@ -51,6 +51,7 @@ public abstract class AbstractSprite implements Sprite {
 
    private final List<BufferedImage> originalImages;
    private List<BufferedImage> currentImages;
+   private BufferedImage currentImage;
    private int currentImageIndex = 0;
    private final Rectangle imageSize;
 
@@ -100,12 +101,8 @@ public abstract class AbstractSprite implements Sprite {
 
    @Override
    public void draw(Graphics g) {
-      // System.out.println("Sprite draw called");
       if (onScreen) {
-         // System.out.println("Drawing");
-         currentImageIndex++;
-         currentImageIndex %= originalImages.size();
-         g.drawImage(currentImages.get(currentImageIndex), (int) centre.getX() - halfWidth,
+         g.drawImage(currentImage, (int) centre.getX() - halfWidth,
                (int) centre.getY() - halfWidth, null);
       }
    }
@@ -119,6 +116,9 @@ public abstract class AbstractSprite implements Sprite {
       if (!onScreen) {
          return true;
       } else {
+         currentImageIndex++;
+         currentImageIndex %= currentImages.size();
+         currentImage = currentImages.get(currentImageIndex);
          if (alive) {
             move();
          } else {
@@ -158,7 +158,7 @@ public abstract class AbstractSprite implements Sprite {
       int y = (int) (p.getY() - centre.getY() + halfWidth);
       if (imageSize.contains(x, y)) {
          // RGB of zero means a completely alpha i.e. transparent pixel
-         return currentImages.get(currentImageIndex).getRGB(x, y) != 0;
+         return currentImage.getRGB(x, y) != 0;
       }
       return false;
    }
@@ -276,17 +276,16 @@ public abstract class AbstractSprite implements Sprite {
          double dx = nextPoint.getX() - lastPoint.getX();
          double dy = nextPoint.getY() - lastPoint.getY();
          distance = Math.sqrt(dx * dx + dy * dy) / speed;
-         // System.out.println("Distance: " + distance);
          xStep = dx / distance;
          yStep = dy / distance;
-         // System.out.println("Steps: " + xStep + " " + yStep);
          steps = 0;
          // Invert yStep here as y coord goes down as it increases, rather than
          // up as in a conventional coordinate system.
          rotateImages(ImageHelper.vectorAngle(xStep, -yStep));
       } else {
+         // There are no more points to head towards
          if (nextPoint == null) {
-            // System.out.println("Finished");
+            // Sprite is finished
             onScreen = false;
          } else {
             // This flags that the final path has been extended
@@ -351,6 +350,22 @@ public abstract class AbstractSprite implements Sprite {
       } else {
          this.hp = (int)(hp * mult); 
          return baseSpeed / mult;
+      }
+   }
+   
+   public static void main(String... args) {
+      int width = 50;
+      BufferedImage image;
+      long nanotime;
+      for(int i = 0; i < 10; i++) {
+         nanotime = System.nanoTime();
+         image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
+         System.out.println(System.nanoTime() - nanotime);
+         image = ImageHelper.makeImage(width, width, "sprites", "pacman_yellow1.png");
+         nanotime = System.nanoTime();
+         ImageHelper.clearImage(image);
+         System.out.println(System.nanoTime() - nanotime);
+         System.out.println(image.getType());
       }
    }
 

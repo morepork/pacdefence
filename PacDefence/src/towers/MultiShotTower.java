@@ -28,7 +28,7 @@ import sprites.Sprite;
 
 public class MultiShotTower extends AbstractTower {
    
-   private static final double speedDividend = 1.1;
+   private static final double speedDividend = 1.07;
    private int shots = 5;
    
    public MultiShotTower() {
@@ -36,7 +36,7 @@ public class MultiShotTower extends AbstractTower {
    }
    
    public MultiShotTower(Point p) {
-      super(p, "Multi-Shot", 40, 100, 5, 1.3, 50, 5, "multiShot.png", "MultiShotTower.png");
+      super(p, "Multi-Shot", 40, 100, 7.5, 1.4, 50, 5, "multiShot.png", "MultiShotTower.png");
    }
 
    @Override

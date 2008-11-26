@@ -115,10 +115,7 @@ public class ImageHelper {
    }
    
    public static void clearImage(BufferedImage image) {
-      for(int a = 0; a < image.getWidth(); a++) {
-         for(int b = 0; b < image.getHeight(); b++) {
-            image.setRGB(a, b, 0);
-         }
-      }
+      image.setData(image.getColorModel().createCompatibleWritableRaster(image.getWidth(),
+            image.getHeight()));
    }
 }

@@ -65,9 +65,11 @@ public abstract class AbstractTower implements Tower {
    private double fireRate;
    // The number of clock ticks until this tower's next shot
    private double timeToNextShot = 0;
-   private int range;
+   private double range;
+   private final double rangeUpgrade;
    private int twiceRange;
    private double bulletSpeed;
+   private final double bulletSpeedUpgrade;
    private double damage;
 
    // The width/height of the image (as it's square)
@@ -91,7 +93,7 @@ public abstract class AbstractTower implements Tower {
    
    private List<Bullet> bulletsToAdd = new ArrayList<Bullet>();
 
-   public AbstractTower(Point p, String name, int fireRate, int range, double bulletSpeed,
+   public AbstractTower(Point p, String name, int fireRate, double range, double bulletSpeed,
          double damage, int width, int turretWidth, String imageName, String buttonImageName) {
       centre = new Point(p);
       // Only temporary, it gets actually set later
@@ -99,8 +101,10 @@ public abstract class AbstractTower implements Tower {
       this.name = name;
       this.fireRate = fireRate;
       this.range = range;
-      twiceRange = range * 2;
+      rangeUpgrade = range * (upgradeIncreaseFactor - 1);
+      twiceRange = (int)(range * 2);
       this.bulletSpeed = bulletSpeed;
+      bulletSpeedUpgrade = bulletSpeed * (upgradeIncreaseFactor - 1);
       this.damage = damage;
       this.width = width;
       halfWidth = width / 2;
@@ -201,7 +205,7 @@ public abstract class AbstractTower implements Tower {
 
    @Override
    public int getRange() {
-      return range;
+      return (int)range;
    }
 
    @Override
@@ -384,14 +388,14 @@ public abstract class AbstractTower implements Tower {
    }
    
    protected boolean checkDistance(Sprite s) {
-      return checkDistance(s, centre, range);
+      return checkDistance(s, centre);
    }
    
    protected boolean checkDistance(Sprite s, Point p) {
       return checkDistance(s, p, range);
    }
    
-   protected boolean checkDistance(Sprite s, Point p, int range) {
+   protected boolean checkDistance(Sprite s, Point p, double range) {
       if (!s.isAlive()) {
          return false;
       }
@@ -401,7 +405,7 @@ public abstract class AbstractTower implements Tower {
    }
    
    protected List<Bullet> fireBullet(Sprite s, boolean rotateTurret) {
-      return fireBullet(s, centre, rotateTurret, turretWidth, range, bulletSpeed, damage);
+      return fireBullet(s, centre, rotateTurret);
    }
    
    protected List<Bullet> fireBullet(Sprite s, Point p, boolean rotateTurret) {
@@ -409,19 +413,19 @@ public abstract class AbstractTower implements Tower {
    }
    
    protected List<Bullet> fireBullet(Sprite s, Point p, boolean rotateTurret,
-         int turretWidth, int range, double bulletSpeed, double damage) {
+         int turretWidth, double range, double bulletSpeed, double damage) {
       double dx = s.getPosition().getX() - p.getX();
       double dy = s.getPosition().getY() - p.getY();
       // System.out.println(dx + " " + dy);
       if(rotateTurret) {
          currentImage = ImageHelper.rotateImage(originalImage, dx, -dy);
       }
-      return makeBullets(dx, dy, turretWidth, range, bulletSpeed, damage, p, s);
+      return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, s);
    }
    
    private void drawRange(Graphics g) {
-      int topLeftRangeX = (int) centre.getX() - range;
-      int topLeftRangeY = (int) centre.getY() - range;
+      int topLeftRangeX = (int)(centre.getX() - range);
+      int topLeftRangeY = (int)(centre.getY() - range);
       g.setColor(rangeColour);
       g.fillOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
       g.setColor(Color.BLACK);
@@ -442,8 +446,8 @@ public abstract class AbstractTower implements Tower {
    }
 
    private void upgradeRange() {
-      range *= upgradeIncreaseFactor;
-      twiceRange = range * 2;
+      range += rangeUpgrade;
+      twiceRange = (int)(range * 2);
    }
 
    private void upgradeFireRate() {
@@ -451,7 +455,7 @@ public abstract class AbstractTower implements Tower {
    }
 
    private void upgradeBulletSpeed() {
-      bulletSpeed *= upgradeIncreaseFactor;
+      bulletSpeed += bulletSpeedUpgrade;
    }
 
    protected abstract void upgradeSpecial();
