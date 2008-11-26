@@ -20,23 +20,28 @@
 package gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 public class OuterPanel extends JPanel {
    
-   public static final int WIDTH = 800, HEIGHT = 600;
+   public static final int WIDTH = 800;
+   public static final int HEIGHT = 600;
    
-   public static final int MAP_WIDTH = WIDTH - 200, MAP_HEIGHT = HEIGHT;
+   public static final int MAP_WIDTH = WIDTH - 200;
+   public static final int MAP_HEIGHT = HEIGHT;
    
-   public static final int CONTROLS_WIDTH = WIDTH - MAP_WIDTH, CONTROLS_HEIGHT = MAP_HEIGHT;
+   public static final int CONTROLS_WIDTH = WIDTH - MAP_WIDTH;
+   public static final int CONTROLS_HEIGHT = MAP_HEIGHT;
 
    private GameMap map = new GameMap(MAP_WIDTH, MAP_HEIGHT);
    private ControlPanel controlPanel = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT, map);
    
    public OuterPanel() {
       setLayout(new BorderLayout());
+      setPreferredSize(new Dimension(WIDTH, HEIGHT));
       add(map, BorderLayout.WEST);
       add(controlPanel, BorderLayout.EAST);
    }

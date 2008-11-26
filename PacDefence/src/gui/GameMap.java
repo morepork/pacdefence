@@ -32,6 +32,7 @@ import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,6 +75,7 @@ public class GameMap extends JPanel {
    private long drawTime = 0;
    private Tower buildingTower = null;
    private Tower selectedTower = null;
+   private Tower hoverOverTower = null;
    private int spritesToAdd;
    private int levelHP;
    private boolean levelInProgress = false;
@@ -213,23 +215,54 @@ public class GameMap extends JPanel {
       addMouseListener(new MouseAdapter(){
          @Override
          public void mouseReleased(MouseEvent e) {
-            deselectTower();
-            if(e.getButton() == MouseEvent.BUTTON3) {
-               // Stop everything if it's the right mouse button
-               clearBuildingTower();
-               return;
-            }
-            Point p = e.getPoint();
-            for(Tower t : towers) {
-               // Select a tower if one is clicked on
-               if(t.contains(p)) {
-                  selectTower(t);
-                  return;
-               }
-            }
-            tryToBuildTower(p);            
+            processMouseReleased(e);
          }
       });
+      addMouseMotionListener(new MouseMotionAdapter(){
+         @Override
+         public void mouseMoved(MouseEvent e) {
+            processMouseMoved(e);
+         }
+      });
+   }
+   
+   private void processMouseReleased(MouseEvent e) {
+      deselectTower();
+      if(e.getButton() == MouseEvent.BUTTON3) {
+         // Stop everything if it's the right mouse button
+         clearBuildingTower();
+         return;
+      }
+      Point p = e.getPoint();
+      Tower t = containedInTower(p);
+      if(t == null) {
+         tryToBuildTower(p);
+      } else {
+         // Select a tower if one is clicked on
+         selectTower(t);
+      }    
+   }
+   
+   private void processMouseMoved(MouseEvent e) {
+      if(selectedTower == null && buildingTower == null) {
+         Tower t = containedInTower(e.getPoint());
+         if(hoverOverTower == null && t == null) {
+            return;
+         }
+         if(hoverOverTower != t) {
+            cp.hoverOverTower(t);
+         }
+         hoverOverTower = t;
+      }
+   }
+   
+   private Tower containedInTower(Point p) {
+      for(Tower t : towers) {
+         if(t.contains(p)) {
+            return t;
+         }
+      }
+      return null;
    }
    
    private void tryToBuildTower(Point p) {
@@ -377,7 +410,6 @@ public class GameMap extends JPanel {
             }
             // Divides by a million to convert to ms
             long elapsedTime = (System.nanoTime() - beginTime) / 1000000;
-            //System.out.println(elapsedTime);
             needsRepaint = true;
             repaint();
             calculateProcessTimeTaken(elapsedTime);            

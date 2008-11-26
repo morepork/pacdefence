@@ -108,6 +108,7 @@ public interface Tower extends Cloneable {
    public int getDamageDealtForUpgrade();
    public int getKills();
    public int getKillsForUpgrade();
+   public int getExperienceLevel();
    public BufferedImage getButtonImage();
    public void addExtraBullets(Bullet... bullets);
 

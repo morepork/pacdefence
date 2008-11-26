@@ -368,6 +368,12 @@ public abstract class AbstractTower implements Tower {
       }
    }
    
+   @Override
+   public int getExperienceLevel() {
+      // -1 so it starts at level 1
+      return killsLevel + damageDealtLevel - 1;
+   }
+   
    protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, Sprite s);
    

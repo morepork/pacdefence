@@ -43,6 +43,7 @@ public class OverlayButton extends JButton {
    private OverlayButton(BufferedImage image, BufferedImage[] overlays, int width) {
       setBorderPainted(false);
       setContentAreaFilled(false);
+      setOpaque(false);
       setIcons(image, overlays, width);
       setPreferredSize(new Dimension(width, width));
       setMultiClickThreshhold(10);
