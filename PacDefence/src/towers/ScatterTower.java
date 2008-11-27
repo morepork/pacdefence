@@ -22,8 +22,8 @@ package towers;
 import gui.Helper;
 
 import java.awt.Point;
+import java.awt.Polygon;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import sprites.Sprite;
@@ -34,11 +34,11 @@ public class ScatterTower extends AbstractTower {
    private int shots = 2;
    
    public ScatterTower() {
-      this(new Point());
+      this(new Point(), null);
    }
    
-   public ScatterTower(Point p) {
-      super(p, "Scatter", 40, 100, 5, 5, 50, 10, "scatter.png", "ScatterTower.png");
+   public ScatterTower(Point p, Polygon path) {
+      super(p, path, "Scatter", 40, 100, 5, 5, 50, 10, "scatter.png", "ScatterTower.png");
    }
 
    @Override
@@ -67,8 +67,8 @@ public class ScatterTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s) {
-      return new AbstractBullet(this, dx, dy, turretWidth, range, speed, damage, p){};
+         double damage, Point p, Sprite s, Polygon path) {
+      return new AbstractBullet(this, dx, dy, turretWidth, range, speed, damage, p, path){};
    }
 
    @Override

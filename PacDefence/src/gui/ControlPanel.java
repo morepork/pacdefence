@@ -807,6 +807,10 @@ public class ControlPanel extends JPanel {
          setText(String.valueOf(i));
       }
       
+      public void setText(long l) {
+         setText(String.valueOf(l));
+      }
+      
       public void setText(double d){
          setText(String.valueOf(d));
       }      

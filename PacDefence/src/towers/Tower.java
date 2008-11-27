@@ -21,6 +21,7 @@ package towers;
 
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
@@ -99,8 +100,8 @@ public interface Tower extends Cloneable {
    public double getBulletSpeed();
    public String getSpecial();
    public String getSpecialName();
-   public Tower constructNew();
-   public Tower constructNew(Point p);
+   public Tower constructNew(Polygon path);
+   public Tower constructNew(Point p, Polygon path);
    public void select(boolean select);
    public void increaseDamageDealt(double damage);
    public void increaseKills(int kills);

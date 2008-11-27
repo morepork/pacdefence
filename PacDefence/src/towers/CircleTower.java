@@ -25,6 +25,7 @@ import images.ImageHelper;
 
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,11 +38,11 @@ public class CircleTower extends AbstractTower {
    private int hits = 1;
 
    public CircleTower() {
-      this(new Point());
+      this(new Point(), null);
    }
 
-   public CircleTower(Point p) {
-      super(p, "Circle", 40, 100, 5, 10, 50, 0, "circle.png", "CircleTower.png");
+   public CircleTower(Point p, Polygon path) {
+      super(p, path, "Circle", 40, 100, 5, 10, 50, 0, "circle.png", "CircleTower.png");
    }
 
    @Override
@@ -56,8 +57,8 @@ public class CircleTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s) {
-      return new CirclingBullet(this, dx, dy, turretWidth, range, speed, damage, p, s);
+         double damage, Point p, Sprite s, Polygon path) {
+      return new CirclingBullet(this, dx, dy, turretWidth, range, speed, damage, p, s, path);
    }
 
    @Override
@@ -67,7 +68,7 @@ public class CircleTower extends AbstractTower {
 
    private class CirclingBullet extends AbstractBullet {
 
-      private final Circle path;
+      private final Circle route;
       private final double deltaTheta;
       private final double arcLengthPerTick;
       private final double endAngle;
@@ -77,17 +78,17 @@ public class CircleTower extends AbstractTower {
       private Collection<Sprite> hitSprites = new ArrayList<Sprite>();
 
       public CirclingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Sprite s) {
-         super(shotBy, dx, dy, turretWidth, range, speed, damage, p);
+            double speed, double damage, Point p, Sprite s, Polygon path) {
+         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, path);
          double distance = Helper.distance(p, s.getPosition()) - s.getHalfWidth();
          double angleToSprite = ImageHelper.vectorAngle(dx, dy);
          double theta = angleToSprite - Math.acos(distance / getRange());
          double halfRange = getRange() / 2.0;
          double deltaX = halfRange * Math.sin(theta);
          double deltaY = halfRange * Math.cos(theta);
-         path = new Circle(new Point2D.Double(p.getX() + deltaX, p.getY() + deltaY), halfRange);
+         route = new Circle(new Point2D.Double(p.getX() + deltaX, p.getY() + deltaY), halfRange);
          arcLengthPerTick = getBulletSpeed();
-         deltaTheta = 2 * Math.PI * arcLengthPerTick / path.calculateCircumference();
+         deltaTheta = 2 * Math.PI * arcLengthPerTick / route.calculateCircumference();
          angle = Math.PI + theta;
          endAngle = angle + 2 * Math.PI;
       }
@@ -106,7 +107,7 @@ public class CircleTower extends AbstractTower {
          hittableSprites.removeAll(hitSprites);
          moneyEarntSoFar += checkIfSpriteIsHit(hittableSprites);
          angle += deltaTheta;
-         position.setLocation(path.getPointAt(angle));
+         position.setLocation(route.getPointAt(angle));
          return -1;
       }
 
@@ -114,17 +115,19 @@ public class CircleTower extends AbstractTower {
       protected double checkIfSpriteIsHit(List<Sprite> sprites) {
          List<Point2D> points = makeArcPoints();
          double moneyEarnt = 0;
-         for (Sprite s : sprites) {
-            for (Point2D p : points) {
-               if (s.intersects(p)) {
-                  specialOnHit(p, s, sprites);
-                  moneyEarnt += processDamageReport(s.hit(getDamage()));
-                  hitSprites.add(s);
-                  hitsLeft--;
-                  if (hitsLeft <= 0) {
-                     return moneyEarnt;
+         if(doPointsIntersectPath(points)) {
+            for (Sprite s : sprites) {
+               for (Point2D p : points) {
+                  if (s.intersects(p)) {
+                     specialOnHit(p, s, sprites);
+                     moneyEarnt += processDamageReport(s.hit(getDamage()));
+                     hitSprites.add(s);
+                     hitsLeft--;
+                     if (hitsLeft <= 0) {
+                        return moneyEarnt;
+                     }
+                     break;
                   }
-                  break;
                }
             }
          }
@@ -141,7 +144,7 @@ public class CircleTower extends AbstractTower {
          List<Point2D> points = new ArrayList<Point2D>();
          double delta = deltaTheta / arcLengthPerTick;
          for (double a = angle + delta; a <= angle + deltaTheta; a += delta) {
-            points.add(path.getPointAt(a));
+            points.add(route.getPointAt(a));
          }
          return points;
       }

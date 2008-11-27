@@ -20,16 +20,17 @@
 package towers;
 
 import java.awt.Point;
+import java.awt.Polygon;
 
 
 public class SlowLengthTower extends SlowTower {
    
    public SlowLengthTower() {
-      this(new Point());
+      this(new Point(), null);
    }
    
-   public SlowLengthTower(Point p) {
-      super(p, "Slow (length)", 40, 100, 5, 1, 50, 23, "slowLength.png", "SlowLengthTower.png");
+   public SlowLengthTower(Point p, Polygon path) {
+      super(p, path, "Slow (length)", 40, 100, 5, 1, 50, 23, "slowLength.png", "SlowLengthTower.png");
    }
 
    @Override

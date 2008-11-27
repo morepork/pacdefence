@@ -20,6 +20,7 @@
 package towers;
 
 import java.awt.Point;
+import java.awt.Polygon;
 import java.text.DecimalFormat;
 
 
@@ -28,11 +29,11 @@ public class SlowFactorTower extends SlowTower {
    private static final DecimalFormat TWO_DP = new DecimalFormat("0.00");
    
    public SlowFactorTower() {
-      this(new Point());
+      this(new Point(), null);
    }
    
-   public SlowFactorTower(Point p) {
-      super(p, "Slow (factor)", 40, 100, 5, 1, 50, 23, "slowFactor.png", "SlowFactorTower.png");
+   public SlowFactorTower(Point p, Polygon path) {
+      super(p, path, "Slow (factor)", 40, 100, 5, 1, 50, 23, "slowFactor.png", "SlowFactorTower.png");
    }
 
    @Override

@@ -20,6 +20,7 @@
 package towers;
 
 import java.awt.Point;
+import java.awt.Polygon;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,11 +33,11 @@ public class MultiShotTower extends AbstractTower {
    private int shots = 5;
    
    public MultiShotTower() {
-      this(new Point());
+      this(new Point(), null);
    }
    
-   public MultiShotTower(Point p) {
-      super(p, "Multi-Shot", 40, 100, 7.5, 1.4, 50, 5, "multiShot.png", "MultiShotTower.png");
+   public MultiShotTower(Point p, Polygon path) {
+      super(p, path, "Multi-Shot", 40, 100, 7.5, 1.4, 50, 5, "multiShot.png", "MultiShotTower.png");
    }
 
    @Override
@@ -51,8 +52,8 @@ public class MultiShotTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s) {
-      return new AbstractBullet(this, dx, dy, turretWidth, range, speed, damage, p){};
+         double damage, Point p, Sprite s, Polygon path) {
+      return new AbstractBullet(this, dx, dy, turretWidth, range, speed, damage, p, path){};
    }
 
    @Override
@@ -62,10 +63,10 @@ public class MultiShotTower extends AbstractTower {
    
    @Override
    protected List<Bullet> makeBullets(double dx, double dy,  int turretWidth, int range,
-         double bulletSpeed, double damage, Point p, Sprite s) {
+         double bulletSpeed, double damage, Point p, Sprite s, Polygon path) {
       List<Bullet> bullets = new ArrayList<Bullet>();
       for(int i = 0; i < shots; i++) {
-         bullets.add(makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p, s));
+         bullets.add(makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p, s, path));
          bulletSpeed /= speedDividend;
       }
       return bullets;

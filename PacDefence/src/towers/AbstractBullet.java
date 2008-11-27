@@ -19,11 +19,13 @@
 
 package towers;
 
+import gui.Helper;
 import gui.OuterPanel;
 import images.ImageHelper;
 
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -51,9 +53,10 @@ public abstract class AbstractBullet implements Bullet {
    private static final BufferedImage image = ImageHelper.makeImage(radius * 2, radius * 2,
          "other", "bullet.png");
    private static final int halfWidth = image.getWidth() / 2;
+   private final Polygon path;
    
    public AbstractBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-         double speed, double damage, Point p) {
+         double speed, double damage, Point p, Polygon path) {
       this.shotBy = shotBy;
       this.range = range - turretWidth;
       this.speed = speed;
@@ -67,6 +70,7 @@ public abstract class AbstractBullet implements Bullet {
       position = new Point2D.Double(p.getX() + turretWidth * dx / divisor,
             p.getY() + turretWidth * dy / divisor);
       lastPosition = new Point2D.Double(position.getX(), position.getY());
+      this.path = path;
    }
 
    public double tick(List<Sprite> sprites) {
@@ -87,7 +91,6 @@ public abstract class AbstractBullet implements Bullet {
    
    protected double checkIfSpriteIsHit(List<Sprite> sprites) {
       return checkIfSpriteIsHit(lastPosition, position, sprites);
-
    }
    
    protected double checkIfSpriteIsHit(Point2D p1, Point2D p2, List<Sprite> sprites) {
@@ -95,13 +98,17 @@ public abstract class AbstractBullet implements Bullet {
    }
    
    protected double checkIfSpriteIsHit(Line2D line, List<Sprite> sprites) {
-      for(Sprite s : sprites) {
-         Point2D p = s.intersects(line);
-         if(p != null) {
-            specialOnHit(p, s, sprites);
-            DamageReport d = s.hit(getDamage());
-            if(d != null) { // Sprite is not already dead
-               return processDamageReport(d);
+      if(doesLineIntersectPath(line)) {
+         // A sprite can only be hit if the bullet is on the path
+         // The check is more for optimisation than anything
+         for(Sprite s : sprites) {
+            Point2D p = s.intersects(line);
+            if(p != null) {
+               specialOnHit(p, s, sprites);
+               DamageReport d = s.hit(getDamage());
+               if(d != null) { // Sprite is not already dead
+                  return processDamageReport(d);
+               }
             }
          }
       }
@@ -121,6 +128,19 @@ public abstract class AbstractBullet implements Bullet {
       }
       shotBy.increaseDamageDealt(d.getDamage());
       return d.getMoneyEarnt();
+   }
+   
+   protected boolean doesLineIntersectPath(Line2D line) {
+      return doPointsIntersectPath(Helper.getPointsOnLine(line));
+   }
+   
+   protected boolean doPointsIntersectPath(List<Point2D> points) {
+      for(Point2D p : points) {
+         if(path.contains(p)) {
+            return true;
+         }
+      }
+      return false;
    }
    
    protected boolean checkIfBulletCanBeRemovedAsOffScreen() {

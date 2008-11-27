@@ -289,7 +289,7 @@ public class GameMap extends JPanel {
       }
       if(cp.canBuildTower()) {
          cp.buildTower();
-         towers.add(buildingTower.constructNew());
+         towers.add(buildingTower.constructNew(clonePath()));
          if(!cp.canBuildTower()) {
             clearBuildingTower();
          }
@@ -338,6 +338,10 @@ public class GameMap extends JPanel {
       if(gameOver == null) {
          gameOver = new GameOver();
       }
+   }
+   
+   private Polygon clonePath() {
+      return new Polygon(path.xpoints, path.ypoints, path.npoints);
    }
    
    /**

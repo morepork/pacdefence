@@ -30,6 +30,7 @@ import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
@@ -81,6 +82,8 @@ public abstract class AbstractTower implements Tower {
    private final BufferedImage originalImage;
    private BufferedImage currentImage;
    private final BufferedImage buttonImage;
+   
+   private final Polygon path;
 
    private boolean isSelected = false;
 
@@ -93,9 +96,11 @@ public abstract class AbstractTower implements Tower {
    
    private List<Bullet> bulletsToAdd = new ArrayList<Bullet>();
 
-   public AbstractTower(Point p, String name, int fireRate, double range, double bulletSpeed,
-         double damage, int width, int turretWidth, String imageName, String buttonImageName) {
+   public AbstractTower(Point p, Polygon path, String name, int fireRate, double range, double bulletSpeed,
+         double damage, int width, int turretWidth, String imageName,
+         String buttonImageName) {
       centre = new Point(p);
+      this.path = path;
       // Only temporary, it gets actually set later
       topLeft = new Point(0, 0);
       this.name = name;
@@ -298,15 +303,16 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public Tower constructNew() {
-      return constructNew(centre);
+   public Tower constructNew(Polygon path) {
+      return constructNew(centre, path);
    }
    
    @Override
-   public Tower constructNew(Point p) {
+   public Tower constructNew(Point p, Polygon path) {
       try {
-         Constructor<? extends Tower> c = this.getClass().getConstructor(Point.class);
-         return c.newInstance(p);
+         Constructor<? extends Tower> c = this.getClass().getConstructor(Point.class,
+               Polygon.class);
+         return c.newInstance(p, path);
       } catch(Exception e) {
          // No exception should be thrown if the superclass is reasonably behaved
          throw new RuntimeException("\nSuperclass of AbstractTower is not well behaved.\n" + e +
@@ -375,12 +381,12 @@ public abstract class AbstractTower implements Tower {
    }
    
    protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Sprite s);
+            double speed, double damage, Point p, Sprite s, Polygon path);
    
    protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Sprite s) {
+            double speed, double damage, Point p, Sprite s, Polygon path) {
       return Helper.makeListContaining(makeBullet(dx, dy, turretWidth, range, bulletSpeed,
-            damage, p, s));
+            damage, p, s, path));
    }
    
    protected List<Bullet> fireBullets(List<Sprite> sprites) {
@@ -426,7 +432,7 @@ public abstract class AbstractTower implements Tower {
       if(rotateTurret) {
          currentImage = ImageHelper.rotateImage(originalImage, dx, -dy);
       }
-      return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, s);
+      return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, s, path);
    }
    
    private void drawRange(Graphics g) {
