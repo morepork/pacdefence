@@ -26,26 +26,28 @@ import java.awt.Polygon;
 import java.text.DecimalFormat;
 
 
-public class SlowLengthTower extends SlowTower {
+public class FreezeTower extends SlowTower {
    
-   private static final DecimalFormat ONE_DP = new DecimalFormat("#0.0");
-   
-   public SlowLengthTower() {
+   private static final DecimalFormat TWO_DP = new DecimalFormat("#0.00");
+      
+   public FreezeTower() {
       this(new Point(), null);
    }
    
-   public SlowLengthTower(Point p, Polygon path) {
-      super(p, path, "Slow (length)", 40, 100, 5, 1, 50, 23, "slowLength.png", "SlowLengthTower.png");
+   public FreezeTower(Point p, Polygon path) {
+      super(p, path, "Freeze", 40, 100, 5, 1, 50, 22, "freeze.png", "FreezeTower.png");
+      slowTicks = GameMap.CLOCK_TICKS_PER_SECOND / 2.0;
+      slowFactor = 0;
    }
 
    @Override
    public String getSpecial() {
-      return ONE_DP.format(slowTicks / GameMap.CLOCK_TICKS_PER_SECOND) + "s";
+      return TWO_DP.format(slowTicks / GameMap.CLOCK_TICKS_PER_SECOND) + "s";
    }
 
    @Override
    public String getSpecialName() {
-      return "Slow Length";
+      return "Freeze Time";
    }
 
    @Override

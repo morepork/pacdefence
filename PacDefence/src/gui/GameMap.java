@@ -54,6 +54,7 @@ public class GameMap extends JPanel {
 
    // Time clock takes to update in ms
    public static final int CLOCK_TICK = 30;
+   public static final double CLOCK_TICKS_PER_SECOND = (double)1000 / CLOCK_TICK;
    
    private final boolean debugTimes = true;
    private final boolean debugPath = false;

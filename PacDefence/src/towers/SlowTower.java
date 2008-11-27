@@ -19,6 +19,8 @@
 
 package towers;
 
+import gui.GameMap;
+
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
@@ -29,8 +31,9 @@ import sprites.Sprite;
 
 public abstract class SlowTower extends AbstractTower {
    
-   protected double slowFactor = 0.75;
-   protected int slowTicks = 10;
+   protected double slowFactor = 0.50;
+   // So it starts at 1s
+   protected double slowTicks = GameMap.CLOCK_TICKS_PER_SECOND;
 
    public SlowTower(Point p, Polygon path, String name, int fireRate, int range, double bulletSpeed,
          double damage, int width, int turretWidth, String imageName, String buttonImageName) {
@@ -44,7 +47,7 @@ public abstract class SlowTower extends AbstractTower {
       return new AbstractBullet(this, dx, dy, turretWidth, range, speed, damage, p, path) {
          @Override
          public void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
-            s.slow(slowFactor, slowTicks);
+            s.slow(slowFactor, (int)slowTicks);
          }         
       };
    }
