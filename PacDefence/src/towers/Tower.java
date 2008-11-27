@@ -82,7 +82,8 @@ public interface Tower extends Cloneable {
    /**
     * 
     * @param sprites
-    * @return null if no Bullet was shot
+    * @return The bullets shot by this tower after the last tick and
+    *         up to this one
     */
    public List<Bullet> tick(List<Sprite> sprites);   
    public boolean towerClash(Tower t);   

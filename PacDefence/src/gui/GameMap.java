@@ -492,11 +492,7 @@ public class GameMap extends JPanel {
       private void doTowers(List<Sprite> unmodifiableSprites) {
          // Don't use for each loop here as a new tower can be built
          for(int i = 0; i < towers.size(); i++ ) {
-            Tower t = towers.get(i);
-            List<Bullet> b = t.tick(unmodifiableSprites);
-            if(b != null) {
-               bullets.addAll(b);
-            }
+            bullets.addAll(towers.get(i).tick(unmodifiableSprites));
          }
       }
       

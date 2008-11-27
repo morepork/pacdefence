@@ -116,11 +116,12 @@ public abstract class AbstractBullet implements Bullet {
    }
    
    protected double checkIfSpriteIsHit(Line2D line, List<Sprite> sprites) {
-      if(doesLineIntersectPath(line)) {
+      List<Point2D> points = Helper.getPointsOnLine(line);
+      if(doPointsIntersectPath(points)) {
          // A sprite can only be hit if the bullet is on the path
-         // The check is more for optimisation than anything
+         // The path check is more for optimisation than anything
          for(Sprite s : sprites) {
-            Point2D p = s.intersects(line);
+            Point2D p = s.intersects(points);
             if(p != null) {
                specialOnHit(p, s, sprites);
                DamageReport d = s.hit(getDamage());

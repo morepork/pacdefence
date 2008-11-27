@@ -47,11 +47,11 @@ public class Helper {
       List<Point2D> points = new ArrayList<Point2D>();
       Point2D p1 = line.getP1();
       Point2D p2 = line.getP2();
-      double length = Math.floor(distance(p1, p2));
-      double xLength = p2.getX() - p1.getX();
-      double yLength = p2.getY() - p1.getY();
-      double xStep = xLength / length;
-      double yStep = yLength / length;
+      double length = distance(p1, p2);
+      double dx = p2.getX() - p1.getX();
+      double dy = p2.getY() - p1.getY();
+      double xStep = dx / length;
+      double yStep = dy / length;
       points.add((Point2D) p1.clone());
       Point2D lastPoint = p1;
       for(int i = 1; i <= length; i++) {

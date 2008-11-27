@@ -23,6 +23,7 @@ import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.util.List;
 
 
 /**
@@ -47,6 +48,7 @@ public interface Sprite {
     */
    public DamageReport hit(double damage);
    public boolean intersects(Point2D p);
+   public Point2D intersects(List<Point2D> points);
    public Point2D intersects(Line2D line);
    
    /**

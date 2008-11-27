@@ -53,7 +53,6 @@ public abstract class AbstractSprite implements Sprite {
    private List<BufferedImage> currentImages;
    private BufferedImage currentImage;
    private int currentImageIndex = 0;
-   private final Rectangle imageSize;
 
    private final double speed;
    private final int levelHP;
@@ -150,31 +149,29 @@ public abstract class AbstractSprite implements Sprite {
 
    @Override
    public boolean intersects(Point2D p) {
-      if (!alive) {
+      if (alive) {
+         return fastIntersects(p);
+      } else {
          // If the sprite is dead or dying it can't be hit
          return false;
       }
-      int x = (int) (p.getX() - centre.getX() + halfWidth);
-      int y = (int) (p.getY() - centre.getY() + halfWidth);
-      if (imageSize.contains(x, y)) {
-         // RGB of zero means a completely alpha i.e. transparent pixel
-         return currentImage.getRGB(x, y) != 0;
+   }
+   
+   @Override
+   public Point2D intersects(List<Point2D> points) {
+      if(alive) {
+         for(Point2D p : points) {
+            if(fastIntersects(p)) {
+               return p;
+            }
+         }
       }
-      return false;
+      return null;
    }
    
    @Override
    public Point2D intersects(Line2D line) {
-      if(!alive) {
-         // If the sprite is dead or dying it can't be hit
-         return null;
-      }
-      for(Point2D p : Helper.getPointsOnLine(line)) {
-         if(intersects(p)) {
-            return p;
-         }
-      }
-      return null;
+      return intersects(Helper.getPointsOnLine(line));
    }
 
    @Override
@@ -351,6 +348,16 @@ public abstract class AbstractSprite implements Sprite {
          this.hp = (int)(hp * mult); 
          return baseSpeed / mult;
       }
+   }
+   
+   private boolean fastIntersects(Point2D p) {
+      int x = (int) (p.getX() - centre.getX() + halfWidth);
+      int y = (int) (p.getY() - centre.getY() + halfWidth);
+      if (bounds.contains(x, y)) {
+         // RGB of zero means a completely alpha i.e. transparent pixel
+         return currentImage.getRGB(x, y) != 0;
+      }
+      return false;
    }
    
    public static void main(String... args) {
