@@ -22,8 +22,6 @@ package gui;
 
 public class Formulae {
    
-   private static final double moneyDivisor = 25;
-   
    public static int numSprites(int level) {
       return 20 + 2 * (level - 1);
    }
@@ -44,12 +42,16 @@ public class Formulae {
       return (int)(100 * Math.pow(1.5, currentLevel - 1));
    }
    
-   public static double damageDollars(double hpLost, double hpFactor) {
-      return hpFactor * hpLost / moneyDivisor;
+   public static double damageDollars(double hpLost, double hpFactor, int level) {
+      return hpFactor * hpLost / getMoneyDivisor(level);
    }
    
-   public static double killBonus(int levelHP) {
-      return levelHP / moneyDivisor;
+   public static double killBonus(int levelHP, int level) {
+      return levelHP / getMoneyDivisor(level);
+   }
+   
+   private static double getMoneyDivisor(int level) {
+      return level * 2 - 1;
    }
    
    public static int nextUpgradeKills(int currentLevel) {
@@ -57,7 +59,7 @@ public class Formulae {
    }
    
    public static long nextUpgradeDamage(int currentLevel) {
-      return (long)(Math.pow(2, currentLevel - 1)) * 200;
+      return (long)(Math.pow(2, currentLevel - 1)) * 250;
    }
    
    public static int towerCost(int numTowers) {

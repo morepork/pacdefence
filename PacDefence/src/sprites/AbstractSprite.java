@@ -27,7 +27,6 @@ import images.ImageHelper;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
@@ -54,6 +53,7 @@ public abstract class AbstractSprite implements Sprite {
    private BufferedImage currentImage;
    private int currentImageIndex = 0;
 
+   private final int currentLevel;
    private final double speed;
    private final int levelHP;
    private double hp;
@@ -80,15 +80,15 @@ public abstract class AbstractSprite implements Sprite {
    private double speedFactor = 1;
    private double adjustedSpeedTicksLeft = 0;
 
-   public AbstractSprite(List<BufferedImage> images, int hp, List<Point> path) {
+   public AbstractSprite(List<BufferedImage> images, int currentLevel, int hp, List<Point> path) {
+      this.currentLevel = currentLevel;
       this.width = images.get(1).getWidth();
       halfWidth = width / 2;
       bounds = new Circle(path.get(0), halfWidth);
       // Use two clones here so that currentImages can be edited without
       // affecting originalImages
       originalImages = Collections.unmodifiableList(Helper.cloneList(images));
-      currentImages = Helper.cloneList(images);
-      imageSize = new Rectangle(0, 0, width, width);      
+      currentImages = Helper.cloneList(images);     
       speed = calculateSpeed(hp);
       levelHP = hp;
       hpFactor = levelHP / this.hp;
@@ -182,11 +182,12 @@ public abstract class AbstractSprite implements Sprite {
       // System.out.println("Got hit");
       if (hp - damage <= 0) {
          alive = false;
-         double moneyEarnt = Formulae.damageDollars(hp, hpFactor) + Formulae.killBonus(levelHP);
+         double moneyEarnt = Formulae.damageDollars(hp, hpFactor, currentLevel) +
+               Formulae.killBonus(levelHP, currentLevel);
          return new DamageReport(hp, moneyEarnt, true);
       } else {
          hp -= damage;
-         double moneyEarnt = Formulae.damageDollars(damage, hpFactor);
+         double moneyEarnt = Formulae.damageDollars(damage, hpFactor, currentLevel);
          return new DamageReport(damage, moneyEarnt, false);
       }
    }
@@ -351,9 +352,9 @@ public abstract class AbstractSprite implements Sprite {
    }
    
    private boolean fastIntersects(Point2D p) {
-      int x = (int) (p.getX() - centre.getX() + halfWidth);
-      int y = (int) (p.getY() - centre.getY() + halfWidth);
-      if (bounds.contains(x, y)) {
+      if (bounds.contains(p)) {
+         int x = (int) (p.getX() - centre.getX() + halfWidth);
+         int y = (int) (p.getY() - centre.getY() + halfWidth);
          // RGB of zero means a completely alpha i.e. transparent pixel
          return currentImage.getRGB(x, y) != 0;
       }

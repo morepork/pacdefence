@@ -459,17 +459,18 @@ public class GameMap extends JPanel {
          }
          if(spritesToAdd > 0) {
             if(addSpriteIn < 1) {
-               sprites.add(new Pacman(levelHP, clonePathPoints()));
+               sprites.add(new Pacman(cp.getLevel(), levelHP, clonePathPoints()));
                addSpriteIn = ticksBetweenAddSprite;
                spritesToAdd--;
             } else {
                addSpriteIn--;
             }
          }
-         List<Sprite> toRemove = new ArrayList<Sprite>();
-         for(Sprite s : sprites) {
+         List<Integer> toRemove = new ArrayList<Integer>();
+         for(int i = 0; i < sprites.size(); i++) {
+            Sprite s = sprites.get(i);
             if(s.tick()) {
-               toRemove.add(s);
+               toRemove.add(i);
                if(s.isAlive()) {
                   // If the sprite is being removed and is still alive, it went
                   // off the edge of the screen
@@ -477,7 +478,7 @@ public class GameMap extends JPanel {
                }
             }
          }
-         sprites.removeAll(toRemove);
+         removeAll(sprites, toRemove);
          return livesLost;
       }
       
@@ -498,18 +499,26 @@ public class GameMap extends JPanel {
       
       private int doBullets(List<Sprite> unmodifiableSprites) {
          double moneyEarnt = 0;
-         List<Bullet> toRemove = new ArrayList<Bullet>();
-         for(Bullet b : bullets) {
-            double money = b.tick(unmodifiableSprites);
+         List<Integer> toRemove = new ArrayList<Integer>();
+         for(int i = 0; i < bullets.size(); i++) {
+            double money = bullets.get(i).tick(unmodifiableSprites);
             if(money >= 0) {
                moneyEarnt += money;
-               toRemove.add(b);
+               toRemove.add(i);
             }
          }
-         bullets.removeAll(toRemove);
+         removeAll(bullets, toRemove);
          return (int)moneyEarnt;
       }
       
+   }
+   
+   private void removeAll(List<?> list, List<Integer> positions) {
+      // Assumes the list of ints is sorted smallest to largest
+      for(int i = 0; i < positions.size(); i++) {
+         // As each element would have moved back i places
+         list.remove(positions.get(i) - i);
+      }
    }
    
    /**

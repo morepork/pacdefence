@@ -37,8 +37,8 @@ public class Pacman extends AbstractSprite {
    private static final List<BufferedImage> images = Collections.unmodifiableList(makeImages());
    
    
-   public Pacman(int hp, List<Point> path) {
-      super(images, hp, path);
+   public Pacman(int currentLevel, int hp, List<Point> path) {
+      super(images, currentLevel, hp, path);
    }
    
    private static ArrayList<BufferedImage> makeImages() {

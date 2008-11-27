@@ -201,6 +201,10 @@ public class ControlPanel extends JPanel {
       }
    }
    
+   public int getLevel() {
+      return level;
+   }
+   
    private void multiplyMoney(double factor) {
       money *= factor;
    }
