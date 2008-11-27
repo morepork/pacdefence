@@ -56,8 +56,8 @@ public class Formulae {
       return currentLevel * currentLevel * 10;
    }
    
-   public static int nextUpgradeDamage(int currentLevel) {
-      return (int)(Math.pow(2, currentLevel - 1)) * 200;
+   public static long nextUpgradeDamage(int currentLevel) {
+      return (long)(Math.pow(2, currentLevel - 1)) * 200;
    }
    
    public static int towerCost(int numTowers) {

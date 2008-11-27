@@ -40,12 +40,11 @@ public abstract class AbstractBullet implements Bullet {
    // then multiplied by the speed.
    private final double[] dir = new double[2];
    @SuppressWarnings("unused")
-   private final double speed;
-   private final double distancePerTick;
-   private double distanceTravelled = 0;
+   protected final double speed;
+   protected double distanceTravelled = 0;
    protected final Point2D lastPosition;
    protected final Point2D position;
-   private final int range;
+   protected final int range;
    private static final int radius = 3;
    private final double damage;
    private boolean draw = true;
@@ -54,6 +53,26 @@ public abstract class AbstractBullet implements Bullet {
          "other", "bullet.png");
    private static final int halfWidth = image.getWidth() / 2;
    private final Polygon path;
+   
+   /**
+    * Creates a new AbstractBuller with fields set, but tick and draw
+    * methods must be overrided.
+    *  
+    * @param path
+    * @param shotBy
+    * @param damage
+    * @param range
+    * @param speed
+    */
+   public AbstractBullet(Polygon path, Tower shotBy, double damage, int range, double speed) {
+      this.path = path;
+      this.shotBy = shotBy;
+      this.damage = damage;
+      this.range = range;
+      this.speed = speed;
+      lastPosition = null;
+      position = null;
+   }
    
    public AbstractBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
          double speed, double damage, Point p, Polygon path) {
@@ -64,7 +83,6 @@ public abstract class AbstractBullet implements Bullet {
       double divisor = Math.sqrt(dx * dx + dy * dy);
       dir[0] = speed * dx / divisor;
       dir[1] = speed * dy / divisor;
-      distancePerTick = Math.sqrt(dir[0] * dir[0] + dir[1] * dir[1]);
       //System.out.println(distancePerTick);
       //System.out.println(dir[0] + " " + dir[1]);
       position = new Point2D.Double(p.getX() + turretWidth * dx / divisor,
@@ -157,11 +175,11 @@ public abstract class AbstractBullet implements Bullet {
       if(distanceTravelled >= range || checkIfBulletCanBeRemovedAsOffScreen()) {
          return 0;
       }
-      distanceTravelled += distancePerTick;
+      distanceTravelled += speed;
       //System.out.println(distanceTravelled);
       lastPosition.setLocation(position);
       if(distanceTravelled > range) {
-         double extraFraction = (distanceTravelled - range) / distancePerTick;
+         double extraFraction = (distanceTravelled - range) / speed;
          position.setLocation(position.getX() + extraFraction * dir[0],
                position.getY() + extraFraction * dir[1]);
          double result = checkIfSpriteIsHit(sprites);
