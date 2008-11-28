@@ -37,7 +37,7 @@ public class MultiShotTower extends AbstractTower {
    }
    
    public MultiShotTower(Point p, Polygon path) {
-      super(p, path, "Multi-Shot", 40, 100, 7.5, 1.4, 50, 5, "multiShot.png", "MultiShotTower.png");
+      super(p, path, "Multi-Shot", 40, 100, 7.5, 1.3, 50, 5, "multiShot.png", "MultiShotTower.png");
    }
 
    @Override

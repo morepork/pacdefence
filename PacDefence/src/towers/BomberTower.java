@@ -75,7 +75,7 @@ public class BomberTower extends AbstractTower {
       private boolean exploding = false;
       private boolean expanding = true;
       private Set<Sprite> hitSprites = new HashSet<Sprite>();
-      private final Color blastColour = new Color(255, 0, 0, 150);
+      private final Color blastColour = new Color(255, 0, 0, 100);
       private final int blastSizeIncrement;
       private final int frames = 5;
       private final Circle blast = new Circle(new Point(0, 0), 0);
@@ -103,7 +103,7 @@ public class BomberTower extends AbstractTower {
                   return moneyEarnt;
                }
             }
-            checkForSprites(sprites);
+            checkIfSpriteIsHitByBlast(sprites);
             return -1;
          } else {
             double earnings = super.tick(sprites);
@@ -133,7 +133,7 @@ public class BomberTower extends AbstractTower {
          exploding = true;
       }
 
-      private void checkForSprites(List<Sprite> sprites) {
+      private void checkIfSpriteIsHitByBlast(List<Sprite> sprites) {
          for (Sprite s : sprites) {
             if (!hitSprites.contains(s)) {
                // Sprites are only affected by the blast once

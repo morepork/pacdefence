@@ -51,7 +51,7 @@ public class Formulae {
    }
    
    private static double getMoneyDivisor(int level) {
-      return level * 2 - 1;
+      return level * 2 + 3;
    }
    
    public static int nextUpgradeKills(int currentLevel) {

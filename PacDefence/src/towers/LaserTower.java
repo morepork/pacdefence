@@ -45,7 +45,7 @@ public class LaserTower extends AbstractTower {
    }
    
    public LaserTower(Point p, Polygon path) {
-      super(p, path, "Laser", 40, 100, 10, 1, 50, 25, "laser.png", "LaserTower.png");
+      super(p, path, "Laser", 40, 100, 8, 1.1, 50, 25, "laser.png", "LaserTower.png");
    }
 
    @Override
@@ -110,6 +110,7 @@ public class LaserTower extends AbstractTower {
 
       @Override
       public double tick(List<Sprite> sprites) {
+         Point2D oldP1 = laser.getP1();
          laser.setLine(laser.getX1() + xStep, laser.getY1() + yStep, laser.getX2() + xStep,
                laser.getY2() + yStep);
          distanceTravelled += speed;
@@ -120,7 +121,7 @@ public class LaserTower extends AbstractTower {
                laser.setLine(laser.getP1(), lastPoint);
             }
          }
-         double tickMoney = checkIfSpriteIsHit(laser, sprites);
+         double tickMoney = checkIfSpriteIsHit(oldP1, laser.getP2(), sprites);
          if(tickMoney > 0) {
             moneyEarnt += tickMoney;
          }

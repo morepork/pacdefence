@@ -175,19 +175,16 @@ public class GameMap extends JPanel {
       g.drawImage(backgroundImage, 0, 0, null);
       // Don't use for each loops here to avoid concurrent modification exceptions
       for(int i = 0; i < towers.size(); i++) {
-         Tower t = towers.get(i);
-         t.draw(g);
+         towers.get(i).draw(g);
       }
       for(int i = 0; i < sprites.size(); i++) {
-         Sprite s = sprites.get(i);
-         s.draw(g);
+         sprites.get(i).draw(g);
       }
       if(selectedTower != null) {
          selectedTower.drawSelected(g);
       }
       for(int i = 0; i < bullets.size(); i++) {
-         Bullet b = bullets.get(i);
-         b.draw(g);
+         bullets.get(i).draw(g);
       }
       drawDebug(g);
       if(buildingTower != null) {
@@ -390,7 +387,7 @@ public class GameMap extends JPanel {
       private int addSpriteIn = 0;
       private int processTimesPos = 0;
       private int drawTimesPos = 0;
-      private final int timesLength = 20;
+      private final int timesLength = 10;
       private final long[] processTimes = new long[timesLength];
       private final long[] drawTimes = new long[timesLength];
             
@@ -409,8 +406,8 @@ public class GameMap extends JPanel {
                   if(cp.decrementLives(doSprites())) {
                      signalGameOver();
                   }
-                  doTowers(unmodifiableSprites);
                   cp.increaseMoney(doBullets(unmodifiableSprites));
+                  doTowers(unmodifiableSprites);
                }
             }
             // Divides by a million to convert to ms
