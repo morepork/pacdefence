@@ -77,16 +77,15 @@ public abstract class AbstractBullet implements Bullet {
    public AbstractBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
          double speed, double damage, Point p, Polygon path) {
       this.shotBy = shotBy;
-      this.range = range - turretWidth;
+      int turretWidthPlusRadius = turretWidth + radius;
+      this.range = range - turretWidthPlusRadius;
       this.speed = speed;
       this.damage = damage;
       double divisor = Math.sqrt(dx * dx + dy * dy);
       dir[0] = speed * dx / divisor;
       dir[1] = speed * dy / divisor;
-      //System.out.println(distancePerTick);
-      //System.out.println(dir[0] + " " + dir[1]);
-      position = new Point2D.Double(p.getX() + turretWidth * dx / divisor,
-            p.getY() + turretWidth * dy / divisor);
+      position = new Point2D.Double(p.getX() + turretWidthPlusRadius * dx / divisor,
+            p.getY() + turretWidthPlusRadius * dy / divisor);
       lastPosition = new Point2D.Double(position.getX(), position.getY());
       this.path = path;
    }

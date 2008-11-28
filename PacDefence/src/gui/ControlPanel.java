@@ -55,6 +55,7 @@ import towers.JumpingTower;
 import towers.LaserTower;
 import towers.MultiShotTower;
 import towers.PiercerTower;
+import towers.PoisonTower;
 import towers.ScatterTower;
 import towers.SlowFactorTower;
 import towers.SlowLengthTower;
@@ -637,6 +638,7 @@ public class ControlPanel extends JPanel {
       towerTypes.add(new ScatterTower());
       towerTypes.add(new MultiShotTower());
       towerTypes.add(new LaserTower());
+      towerTypes.add(new PoisonTower());
       // TODO add tower implementations as I code them
       return towerTypes;
    }
@@ -680,7 +682,7 @@ public class ControlPanel extends JPanel {
       float textSize = defaultTextSize;
       JPanel panel = new JPanel();
       panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-      panel.setBorder(BorderFactory.createEmptyBorder(1, 20, 1, 20));
+      panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
       panel.setOpaque(false);
       panel.add(createLeftRightButtonPanel(damageButton, textSize, defaultTextColour, damageLabel));
       panel.add(createLeftRightButtonPanel(rangeButton, textSize, defaultTextColour, rangeLabel));
@@ -713,7 +715,7 @@ public class ControlPanel extends JPanel {
       float textSize = defaultTextSize;
       JPanel panel = new JPanel();
       panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-      panel.setBorder(BorderFactory.createEmptyBorder(2, 30, 2, 30));
+      panel.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 30));
       panel.setOpaque(false);
       panel.add(createLeftRightPanel("Number", textSize, defaultTextColour, numSpritesLabel));
       panel.add(createLeftRightPanel("Average HP", textSize, defaultTextColour, avgHPLabel));
