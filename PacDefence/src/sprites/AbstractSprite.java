@@ -62,6 +62,7 @@ public abstract class AbstractSprite implements Sprite {
    private final Point lastPoint = new Point();
    private Point nextPoint;
    private int pointAfterIndex;
+   
    @SuppressWarnings("serial")
    private final Point2D centre = new Point2D.Double();
    // private double x, y;

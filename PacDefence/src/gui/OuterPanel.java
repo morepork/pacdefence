@@ -27,6 +27,10 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class OuterPanel extends JPanel {
    
+   // TODO Perhaps change this to have most of the logic with GameMap just
+   // dealing with drawing stuff and ControlPanel just dealing with the
+   // controls.
+   
    public static final int WIDTH = 800;
    public static final int HEIGHT = 600;
    

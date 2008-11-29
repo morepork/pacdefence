@@ -385,7 +385,7 @@ public abstract class AbstractTower implements Tower {
    
    protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, Sprite s, Polygon path) {
-      return Helper.makeListContaining(makeBullet(dx, dy, turretWidth, range, bulletSpeed,
+      return Helper.makeListContaining(makeBullet(dx, dy, turretWidth, range, speed,
             damage, p, s, path));
    }
    
