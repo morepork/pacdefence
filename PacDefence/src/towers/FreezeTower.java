@@ -29,6 +29,7 @@ import java.text.DecimalFormat;
 public class FreezeTower extends SlowTower {
    
    private static final DecimalFormat TWO_DP = new DecimalFormat("#0.00");
+   private final double upgradeIncreaseTicks = slowTicks * (upgradeIncreaseFactor - 1);
       
    public FreezeTower() {
       this(new Point(), null);
@@ -52,7 +53,7 @@ public class FreezeTower extends SlowTower {
 
    @Override
    protected void upgradeSpecial() {
-      slowTicks *= upgradeIncreaseFactor;
+      slowTicks += upgradeIncreaseTicks;
    }
 
 }

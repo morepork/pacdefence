@@ -3,7 +3,7 @@
 <project name="PacDefence" basedir="." default="buildJars">
 
 	<property name="SrcDir" location="." />
-	<property name="JarLocation" location="E:/Documents/Liam/programming" />
+	<property name="JarLocation" location="." />
 	<property name="NoSrcJar" location="${JarLocation}/PacDefence.jar" />
 	<property name="SrcJar" location="${JarLocation}/PacDefenceSrc.jar" />
 	<property name="MainClass" value="gui.Application" />
@@ -12,6 +12,7 @@
 		<delete file="${NoSrcJar}" />
 		<jar destfile="${NoSrcJar}">
 			<fileset dir="${SrcDir}" casesensitive="yes">
+				<exclude name="**/*.jar" />
 				<exclude name="**/*.java" />
 				<exclude name="**/*.xcf.gz" />
 				<exclude name="**/*.svg" />
@@ -28,6 +29,7 @@
 		<delete file="${SrcJar}" />
 		<jar destfile="${SrcJar}">
 			<fileset dir="${SrcDir}" casesensitive="yes">
+				<exclude name="**/*.jar" />
 				<exclude name="java.policy.applet" />
 				<!-- This isn't needed as there is an equivalent xcf.gz and then
 				     it's faster to up/download -->

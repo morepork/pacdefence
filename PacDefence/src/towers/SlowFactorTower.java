@@ -23,7 +23,7 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.text.DecimalFormat;
 
-
+// Should remove this later as it is poor compared to the freeze tower
 public class SlowFactorTower extends SlowTower {
    
    private static final DecimalFormat TWO_DP = new DecimalFormat("0.00");

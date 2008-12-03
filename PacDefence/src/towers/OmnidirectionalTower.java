@@ -19,7 +19,6 @@
 
 package towers;
 
-import gui.Helper;
 import images.ImageHelper;
 
 import java.awt.Point;
@@ -76,7 +75,7 @@ public class OmnidirectionalTower extends AbstractTower {
 
    @Override
    protected void upgradeSpecial() {
-      numShots = Helper.increaseByAtLeastOne(numShots, upgradeIncreaseFactor);
+      numShots++;
    }
 
 }
