@@ -78,7 +78,7 @@ public class GameMap extends JPanel {
    private Tower selectedTower = null;
    private Tower hoverOverTower = null;
    private int spritesToAdd;
-   private int levelHP;
+   private long levelHP;
    private boolean levelInProgress = false;
    private boolean needsRepaint = false;
    private GameOver gameOver = null;

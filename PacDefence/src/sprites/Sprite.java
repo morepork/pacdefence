@@ -56,6 +56,7 @@ public interface Sprite {
     */
    public double getHPFactor();
    public void slow(double factor, int numTicks);
+   public void setDamageMultiplier(double multiplier, int numTicks);
    
    
    public class DamageReport {

@@ -19,63 +19,56 @@
 
 package towers;
 
-import images.ImageHelper;
+import gui.GameMap;
 
 import java.awt.Point;
 import java.awt.Polygon;
-import java.util.ArrayList;
+import java.awt.geom.Point2D;
+import java.text.DecimalFormat;
 import java.util.List;
 
 import sprites.Sprite;
 
 
-public class OmnidirectionalTower extends AbstractTower {
+public class WeakenTower extends AbstractTower {
    
-   private int numShots = 3;
+   private static final DecimalFormat ONE_DP = new DecimalFormat("#0.0");
+   private double extraDamageTicks = GameMap.CLOCK_TICKS_PER_SECOND / 2;
+   private double upgradeIncreaseTicks = 2 * extraDamageTicks * (upgradeIncreaseFactor - 1);
+   private double increaseDamageFactor = 2;
    
-   public OmnidirectionalTower() {
+   public WeakenTower() {
       this(new Point(), null);
    }
-   
-   public OmnidirectionalTower(Point p, Polygon path) {
-      super(p, path, "Omnidirectional", 40, 100, 5, 6, 50, 10, "omnidirectional.png",
-            "OmnidirectionalTower.png");
+
+   public WeakenTower(Point p, Polygon path) {
+      super(p, path, "Weaken", 40, 100, 5, 3, 50, 19, "weaken.png", "WeakenTower.png");
    }
 
    @Override
    public String getSpecial() {
-      return String.valueOf(numShots);
+      return ONE_DP.format(extraDamageTicks / GameMap.CLOCK_TICKS_PER_SECOND) + "s";
    }
 
    @Override
    public String getSpecialName() {
-      return "Number of shots";
+      return "Double damage time";
    }
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
          double damage, Point p, Sprite s, Polygon path) {
-      return new AbstractBullet(this, dx, dy, turretWidth, range, speed, damage, p, path){};
-   }
-   
-   @Override
-   protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
-         double speed, double damage, Point p, Sprite s, Polygon path) {
-      List<Bullet> bullets = new ArrayList<Bullet>();
-      double angle = ImageHelper.vectorAngle(dx, dy);
-      double dTheta = 2 * Math.PI / numShots;
-      for(int i = 0; i < numShots; i++) {
-         dx = Math.sin(angle);
-         dy = Math.cos(angle);
-         bullets.add(makeBullet(dx, dy, turretWidth, range, speed, damage, p, s, path));
-         angle += dTheta;
-      }
-      return bullets;
+      return new AbstractBullet(this, dx, dy, turretWidth, range, speed, damage, p, path){
+         @Override
+         protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
+            s.setDamageMultiplier(increaseDamageFactor, (int)extraDamageTicks);
+         }
+      };
    }
 
    @Override
    protected void upgradeSpecial() {
-      numShots++;
+      extraDamageTicks += upgradeIncreaseTicks;
    }
 
 }

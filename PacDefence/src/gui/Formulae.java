@@ -26,8 +26,8 @@ public class Formulae {
       return 20 + 2 * (level - 1);
    }
    
-   public static int hp(int level) {
-      return (int)(Math.pow(1.4, level - 1) * 10);
+   public static long hp(int level) {
+      return (long)(Math.pow(1.4, level - 1) * 10);
    }
    
    public static int levelEndBonus(int level) {
@@ -38,15 +38,15 @@ public class Formulae {
       return level * 100;
    }
    
-   public static int upgradeCost(int currentLevel) {
-      return (int)(100 * Math.pow(1.5, currentLevel - 1));
+   public static long upgradeCost(int currentLevel) {
+      return (long)(100 * Math.pow(1.5, currentLevel - 1));
    }
    
    public static double damageDollars(double hpLost, double hpFactor, int level) {
       return hpFactor * hpLost / getMoneyDivisor(level);
    }
    
-   public static double killBonus(int levelHP, int level) {
+   public static double killBonus(long levelHP, int level) {
       return levelHP / getMoneyDivisor(level);
    }
    

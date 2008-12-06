@@ -122,8 +122,8 @@ public abstract class AbstractBullet implements Bullet {
          for(Sprite s : sprites) {
             Point2D p = s.intersects(points);
             if(p != null) {
-               specialOnHit(p, s, sprites);
                DamageReport d = s.hit(getDamage());
+               specialOnHit(p, s, sprites);
                if(d != null) { // Sprite is not already dead
                   return processDamageReport(d);
                }

@@ -55,7 +55,7 @@ public abstract class AbstractSprite implements Sprite {
 
    private final int currentLevel;
    private final double speed;
-   private final int levelHP;
+   private final long levelHP;
    private double hp;
    private final double hpFactor;
    private final List<Point> path;
@@ -79,9 +79,11 @@ public abstract class AbstractSprite implements Sprite {
    // How many times the image has been shrunk after it died
    private int shrinkCounter = 0;
    private double speedFactor = 1;
-   private double adjustedSpeedTicksLeft = 0;
+   private int adjustedSpeedTicksLeft = 0;
+   private double damageMultiplier = 1;
+   private int adjustedDamageTicksLeft = 0; 
 
-   public AbstractSprite(List<BufferedImage> images, int currentLevel, int hp, List<Point> path) {
+   public AbstractSprite(List<BufferedImage> images, int currentLevel, long hp, List<Point> path) {
       this.currentLevel = currentLevel;
       this.width = images.get(1).getWidth();
       halfWidth = width / 2;
@@ -121,6 +123,7 @@ public abstract class AbstractSprite implements Sprite {
          currentImage = currentImages.get(currentImageIndex);
          if (alive) {
             move();
+            decreaseAdjustedTicksLeft();
          } else {
             die();
          }
@@ -177,10 +180,12 @@ public abstract class AbstractSprite implements Sprite {
 
    @Override
    public DamageReport hit(double damage) {
+      if(adjustedDamageTicksLeft > 0) {
+         damage *= damageMultiplier;
+      }
       if(!alive) {
          return null;
       }
-      // System.out.println("Got hit");
       if (hp - damage <= 0) {
          alive = false;
          double moneyEarnt = Formulae.damageDollars(hp, hpFactor, currentLevel) +
@@ -224,6 +229,20 @@ public abstract class AbstractSprite implements Sprite {
       // Otherwise ignore it as it would increase the sprite's speed
    }
    
+   @Override
+   public void setDamageMultiplier(double multiplier, int numTicks) {
+      assert multiplier > 1 : "Multiplier must be greater than 1";
+      if(multiplier > damageMultiplier) {
+         damageMultiplier = multiplier;
+         adjustedDamageTicksLeft = numTicks;
+      } else if(Math.abs(multiplier - damageMultiplier) < 0.01) {
+         if(numTicks > adjustedDamageTicksLeft) {
+            damageMultiplier = multiplier;
+            adjustedDamageTicksLeft = numTicks;
+         }
+      }
+   }
+   
 
    public static Comparator<Sprite> getTotalDistanceTravelledComparator() {
       return new Comparator<Sprite>() {
@@ -238,12 +257,6 @@ public abstract class AbstractSprite implements Sprite {
       // System.out.println("Step: " + steps + " Pos: " + x + " " + y);
       centre.setLocation(centre.getX() + xStep * speedFactor,
             centre.getY() + yStep * speedFactor);
-      if(adjustedSpeedTicksLeft > 0) {
-         adjustedSpeedTicksLeft--;
-         if(adjustedSpeedTicksLeft <= 0) {
-            speedFactor = 1;
-         }
-      }
       bounds.setCentre(centre);
       totalDistanceTravelled += (Math.abs(xStep) + Math.abs(yStep)) * speedFactor;
       steps += speedFactor;
@@ -332,7 +345,7 @@ public abstract class AbstractSprite implements Sprite {
     * @param hp
     * @return
     */
-   private double calculateSpeed(int hp) {
+   private double calculateSpeed(long hp) {
       double a = rand.nextDouble();
       if(a >= 0.5) {
          // Makes this a into a random number from zero to one
@@ -360,6 +373,21 @@ public abstract class AbstractSprite implements Sprite {
          return currentImage.getRGB(x, y) != 0;
       }
       return false;
+   }
+   
+   private void decreaseAdjustedTicksLeft() {
+      if(adjustedSpeedTicksLeft > 0) {
+         adjustedSpeedTicksLeft--;
+         if(adjustedSpeedTicksLeft <= 0) {
+            speedFactor = 1;
+         }
+      }
+      if(adjustedDamageTicksLeft > 0) {
+         adjustedDamageTicksLeft--;
+         if(adjustedDamageTicksLeft <= 0) {
+            damageMultiplier = 1;
+         }
+      }
    }
    
    public static void main(String... args) {

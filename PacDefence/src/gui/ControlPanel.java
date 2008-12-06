@@ -61,6 +61,7 @@ import towers.ScatterTower;
 import towers.SlowFactorTower;
 import towers.SlowLengthTower;
 import towers.Tower;
+import towers.WeakenTower;
 import towers.Tower.Attribute;
 
 
@@ -211,7 +212,7 @@ public class ControlPanel extends JPanel {
       money *= factor;
    }
    
-   private void decreaseMoney(int amount) {
+   private void decreaseMoney(long amount) {
       money -= amount;
    }
    
@@ -254,8 +255,8 @@ public class ControlPanel extends JPanel {
       upgradesLabel.setText(endLevelUpgradesLeft);
    }
    
-   private void updateCurrentCostLabel(String description, int cost) {
-      updateCurrentCostLabel(description, Integer.toString(cost));
+   private void updateCurrentCostLabel(String description, long cost) {
+      updateCurrentCostLabel(description, String.valueOf(cost));
    }
    
    private void updateCurrentCostLabel(String description, String cost) {
@@ -359,7 +360,7 @@ public class ControlPanel extends JPanel {
    
    private void processUpgradeButtonPressed(TowerUpgradeButton b) {
       Tower.Attribute a = buttonAttributes.get(b);
-      int cost = 0;
+      long cost = 0;
       if(selectedTower == null) {
          List<Tower> towers = map.getTowers();
          cost = costToUpgradeTowers(a, towers);
@@ -383,7 +384,7 @@ public class ControlPanel extends JPanel {
       if(!checkIfMovedOff(b)) {
          Tower.Attribute a = buttonAttributes.get(b);
          String description = a.toString() + " Upgrade";
-         int cost;
+         long cost;
          if(selectedTower == null) {
             description += " (all)";
             cost = costToUpgradeAllTowers(a);
@@ -641,6 +642,7 @@ public class ControlPanel extends JPanel {
       towerTypes.add(new LaserTower());
       towerTypes.add(new PoisonTower());
       towerTypes.add(new OmnidirectionalTower());
+      towerTypes.add(new WeakenTower());
       // TODO add tower implementations as I code them
       return towerTypes;
    }
