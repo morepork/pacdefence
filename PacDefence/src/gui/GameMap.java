@@ -285,10 +285,11 @@ public class GameMap extends JPanel {
             return;
          }
       }
-      if(cp.canBuildTower()) {
-         cp.buildTower();
-         towers.add(buildingTower.constructNew(clonePath()));
-         if(!cp.canBuildTower()) {
+      if(cp.canBuildTower(buildingTower.getClass())) {
+         Tower t = buildingTower.constructNew(clonePath());
+         cp.buildTower(t);
+         towers.add(t);
+         if(!cp.canBuildTower(buildingTower.getClass())) {
             clearBuildingTower();
          }
       }

@@ -62,8 +62,8 @@ public class Formulae {
       return (long)(Math.pow(2, currentLevel - 1)) * 250;
    }
    
-   public static int towerCost(int numTowers) {
-      return (int)(Math.pow(1.1, numTowers) * 1000);
+   public static int towerCost(int numTowers, int numOfThatType) {
+      return (int)(Math.pow(1.05, numTowers) * Math.pow(1.1, numOfThatType) * 1000);
    }
 
 }

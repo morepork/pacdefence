@@ -81,6 +81,7 @@ public class ControlPanel extends JPanel {
    private final Map<OverlayButton, Tower> towerTypes = new HashMap<OverlayButton, Tower>();
    private OverlayButton damageUpgrade, rangeUpgrade, rateUpgrade, speedUpgrade,
          specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade;
+   private Map<Attribute, Integer> upgradesSoFar = new HashMap<Attribute, Integer>();
    // These labels are in the tower info box
    private MyJLabel towerNameLabel, towerLevelLabel, damageDealtLabel, killsLabel;
    // These labels are in the current tower stats box
@@ -169,12 +170,19 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   public boolean canBuildTower() {
-      return money >= getNextTowerCost();
+   public boolean canBuildTower(Class<? extends Tower> towerType) {
+      return money >= getNextTowerCost(towerType);
    }
    
-   public void buildTower() {
-      decreaseMoney(getNextTowerCost());
+   public void buildTower(Tower t) {
+      for(Attribute a : upgradesSoFar.keySet()) {
+         // New towers get half the effect of all the bonus upgrades
+         // so far, rounded down
+         for(int i = 0; i < upgradesSoFar.get(a) / 2; i++) {
+            t.raiseAttributeLevel(a, false);
+         }
+      }
+      decreaseMoney(getNextTowerCost(t.getClass()));
       updateMoneyLabel();
    }
    
@@ -216,8 +224,14 @@ public class ControlPanel extends JPanel {
       money -= amount;
    }
    
-   private int getNextTowerCost() {
-      return Formulae.towerCost(map.getTowers().size());
+   private int getNextTowerCost(Class<? extends Tower> towerType) {
+      int num = 0;
+      for(Tower t : map.getTowers()) {
+         if(t.getClass() == towerType) {
+            num++;
+         }
+      }
+      return Formulae.towerCost(map.getTowers().size(), num);
    }
    
    private void updateAll() {
@@ -268,12 +282,12 @@ public class ControlPanel extends JPanel {
       Tower t;
       if(rolloverTower != null) {
          t = rolloverTower;
-         updateCurrentCostLabel(rolloverTower.getName() + " Tower", getNextTowerCost());
+         updateCurrentCostLabel(rolloverTower.getName() + " Tower", getNextTowerCost(t.getClass()));
       } else if(hoverOverTower != null) {
          t = hoverOverTower;
       } else if(buildingTower != null) {
          t = buildingTower;
-         updateCurrentCostLabel(buildingTower.getName() + " Tower", getNextTowerCost());
+         updateCurrentCostLabel(buildingTower.getName() + " Tower", getNextTowerCost(t.getClass()));
       } else {
          t = selectedTower;
       }
@@ -447,8 +461,8 @@ public class ControlPanel extends JPanel {
    }
    
    private void processTowerButtonAction(OverlayButton b) {
-      if(money >= getNextTowerCost()) {
-         Tower t = towerTypes.get(b);
+      Tower t = towerTypes.get(b);
+      if(money >= getNextTowerCost(t.getClass())) {
          if(map.towerButtonPressed(t)) {
             setBuildingTower(t);
             updateStats();
@@ -487,6 +501,19 @@ public class ControlPanel extends JPanel {
             increaseMoney(upgradeMoney);
          }
          if(upgradeAttrib != null) {
+            int nextValue = 1;
+            if(upgradesSoFar.containsKey(upgradeAttrib)) {
+               nextValue = upgradesSoFar.get(upgradeAttrib) + 1;
+            }
+            if(nextValue / 2 == (nextValue + 1) / 2) {
+               // It is even, i.e every second time
+               for(Tower t : towerTypes.values()) {
+                  // So that the upgrades are shown when you are building
+                  // a new tower
+                  t.raiseAttributeLevel(upgradeAttrib, false);
+               }
+            }
+            upgradesSoFar.put(upgradeAttrib, nextValue);
             map.upgradeAll(upgradeAttrib);
          }
          updateAll();
