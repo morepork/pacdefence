@@ -288,6 +288,8 @@ public class GameMap extends JPanel {
       if(cp.canBuildTower(buildingTower.getClass())) {
          Tower t = buildingTower.constructNew(clonePath());
          cp.buildTower(t);
+         // Have to add after telling the control panel otherwise
+         // the price will be wrong
          towers.add(t);
          if(!cp.canBuildTower(buildingTower.getClass())) {
             clearBuildingTower();
