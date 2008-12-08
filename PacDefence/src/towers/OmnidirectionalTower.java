@@ -38,7 +38,7 @@ public class OmnidirectionalTower extends AbstractTower {
    }
    
    public OmnidirectionalTower(Point p, Polygon path) {
-      super(p, path, "Omnidirectional", 40, 100, 5, 6, 50, 10, "omnidirectional.png",
+      super(p, path, "Omnidirectional", 40, 100, 5, 5, 50, 10, "omnidirectional.png",
             "OmnidirectionalTower.png");
    }
 
@@ -67,8 +67,8 @@ public class OmnidirectionalTower extends AbstractTower {
       for(int i = 0; i < numShots; i++) {
          dx = Math.sin(angle);
          dy = Math.cos(angle);
-         bullets.add(makeBullet(dx, dy, turretWidth, range, speed, damage, p, s, path));
          angle += dTheta;
+         bullets.add(makeBullet(dx, dy, turretWidth, range, speed, damage, p, s, path));
       }
       return bullets;
    }

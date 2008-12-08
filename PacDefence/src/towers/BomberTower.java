@@ -88,7 +88,7 @@ public class BomberTower extends AbstractTower {
       }
 
       @Override
-      public double tick(List<Sprite> sprites) {
+      public double doTick(List<Sprite> sprites) {
          if (exploding) {
             double radius = blast.getRadius();
             if (expanding) {
@@ -106,7 +106,7 @@ public class BomberTower extends AbstractTower {
             checkIfSpriteIsHitByBlast(sprites);
             return -1;
          } else {
-            double earnings = super.tick(sprites);
+            double earnings = super.doTick(sprites);
             if (earnings <= 0) {
                return earnings;
             } else {

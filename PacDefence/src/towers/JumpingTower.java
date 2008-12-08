@@ -67,13 +67,15 @@ public class JumpingTower extends AbstractTower {
    
    private class JumpingBullet extends AbstractBullet {
       
-      private Collection<Sprite> hitSprites = new ArrayList<Sprite>();
+      private final Collection<Sprite> hitSprites = new ArrayList<Sprite>();
       private int hitsLeft;
+      private final int jumpRange; 
 
       public JumpingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, Polygon path) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, path);
          hitsLeft = jumps;
+         jumpRange = (int)(range / jumpRangeDividend);
       }
       
       @Override
@@ -81,11 +83,10 @@ public class JumpingTower extends AbstractTower {
          hitSprites.add(s);
          if(hitsLeft > 0) {
             Point point = new Point((int)p.getX(), (int)p.getY());
-            int newRange = (int)(getRange() / jumpRangeDividend);
             for(Sprite a : sprites) {
-               if(!hitSprites.contains(a) && checkDistance(a, point, newRange)) {
+               if(!hitSprites.contains(a) && checkDistance(a, point, jumpRange)) {
                   hitsLeft--;
-                  JumpingBullet b = (JumpingBullet) fireBullet(a, point, false, 0, newRange,
+                  JumpingBullet b = (JumpingBullet) fireBullet(a, point, false, 0, jumpRange,
                         getBulletSpeed(), getDamage()).get(0);
                   b.addHitSprites(hitSprites);
                   b.setHitsLeft(hitsLeft);
@@ -97,10 +98,10 @@ public class JumpingTower extends AbstractTower {
       }
       
       @Override
-      protected double checkIfSpriteIsHit(List<Sprite> sprites) {
+      protected double doTick(List<Sprite> sprites) {
          List<Sprite> newList = Helper.cloneList(sprites);
          newList.removeAll(hitSprites);
-         return super.checkIfSpriteIsHit(newList);
+         return super.doTick(newList);
       }
       
       private void addHitSprites(Collection<Sprite> sprites) {

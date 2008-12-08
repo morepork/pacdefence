@@ -19,8 +19,13 @@
 
 package gui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Formulae {
+   
+   private final static List<Double> moneyDivisors = new ArrayList<Double>();
    
    public static int numSprites(int level) {
       return 20 + 2 * (level - 1);
@@ -51,7 +56,11 @@ public class Formulae {
    }
    
    private static double getMoneyDivisor(int level) {
-      return Math.pow(1.2, level);
+      level--;
+      if(level >= moneyDivisors.size()) {
+         moneyDivisors.add(Math.pow(1.25, level));
+      }
+      return moneyDivisors.get(level);
    }
    
    public static int nextUpgradeKills(int currentLevel) {

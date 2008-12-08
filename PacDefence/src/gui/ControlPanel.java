@@ -186,7 +186,7 @@ public class ControlPanel extends JPanel {
       updateMoneyLabel();
    }
    
-   public void increaseMoney(int amount) {
+   public void increaseMoney(long amount) {
       money += amount;
       updateMoneyLabel();
       // If a tower is selected, more money earnt means it could've done more
@@ -409,12 +409,12 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   private int costToUpgradeAllTowers(Attribute a) {
+   private long costToUpgradeAllTowers(Attribute a) {
       return costToUpgradeTowers(a, map.getTowers());
    }
    
-   private int costToUpgradeTowers(Attribute a, List<Tower> towers) {
-      int cost = 0;
+   private long costToUpgradeTowers(Attribute a, List<Tower> towers) {
+      long cost = 0;
       for(Tower t : towers) {
          cost += Formulae.upgradeCost(t.getAttributeLevel(a));
       }

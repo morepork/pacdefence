@@ -37,7 +37,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -131,7 +130,7 @@ public abstract class AbstractTower implements Tower {
    public List<Bullet> tick(List<Sprite> sprites) {
       // Decrements here so it's on every tick, not just when it is able to shoot
       timeToNextShot--;
-      Collection<Bullet> fired = fireBullets(sprites);
+      List<Bullet> fired = fireBullets(sprites);
       if (timeToNextShot <= 0 && fired.size() > 0) {
          timeToNextShot = fireRate;
          bulletsToAdd.addAll(fired);

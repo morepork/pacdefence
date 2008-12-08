@@ -394,24 +394,12 @@ public class GameMap extends JPanel {
       private final long[] processTimes = new long[timesLength];
       private final long[] drawTimes = new long[timesLength];
             
-      public synchronized void run() {
+      public void run() {
          while(true) {
             // Used nanoTime as many OS, notably windows, don't record ms times less than 10ms
             long beginTime = System.nanoTime();
             if(gameOver == null) {
-               // I don't want to sort the actual list of sprites as that would
-               // affect the order they're drawn which looks weird.
-               List<Sprite> sortedSprites = Helper.cloneList(sprites);
-               Collections.sort(sortedSprites,
-                     AbstractSprite.getTotalDistanceTravelledComparator());
-               List<Sprite> unmodifiableSprites = Collections.unmodifiableList(sortedSprites);
-               if(cp != null) {
-                  if(cp.decrementLives(doSprites())) {
-                     signalGameOver();
-                  }
-                  cp.increaseMoney(doBullets(unmodifiableSprites));
-                  doTowers(unmodifiableSprites);
-               }
+               tick();
             }
             // Divides by a million to convert to ms
             long elapsedTime = (System.nanoTime() - beginTime) / 1000000;
@@ -425,6 +413,22 @@ public class GameMap extends JPanel {
                   // The sleep should never be interrupted
                }
             }
+         }
+      }
+      
+      private void tick() {
+         // I don't want to sort the actual list of sprites as that would affect
+         // the order they're drawn which looks weird, and the order can change
+         // tick by tick so it's easiest to sort them once each time.
+         List<Sprite> sortedSprites = Helper.cloneList(sprites);
+         Collections.sort(sortedSprites, AbstractSprite.getTotalDistanceTravelledComparator());
+         List<Sprite> unmodifiableSprites = Collections.unmodifiableList(sortedSprites);
+         if(cp != null) {
+            if(cp.decrementLives(doSpriteTicks())) {
+               signalGameOver();
+            }
+            cp.increaseMoney(doBulletTicks(unmodifiableSprites));
+            doTowerTicks(unmodifiableSprites);
          }
       }
       
@@ -451,7 +455,7 @@ public class GameMap extends JPanel {
          drawTime = sum / timesLength;
       }
       
-      private int doSprites() {
+      private int doSpriteTicks() {
          int livesLost = 0;
          if(levelInProgress && sprites.isEmpty() && spritesToAdd <= 0) {
             cp.endLevel();
@@ -490,14 +494,14 @@ public class GameMap extends JPanel {
          return clone;
       }
       
-      private void doTowers(List<Sprite> unmodifiableSprites) {
+      private void doTowerTicks(List<Sprite> unmodifiableSprites) {
          // Don't use for each loop here as a new tower can be built
          for(int i = 0; i < towers.size(); i++ ) {
             bullets.addAll(towers.get(i).tick(unmodifiableSprites));
          }
       }
       
-      private int doBullets(List<Sprite> unmodifiableSprites) {
+      private int doBulletTicks(List<Sprite> unmodifiableSprites) {
          double moneyEarnt = 0;
          List<Integer> toRemove = new ArrayList<Integer>();
          for(int i = 0; i < bullets.size(); i++) {
@@ -511,14 +515,14 @@ public class GameMap extends JPanel {
          return (int)moneyEarnt;
       }
       
-   }
-   
-   private void removeAll(List<?> list, List<Integer> positions) {
-      // Assumes the list of ints is sorted smallest to largest
-      for(int i = 0; i < positions.size(); i++) {
-         // As each element would have moved back i places
-         list.remove(positions.get(i) - i);
+      private void removeAll(List<?> list, List<Integer> positions) {
+         // Assumes the list of ints is sorted smallest to largest
+         for(int i = 0; i < positions.size(); i++) {
+            // As each element would have moved back i places
+            list.remove(positions.get(i) - i);
+         }
       }
+      
    }
    
    /**

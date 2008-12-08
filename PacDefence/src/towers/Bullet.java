@@ -40,6 +40,5 @@ public interface Bullet {
    public void draw(Graphics g);
    
    public double getDamage();
-   
 
 }

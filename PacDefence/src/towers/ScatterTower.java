@@ -38,7 +38,7 @@ public class ScatterTower extends AbstractTower {
    }
    
    public ScatterTower(Point p, Polygon path) {
-      super(p, path, "Scatter", 40, 100, 5, 5, 50, 10, "scatter.png", "ScatterTower.png");
+      super(p, path, "Scatter", 40, 100, 5, 4.5, 50, 10, "scatter.png", "ScatterTower.png");
    }
 
    @Override

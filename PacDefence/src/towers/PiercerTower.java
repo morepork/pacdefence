@@ -76,12 +76,11 @@ public class PiercerTower extends AbstractTower {
       }
       
       @Override
-      public double tick(List<Sprite> sprites) {
+      public double doTick(List<Sprite> sprites) {
          List<Sprite> newSprites = Helper.cloneList(sprites);
          // Removes all the previously hit sprites so they aren't hit again
          newSprites.removeAll(spritesHit);
-         return processShotResult(super.tick(newSprites), newSprites);
-
+         return processShotResult(super.doTick(newSprites), newSprites);
       }
       
       @Override
@@ -105,6 +104,8 @@ public class PiercerTower extends AbstractTower {
                piercesSoFar++;
                // Removes the sprite that was last hit so it can't be hit again
                sprites.removeAll(spritesHit);
+               // Checks if any other sprites were hit between the last and
+               // current points, and recursively processes them.
                return processShotResult(super.checkIfSpriteIsHit(sprites), sprites);
             }
          }

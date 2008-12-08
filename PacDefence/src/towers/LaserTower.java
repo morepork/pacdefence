@@ -45,7 +45,7 @@ public class LaserTower extends AbstractTower {
    }
    
    public LaserTower(Point p, Polygon path) {
-      super(p, path, "Laser", 40, 100, 8, 1.2, 50, 24, "laser.png", "LaserTower.png");
+      super(p, path, "Laser", 40, 100, 8, 1.3, 50, 24, "laser.png", "LaserTower.png");
    }
 
    @Override
@@ -77,7 +77,7 @@ public class LaserTower extends AbstractTower {
    private class Laser extends AbstractBullet {
       
       private final Point2D lastPoint;
-      private Line2D laser;
+      private final Line2D laser;
       private final double length;
       private final Color beamColour = new Color(210, 255, 0);
       private final double xStep, yStep;
@@ -109,7 +109,7 @@ public class LaserTower extends AbstractTower {
       }
 
       @Override
-      public double tick(List<Sprite> sprites) {
+      public double doTick(List<Sprite> sprites) {
          Point2D oldP1 = laser.getP1();
          laser.setLine(laser.getX1() + xStep, laser.getY1() + yStep, laser.getX2() + xStep,
                laser.getY2() + yStep);

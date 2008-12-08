@@ -83,10 +83,10 @@ public class PoisonTower extends AbstractTower {
       }
       
       @Override
-      public double tick(List<Sprite> sprites) {
+      public double doTick(List<Sprite> sprites) {
          if(poisonedSprite == null) {
-            double tickMoney = super.tick(sprites);
-            if(tickMoney >= 0) {
+            double tickMoney = super.doTick(sprites);
+            if(tickMoney > 0) {
                moneyEarnt += tickMoney;
             } else if(tickMoney == 0) {
                return 0;

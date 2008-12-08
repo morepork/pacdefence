@@ -90,7 +90,7 @@ public abstract class AbstractBullet implements Bullet {
       this.path = path;
    }
 
-   public double tick(List<Sprite> sprites) {
+   public final double tick(List<Sprite> sprites) {
       double tick = doTick(sprites);
       draw = tick < 0;
       return tick;
@@ -165,13 +165,7 @@ public abstract class AbstractBullet implements Bullet {
       return checkIfBulletIsOffScreen();
    }
    
-   private boolean checkIfBulletIsOffScreen() {
-      return position.getX() < -halfWidth || position.getY() < -halfWidth ||
-            position.getX() > OuterPanel.MAP_WIDTH + halfWidth ||
-            position.getY() > OuterPanel.MAP_HEIGHT + halfWidth;
-   }
-   
-   private double doTick(List<Sprite> sprites) {
+   protected double doTick(List<Sprite> sprites) {
       if(distanceTravelled >= range || checkIfBulletCanBeRemovedAsOffScreen()) {
          return 0;
       }
@@ -183,15 +177,20 @@ public abstract class AbstractBullet implements Bullet {
          position.setLocation(position.getX() + extraFraction * dir[0],
                position.getY() + extraFraction * dir[1]);
          double result = checkIfSpriteIsHit(sprites);
-         if(result > 0) {
-            return result;
-         } else {
-            return 0;
-         }
+         // Bullet has exceeded range so should be removed no matter what
+         return result > 0 ? result : 0;
       } else {
          position.setLocation(position.getX() + dir[0], position.getY() + dir[1]);
          return checkIfSpriteIsHit(sprites);
       }
    }
+   
+   private boolean checkIfBulletIsOffScreen() {
+      return position.getX() < -halfWidth || position.getY() < -halfWidth ||
+            position.getX() > OuterPanel.MAP_WIDTH + halfWidth ||
+            position.getY() > OuterPanel.MAP_HEIGHT + halfWidth;
+   }
+   
+
 
 }

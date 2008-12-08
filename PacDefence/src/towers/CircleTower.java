@@ -99,7 +99,7 @@ public class CircleTower extends AbstractTower {
       }
 
       @Override
-      public double tick(List<Sprite> sprites) {
+      public double doTick(List<Sprite> sprites) {
          if (angle >= endAngle || hitsLeft <= 0) {
             return moneyEarntSoFar;
          }
