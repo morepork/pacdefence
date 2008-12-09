@@ -21,6 +21,7 @@ package towers;
 
 import gui.GameMap;
 
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
@@ -80,6 +81,14 @@ public class PoisonTower extends AbstractTower {
             double speed, double damage, Point p, Polygon path) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, path);
          poisonTicksLeft = (int)poisonTicks;
+      }
+      
+      @Override
+      public void draw(Graphics g) {
+         if(poisonedSprite == null) {
+            // Sprite should only be drawn if it's yet to hit a sprite
+            super.draw(g);
+         }
       }
       
       @Override

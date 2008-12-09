@@ -44,12 +44,16 @@ public class Helper {
    }
    
    public static List<Point2D> getPointsOnLine(Line2D line) {
+      return getPointsOnLine(line.getP1(), line.getP2());
+   }
+   
+   public static List<Point2D> getPointsOnLine(Point2D p1, Point2D p2) {
       List<Point2D> points = new ArrayList<Point2D>();
-      Point2D p1 = line.getP1();
-      Point2D p2 = line.getP2();
-      double length = distance(p1, p2);
       double dx = p2.getX() - p1.getX();
       double dy = p2.getY() - p1.getY();
+      // The maximum length in either the x or y directions to divide it
+      // into points a maximum of one pixel
+      double length = Math.max(Math.abs(dx), Math.abs(dy));
       double xStep = dx / length;
       double yStep = dy / length;
       points.add((Point2D) p1.clone());

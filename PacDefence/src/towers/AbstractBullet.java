@@ -111,11 +111,7 @@ public abstract class AbstractBullet implements Bullet {
    }
    
    protected double checkIfSpriteIsHit(Point2D p1, Point2D p2, List<Sprite> sprites) {
-      return checkIfSpriteIsHit(new Line2D.Double(p1, p2), sprites);
-   }
-   
-   protected double checkIfSpriteIsHit(Line2D line, List<Sprite> sprites) {
-      List<Point2D> points = Helper.getPointsOnLine(line);
+      List<Point2D> points = Helper.getPointsOnLine(p1, p2);
       if(doPointsIntersectPath(points)) {
          // A sprite can only be hit if the bullet is on the path
          // The path check is more for optimisation than anything
@@ -123,8 +119,8 @@ public abstract class AbstractBullet implements Bullet {
             Point2D p = s.intersects(points);
             if(p != null) {
                DamageReport d = s.hit(getDamage());
-               specialOnHit(p, s, sprites);
                if(d != null) { // Sprite is not already dead
+                  specialOnHit(p, s, sprites);
                   return processDamageReport(d);
                }
             }
@@ -170,7 +166,6 @@ public abstract class AbstractBullet implements Bullet {
          return 0;
       }
       distanceTravelled += speed;
-      //System.out.println(distanceTravelled);
       lastPosition.setLocation(position);
       if(distanceTravelled > range) {
          double extraFraction = (distanceTravelled - range) / speed;
@@ -190,7 +185,5 @@ public abstract class AbstractBullet implements Bullet {
             position.getX() > OuterPanel.MAP_WIDTH + halfWidth ||
             position.getY() > OuterPanel.MAP_HEIGHT + halfWidth;
    }
-   
-
 
 }
