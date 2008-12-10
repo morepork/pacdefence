@@ -62,7 +62,7 @@ public class JumpingTower extends AbstractTower {
 
    @Override
    protected void upgradeSpecial() {
-      jumps = Helper.increaseByAtLeastOne(jumps, upgradeIncreaseFactor);
+      jumps++;
    }
    
    private class JumpingBullet extends AbstractBullet {

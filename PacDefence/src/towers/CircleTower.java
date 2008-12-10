@@ -63,7 +63,7 @@ public class CircleTower extends AbstractTower {
 
    @Override
    protected void upgradeSpecial() {
-      hits = Helper.increaseByAtLeastOne(hits, upgradeIncreaseFactor);
+      hits++;
    }
 
    private class CirclingBullet extends AbstractBullet {

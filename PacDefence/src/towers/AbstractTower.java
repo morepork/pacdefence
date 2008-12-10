@@ -46,7 +46,7 @@ public abstract class AbstractTower implements Tower {
 
    // The color of the range of the tower when drawn
    private static final Color rangeColour = new Color(255, 255, 255, 100);
-   protected static final float upgradeIncreaseFactor = 1.1F;
+   protected static final float upgradeIncreaseFactor = 1.05F;
 
    private int damageLevel = 1;
    private int rangeLevel = 1;

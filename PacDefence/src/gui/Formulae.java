@@ -32,7 +32,7 @@ public class Formulae {
    }
    
    public static long hp(int level) {
-      return (long)(Math.pow(1.4, level - 1) * 10);
+      return (long)(Math.pow(1.5, level - 1) * 10);
    }
    
    public static int levelEndBonus(int level) {
@@ -44,7 +44,7 @@ public class Formulae {
    }
    
    public static long upgradeCost(int currentLevel) {
-      return (long)(100 * Math.pow(1.5, currentLevel - 1));
+      return (long)(Math.pow(1.3, currentLevel - 1) * 10) * 10;
    }
    
    public static double damageDollars(double hpLost, double hpFactor, int level) {
@@ -56,9 +56,10 @@ public class Formulae {
    }
    
    private static double getMoneyDivisor(int level) {
+      // Keep a list of these as this is called every time a bullet hits.
       level--;
       if(level >= moneyDivisors.size()) {
-         moneyDivisors.add(Math.pow(1.25, level));
+         moneyDivisors.add(Math.pow(1.2, level));
       }
       return moneyDivisors.get(level);
    }

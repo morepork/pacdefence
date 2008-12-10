@@ -28,8 +28,8 @@ import java.text.DecimalFormat;
 
 public class FreezeTower extends SlowTower {
    
-   private static final DecimalFormat TWO_DP = new DecimalFormat("#0.00");
-   private final double upgradeIncreaseTicks = slowTicks * (upgradeIncreaseFactor - 1);
+   private static final DecimalFormat ONE_DP = new DecimalFormat("#0.0");
+   private final double upgradeIncreaseTicks = GameMap.CLOCK_TICKS_PER_SECOND / 10;
       
    public FreezeTower() {
       this(new Point(), null);
@@ -43,7 +43,7 @@ public class FreezeTower extends SlowTower {
 
    @Override
    public String getSpecial() {
-      return TWO_DP.format(slowTicks / GameMap.CLOCK_TICKS_PER_SECOND) + "s";
+      return ONE_DP.format(slowTicks / GameMap.CLOCK_TICKS_PER_SECOND) + "s";
    }
 
    @Override

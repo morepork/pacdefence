@@ -34,7 +34,7 @@ public class WeakenTower extends AbstractTower {
    
    private static final DecimalFormat ONE_DP = new DecimalFormat("#0.0");
    private double extraDamageTicks = GameMap.CLOCK_TICKS_PER_SECOND / 2;
-   private double upgradeIncreaseTicks = 2 * extraDamageTicks * (upgradeIncreaseFactor - 1);
+   private double upgradeIncreaseTicks = GameMap.CLOCK_TICKS_PER_SECOND / 10;
    private double increaseDamageFactor = 2;
    
    public WeakenTower() {

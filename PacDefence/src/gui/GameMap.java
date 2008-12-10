@@ -73,6 +73,7 @@ public class GameMap extends JPanel {
    private final Thread clock;
    private ControlPanel cp;
    private long processTime = 0;
+   private long processBulletsTime = 0;
    private long drawTime = 0;
    private Tower buildingTower = null;
    private Tower selectedTower = null;
@@ -110,10 +111,7 @@ public class GameMap extends JPanel {
          }
       }
       g.drawImage(buffer, 0, 0, null);
-      // Divides by a million to convert to ms
-      long elapsedTime = (System.nanoTime() - beginTime) / 1000000;
-      //System.out.println(elapsedTime);
-      clockRunnable.calculateDrawTimeTaken(elapsedTime);
+      clockRunnable.lastDrawTime = clockRunnable.calculateElapsedTime(beginTime);
    }
    
    /**
@@ -199,7 +197,8 @@ public class GameMap extends JPanel {
    private void drawDebug(Graphics g) {
       if(debugTimes) {
          bufferGraphics.setColor(Color.WHITE);
-         bufferGraphics.drawString("Process time: " + processTime, 10, 15);
+         bufferGraphics.drawString("Process time: " + processTime + " (" + processBulletsTime +
+               " for bullets)", 10, 15);
          bufferGraphics.drawString("Draw time: " + drawTime, 10, 30);
          bufferGraphics.drawString("Num bullets: " + bullets.size(), 400, 15);
       }
@@ -388,10 +387,13 @@ public class GameMap extends JPanel {
       
       private int ticksBetweenAddSprite = 40;
       private int addSpriteIn = 0;
-      private int processTimesPos = 0;
-      private int drawTimesPos = 0;
       private final int timesLength = 10;
+      private int timesPos = 0;
+      private long lastProcessTime;
       private final long[] processTimes = new long[timesLength];
+      private long lastProcessBulletsTime;
+      private final long[] processBulletsTimes = new long[timesLength];
+      private long lastDrawTime;
       private final long[] drawTimes = new long[timesLength];
             
       public void run() {
@@ -401,14 +403,15 @@ public class GameMap extends JPanel {
             if(gameOver == null) {
                tick();
             }
-            // Divides by a million to convert to ms
-            long elapsedTime = (System.nanoTime() - beginTime) / 1000000;
             needsRepaint = true;
             repaint();
-            calculateProcessTimeTaken(elapsedTime);            
-            if(elapsedTime < CLOCK_TICK) {
+            lastProcessTime = calculateElapsedTime(beginTime);
+            if(debugTimes) {
+               calculateTimesTaken();
+            }
+            if(lastProcessTime < CLOCK_TICK) {
                try {
-                  Thread.sleep(CLOCK_TICK - elapsedTime);
+                  Thread.sleep(CLOCK_TICK - lastProcessTime);
                } catch(InterruptedException e) {
                   // The sleep should never be interrupted
                }
@@ -427,32 +430,36 @@ public class GameMap extends JPanel {
             if(cp.decrementLives(doSpriteTicks())) {
                signalGameOver();
             }
+            long beginTime = System.nanoTime();
             cp.increaseMoney(doBulletTicks(unmodifiableSprites));
+            lastProcessBulletsTime = calculateElapsedTime(beginTime);
             doTowerTicks(unmodifiableSprites);
          }
       }
       
-      private void calculateProcessTimeTaken(long elapsedTime) {
-         processTimes[processTimesPos] = elapsedTime;
-         processTimesPos = (processTimesPos + 1) % timesLength;
-         //System.out.println(elapsedTimesPos);
-         long sum = 0;
-         for(long a : processTimes) {
-            sum += a;
-         }
-         processTime = sum / timesLength;
+      private long calculateElapsedTime(long beginTime) {
+         // Returns in ms, though the beginTime is in ns
+         return (System.nanoTime() - beginTime) / 1000000;
       }
       
-      private void calculateDrawTimeTaken(long elapsedTime) {
-         // Basically a duplicate of the above. Should fix.
-         drawTimes[drawTimesPos] = elapsedTime;
-         drawTimesPos = (drawTimesPos + 1) % timesLength;
-         //System.out.println(elapsedTimesPos);
+      private void calculateTimesTaken() {
+         processTime = insertAndReturnSum(processTimes, lastProcessTime);
+         processBulletsTime = insertAndReturnSum(processBulletsTimes, lastProcessBulletsTime);
+         drawTime = insertAndReturnSum(drawTimes, lastDrawTime);
+         timesPos = (timesPos + 1) & timesLength;
+      }
+      
+      private long insertAndReturnSum(long[] array, long lastTime) {
+         array[timesPos] = lastTime;
+         return sum(array);
+      }
+      
+      private long sum(long[] longs) {
          long sum = 0;
-         for(long a : drawTimes) {
+         for(long a : longs) {
             sum += a;
          }
-         drawTime = sum / timesLength;
+         return sum;
       }
       
       private int doSpriteTicks() {
@@ -501,7 +508,7 @@ public class GameMap extends JPanel {
          }
       }
       
-      private int doBulletTicks(List<Sprite> unmodifiableSprites) {
+      private long doBulletTicks(List<Sprite> unmodifiableSprites) {
          double moneyEarnt = 0;
          List<Integer> toRemove = new ArrayList<Integer>();
          for(int i = 0; i < bullets.size(); i++) {
@@ -512,7 +519,7 @@ public class GameMap extends JPanel {
             }
          }
          removeAll(bullets, toRemove);
-         return (int)moneyEarnt;
+         return (long)moneyEarnt;
       }
       
       private void removeAll(List<?> list, List<Integer> positions) {

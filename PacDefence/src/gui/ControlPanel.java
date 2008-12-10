@@ -70,6 +70,7 @@ public class ControlPanel extends JPanel {
    
    //private static final int BASE_TOWER_PRICE = 1000;
    
+   private static final DecimalFormat TWO_DP = new DecimalFormat("#0.00");
    private static final DecimalFormat ONE_DP = new DecimalFormat("#0.0");
    private static final DecimalFormat ZERO_DP = new DecimalFormat("#0");
 
@@ -103,7 +104,7 @@ public class ControlPanel extends JPanel {
    private long money = 2500;
    private int lives = 10;
    private int livesLostOnThisLevel;
-   private double interestRate = 1.01;
+   private double interestRate = 1.02;
    private int endLevelUpgradesLeft = 0;
    private static final int upgradeLives = 5;
    private static final int upgradeMoney = 1000;
@@ -430,7 +431,7 @@ public class ControlPanel extends JPanel {
          specialButton.setText("Special");
          specialLabel.setText(" ");
       } else {
-         damageLabel.setText(ONE_DP.format(t.getDamage()));
+         damageLabel.setText(TWO_DP.format(t.getDamage()));
          rangeLabel.setText(t.getRange());
          rateLabel.setText(t.getFireRate());
          speedLabel.setText(ONE_DP.format(t.getBulletSpeed()));

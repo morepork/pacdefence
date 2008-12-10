@@ -44,6 +44,9 @@ public class OverlayButton extends JButton {
       setBorderPainted(false);
       setContentAreaFilled(false);
       setOpaque(false);
+      // As when the focus is painted it draws a shadow-like thing
+      // that looks very out of place
+      setFocusPainted(false);
       setIcons(image, overlays, width);
       setPreferredSize(new Dimension(width, width));
       setMultiClickThreshhold(10);
