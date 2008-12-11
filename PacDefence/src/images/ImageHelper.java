@@ -103,11 +103,11 @@ public class ImageHelper {
          if (dy > 0) {
             return Math.atan(dx / dy);
          } else {
-            return Math.atan((-dy) / dx) + Math.PI / 2;
+            return Math.atan(-dy / dx) + Math.PI / 2;
          }
       } else {
          if (dy > 0) {
-            return 2 * Math.PI - Math.atan((-dx) / dy);
+            return 2 * Math.PI - Math.atan(-dx / dy);
          } else {
             return Math.atan(dx / dy) + Math.PI;
          }

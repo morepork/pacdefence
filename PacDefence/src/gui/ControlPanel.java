@@ -61,6 +61,7 @@ import towers.ScatterTower;
 import towers.SlowFactorTower;
 import towers.SlowLengthTower;
 import towers.Tower;
+import towers.WaveTower;
 import towers.WeakenTower;
 import towers.Tower.Attribute;
 
@@ -671,6 +672,7 @@ public class ControlPanel extends JPanel {
       towerTypes.add(new PoisonTower());
       towerTypes.add(new OmnidirectionalTower());
       towerTypes.add(new WeakenTower());
+      towerTypes.add(new WaveTower());
       // TODO add tower implementations as I code them
       return towerTypes;
    }

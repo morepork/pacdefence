@@ -52,7 +52,7 @@ public abstract class AbstractBullet implements Bullet {
    private static final BufferedImage image = ImageHelper.makeImage(radius * 2, radius * 2,
          "other", "bullet.png");
    private static final int halfWidth = image.getWidth() / 2;
-   private final Polygon path;
+   protected final Polygon path;
    
    /**
     * Creates a new AbstractBuller with fields set, but tick and draw
@@ -180,10 +180,14 @@ public abstract class AbstractBullet implements Bullet {
       }
    }
    
-   private boolean checkIfBulletIsOffScreen() {
-      return position.getX() < -halfWidth || position.getY() < -halfWidth ||
-            position.getX() > OuterPanel.MAP_WIDTH + halfWidth ||
-            position.getY() > OuterPanel.MAP_HEIGHT + halfWidth;
+   protected boolean checkIfBulletIsOffScreen() {
+      return checkIfPointIsOffScreen(position);
+   }
+   
+   protected boolean checkIfPointIsOffScreen(Point2D p) {
+      return p.getX() < -halfWidth || p.getY() < -halfWidth ||
+            p.getX() > OuterPanel.MAP_WIDTH + halfWidth ||
+            p.getY() > OuterPanel.MAP_HEIGHT + halfWidth;
    }
 
 }

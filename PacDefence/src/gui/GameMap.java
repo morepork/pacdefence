@@ -489,7 +489,7 @@ public class GameMap extends JPanel {
                }
             }
          }
-         removeAll(sprites, toRemove);
+         Helper.removeAll(sprites, toRemove);
          return livesLost;
       }
       
@@ -518,16 +518,8 @@ public class GameMap extends JPanel {
                toRemove.add(i);
             }
          }
-         removeAll(bullets, toRemove);
+         Helper.removeAll(bullets, toRemove);
          return (long)moneyEarnt;
-      }
-      
-      private void removeAll(List<?> list, List<Integer> positions) {
-         // Assumes the list of ints is sorted smallest to largest
-         for(int i = 0; i < positions.size(); i++) {
-            // As each element would have moved back i places
-            list.remove(positions.get(i) - i);
-         }
       }
       
    }
