@@ -109,10 +109,6 @@ public abstract class AbstractSprite implements Sprite {
       }
    }
 
-   /**
-    * 
-    * @return true if this Sprite has finished, false otherwise
-    */
    @Override
    public boolean tick() {
       if (!onScreen) {
@@ -121,7 +117,7 @@ public abstract class AbstractSprite implements Sprite {
          currentImageIndex++;
          currentImageIndex %= currentImages.size();
          currentImage = currentImages.get(currentImageIndex);
-         if (alive) {
+         if(alive) {
             move();
             decreaseAdjustedTicksLeft();
          } else {
@@ -254,7 +250,6 @@ public abstract class AbstractSprite implements Sprite {
    }
 
    private void move() {
-      // System.out.println("Step: " + steps + " Pos: " + x + " " + y);
       centre.setLocation(centre.getX() + xStep * speedFactor,
             centre.getY() + yStep * speedFactor);
       bounds.setCentre(centre);

@@ -111,7 +111,7 @@ public class GameMap extends JPanel {
          }
       }
       g.drawImage(buffer, 0, 0, null);
-      clockRunnable.lastDrawTime = clockRunnable.calculateElapsedTime(beginTime);
+      clockRunnable.setLastDrawTime(beginTime);
    }
    
    /**
@@ -387,31 +387,31 @@ public class GameMap extends JPanel {
       
       private int ticksBetweenAddSprite = 40;
       private int addSpriteIn = 0;
-      private final int timesLength = 10;
+      private final int timesLength = (int)(CLOCK_TICKS_PER_SECOND / 2);
       private int timesPos = 0;
-      private long lastProcessTime;
-      private final long[] processTimes = new long[timesLength];
-      private long lastProcessBulletsTime;
-      private final long[] processBulletsTimes = new long[timesLength];
-      private long lastDrawTime;
-      private final long[] drawTimes = new long[timesLength];
+      // In each of these the last position is used to store the last time
+      // and is not used for calculating the average
+      private final long[] processTimes = new long[timesLength + 1];
+      private final long[] processBulletsTimes = new long[timesLength + 1];
+      private final long[] drawTimes = new long[timesLength + 1];
             
       public void run() {
          while(true) {
             // Used nanoTime as many OS, notably windows, don't record ms times less than 10ms
             long beginTime = System.nanoTime();
             if(gameOver == null) {
+               if(debugTimes) {
+                  calculateTimesTaken();
+               }
                tick();
             }
             needsRepaint = true;
             repaint();
-            lastProcessTime = calculateElapsedTime(beginTime);
-            if(debugTimes) {
-               calculateTimesTaken();
-            }
-            if(lastProcessTime < CLOCK_TICK) {
+            long elapsedTime = calculateElapsedTime(beginTime);
+            processTimes[timesLength] = elapsedTime;
+            if(elapsedTime < CLOCK_TICK) {
                try {
-                  Thread.sleep(CLOCK_TICK - lastProcessTime);
+                  Thread.sleep(CLOCK_TICK - elapsedTime);
                } catch(InterruptedException e) {
                   // The sleep should never be interrupted
                }
@@ -432,7 +432,7 @@ public class GameMap extends JPanel {
             }
             long beginTime = System.nanoTime();
             cp.increaseMoney(doBulletTicks(unmodifiableSprites));
-            lastProcessBulletsTime = calculateElapsedTime(beginTime);
+            processBulletsTimes[timesLength] = calculateElapsedTime(beginTime);
             doTowerTicks(unmodifiableSprites);
          }
       }
@@ -443,23 +443,23 @@ public class GameMap extends JPanel {
       }
       
       private void calculateTimesTaken() {
-         processTime = insertAndReturnSum(processTimes, lastProcessTime);
-         processBulletsTime = insertAndReturnSum(processBulletsTimes, lastProcessBulletsTime);
-         drawTime = insertAndReturnSum(drawTimes, lastDrawTime);
-         timesPos = (timesPos + 1) & timesLength;
+         processTime = insertAndReturnSum(processTimes);
+         processBulletsTime = insertAndReturnSum(processBulletsTimes);
+         drawTime = insertAndReturnSum(drawTimes);
+         timesPos = (timesPos + 1) % timesLength;
       }
       
-      private long insertAndReturnSum(long[] array, long lastTime) {
-         array[timesPos] = lastTime;
-         return sum(array);
-      }
-      
-      private long sum(long[] longs) {
+      private long insertAndReturnSum(long[] array) {
+         array[timesPos] = array[timesLength];
          long sum = 0;
-         for(long a : longs) {
-            sum += a;
+         for(int i = 0; i < timesLength; i++) {
+            sum += array[i];
          }
-         return sum;
+         return sum / timesLength;
+      }
+      
+      private void setLastDrawTime(long beginTime) {
+         drawTimes[timesLength] = calculateElapsedTime(beginTime);
       }
       
       private int doSpriteTicks() {

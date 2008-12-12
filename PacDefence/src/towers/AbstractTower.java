@@ -33,7 +33,6 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -392,42 +391,39 @@ public abstract class AbstractTower implements Tower {
       // Do this for loop even if tower can't shoot so tower rotates to track sprites
       for (Sprite s : sprites) {
          if (checkDistance(s)) {
-            return fireBullet(s, true);
+            return fireBulletsAt(s, true);
          }
       }
       return Collections.emptyList();
    }
    
    protected boolean checkDistance(Sprite s) {
-      return checkDistance(s, centre);
+      return checkDistance(s, centre, range);
    }
    
-   protected boolean checkDistance(Sprite s, Point p) {
-      return checkDistance(s, p, range);
-   }
-   
+   /**
+    * Checks if the distance from the sprite to a point is less than the range.
+    * @param s
+    * @param p
+    * @param range
+    * @return
+    */
    protected boolean checkDistance(Sprite s, Point p, double range) {
       if (!s.isAlive()) {
          return false;
       }
-      Point2D sPos = s.getPosition();
-      double distance = Point.distance(p.getX(), p.getY(), sPos.getX(), sPos.getY());
+      double distance = Helper.distance(s.getPosition(), p);
       return distance < range + s.getHalfWidth();
    }
    
-   protected List<Bullet> fireBullet(Sprite s, boolean rotateTurret) {
-      return fireBullet(s, centre, rotateTurret);
+   protected List<Bullet> fireBulletsAt(Sprite s, boolean rotateTurret) {
+      return fireBulletsAt(s, centre, rotateTurret, turretWidth, range, bulletSpeed, damage);
    }
    
-   protected List<Bullet> fireBullet(Sprite s, Point p, boolean rotateTurret) {
-      return fireBullet(s, p, rotateTurret, turretWidth, range, bulletSpeed, damage);
-   }
-   
-   protected List<Bullet> fireBullet(Sprite s, Point p, boolean rotateTurret,
+   protected List<Bullet> fireBulletsAt(Sprite s, Point p, boolean rotateTurret,
          int turretWidth, double range, double bulletSpeed, double damage) {
       double dx = s.getPosition().getX() - p.getX();
       double dy = s.getPosition().getY() - p.getY();
-      // System.out.println(dx + " " + dy);
       if(rotateTurret) {
          currentImage = ImageHelper.rotateImage(originalImage, dx, -dy);
       }

@@ -54,7 +54,7 @@ public class ScatterTower extends AbstractTower {
       List<Bullet> fired = new ArrayList<Bullet>();
       for (Sprite s : sprites) {
          if (checkDistance(s)) {
-            fired.addAll(fireBullet(s, false));
+            fired.addAll(fireBulletsAt(s, false));
             if(fired.size() >= shots) {
                return fired;
             }

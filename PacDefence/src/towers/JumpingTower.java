@@ -86,7 +86,7 @@ public class JumpingTower extends AbstractTower {
             for(Sprite a : sprites) {
                if(!hitSprites.contains(a) && checkDistance(a, point, jumpRange)) {
                   hitsLeft--;
-                  JumpingBullet b = (JumpingBullet) fireBullet(a, point, false, 0, jumpRange,
+                  JumpingBullet b = (JumpingBullet) fireBulletsAt(a, point, false, 0, jumpRange,
                         getBulletSpeed(), getDamage()).get(0);
                   b.addHitSprites(hitSprites);
                   b.setHitsLeft(hitsLeft);

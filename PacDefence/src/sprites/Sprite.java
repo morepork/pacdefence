@@ -35,6 +35,10 @@ import java.util.List;
 public interface Sprite {
    
    public void draw(Graphics g);
+   /**
+    * 
+    * @return true if this Sprite has finished or has been killed, false otherwise
+    */
    public boolean tick();
    public int getHalfWidth();
    public Point2D getPosition();

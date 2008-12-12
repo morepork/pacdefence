@@ -44,7 +44,7 @@ public class Formulae {
    }
    
    public static long upgradeCost(int currentLevel) {
-      return (long)(Math.pow(1.3, currentLevel - 1) * 10) * 10;
+      return (long)(Math.pow(1.25, currentLevel - 1) * 100);
    }
    
    public static double damageDollars(double hpLost, double hpFactor, int level) {
