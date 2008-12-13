@@ -51,6 +51,7 @@ import towers.BasicTower;
 import towers.BomberTower;
 import towers.CircleTower;
 import towers.FreezeTower;
+import towers.HomingTower;
 import towers.JumpingTower;
 import towers.LaserTower;
 import towers.MultiShotTower;
@@ -673,6 +674,7 @@ public class ControlPanel extends JPanel {
       towerTypes.add(new OmnidirectionalTower());
       towerTypes.add(new WeakenTower());
       towerTypes.add(new WaveTower());
+      towerTypes.add(new HomingTower());
       // TODO add tower implementations as I code them
       return towerTypes;
    }

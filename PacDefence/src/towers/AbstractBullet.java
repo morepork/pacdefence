@@ -38,8 +38,7 @@ public abstract class AbstractBullet implements Bullet {
 
    // The direction of the bullet, first is dx, second is dy. Should be normalised
    // then multiplied by the speed.
-   private final double[] dir = new double[2];
-   @SuppressWarnings("unused")
+   protected final double[] dir = new double[2];
    protected final double speed;
    protected double distanceTravelled = 0;
    protected final Point2D lastPosition;
@@ -81,9 +80,8 @@ public abstract class AbstractBullet implements Bullet {
       this.range = range - turretWidthPlusRadius;
       this.speed = speed;
       this.damage = damage;
+      setDirections(dx, dy);
       double divisor = Math.sqrt(dx * dx + dy * dy);
-      dir[0] = speed * dx / divisor;
-      dir[1] = speed * dy / divisor;
       position = new Point2D.Double(p.getX() + turretWidthPlusRadius * dx / divisor,
             p.getY() + turretWidthPlusRadius * dy / divisor);
       lastPosition = new Point2D.Double(position.getX(), position.getY());
@@ -104,6 +102,12 @@ public abstract class AbstractBullet implements Bullet {
    
    public double getDamage() {
       return damage;
+   }
+   
+   protected void setDirections(double dx, double dy) {
+      double divisor = Math.sqrt(dx * dx + dy * dy);
+      dir[0] = speed * dx / divisor;
+      dir[1] = speed * dy / divisor;
    }
    
    protected double checkIfSpriteIsHit(List<Sprite> sprites) {
