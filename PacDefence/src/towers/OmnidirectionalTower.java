@@ -55,7 +55,7 @@ public class OmnidirectionalTower extends AbstractTower {
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
          double damage, Point p, Sprite s, Polygon path) {
-      return new AbstractBullet(this, dx, dy, turretWidth, range, speed, damage, p, path){};
+      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, path);
    }
    
    @Override

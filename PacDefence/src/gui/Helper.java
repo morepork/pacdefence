@@ -21,11 +21,17 @@ package gui;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class Helper {
+
+   private static final Map<Integer, DecimalFormat> formats =
+         new HashMap<Integer, DecimalFormat>();
    
    public static <T> List<T> cloneList(List<T> list) {
       ArrayList<T> newList = new ArrayList<T>(list.size());
@@ -89,6 +95,26 @@ public class Helper {
          // Convert to int otherwise it calls list.remove(Object o)
          list.remove(positions.get(i).intValue());
       }
+   }
+   
+   public static String format(Double d, int decimalPlaces) {
+      assert decimalPlaces >= 0 : "decimalPlaces must be >= 0";
+      if(!formats.containsKey(decimalPlaces)) {
+         formats.put(decimalPlaces, makeFormat(decimalPlaces));
+      }
+      return formats.get(decimalPlaces).format(d);
+   }
+
+   private static DecimalFormat makeFormat(int decimalPlaces) {
+      assert decimalPlaces >= 0 : "decimalPlaces must be >= 0";
+      String pattern = "#0";
+      if(decimalPlaces > 0) {
+         pattern += ".";
+         for(int i = 0; i < decimalPlaces; i++) {
+            pattern += "0";
+         }
+      }
+      return new DecimalFormat(pattern);
    }
 
 }

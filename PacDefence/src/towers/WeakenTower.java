@@ -20,11 +20,11 @@
 package towers;
 
 import gui.GameMap;
+import gui.Helper;
 
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
-import java.text.DecimalFormat;
 import java.util.List;
 
 import sprites.Sprite;
@@ -32,7 +32,6 @@ import sprites.Sprite;
 
 public class WeakenTower extends AbstractTower {
    
-   private static final DecimalFormat ONE_DP = new DecimalFormat("#0.0");
    private double extraDamageTicks = GameMap.CLOCK_TICKS_PER_SECOND / 2;
    private double upgradeIncreaseTicks = GameMap.CLOCK_TICKS_PER_SECOND / 10;
    private double increaseDamageFactor = 2;
@@ -47,7 +46,7 @@ public class WeakenTower extends AbstractTower {
 
    @Override
    public String getSpecial() {
-      return ONE_DP.format(extraDamageTicks / GameMap.CLOCK_TICKS_PER_SECOND) + "s";
+      return Helper.format(extraDamageTicks / GameMap.CLOCK_TICKS_PER_SECOND, 1) + "s";
    }
 
    @Override
@@ -58,7 +57,7 @@ public class WeakenTower extends AbstractTower {
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
          double damage, Point p, Sprite s, Polygon path) {
-      return new AbstractBullet(this, dx, dy, turretWidth, range, speed, damage, p, path){
+      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, path){
          @Override
          protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
             s.setDamageMultiplier(increaseDamageFactor, (int)extraDamageTicks);

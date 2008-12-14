@@ -20,12 +20,12 @@
 package towers;
 
 import gui.GameMap;
+import gui.Helper;
 
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
-import java.text.DecimalFormat;
 import java.util.List;
 
 import sprites.Sprite;
@@ -33,7 +33,6 @@ import sprites.Sprite;
 
 public class PoisonTower extends AbstractTower {
    
-   private static final DecimalFormat ONE_DP = new DecimalFormat("#0.0");
    // Half the damage is by poison, and half normal damage at the start
    private static final double baseDamage = 5;
    private double damagePerTick = baseDamage / GameMap.CLOCK_TICKS_PER_SECOND;
@@ -50,8 +49,8 @@ public class PoisonTower extends AbstractTower {
 
    @Override
    public String getSpecial() {
-      return ONE_DP.format(damagePerTick * GameMap.CLOCK_TICKS_PER_SECOND) + " hp/s for " +
-            ONE_DP.format(poisonTicks / GameMap.CLOCK_TICKS_PER_SECOND) + "s";
+      return Helper.format(damagePerTick * GameMap.CLOCK_TICKS_PER_SECOND, 1) + " hp/s for " +
+            Helper.format(poisonTicks / GameMap.CLOCK_TICKS_PER_SECOND, 1) + "s";
    }
 
    @Override
@@ -71,7 +70,7 @@ public class PoisonTower extends AbstractTower {
       poisonTicks += poisonTicksUpgrade;
    }
    
-   private class PoisonBullet extends AbstractBullet {
+   private class PoisonBullet extends BasicBullet {
       
       private Sprite poisonedSprite = null;
       private double moneyEarnt = 0;

@@ -31,7 +31,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +48,7 @@ import javax.swing.event.ChangeListener;
 
 import towers.BasicTower;
 import towers.BomberTower;
+import towers.ChargeTower;
 import towers.CircleTower;
 import towers.FreezeTower;
 import towers.HomingTower;
@@ -72,10 +72,6 @@ public class ControlPanel extends JPanel {
    
    //private static final int BASE_TOWER_PRICE = 1000;
    
-   private static final DecimalFormat TWO_DP = new DecimalFormat("#0.00");
-   private static final DecimalFormat ONE_DP = new DecimalFormat("#0.0");
-   private static final DecimalFormat ZERO_DP = new DecimalFormat("#0");
-
    private final BufferedImage backgroundImage = ImageHelper.makeImage("control_panel",
          "blue_lava.jpg");
    private int level = 0;
@@ -265,7 +261,7 @@ public class ControlPanel extends JPanel {
    }
    
    private void updateInterestLabel() {
-      interestLabel.setText(ONE_DP.format(((interestRate - 1) * 100)) + "%");
+      interestLabel.setText(Helper.format(((interestRate - 1) * 100), 1) + "%");
    }
    
    private void updateEndLevelUpgradesLabel() {
@@ -319,7 +315,7 @@ public class ControlPanel extends JPanel {
          towerNameLabel.setText(t.getName() + " Tower");
          towerLevelLabel.setText("Level: " + t.getExperienceLevel());
          killsLabel.setText("Kills: " + t.getKills() + " (" + t.getKillsForUpgrade() + ")");
-         damageDealtLabel.setText("Dmg: " + ZERO_DP.format(t.getDamageDealt()) + " (" +
+         damageDealtLabel.setText("Dmg: " + t.getDamageDealt() + " (" +
                t.getDamageDealtForUpgrade() + ")");
       }
    }
@@ -433,10 +429,10 @@ public class ControlPanel extends JPanel {
          specialButton.setText("Special");
          specialLabel.setText(" ");
       } else {
-         damageLabel.setText(TWO_DP.format(t.getDamage()));
+         damageLabel.setText(Helper.format(t.getDamage(), 2));
          rangeLabel.setText(t.getRange());
          rateLabel.setText(t.getFireRate());
-         speedLabel.setText(ONE_DP.format(t.getBulletSpeed()));
+         speedLabel.setText(Helper.format(t.getBulletSpeed(), 1));
          specialButton.setText(t.getSpecialName());
          specialLabel.setText(t.getSpecial());
       }
@@ -675,6 +671,7 @@ public class ControlPanel extends JPanel {
       towerTypes.add(new WeakenTower());
       towerTypes.add(new WaveTower());
       towerTypes.add(new HomingTower());
+      towerTypes.add(new ChargeTower());
       // TODO add tower implementations as I code them
       return towerTypes;
    }

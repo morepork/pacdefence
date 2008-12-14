@@ -70,7 +70,7 @@ public class BomberTower extends AbstractTower {
       return new Bomb(this, dx, dy, turretWidth, range, speed, damage, p, path);
    }
 
-   private class Bomb extends AbstractBullet {
+   private class Bomb extends BasicBullet {
 
       private boolean exploding = false;
       private boolean expanding = true;

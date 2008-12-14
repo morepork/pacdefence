@@ -65,7 +65,7 @@ public class JumpingTower extends AbstractTower {
       jumps++;
    }
    
-   private class JumpingBullet extends AbstractBullet {
+   private class JumpingBullet extends BasicBullet {
       
       private final Collection<Sprite> hitSprites = new ArrayList<Sprite>();
       private int hitsLeft;

@@ -72,7 +72,7 @@ public class WaveTower extends AbstractTower {
       angle += upgradeIncreaseAngle;
    }
    
-   private static class WaveBullet extends AbstractBullet {
+   private static class WaveBullet extends BasicBullet {
       
       private final double startAngle, extentAngle;
       private final Arc2D arc = new Arc2D.Double();

@@ -20,11 +20,11 @@
 package towers;
 
 import gui.GameMap;
+import gui.Helper;
 import images.ImageHelper;
 
 import java.awt.Point;
 import java.awt.Polygon;
-import java.text.DecimalFormat;
 import java.util.List;
 
 import sprites.Sprite;
@@ -32,7 +32,6 @@ import sprites.Sprite;
 
 public class HomingTower extends AbstractTower {
    
-   private static DecimalFormat ONE_DP = new DecimalFormat("#0.0");
    // Max angle the bullet redirects each tick in degrees
    private double maxRedirectAngle = 1;
    private static final double upgradeIncreaseAngle = 0.1;
@@ -47,7 +46,7 @@ public class HomingTower extends AbstractTower {
    
    @Override
    public String getSpecial() {
-      return ONE_DP.format(maxRedirectAngle * GameMap.CLOCK_TICKS_PER_SECOND) + "°/s";
+      return Helper.format(maxRedirectAngle * GameMap.CLOCK_TICKS_PER_SECOND, 1) + "°/s";
    }
 
    @Override
@@ -67,7 +66,7 @@ public class HomingTower extends AbstractTower {
       maxRedirectAngle += upgradeIncreaseAngle;
    }
    
-   private static class HomingBullet extends AbstractBullet {
+   private static class HomingBullet extends BasicBullet {
       
       private final Sprite target;
       // This is in radians for convenience

@@ -502,9 +502,13 @@ public class GameMap extends JPanel {
       }
       
       private void doTowerTicks(List<Sprite> unmodifiableSprites) {
-         // Don't use for each loop here as a new tower can be built
-         for(int i = 0; i < towers.size(); i++ ) {
-            bullets.addAll(towers.get(i).tick(unmodifiableSprites));
+         // Only do this if there's a level going, to decrease load and
+         // so towers such as charge towers don't charge between levels
+         if(levelInProgress) {
+            // Don't use for each loop here as a new tower can be built
+            for(int i = 0; i < towers.size(); i++ ) {
+               bullets.addAll(towers.get(i).tick(unmodifiableSprites));
+            }
          }
       }
       

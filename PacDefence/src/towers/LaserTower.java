@@ -74,7 +74,7 @@ public class LaserTower extends AbstractTower {
       beamLength += beamLengthUpgrade;
    }
    
-   private class Laser extends AbstractBullet {
+   private class Laser extends BasicBullet {
       
       private final Point2D lastPoint;
       private final Line2D laser;

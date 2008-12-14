@@ -20,15 +20,14 @@
 package towers;
 
 import gui.GameMap;
+import gui.Helper;
 
 import java.awt.Point;
 import java.awt.Polygon;
-import java.text.DecimalFormat;
 
 
 public class FreezeTower extends SlowTower {
    
-   private static final DecimalFormat ONE_DP = new DecimalFormat("#0.0");
    private final double upgradeIncreaseTicks = GameMap.CLOCK_TICKS_PER_SECOND / 10;
       
    public FreezeTower() {
@@ -43,7 +42,7 @@ public class FreezeTower extends SlowTower {
 
    @Override
    public String getSpecial() {
-      return ONE_DP.format(slowTicks / GameMap.CLOCK_TICKS_PER_SECOND) + "s";
+      return Helper.format(slowTicks / GameMap.CLOCK_TICKS_PER_SECOND, 1) + "s";
    }
 
    @Override

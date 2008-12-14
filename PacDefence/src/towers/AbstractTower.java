@@ -63,7 +63,7 @@ public abstract class AbstractTower implements Tower {
    // The number of clock ticks between each shot
    private double fireRate;
    // The number of clock ticks until this tower's next shot
-   private double timeToNextShot = 0;
+   protected double timeToNextShot = 0;
    private double range;
    private final double rangeUpgrade;
    private int twiceRange;

@@ -20,15 +20,13 @@
 package towers;
 
 import gui.GameMap;
+import gui.Helper;
 
 import java.awt.Point;
 import java.awt.Polygon;
-import java.text.DecimalFormat;
 
 
 public class SlowLengthTower extends SlowTower {
-   
-   private static final DecimalFormat ONE_DP = new DecimalFormat("#0.0");
    
    public SlowLengthTower() {
       this(new Point(), null);
@@ -40,7 +38,7 @@ public class SlowLengthTower extends SlowTower {
 
    @Override
    public String getSpecial() {
-      return ONE_DP.format(slowTicks / GameMap.CLOCK_TICKS_PER_SECOND) + "s";
+      return Helper.format(slowTicks / GameMap.CLOCK_TICKS_PER_SECOND, 1) + "s";
    }
 
    @Override

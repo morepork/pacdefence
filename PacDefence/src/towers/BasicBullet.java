@@ -34,7 +34,7 @@ import java.util.List;
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
 
-public abstract class AbstractBullet implements Bullet {
+public class BasicBullet implements Bullet {
 
    // The direction of the bullet, first is dx, second is dy. Should be normalised
    // then multiplied by the speed.
@@ -54,7 +54,7 @@ public abstract class AbstractBullet implements Bullet {
    protected final Polygon path;
    
    /**
-    * Creates a new AbstractBuller with fields set, but tick and draw
+    * Creates a new BasicBuller with fields set, but tick and draw
     * methods must be overrided.
     *  
     * @param path
@@ -63,7 +63,7 @@ public abstract class AbstractBullet implements Bullet {
     * @param range
     * @param speed
     */
-   public AbstractBullet(Polygon path, Tower shotBy, double damage, int range, double speed) {
+   protected BasicBullet(Polygon path, Tower shotBy, double damage, int range, double speed) {
       this.path = path;
       this.shotBy = shotBy;
       this.damage = damage;
@@ -73,7 +73,7 @@ public abstract class AbstractBullet implements Bullet {
       position = null;
    }
    
-   public AbstractBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
+   public BasicBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
          double speed, double damage, Point p, Polygon path) {
       this.shotBy = shotBy;
       int turretWidthPlusRadius = turretWidth + radius;

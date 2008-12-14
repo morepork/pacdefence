@@ -19,14 +19,13 @@
 
 package towers;
 
+import gui.Helper;
+
 import java.awt.Point;
 import java.awt.Polygon;
-import java.text.DecimalFormat;
 
 // Should remove this later as it is poor compared to the freeze tower
 public class SlowFactorTower extends SlowTower {
-   
-   private static final DecimalFormat TWO_DP = new DecimalFormat("0.00");
    
    public SlowFactorTower() {
       this(new Point(), null);
@@ -38,7 +37,7 @@ public class SlowFactorTower extends SlowTower {
 
    @Override
    public String getSpecial() {
-      return TWO_DP.format(slowFactor);
+      return Helper.format(slowFactor, 2);
    }
 
    @Override

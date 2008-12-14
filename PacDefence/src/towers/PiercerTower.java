@@ -64,7 +64,7 @@ public class PiercerTower extends AbstractTower {
       pierces++;
    }
    
-   private class PiercingBullet extends AbstractBullet {
+   private class PiercingBullet extends BasicBullet {
       
       private int piercesSoFar = 0;
       private Collection<Sprite> spritesHit = new ArrayList<Sprite>();

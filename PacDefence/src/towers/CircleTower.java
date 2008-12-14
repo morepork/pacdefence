@@ -66,7 +66,7 @@ public class CircleTower extends AbstractTower {
       hits++;
    }
 
-   private class CirclingBullet extends AbstractBullet {
+   private class CirclingBullet extends BasicBullet {
 
       private final Circle route;
       private final double deltaTheta;
