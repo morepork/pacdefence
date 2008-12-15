@@ -51,7 +51,7 @@ public class WeakenTower extends AbstractTower {
 
    @Override
    public String getSpecialName() {
-      return "Double damage time";
+      return "Weaken time";
    }
 
    @Override

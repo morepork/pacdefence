@@ -80,18 +80,19 @@ public class ZapperTower extends AbstractTower {
       private double moneyEarnt = 0;
       private int numZapsLeft;
       private Line2D zap;
-      //private List<Wrapper> zaps = new ArrayList<Wrapper>();
+      private final double zapRange;
    
       public ZapperBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, Polygon path, int numZaps) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, path);
          numZapsLeft = numZaps;
+         zapRange = range / 4;
       }
       
       @Override
       public void draw(Graphics g) {
          // The field zap can be set to null by the tick method, messing
-         // up the actual drawing
+         // up the actual drawing, so take a copy of the pointer
          Line2D zap = this.zap;
          if(zap != null) {
             Graphics2D g2D = (Graphics2D) g;
@@ -107,40 +108,49 @@ public class ZapperTower extends AbstractTower {
       @Override
       protected double doTick(List<Sprite> sprites) {
          double value = super.doTick(sprites);
-         List<Sprite> hittableSprites = new ArrayList<Sprite>();
-         for(Sprite s : sprites) {
-            if(Helper.distance(position, s.getPosition()) < range / 3 + s.getHalfWidth()) {
-               hittableSprites.add(s);
-            }
-         }
-         if(zap == null) {
-            if(!hittableSprites.isEmpty() && numZapsLeft > 0) {
-               Sprite s = hittableSprites.get(rand.nextInt(hittableSprites.size()));
-               DamageReport d = s.hit(damage);
-               if(d != null) {
-                  moneyEarnt += processDamageReport(d);
-                  numZapsLeft--;
-                  zap = new Line2D.Double(position, s.getPosition());
-               }
-            }
+         // Only actually fire once every two ticks
+         if(zap == null && numZapsLeft > 0) {
+            tryToFireZap(sprites);
          } else {
             zap = null;
          }
+         // If value is 0, the bullet reached the edge of its range
          return value == 0 ? moneyEarnt : -1;
       }
       
       @Override
       protected double checkIfSpriteIsHit(Point2D p1, Point2D p2, List<Sprite> sprites) {
+         // The actual bullet never hits
          return -1;
       }
       
-      private class Wrapper {
+      private void tryToFireZap(List<Sprite> sprites) {
+         List<Sprite> hittableSprites = new ArrayList<Sprite>();
+         for(Sprite s : sprites) {
+            if(Helper.distance(position, s.getPosition()) < zapRange + s.getHalfWidth()) {
+               hittableSprites.add(s);
+            }
+         }
+         fireZap(hittableSprites);
+      }
          
-         private int framesLeft = 3;
-         private Line2D line;
-         
-         private Wrapper(Line2D line) {
-            this.line = line;
+      private void fireZap(List<Sprite> hittableSprites) {
+         if(hittableSprites.isEmpty()) {
+            // It didn't fire, so remove the last zap
+            zap = null;
+            return;
+         }
+         int index = rand.nextInt(hittableSprites.size());
+         Sprite s = hittableSprites.get(index);
+         DamageReport d = s.hit(damage);
+         if(d != null) {
+            moneyEarnt += processDamageReport(d);
+            numZapsLeft--;
+            zap = new Line2D.Double(position, s.getPosition());
+         } else {
+            // It didn't actually hit after all so try the other sprites
+            hittableSprites.remove(index);
+            fireZap(hittableSprites);
          }
       }
       

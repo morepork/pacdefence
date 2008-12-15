@@ -176,11 +176,11 @@ public abstract class AbstractSprite implements Sprite {
 
    @Override
    public DamageReport hit(double damage) {
-      if(adjustedDamageTicksLeft > 0) {
-         damage *= damageMultiplier;
-      }
       if(!alive) {
          return null;
+      }
+      if(adjustedDamageTicksLeft > 0) {
+         damage *= damageMultiplier;
       }
       if (hp - damage <= 0) {
          alive = false;

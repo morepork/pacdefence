@@ -58,8 +58,12 @@ public class ChargeTower extends AbstractTower {
    
    @Override
    public String getSpecial() {
-      return Helper.format(getNextDamage(), 2) + " (" +
-            Helper.format(maxDamageMultiplier * getDamage(), 2) + ")";
+      StringBuilder s = new StringBuilder();
+      s.append(Helper.format(getNextDamage(), 2));
+      s.append(" (");
+      s.append(Helper.format(maxDamageMultiplier * getDamage(), 2));
+      s.append(")");
+      return s.toString();
    }
 
    @Override

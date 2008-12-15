@@ -448,20 +448,20 @@ public abstract class AbstractTower implements Tower {
       bounds.setCentre(centre);
    }
 
-   private void upgradeDamage() {
+   protected void upgradeDamage() {
       damage *= upgradeIncreaseFactor;
    }
 
-   private void upgradeRange() {
+   protected void upgradeRange() {
       range += rangeUpgrade;
       twiceRange = (int)(range * 2);
    }
 
-   private void upgradeFireRate() {
+   protected void upgradeFireRate() {
       fireRate /= upgradeIncreaseFactor;
    }
 
-   private void upgradeBulletSpeed() {
+   protected void upgradeBulletSpeed() {
       bulletSpeed += bulletSpeedUpgrade;
    }
 
