@@ -77,7 +77,7 @@ public class PiercerTower extends AbstractTower {
       
       @Override
       public double doTick(List<Sprite> sprites) {
-         List<Sprite> newSprites = Helper.cloneList(sprites);
+         List<Sprite> newSprites = Helper.copyList(sprites);
          // Removes all the previously hit sprites so they aren't hit again
          newSprites.removeAll(spritesHit);
          return processShotResult(super.doTick(newSprites), newSprites);

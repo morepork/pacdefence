@@ -90,8 +90,8 @@ public abstract class AbstractSprite implements Sprite {
       bounds = new Circle(path.get(0), halfWidth);
       // Use two clones here so that currentImages can be edited without
       // affecting originalImages
-      originalImages = Collections.unmodifiableList(Helper.cloneList(images));
-      currentImages = Helper.cloneList(images);     
+      originalImages = Collections.unmodifiableList(Helper.copyList(images));
+      currentImages = Helper.copyList(images);     
       speed = calculateSpeed(hp);
       levelHP = hp;
       hpFactor = levelHP / this.hp;

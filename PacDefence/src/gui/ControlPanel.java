@@ -64,6 +64,7 @@ import towers.SlowLengthTower;
 import towers.Tower;
 import towers.WaveTower;
 import towers.WeakenTower;
+import towers.ZapperTower;
 import towers.Tower.Attribute;
 
 
@@ -99,14 +100,14 @@ public class ControlPanel extends JPanel {
    private final Color defaultTextColour = Color.YELLOW;
    private final float defaultTextSize = 12F;
    // This is the initial money
-   private long money = 2500;
-   private int lives = 10;
+   private long money = 4000;
+   private int lives = 25;
    private int livesLostOnThisLevel;
    private double interestRate = 1.02;
    private int endLevelUpgradesLeft = 0;
    private static final int upgradeLives = 5;
    private static final int upgradeMoney = 1000;
-   private static final float upgradeInterest = 0.001f;
+   private static final float upgradeInterest = 0.0025f;
 
    public ControlPanel(int width, int height, GameMap map) {
       this.map = map;
@@ -261,7 +262,7 @@ public class ControlPanel extends JPanel {
    }
    
    private void updateInterestLabel() {
-      interestLabel.setText(Helper.format(((interestRate - 1) * 100), 1) + "%");
+      interestLabel.setText(Helper.format(((interestRate - 1) * 100), 2) + "%");
    }
    
    private void updateEndLevelUpgradesLabel() {
@@ -672,6 +673,7 @@ public class ControlPanel extends JPanel {
       towerTypes.add(new WaveTower());
       towerTypes.add(new HomingTower());
       towerTypes.add(new ChargeTower());
+      towerTypes.add(new ZapperTower());
       // TODO add tower implementations as I code them
       return towerTypes;
    }

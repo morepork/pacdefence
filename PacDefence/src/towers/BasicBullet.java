@@ -45,7 +45,7 @@ public class BasicBullet implements Bullet {
    protected final Point2D position;
    protected final int range;
    private static final int radius = 3;
-   private final double damage;
+   protected final double damage;
    private boolean draw = true;
    protected final Tower shotBy;
    private static final BufferedImage image = ImageHelper.makeImage(radius * 2, radius * 2,

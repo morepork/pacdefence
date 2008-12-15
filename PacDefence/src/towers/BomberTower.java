@@ -37,8 +37,7 @@ public class BomberTower extends AbstractTower {
    
    private int blastRadius = 20;
    // If the radius increases exponentially it just gets silly
-   private final int blastRadiusIncrease = (int) (blastRadius * upgradeIncreaseFactor)
-         - blastRadius;
+   private final int blastRadiusIncrease = 2;
    private static final double bombDamageDividend = 5;
 
    public BomberTower() {

@@ -314,7 +314,7 @@ public abstract class AbstractTower implements Tower {
       } catch(Exception e) {
          // No exception should be thrown if the superclass is reasonably behaved
          throw new RuntimeException("\nSuperclass of AbstractTower is not well behaved.\n" + e +
-               " was thrown.\n" + "Either fix this, or override constructNew()");
+               " was thrown.\n Either fix this, or override constructNew()");
       }
    }
 

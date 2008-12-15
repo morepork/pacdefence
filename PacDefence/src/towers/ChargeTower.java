@@ -31,7 +31,7 @@ import sprites.Sprite;
 
 public class ChargeTower extends AbstractTower {
    
-   private double maxDamageMultiplier = 2;
+   private double maxDamageMultiplier = 5;
    private double nextDamageMultiplier = 1;
    private static final int ticksToCharge = (int)(2 * GameMap.CLOCK_TICKS_PER_SECOND);
 
@@ -40,7 +40,7 @@ public class ChargeTower extends AbstractTower {
    }
    
    public ChargeTower(Point p, Polygon path) {
-      super(p, path, "Charge", 40, 100, 5, 8, 50, 16, "charge.png", "ChargeTower.png");
+      super(p, path, "Charge", 40, 100, 5, 9, 50, 16, "charge.png", "ChargeTower.png");
    }
    
    @Override

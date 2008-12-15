@@ -84,8 +84,8 @@ public class ImageHelper {
    public static BufferedImage rotateImage(BufferedImage image, double angle) {
       BufferedImage temp = new BufferedImage(image.getWidth(), image.getHeight(),
             BufferedImage.TYPE_INT_ARGB_PRE);
-      AffineTransform at = AffineTransform.getRotateInstance(angle, image.getWidth() / 2, image
-            .getHeight() / 2);
+      AffineTransform at = AffineTransform.getRotateInstance(angle, image.getWidth() / 2,
+            image.getHeight() / 2);
       Graphics2D g = (Graphics2D) temp.getGraphics();
       g.setTransform(at);
       g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,

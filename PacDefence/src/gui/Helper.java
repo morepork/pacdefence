@@ -33,11 +33,9 @@ public class Helper {
    private static final Map<Integer, DecimalFormat> formats =
          new HashMap<Integer, DecimalFormat>();
    
-   public static <T> List<T> cloneList(List<T> list) {
-      ArrayList<T> newList = new ArrayList<T>(list.size());
-      for(T t : list) {
-         newList.add(t);
-      }
+   public static <T> List<T> copyList(List<T> list) {
+      List<T> newList = new ArrayList<T>(list.size());
+      newList.addAll(list);
       return newList;
    }
    
@@ -107,14 +105,14 @@ public class Helper {
 
    private static DecimalFormat makeFormat(int decimalPlaces) {
       assert decimalPlaces >= 0 : "decimalPlaces must be >= 0";
-      String pattern = "#0";
+      StringBuilder pattern = new StringBuilder("#0");
       if(decimalPlaces > 0) {
-         pattern += ".";
+         pattern.append(".");
          for(int i = 0; i < decimalPlaces; i++) {
-            pattern += "0";
+            pattern.append("0");
          }
       }
-      return new DecimalFormat(pattern);
+      return new DecimalFormat(pattern.toString());
    }
 
 }
