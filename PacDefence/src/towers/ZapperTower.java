@@ -48,7 +48,7 @@ public class ZapperTower extends AbstractTower {
    }
 
    public ZapperTower(Point p, Polygon path) {
-      super(p, path, "Zapper", 40, 100, 2, 1.5, 50, 21, "zapper.png", "ZapperTower.png");
+      super(p, path, "Zapper", 40, 100, 2, 1.4, 50, 21, "zapper.png", "ZapperTower.png");
    }
 
 

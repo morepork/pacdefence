@@ -22,7 +22,6 @@ package towers;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -33,6 +32,9 @@ import sprites.Sprite;
 public interface Tower extends Cloneable {
    
    public enum Attribute{
+      
+      // The order of these is the same as they are listed from top to bottom
+      // on the right side for upgrades and showing the current stat.
       
       /**
        * The current damage per shot of a Tower
@@ -59,21 +61,6 @@ public interface Tower extends Cloneable {
        */
       Special;
       
-      public static Attribute fromString(String s) {
-         if(s.equalsIgnoreCase("Damage")) {
-            return Damage;
-         } else if (s.equalsIgnoreCase("Range")) {
-            return Range;
-         } else if (s.equalsIgnoreCase("Rate")) {
-            return Rate;
-         } else if (s.equalsIgnoreCase("Speed")) {
-            return Speed;
-         } else if (s.equalsIgnoreCase("Special")) {
-            return Special;
-         } else {
-            throw new IllegalArgumentException("No attribute is associated to: " + s);
-         }
-      }
    };
    
    public void draw(Graphics g);   
@@ -86,22 +73,15 @@ public interface Tower extends Cloneable {
     *         up to this one
     */
    public List<Bullet> tick(List<Sprite> sprites);   
-   public boolean towerClash(Tower t);   
+   public boolean doesTowerClashWith(Tower t);   
    public boolean contains(Point p);
    public Point getCentre();
-   public void setCentre(Point p);   
-   public String getName();   
-   public Rectangle getBoundingRectangle();
+   public String getName();
    public Shape getBounds();
    public int getAttributeLevel(Attribute a);
    public void raiseAttributeLevel(Attribute a, boolean boughtUpgrade);
-   public double getDamage();
-   public int getRange();   
-   public int getFireRate();
-   public double getBulletSpeed();
-   public String getSpecial();
-   public String getSpecialName();
-   public Tower constructNew(Polygon path);
+   public String getStat(Attribute a);
+   public String getStatName(Attribute a);
    public Tower constructNew(Point p, Polygon path);
    public void select(boolean select);
    public void increaseDamageDealt(double damage);
@@ -112,6 +92,5 @@ public interface Tower extends Cloneable {
    public int getKillsForUpgrade();
    public int getExperienceLevel();
    public BufferedImage getButtonImage();
-   public void addExtraBullets(Bullet... bullets);
 
 }

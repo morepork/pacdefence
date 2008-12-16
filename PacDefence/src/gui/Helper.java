@@ -33,12 +33,6 @@ public class Helper {
    private static final Map<Integer, DecimalFormat> formats =
          new HashMap<Integer, DecimalFormat>();
    
-   public static <T> List<T> copyList(List<T> list) {
-      List<T> newList = new ArrayList<T>(list.size());
-      newList.addAll(list);
-      return newList;
-   }
-   
    public static double distance(Point2D p1, Point2D p2) {
       return Point2D.distance(p1.getX(), p1.getY(), p2.getX(), p2.getY());
    }

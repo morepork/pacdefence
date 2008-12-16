@@ -47,7 +47,7 @@ public class ChargeTower extends AbstractTower {
    public List<Bullet> tick(List<Sprite> sprites) {
       List<Bullet> bullets = super.tick(sprites);
       if(bullets.isEmpty()) {
-         if(timeToNextShot <= 0) {
+         if(getTimeToNextShot() <= 0) {
             increaseNextDamageMultiplier();
          }
       } else {

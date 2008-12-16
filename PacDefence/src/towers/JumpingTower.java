@@ -19,8 +19,6 @@
 
 package towers;
 
-import gui.Helper;
-
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
@@ -90,7 +88,7 @@ public class JumpingTower extends AbstractTower {
                         getBulletSpeed(), getDamage()).get(0);
                   b.addHitSprites(hitSprites);
                   b.setHitsLeft(hitsLeft);
-                  shotBy.addExtraBullets(b);
+                  addExtraBullets(b);
                   break;
                }
             }
@@ -99,7 +97,7 @@ public class JumpingTower extends AbstractTower {
       
       @Override
       protected double doTick(List<Sprite> sprites) {
-         List<Sprite> newList = Helper.copyList(sprites);
+         List<Sprite> newList = new ArrayList<Sprite>(sprites);
          newList.removeAll(hitSprites);
          return super.doTick(newList);
       }

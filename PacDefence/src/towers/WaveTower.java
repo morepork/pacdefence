@@ -136,7 +136,7 @@ public class WaveTower extends AbstractTower {
          for(Sprite s : sprites) {
             if(!hitSprites.contains(s) && s.intersects(points) != null) {
                hitSprites.add(s);
-               d += processDamageReport(s.hit(getDamage()));
+               d += processDamageReport(s.hit(damage));
             }
          }
          return d == 0 ? -1 : d;

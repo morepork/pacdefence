@@ -19,8 +19,6 @@
 
 package towers;
 
-import gui.Helper;
-
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
@@ -77,7 +75,7 @@ public class PiercerTower extends AbstractTower {
       
       @Override
       public double doTick(List<Sprite> sprites) {
-         List<Sprite> newSprites = Helper.copyList(sprites);
+         List<Sprite> newSprites = new ArrayList<Sprite>(sprites);
          // Removes all the previously hit sprites so they aren't hit again
          newSprites.removeAll(spritesHit);
          return processShotResult(super.doTick(newSprites), newSprites);

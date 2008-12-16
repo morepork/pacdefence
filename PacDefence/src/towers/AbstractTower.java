@@ -36,8 +36,11 @@ import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import sprites.Sprite;
 
@@ -46,6 +49,10 @@ public abstract class AbstractTower implements Tower {
    // The color of the range of the tower when drawn
    private static final Color rangeColour = new Color(255, 255, 255, 100);
    protected static final float upgradeIncreaseFactor = 1.05F;
+   private static final Map<String, BufferedImage> towerImages =
+         new HashMap<String, BufferedImage>();
+   private static final Map<String, BufferedImage> towerButtonImages =
+         new HashMap<String, BufferedImage>();
 
    private int damageLevel = 1;
    private int rangeLevel = 1;
@@ -63,7 +70,7 @@ public abstract class AbstractTower implements Tower {
    // The number of clock ticks between each shot
    private double fireRate;
    // The number of clock ticks until this tower's next shot
-   protected double timeToNextShot = 0;
+   private double timeToNextShot = 0;
    private double range;
    private final double rangeUpgrade;
    private int twiceRange;
@@ -94,8 +101,8 @@ public abstract class AbstractTower implements Tower {
    
    private List<Bullet> bulletsToAdd = new ArrayList<Bullet>();
 
-   public AbstractTower(Point p, Polygon path, String name, int fireRate, double range, double bulletSpeed,
-         double damage, int width, int turretWidth, String imageName,
+   protected AbstractTower(Point p, Polygon path, String name, int fireRate, double range,
+         double bulletSpeed, double damage, int width, int turretWidth, String imageName,
          String buttonImageName) {
       centre = new Point(p);
       this.path = path;
@@ -115,14 +122,16 @@ public abstract class AbstractTower implements Tower {
       this.turretWidth = turretWidth;
       setTopLeft();
       setBounds();
-      originalImage = ImageHelper.makeImage(width, width, "towers", imageName);
-      currentImage = originalImage;
-      if(buttonImageName == null) {
-         // TODO Remove this when I'm finished
-         buttonImage = null;
-      } else {
-         buttonImage = ImageHelper.makeImage("buttons", "towers", buttonImageName);
+      if(!towerImages.containsKey(imageName)) {
+         towerImages.put(imageName, ImageHelper.makeImage(width, width, "towers", imageName));
       }
+      originalImage = towerImages.get(imageName);
+      currentImage = originalImage;
+      if(!towerButtonImages.containsKey(buttonImageName)) {
+         towerButtonImages.put(buttonImageName, ImageHelper.makeImage("buttons", "towers",
+               buttonImageName));
+      }
+      buttonImage = towerButtonImages.get(buttonImageName);
    }
 
    @Override
@@ -168,7 +177,7 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public boolean towerClash(Tower t) {
+   public boolean doesTowerClashWith(Tower t) {
       Shape s = t.getBounds();
       if (s instanceof Circle) {
          Circle c = (Circle) s;
@@ -197,30 +206,13 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public Rectangle getBoundingRectangle() {
-      return boundingRectangle;
-   }
-
-   @Override
    public String getName() {
       return name;
    }
 
    @Override
-   public int getRange() {
-      return (int)range;
-   }
-
-   @Override
    public Point getCentre() {
       return centre;
-   }
-
-   @Override
-   public void setCentre(Point p) {
-      centre.setLocation(p);
-      setTopLeft();
-      setBounds();
    }
 
    @Override
@@ -273,36 +265,36 @@ public abstract class AbstractTower implements Tower {
                + "raiseAttributeLevel in AbstractTower");
       }
    }
-
-   @Override
-   public double getDamage() {
-      return damage;
-   }
-
-   @Override
-   public int getFireRate() {
-      return (int)fireRate;
-   }
-
-   @Override
-   public double getBulletSpeed() {
-      return bulletSpeed;
-   }
-
-   @Override
-   public abstract String getSpecial();
    
    @Override
-   public abstract String getSpecialName();
+   public String getStat(Attribute a) {
+      switch(a) {
+         case Damage:
+            return Helper.format(damage, 2);
+         case Range:
+            return Helper.format(range, 0);
+         case Rate:
+            return Helper.format(fireRate, 0);
+         case Speed:
+            return Helper.format(bulletSpeed, 1);
+         case Special:
+            return getSpecial();
+      }
+      throw new RuntimeException("Invalid attribute: " + a + " given.");
+   }
+   
+   @Override
+   public String getStatName(Attribute a) {
+      if(a == Attribute.Special) {
+         return getSpecialName();
+      } else {
+         return a.toString();
+      }
+   }
 
    @Override
    public void select(boolean select) {
       isSelected = select;
-   }
-
-   @Override
-   public Tower constructNew(Polygon path) {
-      return constructNew(centre, path);
    }
    
    @Override
@@ -365,18 +357,46 @@ public abstract class AbstractTower implements Tower {
       return buttonImage;
    }
    
-   @Override
+   /*@Override
    public void addExtraBullets(Bullet... bullets) {
       for(Bullet b : bullets) {
          bulletsToAdd.add(b);
       }
-   }
+   }*/
    
    @Override
    public int getExperienceLevel() {
       // -1 so it starts at level 1
       return killsLevel + damageDealtLevel - 1;
    }
+   
+   protected int getRateLevel() {
+      return rateLevel;
+   }
+   
+   protected double getFireRate() {
+      return fireRate;
+   }
+   
+   protected double getRange() {
+      return range;
+   }
+   
+   protected double getBulletSpeed() {
+      return bulletSpeed;
+   }
+   
+   protected double getDamage() {
+      return damage;
+   }
+   
+   protected double getTimeToNextShot() {
+      return timeToNextShot;
+   }
+   
+   protected abstract String getSpecial();
+   
+   protected abstract String getSpecialName();
    
    protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, Sprite s, Polygon path);
@@ -429,24 +449,6 @@ public abstract class AbstractTower implements Tower {
       }
       return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, s, path);
    }
-   
-   private void drawRange(Graphics g) {
-      int topLeftRangeX = (int)(centre.getX() - range);
-      int topLeftRangeY = (int)(centre.getY() - range);
-      g.setColor(rangeColour);
-      g.fillOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
-      g.setColor(Color.BLACK);
-      g.drawOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
-   }
-
-   private void setTopLeft() {
-      topLeft.setLocation((int) centre.getX() - halfWidth, (int) centre.getY() - halfWidth);
-   }
-
-   private void setBounds() {
-      boundingRectangle.setBounds((int) topLeft.getX(), (int) topLeft.getY(), width, width);
-      bounds.setCentre(centre);
-   }
 
    protected void upgradeDamage() {
       damage *= upgradeIncreaseFactor;
@@ -467,12 +469,34 @@ public abstract class AbstractTower implements Tower {
 
    protected abstract void upgradeSpecial();
    
+   protected void addExtraBullets(Bullet... bullets) {
+      bulletsToAdd.addAll(Arrays.asList(bullets));
+   }
+   
    private void upgradeAllStats() {
       upgradeDamage();
       upgradeRange();
       upgradeFireRate();
       upgradeBulletSpeed();
       upgradeSpecial();
+   }
+   
+   private void drawRange(Graphics g) {
+      int topLeftRangeX = (int)(centre.getX() - range);
+      int topLeftRangeY = (int)(centre.getY() - range);
+      g.setColor(rangeColour);
+      g.fillOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
+      g.setColor(Color.BLACK);
+      g.drawOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
+   }
+
+   private void setTopLeft() {
+      topLeft.setLocation((int) centre.getX() - halfWidth, (int) centre.getY() - halfWidth);
+   }
+
+   private void setBounds() {
+      boundingRectangle.setBounds((int) topLeft.getX(), (int) topLeft.getY(), width, width);
+      bounds.setCentre(centre);
    }
 
 }

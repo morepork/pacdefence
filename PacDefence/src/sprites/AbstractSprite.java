@@ -35,7 +35,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public abstract class AbstractSprite implements Sprite {
@@ -48,6 +50,11 @@ public abstract class AbstractSprite implements Sprite {
    private final int halfWidth;
    private final Circle bounds;
 
+   // Keep track of rotated images so every time a sprite rounds a corner
+   // the original images do not need to be re-rotated
+   private static final Map<Class<? extends AbstractSprite>, Map<LooseDouble,
+         List<BufferedImage>>> rotatedImages = new HashMap<Class<? extends AbstractSprite>,
+         Map<LooseDouble, List<BufferedImage>>>();
    private final List<BufferedImage> originalImages;
    private List<BufferedImage> currentImages;
    private BufferedImage currentImage;
@@ -83,15 +90,15 @@ public abstract class AbstractSprite implements Sprite {
    private double damageMultiplier = 1;
    private int adjustedDamageTicksLeft = 0; 
 
-   public AbstractSprite(List<BufferedImage> images, int currentLevel, long hp, List<Point> path) {
+   public AbstractSprite(List<BufferedImage> images, int currentLevel, long hp, List<Point> path){
       this.currentLevel = currentLevel;
       this.width = images.get(1).getWidth();
       halfWidth = width / 2;
       bounds = new Circle(path.get(0), halfWidth);
       // Use two clones here so that currentImages can be edited without
       // affecting originalImages
-      originalImages = Collections.unmodifiableList(Helper.copyList(images));
-      currentImages = Helper.copyList(images);     
+      originalImages = Collections.unmodifiableList(new ArrayList<BufferedImage>(images));
+      currentImages = new ArrayList<BufferedImage>(images);
       speed = calculateSpeed(hp);
       levelHP = hp;
       hpFactor = levelHP / this.hp;
@@ -306,11 +313,19 @@ public abstract class AbstractSprite implements Sprite {
    }
    
    private void rotateImages(double angle) {
-      List<BufferedImage> images = new ArrayList<BufferedImage>(originalImages.size());
-      for(BufferedImage i : originalImages) {
-         images.add(ImageHelper.rotateImage(i, angle));
+      if(!rotatedImages.containsKey(getClass())) {
+         rotatedImages.put(getClass(), new HashMap<LooseDouble, List<BufferedImage>>());
       }
-      currentImages = images;
+      Map<LooseDouble, List<BufferedImage>> m = rotatedImages.get(getClass());
+      LooseDouble d = new LooseDouble(angle);
+      if(!m.containsKey(d)) {
+         List<BufferedImage> images = new ArrayList<BufferedImage>(originalImages.size());
+         for(BufferedImage i : originalImages) {
+            images.add(ImageHelper.rotateImage(i, angle));
+         }
+         m.put(d, Collections.unmodifiableList(images));
+      }
+      currentImages = new ArrayList<BufferedImage>(m.get(d));
    }
 
    private void die() {
@@ -382,6 +397,29 @@ public abstract class AbstractSprite implements Sprite {
          if(adjustedDamageTicksLeft <= 0) {
             damageMultiplier = 1;
          }
+      }
+   }
+   
+   private class LooseDouble {
+      
+      private final Double d;
+      
+      private LooseDouble(double d) {
+         this.d = d;
+      }
+      
+      @Override
+      public boolean equals(Object obj) {
+         if(obj instanceof LooseDouble) {
+            return Math.abs(this.d - ((LooseDouble)obj).d) < 0.00001;
+         } else {
+            return false;
+         }
+      }
+      
+      @Override
+      public int hashCode() {
+         return d.hashCode();
       }
    }
    

@@ -75,9 +75,7 @@ public class OverlayButton extends JButton {
       g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
             RenderingHints.VALUE_INTERPOLATION_BICUBIC);
       for (BufferedImage b : images) {
-         if (b != null) {
-            g.drawImage(b, 0, 0, width, width, null);
-         }
+         g.drawImage(b, 0, 0, width, width, null);
       }
       return new ImageIcon(image);
    }

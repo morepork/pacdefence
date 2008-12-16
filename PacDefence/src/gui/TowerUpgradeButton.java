@@ -29,9 +29,10 @@ public class TowerUpgradeButton extends JButton {
    
    private final Color textColour;
    
-   public TowerUpgradeButton(String label, Color textColour) {
-      super(label);
+   public TowerUpgradeButton(Color textColour, float textSize) {
+      super();
       this.textColour = textColour;
+      setFont(getFont().deriveFont(textSize));
       setForeground(textColour);
       setOpaque(false);
       setContentAreaFilled(false);

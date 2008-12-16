@@ -192,7 +192,7 @@ public class GameMap extends JPanel {
       if(buildingTower != null) {
          Point p = getMousePosition();
          if (p != null) {
-            buildingTower.setCentre(p);
+            buildingTower = buildingTower.constructNew(p, clonePath());
             buildingTower.drawShadow(g);
          }
       }
@@ -272,15 +272,15 @@ public class GameMap extends JPanel {
       if(buildingTower == null) {
          return;
       }
-      buildingTower.setCentre(p);
+      Tower toBuild = buildingTower.constructNew(p, clonePath());
       for(Tower t : towers) {
          // Checks that the point doesn't clash with another tower
-         if(t.towerClash(buildingTower)) {
+         if(t.doesTowerClashWith(toBuild)) {
             return;
          }
       }
       // Checks that the point isn't on the path
-      Shape bounds = buildingTower.getBounds();
+      Shape bounds = toBuild.getBounds();
       if(bounds instanceof Circle) {
          if(((Circle) bounds).intersects(path)) {
             return;
@@ -290,12 +290,11 @@ public class GameMap extends JPanel {
             return;
          }
       }
-      if(cp.canBuildTower(buildingTower.getClass())) {
-         Tower t = buildingTower.constructNew(clonePath());
-         cp.buildTower(t);
+      if(cp.canBuildTower(toBuild.getClass())) {
+         cp.buildTower(toBuild);
          // Have to add after telling the control panel otherwise
          // the price will be wrong
-         towers.add(t);
+         towers.add(toBuild);
          if(!cp.canBuildTower(buildingTower.getClass())) {
             clearBuildingTower();
          }
@@ -433,7 +432,7 @@ public class GameMap extends JPanel {
          // I don't want to sort the actual list of sprites as that would affect
          // the order they're drawn which looks weird, and the order can change
          // tick by tick so it's easiest to sort them once each time.
-         List<Sprite> sortedSprites = Helper.copyList(sprites);
+         List<Sprite> sortedSprites = new ArrayList<Sprite>(sprites);
          Collections.sort(sortedSprites, AbstractSprite.getTotalDistanceTravelledComparator());
          List<Sprite> unmodifiableSprites = Collections.unmodifiableList(sortedSprites);
          if(cp != null) {

@@ -100,10 +100,6 @@ public class BasicBullet implements Bullet {
       }
    }
    
-   public double getDamage() {
-      return damage;
-   }
-   
    protected void setDirections(double dx, double dy) {
       double divisor = Math.sqrt(dx * dx + dy * dy);
       dir[0] = speed * dx / divisor;
@@ -122,7 +118,7 @@ public class BasicBullet implements Bullet {
          for(Sprite s : sprites) {
             Point2D p = s.intersects(points);
             if(p != null) {
-               DamageReport d = s.hit(getDamage());
+               DamageReport d = s.hit(damage);
                if(d != null) { // Sprite is not already dead
                   specialOnHit(p, s, sprites);
                   return processDamageReport(d);

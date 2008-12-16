@@ -103,7 +103,7 @@ public class CircleTower extends AbstractTower {
          if (angle >= endAngle || hitsLeft <= 0) {
             return moneyEarntSoFar;
          }
-         List<Sprite> hittableSprites = Helper.copyList(sprites);
+         List<Sprite> hittableSprites = new ArrayList<Sprite>(sprites);
          hittableSprites.removeAll(hitSprites);
          moneyEarntSoFar += checkIfSpriteIsHit(hittableSprites);
          angle += deltaTheta;

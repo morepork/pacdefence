@@ -38,7 +38,5 @@ public interface Bullet {
    public double tick(List<Sprite> sprites);
    
    public void draw(Graphics g);
-   
-   public double getDamage();
 
 }
