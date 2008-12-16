@@ -43,6 +43,7 @@ import javax.swing.JPanel;
 import sprites.AbstractSprite;
 import sprites.Pacman;
 import sprites.Sprite;
+import towers.AidTower;
 import towers.Bullet;
 import towers.Tower;
 import towers.Tower.Attribute;
@@ -295,6 +296,9 @@ public class GameMap extends JPanel {
          // Have to add after telling the control panel otherwise
          // the price will be wrong
          towers.add(toBuild);
+         if(toBuild instanceof AidTower) {
+            ((AidTower) toBuild).setTowers(Collections.unmodifiableList(towers));
+         }
          if(!cp.canBuildTower(buildingTower.getClass())) {
             clearBuildingTower();
          }

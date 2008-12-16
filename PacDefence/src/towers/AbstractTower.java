@@ -38,6 +38,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,11 @@ public abstract class AbstractTower implements Tower {
          new HashMap<String, BufferedImage>();
    private static final Map<String, BufferedImage> towerButtonImages =
          new HashMap<String, BufferedImage>();
+   
+   // Maps the ID of an aid tower to the aid factor it gives for each attribute
+   private final Map<Integer, Map<Attribute, Double>> aidFactors =
+         new HashMap<Integer, Map<Attribute, Double>>();
+   private final Map<Attribute, Double> currentFactors = createCurrentFactors();
 
    private int damageLevel = 1;
    private int rangeLevel = 1;
@@ -92,6 +98,7 @@ public abstract class AbstractTower implements Tower {
 
    private boolean isSelected = false;
 
+   private List<DamageNotifier> damageNotifiers = new ArrayList<DamageNotifier>();
    private long damageDealt = 0;
    private int kills = 0;
    private int killsLevel = 1;
@@ -267,6 +274,22 @@ public abstract class AbstractTower implements Tower {
    }
    
    @Override
+   public void aidAttribute(Attribute a, double factor, int towerID) {
+      assert a != Attribute.Special : "Special cannot be aided";
+      if(!aidFactors.containsKey(towerID)) {
+         aidFactors.put(towerID, new EnumMap<Attribute, Double>(Attribute.class));
+      }
+      aidFactors.get(towerID).put(a, factor);
+      double currentFactor = currentFactors.get(a);
+      // This limits it to one aid tower's upgrade (the best one)
+      if(factor > currentFactor) {
+         // This applies the new upgrade and cancels out the last one
+         multiplyAttribute(a, factor / currentFactor);
+         currentFactors.put(a, factor);
+      }
+   }
+   
+   @Override
    public String getStat(Attribute a) {
       switch(a) {
          case Damage:
@@ -309,10 +332,18 @@ public abstract class AbstractTower implements Tower {
                " was thrown.\n Either fix this, or override constructNew()");
       }
    }
+   
+   @Override
+   public void addDamageNotifier(DamageNotifier d) {
+      damageNotifiers.add(d);
+   }
 
    @Override
    public void increaseDamageDealt(double damage) {
       assert damage > 0 : "Damage given was negative or zero.";
+      for(DamageNotifier d : damageNotifiers) {
+         d.notifyOfDamage(damage);
+      }
       damageDealt += damage;
       if(damageDealt >= nextUpgradeDamage) {
          damageDealtLevel++;
@@ -324,6 +355,9 @@ public abstract class AbstractTower implements Tower {
    @Override
    public void increaseKills(int kills) {
       assert kills > 0 : "Kills given was less than or equal to zero";
+      for(DamageNotifier d : damageNotifiers) {
+         d.notifyOfKills(kills);
+      }
       this.kills += kills;
       if (this.kills >= nextUpgradeKills) {
          killsLevel++;
@@ -497,6 +531,35 @@ public abstract class AbstractTower implements Tower {
    private void setBounds() {
       boundingRectangle.setBounds((int) topLeft.getX(), (int) topLeft.getY(), width, width);
       bounds.setCentre(centre);
+   }
+   
+   private void multiplyAttribute(Attribute a, double factor) {
+      assert a != Attribute.Special : "Special cannot be simply multiplied";
+      switch(a) {
+         case Damage:
+            damage *= factor;
+            return;
+         case Range:
+            range *= factor;
+            twiceRange = (int)(range * 2);
+            return;
+         case Rate:
+            fireRate /= factor;
+            return;
+         case Speed:
+            bulletSpeed *= factor;
+            return;
+      }
+   }
+   
+   private Map<Attribute, Double> createCurrentFactors() {
+      Map<Attribute, Double> map = new EnumMap<Attribute, Double>(Attribute.class);
+      for(Attribute a : Attribute.values()) {
+         if(a != Attribute.Special) {
+            map.put(a, 1.0);
+         }
+      }
+      return map;
    }
 
 }

@@ -20,6 +20,7 @@
 package towers;
 
 import gui.Helper;
+import gui.OuterPanel;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -122,6 +123,14 @@ public class ZapperTower extends AbstractTower {
       protected double checkIfSpriteIsHit(Point2D p1, Point2D p2, List<Sprite> sprites) {
          // The actual bullet never hits
          return -1;
+      }
+      
+      @Override
+      protected boolean checkIfBulletCanBeRemovedAsOffScreen() {
+         // Bullet shouldn't be removed if it can still zap sprites
+         return position.getX() < -zapRange || position.getY() < -zapRange ||
+               position.getX() > OuterPanel.MAP_WIDTH + zapRange ||
+               position.getY() > OuterPanel.MAP_HEIGHT + zapRange;
       }
       
       private void tryToFireZap(List<Sprite> sprites) {

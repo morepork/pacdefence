@@ -80,12 +80,14 @@ public interface Tower extends Cloneable {
    public Shape getBounds();
    public int getAttributeLevel(Attribute a);
    public void raiseAttributeLevel(Attribute a, boolean boughtUpgrade);
+   public void aidAttribute(Attribute a, double increaseFactor, int towerID);
    public String getStat(Attribute a);
    public String getStatName(Attribute a);
    public Tower constructNew(Point p, Polygon path);
    public void select(boolean select);
    public void increaseDamageDealt(double damage);
    public void increaseKills(int kills);
+   public void addDamageNotifier(DamageNotifier d);
    public long getDamageDealt();
    public long getDamageDealtForUpgrade();
    public int getKills();

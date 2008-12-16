@@ -50,7 +50,7 @@ public class BasicBullet implements Bullet {
    protected final Tower shotBy;
    private static final BufferedImage image = ImageHelper.makeImage(radius * 2, radius * 2,
          "other", "bullet.png");
-   private static final int halfWidth = image.getWidth() / 2;
+   protected static final int halfWidth = image.getWidth() / 2;
    protected final Polygon path;
    
    /**
@@ -161,6 +161,16 @@ public class BasicBullet implements Bullet {
       return checkIfBulletIsOffScreen();
    }
    
+   protected boolean checkIfBulletIsOffScreen() {
+      return checkIfPointIsOffScreen(position);
+   }
+   
+   protected boolean checkIfPointIsOffScreen(Point2D p) {
+      return p.getX() < -halfWidth || p.getY() < -halfWidth ||
+            p.getX() > OuterPanel.MAP_WIDTH + halfWidth ||
+            p.getY() > OuterPanel.MAP_HEIGHT + halfWidth;
+   }
+   
    protected double doTick(List<Sprite> sprites) {
       if(distanceTravelled >= range || checkIfBulletCanBeRemovedAsOffScreen()) {
          return 0;
@@ -178,16 +188,6 @@ public class BasicBullet implements Bullet {
          position.setLocation(position.getX() + dir[0], position.getY() + dir[1]);
          return checkIfSpriteIsHit(sprites);
       }
-   }
-   
-   protected boolean checkIfBulletIsOffScreen() {
-      return checkIfPointIsOffScreen(position);
-   }
-   
-   protected boolean checkIfPointIsOffScreen(Point2D p) {
-      return p.getX() < -halfWidth || p.getY() < -halfWidth ||
-            p.getX() > OuterPanel.MAP_WIDTH + halfWidth ||
-            p.getY() > OuterPanel.MAP_HEIGHT + halfWidth;
    }
 
 }

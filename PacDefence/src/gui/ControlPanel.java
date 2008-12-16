@@ -47,7 +47,7 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import towers.BasicTower;
+import towers.AidTower;
 import towers.BomberTower;
 import towers.ChargeTower;
 import towers.CircleTower;
@@ -564,15 +564,15 @@ public class ControlPanel extends JPanel {
       panel.setBorder(BorderFactory.createEmptyBorder(7, 0, 5, 0));
       int numX = 6;
       int numY = 3;
+      int total = numX * numY;
       GridLayout gl = new GridLayout(numY, numX);
       gl.setVgap(2);
       panel.setLayout(gl);
       List<Tower> towers = getTowerImplementations();
+      assert towers.size() == total : "Number of tower implementations is different to number" +
+            " of buttons.";
       for (int a = 0; a < numY * numX; a++) {
-         Tower t = new BasicTower();
-         if(a < towers.size()) {
-            t = towers.get(a);
-         }
+         Tower t = towers.get(a);
          OverlayButton button = OverlayButton.makeTowerButton(t.getButtonImage());
          towerTypes.put(button, t);
          button.addActionListener(new ActionListener(){
@@ -625,6 +625,7 @@ public class ControlPanel extends JPanel {
       towerTypes.add(new HomingTower());
       towerTypes.add(new ChargeTower());
       towerTypes.add(new ZapperTower());
+      towerTypes.add(new AidTower());
       // TODO add tower implementations as I code them
       return towerTypes;
    }
