@@ -489,7 +489,7 @@ public abstract class AbstractTower implements Tower {
    }
 
    protected void upgradeRange() {
-      range += rangeUpgrade;
+      range += currentFactors.get(Attribute.Range) * rangeUpgrade;
       twiceRange = (int)(range * 2);
    }
 
@@ -498,7 +498,7 @@ public abstract class AbstractTower implements Tower {
    }
 
    protected void upgradeBulletSpeed() {
-      bulletSpeed += bulletSpeedUpgrade;
+      bulletSpeed += currentFactors.get(Attribute.Speed) * bulletSpeedUpgrade;
    }
 
    protected abstract void upgradeSpecial();
