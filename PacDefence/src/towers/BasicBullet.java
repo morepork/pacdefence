@@ -100,6 +100,14 @@ public class BasicBullet implements Bullet {
       }
    }
    
+   public static double processDamageReport(DamageReport d, Tower t) {
+      if(d.wasKill()) {
+         t.increaseKills(1);
+      }
+      t.increaseDamageDealt(d.getDamage());
+      return d.getMoneyEarnt();
+   }
+   
    protected void setDirections(double dx, double dy) {
       double divisor = Math.sqrt(dx * dx + dy * dy);
       dir[0] = speed * dx / divisor;
@@ -137,11 +145,7 @@ public class BasicBullet implements Bullet {
    protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {}
    
    protected double processDamageReport(DamageReport d) {
-      if(d.wasKill()) {
-         shotBy.increaseKills(1);
-      }
-      shotBy.increaseDamageDealt(d.getDamage());
-      return d.getMoneyEarnt();
+      return processDamageReport(d, shotBy);
    }
    
    protected boolean doesLineIntersectPath(Line2D line) {

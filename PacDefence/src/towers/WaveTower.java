@@ -174,18 +174,20 @@ public class WaveTower extends AbstractTower {
          Circle c = new Circle(a.getCenterX(), a.getCenterY(), radius);
          List<Point2D> points = new ArrayList<Point2D>();
          Point2D p = a.getStartPoint();
-         if(!onPathOnly || path.contains(p)) {
+         // Only actually check the bounds as the contains method can be quite slow
+         // for a complicated polygon
+         if(!onPathOnly || path.getBounds().contains(p)) {
             points.add(p);
          }
          for(int i = 0; i < numPoints; i++) {
             angle += deltaAngle;
             p = c.getPointAt(angle);
-            if(!onPathOnly || path.contains(p)) {
+            if(!onPathOnly || path.getBounds().contains(p)) {
                points.add(p);
             }
          }
          p = a.getEndPoint();
-         if(!onPathOnly || path.contains(p)) {
+         if(!onPathOnly || path.getBounds().contains(p)) {
             points.add(p);
          }
          return points;

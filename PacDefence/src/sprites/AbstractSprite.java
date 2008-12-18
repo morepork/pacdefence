@@ -31,6 +31,7 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +49,8 @@ public abstract class AbstractSprite implements Sprite {
 
    private final int width;
    private final int halfWidth;
-   private final Circle bounds;
+   private final Circle bounds = new Circle();
+   private final Rectangle2D rectangularBounds = new Rectangle2D.Double();
 
    // Keep track of rotated images so every time a sprite rounds a corner
    // the original images do not need to be re-rotated
@@ -94,7 +96,9 @@ public abstract class AbstractSprite implements Sprite {
       this.currentLevel = currentLevel;
       this.width = images.get(1).getWidth();
       halfWidth = width / 2;
-      bounds = new Circle(path.get(0), halfWidth);
+      centre.setLocation(path.get(0));
+      bounds.setRadius(halfWidth);
+      setBounds();
       // Use two clones here so that currentImages can be edited without
       // affecting originalImages
       originalImages = Collections.unmodifiableList(new ArrayList<BufferedImage>(images));
@@ -259,12 +263,17 @@ public abstract class AbstractSprite implements Sprite {
    private void move() {
       centre.setLocation(centre.getX() + xStep * speedFactor,
             centre.getY() + yStep * speedFactor);
-      bounds.setCentre(centre);
+      setBounds();
       totalDistanceTravelled += (Math.abs(xStep) + Math.abs(yStep)) * speedFactor;
       steps += speedFactor;
       if (steps + 1 > distance) {
          calculateNextMove();
       }
+   }
+   
+   private void setBounds() {
+      bounds.setCentre(centre);
+      rectangularBounds.setRect(centre.getX() - halfWidth, centre.getY() - halfWidth, width, width);
    }
 
    private Point calculateFirstPoint() {
@@ -284,7 +293,7 @@ public abstract class AbstractSprite implements Sprite {
          // There is still another point to head to
          lastPoint.setLocation(nextPoint);
          centre.setLocation(nextPoint);
-         bounds.setCentre(centre);
+         setBounds();
          nextPoint.setLocation(path.get(pointAfterIndex));
          pointAfterIndex++;
          double dx = nextPoint.getX() - lastPoint.getX();
@@ -376,7 +385,9 @@ public abstract class AbstractSprite implements Sprite {
    }
    
    private boolean fastIntersects(Point2D p) {
-      if (bounds.contains(p)) {
+      // Checks the rectangular bounds instead of the bounds of the circle
+      // as it's faster
+      if (rectangularBounds.contains(p)) {
          int x = (int) (p.getX() - centre.getX() + halfWidth);
          int y = (int) (p.getY() - centre.getY() + halfWidth);
          // RGB of zero means a completely alpha i.e. transparent pixel

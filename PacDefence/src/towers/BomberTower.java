@@ -45,7 +45,7 @@ public class BomberTower extends AbstractTower {
    }
 
    public BomberTower(Point p, Polygon path) {
-      super(p, path, "Bomber", 40, 100, 5, 7, 50, 15, "bomber.png", "BomberTower.png");
+      super(p, path, "Bomber", 40, 100, 5, 7.5, 50, 15, "bomber.png", "BomberTower.png");
    }
 
    @Override

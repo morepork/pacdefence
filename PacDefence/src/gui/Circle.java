@@ -41,6 +41,10 @@ public class Circle implements Shape {
    private double radius;
    private Ellipse2D bounds;
    
+   public Circle() {
+      this(new Point2D.Double(), 0);
+   }
+   
    public Circle(Point2D centre, double radius){
       this.centre = new Point2D.Double(centre.getX(), centre.getY());
       if(radius < 0) {
@@ -100,13 +104,12 @@ public class Circle implements Shape {
 
    @Override
    public Rectangle getBounds() {
-      return getBounds2D().getBounds();
+      return bounds.getBounds();
    }
 
    @Override
    public Rectangle2D getBounds2D() {
-      return new Rectangle2D.Double(centre.getX() - radius, centre.getY() - radius, radius*2,
-            radius*2);
+      return bounds.getBounds2D();
    }
 
    @Override

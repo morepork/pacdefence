@@ -48,6 +48,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import towers.AidTower;
+import towers.BeamTower;
 import towers.BomberTower;
 import towers.ChargeTower;
 import towers.CircleTower;
@@ -60,7 +61,6 @@ import towers.OmnidirectionalTower;
 import towers.PiercerTower;
 import towers.PoisonTower;
 import towers.ScatterTower;
-import towers.SlowFactorTower;
 import towers.SlowLengthTower;
 import towers.Tower;
 import towers.WaveTower;
@@ -611,7 +611,6 @@ public class ControlPanel extends JPanel {
       towerTypes.add(new BomberTower());
       towerTypes.add(new PiercerTower());
       towerTypes.add(new SlowLengthTower());
-      towerTypes.add(new SlowFactorTower());
       towerTypes.add(new FreezeTower());
       towerTypes.add(new JumpingTower());
       towerTypes.add(new CircleTower());
@@ -625,8 +624,8 @@ public class ControlPanel extends JPanel {
       towerTypes.add(new HomingTower());
       towerTypes.add(new ChargeTower());
       towerTypes.add(new ZapperTower());
+      towerTypes.add(new BeamTower());
       towerTypes.add(new AidTower());
-      // TODO add tower implementations as I code them
       return towerTypes;
    }
    
