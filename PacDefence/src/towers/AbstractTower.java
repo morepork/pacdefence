@@ -43,6 +43,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import sprites.Sprite;
 
@@ -160,7 +161,7 @@ public abstract class AbstractTower implements Tower {
       // Decrements here so it's on every tick, not just when it is able to shoot
       timeToNextShot--;
       List<Bullet> fired = Collections.emptyList();
-      if(!imageRotates || timeToNextShot <= 0) {
+      if(imageRotates || timeToNextShot <= 0) {
          // If the image rotates, this needs to be done to find out the direction
          // to rotate to
          fired = fireBullets(sprites);
@@ -318,7 +319,7 @@ public abstract class AbstractTower implements Tower {
          case Rate:
             return Helper.format(fireRate / GameMap.CLOCK_TICKS_PER_SECOND, 2) + "s";
          case Speed:
-            return Helper.format(bulletSpeed, 1);
+            return Helper.format(bulletSpeed, 2);
          case Special:
             return getSpecial();
       }
@@ -412,13 +413,6 @@ public abstract class AbstractTower implements Tower {
    public BufferedImage getButtonImage() {
       return buttonImage;
    }
-   
-   /*@Override
-   public void addExtraBullets(Bullet... bullets) {
-      for(Bullet b : bullets) {
-         bulletsToAdd.add(b);
-      }
-   }*/
    
    @Override
    public int getExperienceLevel() {
@@ -585,7 +579,8 @@ public abstract class AbstractTower implements Tower {
    
    private BufferedImage rotateImage(double angle) {
       if(!rotatedImages.containsKey(getClass())) {
-         rotatedImages.put(getClass(), new HashMap<LooseFloat, BufferedImage>());
+         // I use a TreeMap as otherwise I'd need to implement hashCode in LooseFloat
+         rotatedImages.put(getClass(), new TreeMap<LooseFloat, BufferedImage>());
       }
       Map<LooseFloat, BufferedImage> m = rotatedImages.get(getClass());
       // Cast to a LooseFloat to reduce precision so rotated images are less likely
@@ -593,12 +588,18 @@ public abstract class AbstractTower implements Tower {
       LooseFloat f = new LooseFloat(angle);
       if(!m.containsKey(f)) {
          m.put(f, ImageHelper.rotateImage(originalImage, angle));
+         /*int numImages = 0;
+         for(Map<LooseFloat, BufferedImage> a : rotatedImages.values()) {
+            numImages += a.size();
+         }
+         System.out.println(numImages);*/
       }
       return m.get(f);
    }
    
-   private class LooseFloat {
+   private static class LooseFloat implements Comparable<LooseFloat> {
       
+      private static final float precision = 0.012F;
       private final Float f;
       
       private LooseFloat(float f) {
@@ -612,16 +613,18 @@ public abstract class AbstractTower implements Tower {
       @Override
       public boolean equals(Object obj) {
          if(obj instanceof LooseFloat) {
-            return Math.abs(this.f - ((LooseFloat)obj).f) < 0.002;
+            return Math.abs(this.f - ((LooseFloat)obj).f) < precision;
          } else {
             return false;
          }
       }
-      
+
       @Override
-      public int hashCode() {
-         return f.hashCode();
+      public int compareTo(LooseFloat lf) {
+         return (int)((this.f - lf.f) / precision);
       }
+      
+      
    }
 
 }

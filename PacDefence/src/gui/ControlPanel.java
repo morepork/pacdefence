@@ -105,7 +105,7 @@ public class ControlPanel extends JPanel {
    private int endLevelUpgradesLeft = 0;
    private static final int upgradeLives = 5;
    private static final int upgradeMoney = 1000;
-   private static final float upgradeInterest = 0.0025f;
+   private static final double upgradeInterest = 0.005;
 
    public ControlPanel(int width, int height, GameMap map) {
       // Reflective method to set up the MyJLabels
