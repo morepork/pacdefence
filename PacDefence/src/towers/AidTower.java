@@ -54,7 +54,7 @@ public class AidTower extends AbstractTower {
    }
 
    public AidTower(Point p, Polygon path) {
-      super(p, path, "Aid", 0, 100, 0, 0, 50, 0, "aid.png", "AidTower.png");
+      super(p, path, "Aid", 0, 100, 0, 0, 50, 0, "aid.png", "AidTower.png", false);
    }
    
    @Override

@@ -59,7 +59,7 @@ public class Formulae {
       // Keep a list of these as this is called every time a bullet hits.
       level--;
       if(level >= moneyDivisors.size()) {
-         moneyDivisors.add(Math.pow(1.2, level));
+         moneyDivisors.add(Math.pow(1.15, level));
       }
       return moneyDivisors.get(level);
    }

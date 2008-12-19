@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -100,18 +101,20 @@ public class ControlPanel extends JPanel {
    private long money = 4000;
    private int lives = 25;
    private int livesLostOnThisLevel;
-   private double interestRate = 1.02;
+   private double interestRate = 1.03;
    private int endLevelUpgradesLeft = 0;
    private static final int upgradeLives = 5;
    private static final int upgradeMoney = 1000;
    private static final float upgradeInterest = 0.0025f;
 
    public ControlPanel(int width, int height, GameMap map) {
+      // Reflective method to set up the MyJLabels
+      setUpJLabels();
+      // I know this is terrible coupling, I plan to fix it later
+      map.setControlPanel(this);
       this.map = map;
       setPreferredSize(new Dimension(width, height));      
       setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-      // Reflective method to set up some fields
-      setUpJLabels();
       // Creates each of the sub panels of this panel
       setUpTopStatsBox();
       setUpNewTowers();
@@ -122,8 +125,7 @@ public class ControlPanel extends JPanel {
       setUpCurrentCost();
       setUpStartButton();
       // Updates it all
-      updateAll();      
-      map.setControlPanel(this);
+      updateAll();
    }
    
    public void endLevel() {
@@ -509,18 +511,17 @@ public class ControlPanel extends JPanel {
 
    private void setUpTopStatsBox() {
       float textSize = defaultTextSize + 1;
-      JPanel panel = new JPanel();
-      panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-      panel.setBorder(BorderFactory.createEmptyBorder(5, 20, 0, 20));
-      panel.setOpaque(false);
-      panel.add(createLevelLabel(defaultTextColour));
-      panel.add(createLeftRightPanel("Money", textSize, defaultTextColour, moneyLabel));
-      panel.add(createLeftRightPanel("Lives", textSize, defaultTextColour, livesLabel));
-      panel.add(createLeftRightPanel("Interest", textSize, defaultTextColour, interestLabel));
-      panel.add(createLeftRightPanel("Bonuses", textSize, defaultTextColour, upgradesLabel));
+      Box box = Box.createVerticalBox();
+      box.setBorder(BorderFactory.createEmptyBorder(5, 20, 0, 20));
+      box.setOpaque(false);
+      box.add(createLevelLabel(defaultTextColour));
+      box.add(createLeftRightPanel("Money", textSize, defaultTextColour, moneyLabel));
+      box.add(createLeftRightPanel("Lives", textSize, defaultTextColour, livesLabel));
+      box.add(createLeftRightPanel("Interest", textSize, defaultTextColour, interestLabel));
+      box.add(createLeftRightPanel("Bonuses", textSize, defaultTextColour, upgradesLabel));
       updateInterestLabel();
 
-      add(panel);
+      add(box);
    }
 
    private JPanel createLevelLabel(Color textColour) {
@@ -631,9 +632,8 @@ public class ControlPanel extends JPanel {
    
    private void setUpEndLevelUpgrades() {
       setEndLevelUpgradeButtons();
-      JPanel panel = new JPanel();
-      panel.setOpaque(false);
-      panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+      Box box = Box.createHorizontalBox();
+      box.setOpaque(false);
       OverlayButton[] buttons = new OverlayButton[]{damageUpgrade, rangeUpgrade, rateUpgrade,
             speedUpgrade, specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade};
       for(OverlayButton b : buttons) {
@@ -647,10 +647,10 @@ public class ControlPanel extends JPanel {
                processEndLevelUpgradeButtonChanged((OverlayButton) e.getSource());
             }
          });
-         panel.add(b);
+         box.add(b);
       }
       enableEndLevelUpgradeButtons(endLevelUpgradesLeft > 0);
-      add(panel);
+      add(box);
    }
    
    private void setEndLevelUpgradeButtons() {
@@ -665,21 +665,21 @@ public class ControlPanel extends JPanel {
    }
 
    private void setUpCurrentTowerStats() {
-      JPanel panel = new JPanel();
-      panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-      panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
-      panel.setOpaque(false);
-      for(Attribute a : Attribute.values()) {
+      Box box = Box.createVerticalBox();
+      box.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
+      box.setOpaque(false);
+      for(int i = 0; i < Attribute.values().length; i++) {
+         if(i != 0) {
+            box.add(Box.createRigidArea(new Dimension(0, 2)));
+         }
          TowerUpgradeButton b = createTowerUpgradeButton(defaultTextColour, defaultTextSize);
          MyJLabel l = new MyJLabel();
          l.setFontSize(defaultTextSize);
          l.setForeground(defaultTextColour);
-         towerStats.add(new TowerStat(b, l, a));
-         int emptyWidth = 1;
-         panel.add(createLeftRightPanel(createWrapperPanel(b, emptyWidth),
-               createWrapperPanel(l, emptyWidth)));
+         towerStats.add(new TowerStat(b, l, Attribute.values()[i]));
+         box.add(createLeftRightPanel(b, l));
       }
-      add(panel);
+      add(box);
    }
    
    private TowerUpgradeButton createTowerUpgradeButton(Color textColour, float textSize) {
@@ -706,25 +706,24 @@ public class ControlPanel extends JPanel {
          a.setHorizontalAlignment(JLabel.CENTER);
       }
       towerNameLabel.setFontSize(textSize + 1);
-      JPanel panel = createBoxLayedOutJPanel(BoxLayout.Y_AXIS);
-      panel.add(createWrapperPanel(towerNameLabel));
+      Box box = Box.createVerticalBox();
+      box.add(createWrapperPanel(towerNameLabel));
       JPanel p = createLeftRightPanel(towerLevelLabel, killsLabel);
       p.setBorder(BorderFactory.createEmptyBorder(-1, 10, -1, 10));
-      panel.add(p);
-      panel.add(createWrapperPanel(damageDealtLabel));
-      add(panel);
+      box.add(p);
+      box.add(createWrapperPanel(damageDealtLabel));
+      add(box);
    }
    
    private void setUpLevelStats() {
       float textSize = defaultTextSize;
-      JPanel panel = new JPanel();
-      panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-      panel.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 30));
-      panel.setOpaque(false);
-      panel.add(createLeftRightPanel("Number", textSize, defaultTextColour, numSpritesLabel));
-      panel.add(createLeftRightPanel("Average HP", textSize, defaultTextColour, avgHPLabel));
+      Box box = Box.createVerticalBox();
+      box.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 30));
+      box.setOpaque(false);
+      box.add(createLeftRightPanel("Number", textSize, defaultTextColour, numSpritesLabel));
+      box.add(createLeftRightPanel("Average HP", textSize, defaultTextColour, avgHPLabel));
       
-      add(panel);
+      add(box);
    }
 
    private void setUpStartButton() {
@@ -748,12 +747,6 @@ public class ControlPanel extends JPanel {
    private JPanel createJPanel() {
       JPanel panel = new JPanel();
       panel.setOpaque(false);   
-      return panel;
-   }
-   
-   private JPanel createBoxLayedOutJPanel(int alignment) {
-      JPanel panel = createJPanel();
-      panel.setLayout(new BoxLayout(panel, alignment));
       return panel;
    }
 

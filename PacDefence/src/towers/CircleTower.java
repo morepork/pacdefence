@@ -42,7 +42,7 @@ public class CircleTower extends AbstractTower {
    }
 
    public CircleTower(Point p, Polygon path) {
-      super(p, path, "Circle", 40, 100, 5, 10, 50, 0, "circle.png", "CircleTower.png");
+      super(p, path, "Circle", 40, 100, 5, 10, 50, 0, "circle.png", "CircleTower.png", false);
    }
 
    @Override

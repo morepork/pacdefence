@@ -39,7 +39,7 @@ public class OmnidirectionalTower extends AbstractTower {
    
    public OmnidirectionalTower(Point p, Polygon path) {
       super(p, path, "Omnidirectional", 40, 100, 5, 5, 50, 10, "omnidirectional.png",
-            "OmnidirectionalTower.png");
+            "OmnidirectionalTower.png", false);
    }
 
    @Override

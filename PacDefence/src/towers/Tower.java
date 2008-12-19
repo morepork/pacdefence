@@ -49,12 +49,22 @@ public interface Tower extends Cloneable {
       /**
        * The rate at which a Tower fires
        */
-      Rate,
+      Rate{
+         @Override
+         public String toString() {
+            return "Fire Rate";
+         }
+      },
       
       /**
        * The speed that a Tower's bullets travel at
        */
-      Speed,
+      Speed{
+         @Override
+         public String toString() {
+            return "Bullet Speed";
+         }
+      },
       
       /**
        * The special ability of a Tower

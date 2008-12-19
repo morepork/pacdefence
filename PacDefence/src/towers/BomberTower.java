@@ -38,14 +38,14 @@ public class BomberTower extends AbstractTower {
    private int blastRadius = 20;
    // If the radius increases exponentially it just gets silly
    private final int blastRadiusIncrease = 2;
-   private static final double bombDamageDividend = 5;
+   private static final double bombDamageDividend = 4;
 
    public BomberTower() {
       this(new Point(), null);
    }
 
    public BomberTower(Point p, Polygon path) {
-      super(p, path, "Bomber", 40, 100, 5, 7.5, 50, 15, "bomber.png", "BomberTower.png");
+      super(p, path, "Bomber", 40, 100, 5, 7, 50, 15, "bomber.png", "BomberTower.png");
    }
 
    @Override

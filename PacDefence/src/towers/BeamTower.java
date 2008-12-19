@@ -54,7 +54,7 @@ public class BeamTower extends AbstractTower {
    }
 
    public BeamTower(Point p, Polygon path) {
-      super(p, path, "Beam", 40, 100, 40, 4.5, 50, 0, "beam.png", "BeamTower.png");
+      super(p, path, "Beam", 40, 100, 40, 4.5, 50, 0, "beam.png", "BeamTower.png", false);
    }
    
    @Override

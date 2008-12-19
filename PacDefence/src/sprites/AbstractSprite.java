@@ -54,9 +54,9 @@ public abstract class AbstractSprite implements Sprite {
 
    // Keep track of rotated images so every time a sprite rounds a corner
    // the original images do not need to be re-rotated
-   private static final Map<Class<? extends AbstractSprite>, Map<LooseDouble,
+   private static final Map<Class<? extends AbstractSprite>, Map<Float,
          List<BufferedImage>>> rotatedImages = new HashMap<Class<? extends AbstractSprite>,
-         Map<LooseDouble, List<BufferedImage>>>();
+         Map<Float, List<BufferedImage>>>();
    private final List<BufferedImage> originalImages;
    private List<BufferedImage> currentImages;
    private BufferedImage currentImage;
@@ -323,18 +323,19 @@ public abstract class AbstractSprite implements Sprite {
    
    private void rotateImages(double angle) {
       if(!rotatedImages.containsKey(getClass())) {
-         rotatedImages.put(getClass(), new HashMap<LooseDouble, List<BufferedImage>>());
+         rotatedImages.put(getClass(), new HashMap<Float, List<BufferedImage>>());
       }
-      Map<LooseDouble, List<BufferedImage>> m = rotatedImages.get(getClass());
-      LooseDouble d = new LooseDouble(angle);
-      if(!m.containsKey(d)) {
+      Map<Float, List<BufferedImage>> m = rotatedImages.get(getClass());
+      // Cast to a float to reduce precision so rotated images are less likely to be duplicated
+      float f = (float) angle;
+      if(!m.containsKey(f)) {
          List<BufferedImage> images = new ArrayList<BufferedImage>(originalImages.size());
          for(BufferedImage i : originalImages) {
             images.add(ImageHelper.rotateImage(i, angle));
          }
-         m.put(d, Collections.unmodifiableList(images));
+         m.put(f, Collections.unmodifiableList(images));
       }
-      currentImages = new ArrayList<BufferedImage>(m.get(d));
+      currentImages = new ArrayList<BufferedImage>(m.get(f));
    }
 
    private void die() {
@@ -408,29 +409,6 @@ public abstract class AbstractSprite implements Sprite {
          if(adjustedDamageTicksLeft <= 0) {
             damageMultiplier = 1;
          }
-      }
-   }
-   
-   private class LooseDouble {
-      
-      private final Double d;
-      
-      private LooseDouble(double d) {
-         this.d = d;
-      }
-      
-      @Override
-      public boolean equals(Object obj) {
-         if(obj instanceof LooseDouble) {
-            return Math.abs(this.d - ((LooseDouble)obj).d) < 0.00001;
-         } else {
-            return false;
-         }
-      }
-      
-      @Override
-      public int hashCode() {
-         return d.hashCode();
       }
    }
    

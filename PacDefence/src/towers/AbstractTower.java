@@ -21,6 +21,7 @@ package towers;
 
 import gui.Circle;
 import gui.Formulae;
+import gui.GameMap;
 import gui.Helper;
 import images.ImageHelper;
 
@@ -54,6 +55,10 @@ public abstract class AbstractTower implements Tower {
          new HashMap<String, BufferedImage>();
    private static final Map<String, BufferedImage> towerButtonImages =
          new HashMap<String, BufferedImage>();
+   
+   private static final Map<Class<? extends AbstractTower>, Map<LooseFloat, BufferedImage>>
+         rotatedImages = new HashMap<Class<? extends AbstractTower>, Map<LooseFloat,
+         BufferedImage>>();
    
    // Maps the ID of an aid tower to the aid factor it gives for each attribute
    private final Map<Integer, Map<Attribute, Double>> aidFactors =
@@ -91,6 +96,7 @@ public abstract class AbstractTower implements Tower {
    private final int turretWidth;
 
    private final BufferedImage originalImage;
+   private final boolean imageRotates;
    private BufferedImage currentImage;
    private final BufferedImage buttonImage;
    
@@ -111,6 +117,13 @@ public abstract class AbstractTower implements Tower {
    protected AbstractTower(Point p, Polygon path, String name, int fireRate, double range,
          double bulletSpeed, double damage, int width, int turretWidth, String imageName,
          String buttonImageName) {
+      this(p, path, name, fireRate, range, bulletSpeed, damage, width, turretWidth, imageName,
+            buttonImageName, true);
+   }
+   
+   protected AbstractTower(Point p, Polygon path, String name, int fireRate, double range,
+         double bulletSpeed, double damage, int width, int turretWidth, String imageName,
+         String buttonImageName, boolean rotateTurret) {
       centre = new Point(p);
       this.path = path;
       // Only temporary, it gets actually set later
@@ -129,6 +142,7 @@ public abstract class AbstractTower implements Tower {
       this.turretWidth = turretWidth;
       setTopLeft();
       setBounds();
+      imageRotates = rotateTurret;
       if(!towerImages.containsKey(imageName)) {
          towerImages.put(imageName, ImageHelper.makeImage(width, width, "towers", imageName));
       }
@@ -145,7 +159,12 @@ public abstract class AbstractTower implements Tower {
    public List<Bullet> tick(List<Sprite> sprites) {
       // Decrements here so it's on every tick, not just when it is able to shoot
       timeToNextShot--;
-      List<Bullet> fired = fireBullets(sprites);
+      List<Bullet> fired = Collections.emptyList();
+      if(!imageRotates || timeToNextShot <= 0) {
+         // If the image rotates, this needs to be done to find out the direction
+         // to rotate to
+         fired = fireBullets(sprites);
+      }
       if (timeToNextShot <= 0 && fired.size() > 0) {
          timeToNextShot = fireRate;
          bulletsToAdd.addAll(fired);
@@ -297,7 +316,7 @@ public abstract class AbstractTower implements Tower {
          case Range:
             return Helper.format(range, 0);
          case Rate:
-            return Helper.format(fireRate, 0);
+            return Helper.format(fireRate / GameMap.CLOCK_TICKS_PER_SECOND, 2) + "s";
          case Speed:
             return Helper.format(bulletSpeed, 1);
          case Special:
@@ -308,10 +327,13 @@ public abstract class AbstractTower implements Tower {
    
    @Override
    public String getStatName(Attribute a) {
-      if(a == Attribute.Special) {
-         return getSpecialName();
-      } else {
-         return a.toString();
+      switch(a) {
+         case Special:
+            return getSpecialName();
+         case Rate:
+            return "Shoots Every";
+         default:
+            return a.toString();
       }
    }
 
@@ -442,7 +464,6 @@ public abstract class AbstractTower implements Tower {
    }
    
    protected List<Bullet> fireBullets(List<Sprite> sprites) {
-      // Do this for loop even if tower can't shoot so tower rotates to track sprites
       for (Sprite s : sprites) {
          if (checkDistance(s)) {
             return fireBulletsAt(s, true);
@@ -478,8 +499,8 @@ public abstract class AbstractTower implements Tower {
          int turretWidth, double range, double bulletSpeed, double damage) {
       double dx = s.getPosition().getX() - p.getX();
       double dy = s.getPosition().getY() - p.getY();
-      if(rotateTurret) {
-         currentImage = ImageHelper.rotateImage(originalImage, dx, -dy);
+      if(imageRotates && rotateTurret) {
+         currentImage = rotateImage(ImageHelper.vectorAngle(dx, -dy));
       }
       return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, s, path);
    }
@@ -560,6 +581,47 @@ public abstract class AbstractTower implements Tower {
          }
       }
       return map;
+   }
+   
+   private BufferedImage rotateImage(double angle) {
+      if(!rotatedImages.containsKey(getClass())) {
+         rotatedImages.put(getClass(), new HashMap<LooseFloat, BufferedImage>());
+      }
+      Map<LooseFloat, BufferedImage> m = rotatedImages.get(getClass());
+      // Cast to a LooseFloat to reduce precision so rotated images are less likely
+      // to be duplicated
+      LooseFloat f = new LooseFloat(angle);
+      if(!m.containsKey(f)) {
+         m.put(f, ImageHelper.rotateImage(originalImage, angle));
+      }
+      return m.get(f);
+   }
+   
+   private class LooseFloat {
+      
+      private final Float f;
+      
+      private LooseFloat(float f) {
+         this.f = f;
+      }
+      
+      private LooseFloat(double d) {
+         this.f = (float)d;
+      }
+      
+      @Override
+      public boolean equals(Object obj) {
+         if(obj instanceof LooseFloat) {
+            return Math.abs(this.f - ((LooseFloat)obj).f) < 0.002;
+         } else {
+            return false;
+         }
+      }
+      
+      @Override
+      public int hashCode() {
+         return f.hashCode();
+      }
    }
 
 }
