@@ -19,8 +19,6 @@
 
 package towers;
 
-import gui.Helper;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -88,7 +86,7 @@ public class LaserTower extends AbstractTower {
          super(path, shotBy, damage, range, speed);
          this.lastPoint = lastPoint;
          this.length = length;
-         double distance = Helper.distance(firstPoint, lastPoint);
+         double distance = firstPoint.distance(lastPoint);
          double stepFraction = speed / distance;
          xStep = (lastPoint.getX() - firstPoint.getX()) * stepFraction;
          yStep = (lastPoint.getY() - firstPoint.getY()) * stepFraction;

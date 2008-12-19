@@ -31,10 +31,11 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Stroke;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -93,33 +94,32 @@ public class BeamTower extends AbstractTower {
       private Color beamColour = new Color(138, 138, 138);
       private static final int minAlpha = 60;
       private final int deltaAlpha;
-      private final Polygon path;
+      private final Rectangle2D pathBounds;
       private final Tower launchedBy;
       private final Set<Sprite> hitSprites = new CopyOnWriteArraySet<Sprite>();
       private final Line2D beam = new Line2D.Double();
+      private final Point2D centre;
       private final Circle circle;      
       private double currentAngle;
       private double deltaAngle;
-      private double deltaAngleOverSpeed;
       private Sprite target;
       private int ticksLeft;
-      private final int sizeOfSetOfPoints;
       private final double damage;
       private double moneyEarnt = 0;
+      //private List<Point2D> points = Collections.emptyList();
       
       private Beam(Tower t, Point2D centre, double angle, int range, double speed, double damage,
             Polygon path, Sprite target, int numTicks) {
          deltaAlpha = (beamColour.getAlpha() - minAlpha) / numTicks;
-         this.path = path;
+         this.centre = centre;
+         pathBounds = path.getBounds2D();
          this.launchedBy = t;
-         currentAngle = angle;
-         deltaAngle = Math.toRadians(speed / GameMap.CLOCK_TICKS_PER_SECOND);
-         deltaAngleOverSpeed = deltaAngle / speed;
+         currentAngle = Math.toDegrees(angle);
+         deltaAngle = speed / GameMap.CLOCK_TICKS_PER_SECOND;
          circle = new Circle(centre, range);
          this.target = target;
          ticksLeft = numTicks;
          setBeam();
-         sizeOfSetOfPoints = (int)(range * speed);
          this.damage = damage;
       }
 
@@ -131,6 +131,11 @@ public class BeamTower extends AbstractTower {
          g2D.setStroke(new BasicStroke(4));
          g2D.draw(beam);
          g2D.setStroke(s);
+         // Debugging code to make sure the points are in the right place
+         /*g2D.setColor(Color.RED);
+         for(Point2D p : points) {
+            g2D.drawRect((int)p.getX(), (int)p.getY(), 1, 1);
+         }*/
       }
 
       @Override
@@ -156,7 +161,7 @@ public class BeamTower extends AbstractTower {
       }
       
       private void setBeam() {
-         beam.setLine(circle.getCentre(), circle.getPointAt(currentAngle));
+         beam.setLine(centre, circle.getPointAt(Math.toRadians(currentAngle)));
       }
       
       private void setCorrectDirection() {
@@ -166,25 +171,19 @@ public class BeamTower extends AbstractTower {
                p.getY() - centre.getY());
          int mult = (angleBetween > currentAngle) ? -1 : 1;
          deltaAngle *= mult;
-         deltaAngleOverSpeed *= mult;
          target = null;
       }
       
       private List<Point2D> makePoints() {
-         // Internally use a set of points to eliminate duplicates that'll slow it
-         // when checking if the points hit the sprite.
-         Set<Point> points = new HashSet<Point>(sizeOfSetOfPoints);
-         for(double d = currentAngle; d <= currentAngle + deltaAngle; d += deltaAngleOverSpeed) {
-            List<Point2D> linePoints = Helper.getPointsOnLine(circle.getCentre(),
-                  circle.getPointAt(d));
-            for(Point2D p : linePoints) {
-               if(path.getBounds2D().contains(p)) {
-                  points.add(new Point((int)p.getX(), (int)p.getY()));
-               }
-            }
+         List<Point2D> points = new ArrayList<Point2D>();
+         Arc2D a = new Arc2D.Double();
+         for(int i = 1; i <= circle.getRadius(); i++) {
+            a.setArcByCenter(centre.getX(), centre.getY(), i, currentAngle - 90, deltaAngle,
+                  Arc2D.OPEN);
+            points.addAll(Helper.getPointsOnArc(a, pathBounds));
          }
-         // Returns a list rather than the set as it should be faster to iterate through
-         return new ArrayList<Point2D>(points);
+         //this.points = points;
+         return points;
       }
       
       private void hitSprites(List<Sprite> sprites, List<Point2D> points) {

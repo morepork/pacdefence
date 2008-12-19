@@ -66,11 +66,7 @@ public abstract class AbstractTower implements Tower {
          new HashMap<Integer, Map<Attribute, Double>>();
    private final Map<Attribute, Double> currentFactors = createCurrentFactors();
 
-   private int damageLevel = 1;
-   private int rangeLevel = 1;
-   private int rateLevel = 1;
-   private int speedLevel = 1;
-   private int specialLevel = 1;
+   private Map<Attribute, Integer> attributeLevels = createAttributeLevels();
 
    // The top left point of this tower
    private final Point topLeft;
@@ -244,52 +240,32 @@ public abstract class AbstractTower implements Tower {
 
    @Override
    public int getAttributeLevel(Attribute a) {
-      if (a == Tower.Attribute.Damage) {
-         return damageLevel;
-      } else if (a == Tower.Attribute.Range) {
-         return rangeLevel;
-      } else if (a == Tower.Attribute.Rate) {
-         return rateLevel;
-      } else if (a == Tower.Attribute.Speed) {
-         return speedLevel;
-      } else if (a == Tower.Attribute.Special) {
-         return specialLevel;
-      } else {
-         throw new RuntimeException("Extra attribute has been added without changing "
-               + "getAttributeLevel in AbstractTower");
-      }
+      return attributeLevels.get(a);
    }
 
    @Override
    public void raiseAttributeLevel(Attribute a, boolean boughtUpgrade) {
-      if (a == Tower.Attribute.Damage) {
-         if(boughtUpgrade) {
-            damageLevel++;
-         }
-         upgradeDamage();
-      } else if (a == Tower.Attribute.Range) {
-         if(boughtUpgrade) {
-            rangeLevel++;
-         }
-         upgradeRange();
-      } else if (a == Tower.Attribute.Rate) {
-         if(boughtUpgrade) {
-            rateLevel++;
-         }
-         upgradeFireRate();
-      } else if (a == Tower.Attribute.Speed) {
-         if(boughtUpgrade) {
-            speedLevel++;
-         }
-         upgradeBulletSpeed();
-      } else if (a == Tower.Attribute.Special) {
-         if(boughtUpgrade) {
-            specialLevel++;
-         }
-         upgradeSpecial();
-      } else {
-         throw new RuntimeException("Extra attribute has been added without changing "
-               + "raiseAttributeLevel in AbstractTower");
+      if(boughtUpgrade) {
+         attributeLevels.put(a, attributeLevels.get(a) + 1);
+      }
+      switch(a) {
+         case Damage:
+            upgradeDamage();
+            break;
+         case Range:
+            upgradeRange();
+            break;
+         case Rate:
+            upgradeFireRate();
+            break;
+         case Speed:
+            upgradeBulletSpeed();
+            break;
+         case Special:
+            upgradeSpecial();
+            break;
+         default:
+            throw new RuntimeException("New Attribute has been added or something.");
       }
    }
    
@@ -420,10 +396,6 @@ public abstract class AbstractTower implements Tower {
       return killsLevel + damageDealtLevel - 1;
    }
    
-   protected int getRateLevel() {
-      return rateLevel;
-   }
-   
    protected double getFireRate() {
       return fireRate;
    }
@@ -481,7 +453,7 @@ public abstract class AbstractTower implements Tower {
       if (!s.isAlive()) {
          return false;
       }
-      double distance = Helper.distance(s.getPosition(), p);
+      double distance = p.distance(s.getPosition());
       return distance < range + s.getHalfWidth();
    }
    
@@ -595,6 +567,15 @@ public abstract class AbstractTower implements Tower {
          System.out.println(numImages);*/
       }
       return m.get(f);
+   }
+   
+   private Map<Attribute, Integer> createAttributeLevels() {
+      Map<Attribute, Integer> map = new EnumMap<Attribute, Integer>(Attribute.class);
+      for(Attribute a : Attribute.values()) {
+         // All levels start at 1
+         map.put(a, 1);
+      }
+      return map;
    }
    
    private static class LooseFloat implements Comparable<LooseFloat> {

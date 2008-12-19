@@ -51,7 +51,7 @@ public class BasicBullet implements Bullet {
    private static final BufferedImage image = ImageHelper.makeImage(radius * 2, radius * 2,
          "other", "bullet.png");
    protected static final int halfWidth = image.getWidth() / 2;
-   protected final Polygon path;
+   private final Polygon path;
    
    /**
     * Creates a new BasicBuller with fields set, but tick and draw

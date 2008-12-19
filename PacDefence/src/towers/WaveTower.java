@@ -19,7 +19,7 @@
 
 package towers;
 
-import gui.Circle;
+import gui.Helper;
 import images.ImageHelper;
 
 import java.awt.BasicStroke;
@@ -31,6 +31,7 @@ import java.awt.Polygon;
 import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -81,6 +82,7 @@ public class WaveTower extends AbstractTower {
       private final Collection<Sprite> hitSprites = new ArrayList<Sprite>();
       private double moneyEarnt = 0;
       private final int turretWidth;
+      private final Rectangle2D pathBounds;
       
       public WaveBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, Polygon path, int angle) {
@@ -90,6 +92,7 @@ public class WaveTower extends AbstractTower {
          extentAngle = angle;
          start = p;
          this.turretWidth = turretWidth;
+         pathBounds = path.getBounds2D();
       }
       
       @Override
@@ -98,9 +101,10 @@ public class WaveTower extends AbstractTower {
          g2D.setColor(Color.PINK);
          Stroke s = g2D.getStroke();
          g2D.setStroke(new BasicStroke(4));
-         // Debug method that draws squares on each point from getPointsFromArc
+         // Debug code that draws squares on each point from getPointsFromArc
          // to make sure they're in the right place
-         /*for(Point2D p : getPointsFromArc(arc, currentRadius, false)) {
+         /*g2D.setColor(Color.RED);
+         for(Point2D p : Helper.getPointsOnArc(arc)) {
             g2D.drawRect((int)p.getX(), (int)p.getY(), 1, 1);
          }*/
          g2D.draw(arc);
@@ -130,7 +134,7 @@ public class WaveTower extends AbstractTower {
             // I tried converting the Point2Ds to points and using a set to
             // eliminate duplicates but it only reduced the number of points
             // in the list by around 10% so didn't deem it worth the overhead
-            points.addAll(getPointsFromArc(a, d, true));
+            points.addAll(Helper.getPointsOnArc(a, pathBounds));
          }
          double d = 0;
          for(Sprite s : sprites) {
@@ -144,7 +148,7 @@ public class WaveTower extends AbstractTower {
       
       @Override
       protected boolean checkIfBulletCanBeRemovedAsOffScreen() {
-         for(Point2D p : getPointsFromArc()) {
+         for(Point2D p : Helper.getPointsOnArc(arc)) {
             if(!checkIfPointIsOffScreen(p)) {
                return false;
             }
@@ -156,41 +160,6 @@ public class WaveTower extends AbstractTower {
       private void setArc(Arc2D a, double radius) {
          a.setArcByCenter(start.getX(), start.getY(), radius, startAngle, extentAngle,
                Arc2D.OPEN);
-      }
-      
-      private List<Point2D> getPointsFromArc() {
-         return getPointsFromArc(arc, currentRadius, false);
-      }
-      
-      private List<Point2D> getPointsFromArc(Arc2D a, double radius, boolean onPathOnly) {
-         /*double circumference = 2 * Math.PI * radius;
-         double numPoints = circumference * a.getAngleExtent() / 360;
-         double deltaAngle = Math.toRadians(a.getAngleExtent() / numPoints);*/
-         // Left the above code in as it's easier to understand, though the two
-         // lines below should be faster and do the same thing.
-         double numPoints = Math.PI * radius * a.getAngleExtent() / 180;
-         double deltaAngle = 1 / radius;
-         double angle = Math.toRadians(a.getAngleStart() + 90);
-         Circle c = new Circle(a.getCenterX(), a.getCenterY(), radius);
-         List<Point2D> points = new ArrayList<Point2D>();
-         Point2D p = a.getStartPoint();
-         // Only actually check the bounds as the contains method can be quite slow
-         // for a complicated polygon
-         if(!onPathOnly || path.getBounds().contains(p)) {
-            points.add(p);
-         }
-         for(int i = 0; i < numPoints; i++) {
-            angle += deltaAngle;
-            p = c.getPointAt(angle);
-            if(!onPathOnly || path.getBounds().contains(p)) {
-               points.add(p);
-            }
-         }
-         p = a.getEndPoint();
-         if(!onPathOnly || path.getBounds().contains(p)) {
-            points.add(p);
-         }
-         return points;
       }
    }
 }

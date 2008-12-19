@@ -19,7 +19,6 @@
 
 package towers;
 
-import gui.Helper;
 import gui.OuterPanel;
 
 import java.awt.BasicStroke;
@@ -136,7 +135,7 @@ public class ZapperTower extends AbstractTower {
       private void tryToFireZap(List<Sprite> sprites) {
          List<Sprite> hittableSprites = new ArrayList<Sprite>();
          for(Sprite s : sprites) {
-            if(Helper.distance(position, s.getPosition()) < zapRange + s.getHalfWidth()) {
+            if(position.distance(s.getPosition()) < zapRange + s.getHalfWidth()) {
                hittableSprites.add(s);
             }
          }

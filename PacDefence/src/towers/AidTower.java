@@ -20,7 +20,6 @@
 package towers;
 
 import gui.GameMap;
-import gui.Helper;
 
 import java.awt.Point;
 import java.awt.Polygon;
@@ -153,7 +152,7 @@ public class AidTower extends AbstractTower {
       assert towers.size() > 0 : "The size of the list of towers isn't > 0";
       for(Tower t : towers) {
          if(!(t instanceof AidTower) && !aidingTowers.contains(t)) {
-            if(Helper.distance(super.getCentre(), t.getCentre()) < getRange()) {
+            if(super.getCentre().distance(t.getCentre()) < getRange()) {
                aidingTowers.add(t);
                aid(t);
                t.addDamageNotifier(damageNotifier);

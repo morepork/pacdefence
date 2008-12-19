@@ -19,10 +19,13 @@
 
 package gui;
 
+import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +36,6 @@ public class Helper {
    private static final Map<Integer, DecimalFormat> formats =
          new HashMap<Integer, DecimalFormat>();
    
-   public static double distance(Point2D p1, Point2D p2) {
-      return Point2D.distance(p1.getX(), p1.getY(), p2.getX(), p2.getY());
-   }
-   
    public static double distanceSq(Point2D p1, Point2D p2) {
       return Point2D.distanceSq(p1.getX(), p1.getY(), p2.getX(), p2.getY());
    }
@@ -46,14 +45,16 @@ public class Helper {
    }
    
    public static List<Point2D> getPointsOnLine(Point2D p1, Point2D p2) {
-      List<Point2D> points = new ArrayList<Point2D>();
       double dx = p2.getX() - p1.getX();
       double dy = p2.getY() - p1.getY();
-      // The maximum length in either the x or y directions to divide it
-      // into points a maximum of one pixel
-      double length = Math.max(Math.abs(dx), Math.abs(dy));
+      // The maximum length in either the x or y directions to divide the line
+      // into points a maximum of one pixel apart in either the x or y directions
+      double absDx = Math.abs(dx);
+      double absDy = Math.abs(dy);
+      double length = (absDx > absDy) ? absDx : absDy;
       double xStep = dx / length;
       double yStep = dy / length;
+      List<Point2D> points = new ArrayList<Point2D>((int) length + 2);
       points.add((Point2D) p1.clone());
       Point2D lastPoint = p1;
       for(int i = 1; i <= length; i++) {
@@ -65,11 +66,7 @@ public class Helper {
    }
    
    public static <T> List<T> makeListContaining(T... ts) {
-      List<T> list = new ArrayList<T>();
-      for(T t : ts) {
-         list.add(t);
-      }
-      return list;
+      return new ArrayList<T>(Arrays.asList(ts));
    }
    
    public static int increaseByAtLeastOne(int currentValue, double factor) {
@@ -108,5 +105,40 @@ public class Helper {
       }
       return new DecimalFormat(pattern.toString());
    }
-
+   
+   public static List<Point2D> getPointsOnArc(Arc2D a) {
+      return getPointsOnArc(a, null);
+   }
+   
+   public static List<Point2D> getPointsOnArc(Arc2D a, Rectangle2D containingRect) {
+      double radius = a.getStartPoint().distance(a.getCenterX(), a.getCenterY());
+      /*double circumference = 2 * Math.PI * radius;
+      double numPoints = circumference * a.getAngleExtent() / 360;
+      double deltaAngle = Math.toRadians(a.getAngleExtent() / numPoints);*/
+      // Left the above code in as it's easier to understand, though the two
+      // lines below should be faster and do the same thing.
+      double numPoints = 2 * Math.PI * radius * a.getAngleExtent() / 360;
+      double deltaAngle = 1 / radius;
+      double angle = Math.toRadians(a.getAngleStart() + 90);
+      Circle c = new Circle(a.getCenterX(), a.getCenterY(), radius);
+      List<Point2D> points = new ArrayList<Point2D>();
+      Point2D p = a.getStartPoint();
+      // Only actually check the bounds as the contains method can be quite slow
+      // for a complicated polygon
+      if(containingRect == null || containingRect.contains(p)) {
+         points.add(p);
+      }
+      for(int i = 0; i < numPoints; i++) {
+         angle += deltaAngle;
+         p = c.getPointAt(angle);
+         if(containingRect == null || containingRect.contains(p)) {
+            points.add(p);
+         }
+      }
+      p = a.getEndPoint();
+      if(containingRect == null || containingRect.contains(p)) {
+         points.add(p);
+      }
+      return points;
+   }
 }

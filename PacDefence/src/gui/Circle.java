@@ -160,7 +160,7 @@ public class Circle implements Shape {
    }
    
    public boolean intersects(Circle c) {
-      return Helper.distance(centre, c.getCentre()) < radius + c.getRadius();
+      return centre.distance(c.getCentre()) < radius + c.getRadius();
    }
    
    public boolean intersects(Line2D line) {

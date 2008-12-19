@@ -20,7 +20,6 @@
 package towers;
 
 import gui.Circle;
-import gui.Helper;
 import images.ImageHelper;
 
 import java.awt.Graphics;
@@ -80,7 +79,7 @@ public class CircleTower extends AbstractTower {
       public CirclingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, Sprite s, Polygon path) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, path);
-         double distance = Helper.distance(p, s.getPosition()) - s.getHalfWidth();
+         double distance = p.distance(s.getPosition()) - s.getHalfWidth();
          double angleToSprite = ImageHelper.vectorAngle(dx, dy);
          double theta = angleToSprite - Math.acos(distance / getRange());
          double halfRange = getRange() / 2.0;
