@@ -19,6 +19,8 @@
 
 package gui;
 
+import images.ImageHelper;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
@@ -40,10 +42,13 @@ public class OuterPanel extends JPanel {
    public static final int CONTROLS_WIDTH = WIDTH - MAP_WIDTH;
    public static final int CONTROLS_HEIGHT = MAP_HEIGHT;
 
-   private GameMap map = new GameMap(MAP_WIDTH, MAP_HEIGHT);
-   private ControlPanel controlPanel = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT, map);
+   private final GameMap map;
+   private final ControlPanel controlPanel; 
    
    public OuterPanel() {
+      map = new GameMap(MAP_WIDTH, MAP_HEIGHT, ImageHelper.makeImage("maps",
+            "rainbowColours.jpg"), ImageHelper.makeImage("maps", "mosaicPathMedium.png"));
+      controlPanel = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT, map);
       setLayout(new BorderLayout());
       setPreferredSize(new Dimension(WIDTH, HEIGHT));
       add(map, BorderLayout.WEST);

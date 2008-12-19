@@ -583,7 +583,7 @@ public abstract class AbstractTower implements Tower {
          rotatedImages.put(getClass(), new TreeMap<LooseFloat, BufferedImage>());
       }
       Map<LooseFloat, BufferedImage> m = rotatedImages.get(getClass());
-      // Cast to a LooseFloat to reduce precision so rotated images are less likely
+      // Use LooseFloat to reduce precision so rotated images are less likely
       // to be duplicated
       LooseFloat f = new LooseFloat(angle);
       if(!m.containsKey(f)) {

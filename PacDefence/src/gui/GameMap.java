@@ -60,11 +60,9 @@ public class GameMap extends JPanel {
    private final boolean debugTimes = true;
    private final boolean debugPath = false;
    
-   private final BufferedImage backgroundImage = ImageHelper.makeImage(OuterPanel.MAP_WIDTH,
-         OuterPanel.MAP_HEIGHT, "maps", "mosaic_path.jpg");
-   private BufferedImage buffer = new BufferedImage(OuterPanel.MAP_WIDTH, OuterPanel.MAP_HEIGHT,
-         BufferedImage.TYPE_INT_RGB);
-   private Graphics2D bufferGraphics = buffer.createGraphics();
+   private final BufferedImage backgroundImage;
+   private final BufferedImage buffer;
+   private final Graphics2D bufferGraphics;
    private final Polygon path;
    private final List<Point> pathPoints;
    private final List<Sprite> sprites = new ArrayList<Sprite>();
@@ -88,9 +86,15 @@ public class GameMap extends JPanel {
    private GameOver gameOver = null;
    private final TextDisplay textDisplay = new TextDisplay(); 
 
-   public GameMap(int width, int height) {
+   public GameMap(int width, int height, BufferedImage background, BufferedImage pathImage) {
       setDoubleBuffered(false);
       setPreferredSize(new Dimension(width, height));
+      backgroundImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+      Graphics g = backgroundImage.getGraphics();
+      g.drawImage(background, 0, 0, width, height, null);
+      g.drawImage(pathImage, 0, 0, width, height, null);
+      buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+      bufferGraphics = (Graphics2D) buffer.getGraphics();
       pathPoints = makePathPoints();
       path = makePath();
       //printClickedCoords();
@@ -171,6 +175,15 @@ public class GameMap extends JPanel {
    
    public List<Tower> getTowers() {
       return Collections.unmodifiableList(towers);
+   }
+   
+   public void removeTower(Tower t) {
+      if(!towers.remove(t)) {
+         throw new RuntimeException("Tower that wasn't on screen sold.");
+      }
+      if(t == selectedTower) {
+         selectedTower = null;
+      }
    }
    
    private void drawUpdate(Graphics g) {

@@ -22,6 +22,9 @@ package gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import towers.Tower;
+import towers.Tower.Attribute;
+
 
 public class Formulae {
    
@@ -72,8 +75,21 @@ public class Formulae {
       return (long)(Math.pow(2, currentLevel - 1)) * 250;
    }
    
-   public static int towerCost(int numTowers, int numOfThatType) {
-      return (int)(Math.pow(1.05, numTowers) * Math.pow(1.1, numOfThatType) * 1000);
+   public static int towerCost(int numTowers, int numOfThisType) {
+      return (int)(Math.pow(1.05, numTowers) * Math.pow(1.1, numOfThisType) * 1000);
+   }
+   
+   public static long sellValue(Tower t, int numTowers, int numOfThisType) {
+      double value = towerCost(numTowers - 1, numOfThisType - 1);
+      for(Attribute a : Attribute.values()) {
+         for(int i = 1; i < t.getAttributeLevel(a); i++) {
+            value += upgradeCost(i);
+         }
+      }
+      for(int i = 1; i < t.getExperienceLevel(); i++) {
+         value *= 1.05;
+      }
+      return (long)(value * 0.9);
    }
 
 }

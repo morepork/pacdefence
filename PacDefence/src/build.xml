@@ -16,7 +16,7 @@
 				<exclude name="**/*.java" />
 				<exclude name="**/*.xcf.gz" />
 				<exclude name="**/*.svg" />
-				<exclude name="images/maps/mosaic_path.png" />
+				<exclude name="images/maps/rainbowColours.png" />
 				<exclude name="images/control_panel/blue_lava.png" />
 				<exclude name="images/sprites/other/" />
 				<exclude name="java.policy.applet" />
@@ -31,9 +31,6 @@
 			<fileset dir="${SrcDir}" casesensitive="yes">
 				<exclude name="**/*.jar" />
 				<exclude name="java.policy.applet" />
-				<!-- This isn't needed as there is an equivalent xcf.gz and then
-				     it's faster to up/download -->
-				<exclude name="images/maps/mosaic_path.png" />
 			</fileset>
 			<manifest>
 				<attribute name="Main-Class" value="${MainClass}" />

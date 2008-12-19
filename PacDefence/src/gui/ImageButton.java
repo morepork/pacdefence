@@ -21,8 +21,6 @@ package gui;
 
 import images.ImageHelper;
 
-import java.awt.Dimension;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
@@ -32,8 +30,8 @@ public class ImageButton extends JButton {
    public ImageButton(String imageName, String extension) {
       setBorderPainted(false);
       setContentAreaFilled(false);
+      setFocusPainted(false);
       setButtonImages(imageName, extension, "buttons", imageName + extension);
-      setPreferredSize(new Dimension(getIcon().getIconWidth(), getIcon().getIconHeight()));
       setMultiClickThreshhold(10);
    }
 

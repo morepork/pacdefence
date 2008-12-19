@@ -85,8 +85,9 @@ public class ControlPanel extends JPanel {
          specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade;
    private Map<Attribute, Integer> upgradesSoFar =
          new EnumMap<Attribute, Integer>(Attribute.class);
-   // These labels are in the tower info box
+   // These labels and the sell button below are in the tower info box
    private MyJLabel towerNameLabel, towerLevelLabel, damageDealtLabel, killsLabel;
+   private final JButton sellButton = createSellButton();
    // These are in the current tower stats box
    private final List<TowerStat> towerStats = new ArrayList<TowerStat>();
    // These labels are in the level stats box
@@ -223,13 +224,17 @@ public class ControlPanel extends JPanel {
    }
    
    private int getNextTowerCost(Class<? extends Tower> towerType) {
+      return Formulae.towerCost(map.getTowers().size(), numTowersOfType(towerType));
+   }
+   
+   private int numTowersOfType(Class<? extends Tower> towerType) {
       int num = 0;
       for(Tower t : map.getTowers()) {
          if(t.getClass() == towerType) {
             num++;
          }
       }
-      return Formulae.towerCost(map.getTowers().size(), num);
+      return num;
    }
    
    private void updateAll() {
@@ -297,8 +302,12 @@ public class ControlPanel extends JPanel {
       Tower t = null;
       if(selectedTower != null) {
          t = selectedTower;
-      } else if(hoverOverTower != null) {
-         t = hoverOverTower;
+         sellButton.setEnabled(true);
+      } else {
+         sellButton.setEnabled(false);
+         if(hoverOverTower != null) {
+            t = hoverOverTower;
+         }
       }
       setCurrentTowerInfo(t);
    }
@@ -504,6 +513,25 @@ public class ControlPanel extends JPanel {
          b.setEnabled(enable);
       }
    }
+   
+   private void processSellButtonPressed() {
+      if(selectedTower != null) {
+         map.removeTower(selectedTower);
+         increaseMoney(sellValue(selectedTower));
+         selectedTower = null;
+      }
+   }
+   
+   private void processSellButtonChanged() {
+      if(selectedTower != null && !checkIfMovedOff(sellButton)) {
+         updateCurrentCostLabel("Sell " + selectedTower.getName() + " Tower",
+               sellValue(selectedTower));
+      }
+   }
+   
+   private long sellValue(Tower t) {
+      return Formulae.sellValue(t, map.getTowers().size(), numTowersOfType(t.getClass()));
+   }
 
    // -----------------------------------------------------
    // The remaining methods set up the gui bit on the side
@@ -708,9 +736,11 @@ public class ControlPanel extends JPanel {
       towerNameLabel.setFontSize(textSize + 1);
       Box box = Box.createVerticalBox();
       box.add(createWrapperPanel(towerNameLabel));
-      JPanel p = createLeftRightPanel(towerLevelLabel, killsLabel);
-      p.setBorder(BorderFactory.createEmptyBorder(-1, 10, -1, 10));
-      box.add(p);
+      Box centralRow = Box.createHorizontalBox();
+      centralRow.add(towerLevelLabel);
+      centralRow.add(sellButton);
+      centralRow.add(killsLabel);
+      box.add(centralRow);
       box.add(createWrapperPanel(damageDealtLabel));
       add(box);
    }
@@ -786,6 +816,21 @@ public class ControlPanel extends JPanel {
       panel.setOpaque(false);
       panel.setBorder(createEmptyBorder(borderWidth));
       return panel;
+   }
+   
+   private JButton createSellButton() {
+      JButton b = new ImageButton("sell", ".png");
+      b.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            processSellButtonPressed();
+         }
+      });
+      b.addChangeListener(new ChangeListener() {
+         public void stateChanged(ChangeEvent e) {
+            processSellButtonChanged();
+         }
+      });
+      return b;
    }
    
    private class MyJLabel extends JLabel {
