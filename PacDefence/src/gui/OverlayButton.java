@@ -21,9 +21,9 @@ package gui;
 
 import images.ImageHelper;
 
+import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
@@ -32,69 +32,60 @@ import javax.swing.JButton;
 @SuppressWarnings("serial")
 public class OverlayButton extends JButton {
 
+   static final Color baseColour = new Color(11, 0, 160);
+   static final Color pressedColour = new Color(225, 229, 82);
+   static final Color rolloverColour = new Color(237, 201, 0);
+   static final Color disabledColour = new Color(188, 188, 188);
+   private static final int overlayWidth = 2;
+   
    private static final int TOWER_BUTTON_WIDTH = 30;
    // Need the -1 otherwise they overlap slightly
    private static final int UPGRADE_BUTTON_WIDTH = OuterPanel.CONTROLS_WIDTH / 8 - 1;
-   private static final BufferedImage[] towerOverlays = makeOverlays("TowerOverlay", ".png",
-         "buttons", "towers");
-   private static final BufferedImage[] upgradeOverlays = makeOverlays("UpgradeOverlay", ".png",
-         "buttons", "upgrades");
+   
+   public OverlayButton(String... foldersAndFileName) {
+      this(ImageHelper.makeImage(foldersAndFileName));
+   }
 
-   private OverlayButton(BufferedImage image, BufferedImage[] overlays, int width) {
+   public OverlayButton(BufferedImage image, int width, int height) {
+      this(ImageHelper.resize(image, width, height));
+   }
+   
+   public OverlayButton(BufferedImage image) {
       setBorderPainted(false);
       setContentAreaFilled(false);
       setOpaque(false);
       // As when the focus is painted it draws a shadow-like thing
       // that looks very out of place
       setFocusPainted(false);
-      setIcons(image, overlays, width);
-      setPreferredSize(new Dimension(width, width));
+      setIcons(image);//, overlays, width);
+      setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
       setMultiClickThreshhold(10);
    }
    
    public static OverlayButton makeTowerButton(BufferedImage image) {
-      return new OverlayButton(image, towerOverlays, TOWER_BUTTON_WIDTH);
+      return new OverlayButton(image, TOWER_BUTTON_WIDTH, TOWER_BUTTON_WIDTH);
    }
 
    public static OverlayButton makeUpgradeButton(String imageName) {
       return new OverlayButton(ImageHelper.makeImage("buttons", "upgrades", imageName),
-            upgradeOverlays, UPGRADE_BUTTON_WIDTH);
-   }
-
-   private void setIcons(BufferedImage image, BufferedImage[] overlays, int width) {
-      setIcon(combine(width, image, overlays[0]));
-      setRolloverIcon(combine(width, image, overlays[1]));
-      setPressedIcon(combine(width, image, overlays[2]));
-      setDisabledIcon(combine(width, image, overlays[3]));
-      setPreferredSize(new Dimension(width, width));
-   }
-
-   private ImageIcon combine(int width, BufferedImage... images) {
-      BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
-      Graphics2D g = (Graphics2D)image.getGraphics();
-      g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-            RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-      for (BufferedImage b : images) {
-         g.drawImage(b, 0, 0, width, width, null);
-      }
-      return new ImageIcon(image);
+            UPGRADE_BUTTON_WIDTH, UPGRADE_BUTTON_WIDTH);
    }
    
-   private static BufferedImage[] makeOverlays(String fileName, String extension,
-         String... folders) {
-      BufferedImage[] overlays = new BufferedImage[4];
-      String[] strings = new String[folders.length + 1];
-      System.arraycopy(folders, 0, strings, 0, folders.length);
-      overlays[0] = setLastStringAndMakeImage(fileName + extension, strings);
-      overlays[1] = setLastStringAndMakeImage(fileName + "RolledOver" + extension, strings);
-      overlays[2] = setLastStringAndMakeImage(fileName + "Pressed" + extension, strings);
-      overlays[3] = setLastStringAndMakeImage(fileName + "Disabled" + extension, strings);
-      return overlays;
+   private void setIcons(BufferedImage image) {
+      setIcon(drawOverlay(image, baseColour));
+      setRolloverIcon(drawOverlay(image, rolloverColour));
+      setPressedIcon(drawOverlay(image, pressedColour));
+      setDisabledIcon(drawOverlay(image, disabledColour));
    }
    
-   private static BufferedImage setLastStringAndMakeImage(String s, String[] strings) {
-      strings[strings.length - 1] = s;
-      return ImageHelper.makeImage(strings);
+   public static ImageIcon drawOverlay(BufferedImage image, Color colour) {
+      BufferedImage clone = ImageHelper.cloneImage(image);
+      Graphics g = clone.getGraphics();
+      g.setColor(colour);
+      g.fillRect(0, 0, overlayWidth, image.getHeight());
+      g.fillRect(0, 0, image.getWidth(), overlayWidth);
+      g.fillRect(image.getWidth() - overlayWidth, 0, overlayWidth, image.getHeight());
+      g.fillRect(0, image.getHeight() - overlayWidth, image.getWidth(), overlayWidth);
+      return new ImageIcon(clone);
    }
-
 }

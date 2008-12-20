@@ -56,8 +56,7 @@ public class ImageHelper {
    }
 
    public static BufferedImage makeImage(int width, int height, String... foldersAndFileName) {
-      BufferedImage image = makeImage(foldersAndFileName);
-      return resize(image, width, height);
+      return resize(makeImage(foldersAndFileName), width, height);
    }
 
    /**
@@ -112,6 +111,16 @@ public class ImageHelper {
             return Math.atan(dx / dy) + Math.PI;
          }
       }
+   }
+   
+   public static BufferedImage cloneImage(BufferedImage image) {
+      int type = image.getType();
+      if(type == BufferedImage.TYPE_CUSTOM) {
+         type = BufferedImage.TYPE_INT_ARGB_PRE;
+      }
+      BufferedImage clone = new BufferedImage(image.getWidth(), image.getHeight(), type);
+      clone.getGraphics().drawImage(image, 0, 0, null);
+      return clone;
    }
    
    public static void clearImage(BufferedImage image) {

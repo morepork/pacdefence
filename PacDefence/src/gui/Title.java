@@ -19,19 +19,32 @@
 
 package gui;
 
-import javax.swing.JApplet;
+import images.ImageHelper;
+
+import java.awt.BorderLayout;
+import java.awt.Graphics;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
-public class Applet extends JApplet {
+public class Title extends JPanel {
    
-   private OuterPanel outer;
+   private final BufferedImage background;
+   
+   public Title(int width, int height, ActionListener continueListener) {
+      super(new BorderLayout());
+      background = ImageHelper.makeImage(width, height, "other", "title.png");
+      JButton continueButton = new OverlayButton("buttons", "continue.png");
+      continueButton.addActionListener(continueListener);
+      add(SwingHelper.createWrapperPanel(continueButton, 10), BorderLayout.SOUTH);
+   }
    
    @Override
-   public void init() {
-      outer = new OuterPanel();
-      add(outer);
-      setSize(OuterPanel.WIDTH, OuterPanel.HEIGHT);
-      setVisible(true);
+   public void paintComponent(Graphics g) {
+      g.drawImage(background, 0, 0, null);
    }
 
 }

@@ -40,11 +40,10 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -93,7 +92,7 @@ public class ControlPanel extends JPanel {
    // These labels are in the level stats box
    private MyJLabel numSpritesLabel, avgHPLabel;
    private MyJLabel currentCostStringLabel, currentCostLabel;
-   private final ImageButton start = new ImageButton("start", ".png");
+   private final ImageButton start = new ImageButton("start", ".png", true);
    private final GameMap map;
    private Tower selectedTower, buildingTower, rolloverTower, hoverOverTower;
    private final Color defaultTextColour = Color.YELLOW;
@@ -577,14 +576,7 @@ public class ControlPanel extends JPanel {
          MyJLabel label) {
       label.setForeground(textColour);
       label.setFontSize(textSize);
-      return createLeftRightPanel(c, label);
-   }
-   
-   private JPanel createLeftRightPanel(Component left, Component right) {
-      JPanel panel = createBorderLayedOutJPanel();
-      panel.add(left, BorderLayout.WEST);
-      panel.add(right, BorderLayout.EAST);
-      return panel;
+      return SwingHelper.createLeftRightPanel(c, label);
    }
 
    private void setUpNewTowers() {
@@ -705,7 +697,7 @@ public class ControlPanel extends JPanel {
          l.setFontSize(defaultTextSize);
          l.setForeground(defaultTextColour);
          towerStats.add(new TowerStat(b, l, Attribute.values()[i]));
-         box.add(createLeftRightPanel(b, l));
+         box.add(SwingHelper.createLeftRightPanel(b, l));
       }
       add(box);
    }
@@ -735,13 +727,13 @@ public class ControlPanel extends JPanel {
       }
       towerNameLabel.setFontSize(textSize + 1);
       Box box = Box.createVerticalBox();
-      box.add(createWrapperPanel(towerNameLabel));
+      box.add(SwingHelper.createWrapperPanel(towerNameLabel));
       Box centralRow = Box.createHorizontalBox();
       centralRow.add(towerLevelLabel);
       centralRow.add(sellButton);
       centralRow.add(killsLabel);
       box.add(centralRow);
-      box.add(createWrapperPanel(damageDealtLabel));
+      box.add(SwingHelper.createWrapperPanel(damageDealtLabel));
       add(box);
    }
    
@@ -762,64 +754,27 @@ public class ControlPanel extends JPanel {
             startPressed();
          }
       });
-      add(createWrapperPanel(start));
+      add(SwingHelper.createWrapperPanel(start));
    }
    
    private void setUpCurrentCost() {
-      JPanel panel = createBorderLayedOutJPanel();
+      JPanel panel = SwingHelper.createBorderLayedOutJPanel();
       panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
-      panel.setOpaque(false);
       panel.add(currentCostStringLabel, BorderLayout.WEST);
       panel.add(currentCostLabel, BorderLayout.EAST);
       add(panel);
    }
-   
-   private JPanel createJPanel() {
-      JPanel panel = new JPanel();
-      panel.setOpaque(false);   
-      return panel;
-   }
-
-   private JPanel createBorderLayedOutJPanel() {
-      JPanel panel = createJPanel();
-      panel.setLayout(new BorderLayout());
-      return panel;
-   }
 
    private JPanel createBorderLayedOutJPanel(Component comp, String pos) {
-      JPanel panel = createBorderLayedOutJPanel();
+      JPanel panel = SwingHelper.createBorderLayedOutJPanel();
       panel.add(comp, pos);
-      return panel;
-   }
-
-   /**
-    * Creates an empty border with specified width.
-    */
-   private Border createEmptyBorder(int width) {
-      return BorderFactory.createEmptyBorder(width, width, width, width);
-   }
-   
-   private JPanel createWrapperPanel(JComponent c) {
-      JPanel panel = new JPanel();
-      panel.add(c);
-      panel.setOpaque(false);
-      return panel;
-   }
-
-   /**
-    * Creates a panel that wraps this component and has a empty border around
-    * it.
-    */
-   private JPanel createWrapperPanel(JComponent c, int borderWidth) {
-      JPanel panel = new JPanel();
-      panel.add(c);
-      panel.setOpaque(false);
-      panel.setBorder(createEmptyBorder(borderWidth));
       return panel;
    }
    
    private JButton createSellButton() {
-      JButton b = new ImageButton("sell", ".png");
+      JButton b = new OverlayButton("buttons", "sell.png");
+      // So when disabled it is blank but keeps its size
+      b.setDisabledIcon(new ImageIcon());
       b.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             processSellButtonPressed();

@@ -23,6 +23,8 @@ import images.ImageHelper;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
 
@@ -42,6 +44,7 @@ public class OuterPanel extends JPanel {
    public static final int CONTROLS_WIDTH = WIDTH - MAP_WIDTH;
    public static final int CONTROLS_HEIGHT = MAP_HEIGHT;
 
+   private final Title title;
    private final GameMap map;
    private final ControlPanel controlPanel; 
    
@@ -49,9 +52,16 @@ public class OuterPanel extends JPanel {
       map = new GameMap(MAP_WIDTH, MAP_HEIGHT, ImageHelper.makeImage("maps",
             "rainbowColours.jpg"), ImageHelper.makeImage("maps", "mosaicPathMedium.png"));
       controlPanel = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT, map);
+      title = new Title(WIDTH, HEIGHT, new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            remove(title);
+            add(map, BorderLayout.WEST);
+            add(controlPanel, BorderLayout.EAST);
+            revalidate();
+         }
+      });
       setLayout(new BorderLayout());
       setPreferredSize(new Dimension(WIDTH, HEIGHT));
-      add(map, BorderLayout.WEST);
-      add(controlPanel, BorderLayout.EAST);
+      add(title);
    }
 }
