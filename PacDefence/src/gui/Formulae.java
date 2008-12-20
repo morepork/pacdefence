@@ -58,7 +58,7 @@ public class Formulae {
       return levelHP / getMoneyDivisor(level);
    }
    
-   private static double getMoneyDivisor(int level) {
+   private static synchronized double getMoneyDivisor(int level) {
       // Keep a list of these as this is called every time a bullet hits.
       level--;
       if(level >= moneyDivisors.size()) {

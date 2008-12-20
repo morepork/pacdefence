@@ -120,7 +120,6 @@ public class Helper {
       double numPoints = 2 * Math.PI * radius * a.getAngleExtent() / 360;
       double deltaAngle = 1 / radius;
       double angle = Math.toRadians(a.getAngleStart() + 90);
-      Circle c = new Circle(a.getCenterX(), a.getCenterY(), radius);
       List<Point2D> points = new ArrayList<Point2D>();
       Point2D p = a.getStartPoint();
       // Only actually check the bounds as the contains method can be quite slow
@@ -128,9 +127,21 @@ public class Helper {
       if(containingRect == null || containingRect.contains(p)) {
          points.add(p);
       }
+      double x = a.getCenterX();
+      double y = a.getCenterY();
+      double sinAngle = Math.sin(angle);
+      double cosAngle = Math.cos(angle);
+      double sinDeltaAngle = Math.sin(deltaAngle);
+      double cosDeltaAngle = Math.cos(deltaAngle);
       for(int i = 0; i < numPoints; i++) {
-         angle += deltaAngle;
-         p = c.getPointAt(angle);
+         //angle += deltaAngle;
+         //p = new Point2D.Double(x + radius * Math.sin(angle), y + radius * Math.cos(angle));
+         // These next few lines do the same as the above, just using a trig identity
+         // for better performance as there are fewer trig calls
+         double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
+         cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
+         sinAngle = newSinAngle;
+         p = new Point2D.Double(x + radius * sinAngle, y + radius * cosAngle);
          if(containingRect == null || containingRect.contains(p)) {
             points.add(p);
          }
@@ -140,5 +151,17 @@ public class Helper {
          points.add(p);
       }
       return points;
+   }
+   
+   public static void main(String[] args) {
+      for(int a = 0; a < 5; a++) {
+         long beginTime = System.nanoTime();
+         Arc2D arc = new Arc2D.Double();
+         for(int i = 0; i < 200; i++) {
+            arc.setArc(0.0, 0.0, i * i, i * i, 10.0, 10.0, Arc2D.OPEN);
+            getPointsOnArc(arc);
+         }
+         System.out.println(System.nanoTime() - beginTime);
+      }
    }
 }

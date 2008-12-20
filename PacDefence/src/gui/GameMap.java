@@ -66,7 +66,7 @@ public class GameMap extends JPanel {
    private final Polygon path;
    private final List<Point> pathPoints;
    private final List<Sprite> sprites = new ArrayList<Sprite>();
-   private final List<Tower> towers = new ArrayList<Tower>();
+   private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
    private final List<Bullet> bullets = new ArrayList<Bullet>();
    private final Clock clockRunnable;
    private final Thread clock;
