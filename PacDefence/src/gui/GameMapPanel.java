@@ -40,9 +40,9 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import sprites.AbstractSprite;
 import sprites.Pacman;
 import sprites.Sprite;
+import sprites.Sprite.FirstComparator;
 import towers.AidTower;
 import towers.Bullet;
 import towers.Tower;
@@ -505,7 +505,7 @@ public class GameMapPanel extends JPanel {
          // the order they're drawn which looks weird, and the order can change
          // tick by tick so it's easiest to sort them once each time.
          List<Sprite> sortedSprites = new ArrayList<Sprite>(sprites);
-         Collections.sort(sortedSprites, AbstractSprite.getTotalDistanceTravelledComparator());
+         Collections.sort(sortedSprites, new FirstComparator());
          List<Sprite> unmodifiableSprites = Collections.unmodifiableList(sortedSprites);
          if(cp != null) {
             long beginTime;

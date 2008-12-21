@@ -35,7 +35,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,6 +148,16 @@ public abstract class AbstractSprite implements Sprite {
    }
    
    @Override
+   public double getSpeed() {
+      return speedFactor * speed;
+   }
+   
+   @Override
+   public double getHPLeft() {
+      return hp;
+   }
+   
+   @Override
    public Shape getBounds() {
       return bounds.clone();
    }
@@ -248,16 +257,6 @@ public abstract class AbstractSprite implements Sprite {
             adjustedDamageTicksLeft = numTicks;
          }
       }
-   }
-   
-
-   public static Comparator<Sprite> getTotalDistanceTravelledComparator() {
-      return new Comparator<Sprite>() {
-         @Override
-         public int compare(Sprite s1, Sprite s2) {
-            return (int) (s2.getTotalDistanceTravelled() - s1.getTotalDistanceTravelled());
-         }
-      };
    }
 
    private void move() {

@@ -24,6 +24,7 @@ import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.Comparator;
 import java.util.List;
 
 import sprites.Sprite;
@@ -82,7 +83,7 @@ public interface Tower extends Cloneable {
     * @return The bullets shot by this tower after the last tick and
     *         up to this one
     */
-   public List<Bullet> tick(List<Sprite> sprites);   
+   public List<Bullet> tick(List<Sprite> sprites);  
    public boolean doesTowerClashWith(Tower t);   
    public boolean contains(Point p);
    public Point getCentre();
@@ -104,5 +105,7 @@ public interface Tower extends Cloneable {
    public int getKillsForUpgrade();
    public int getExperienceLevel();
    public BufferedImage getButtonImage();
+   public void setSpriteComparator(Comparator<Sprite> c);
+   public Comparator<Sprite> getSpriteComparator();
 
 }

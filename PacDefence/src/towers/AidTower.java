@@ -24,6 +24,7 @@ import gui.GameMapPanel;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,11 @@ public class AidTower extends AbstractTower {
             addTowers();
          }
       }, 0, GameMapPanel.CLOCK_TICK);
+   }
+   
+   @Override
+   public Comparator<Sprite> getSpriteComparator() {
+      return null;
    }
 
    @Override

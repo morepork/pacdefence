@@ -39,6 +39,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -109,6 +110,8 @@ public abstract class AbstractTower implements Tower {
    private long nextUpgradeDamage = Formulae.nextUpgradeDamage(killsLevel);
    private int nextUpgradeKills = Formulae.nextUpgradeKills(damageDealtLevel);
    
+   private Comparator<Sprite> spriteComparator = new Sprite.FirstComparator();
+   
    private List<Bullet> bulletsToAdd = new ArrayList<Bullet>();
 
    protected AbstractTower(Point p, Rectangle2D pathBounds, String name, int fireRate,
@@ -154,6 +157,8 @@ public abstract class AbstractTower implements Tower {
 
    @Override
    public List<Bullet> tick(List<Sprite> sprites) {
+      sprites = new ArrayList<Sprite>(sprites);
+      Collections.sort(sprites, spriteComparator);
       // Decrements here so it's on every tick, not just when it is able to shoot
       timeToNextShot--;
       List<Bullet> fired = Collections.emptyList();
@@ -394,6 +399,16 @@ public abstract class AbstractTower implements Tower {
    public int getExperienceLevel() {
       // -1 so it starts at level 1
       return killsLevel + damageDealtLevel - 1;
+   }
+   
+   @Override
+   public void setSpriteComparator(Comparator<Sprite> c) {
+      spriteComparator = c;
+   }
+   
+   @Override
+   public Comparator<Sprite> getSpriteComparator() {
+      return spriteComparator;
    }
    
    protected double getFireRate() {

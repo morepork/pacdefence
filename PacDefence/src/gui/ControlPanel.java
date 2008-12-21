@@ -33,6 +33,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +49,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import sprites.Sprite;
 import towers.AidTower;
 import towers.BeamTower;
 import towers.BomberTower;
@@ -86,6 +88,9 @@ public class ControlPanel extends JPanel {
          new EnumMap<Attribute, Integer>(Attribute.class);
    // These labels and the sell button below are in the tower info box
    private MyJLabel towerNameLabel, towerLevelLabel, damageDealtLabel, killsLabel;
+   private List<Wrapper<String, Comparator<Sprite>>> comparators = createComparators();
+   private MyJLabel targetLabel;
+   private JButton targetButton = createTargetButton();
    private final JButton sellButton = createSellButton();
    // These are in the current tower stats box
    private final List<TowerStat> towerStats = new ArrayList<TowerStat>();
@@ -321,11 +326,19 @@ public class ControlPanel extends JPanel {
       if(selectedTower != null) {
          t = selectedTower;
          sellButton.setEnabled(true);
+         Comparator<Sprite> c = t.getSpriteComparator();
+         if(c != null) {
+            targetLabel.setText("Target");
+            targetButton.setEnabled(true);
+            targetButton.setText(getNameOfComparator(c));
+         }
       } else {
          sellButton.setEnabled(false);
          if(hoverOverTower != null) {
             t = hoverOverTower;
          }
+         targetLabel.setText(" ");
+         targetButton.setEnabled(false);
       }
       setCurrentTowerInfo(t);
    }
@@ -559,6 +572,29 @@ public class ControlPanel extends JPanel {
       updateAll();
       map.restart();
    }
+   
+   private void processTargetButtonPressed(JButton b) {
+      String s = b.getText();
+      for(int i = 0; i < comparators.size(); i++) {
+         if(comparators.get(i).getT1().equals(s)) {
+            int nextIndex = (i + 1) % comparators.size();
+            Wrapper<String, Comparator<Sprite>> w = comparators.get(nextIndex);
+            b.setText(w.getT1());
+            selectedTower.setSpriteComparator(w.getT2());
+            return;
+         }
+      }
+   }
+   
+   private String getNameOfComparator(Comparator<Sprite> c) {
+      for(int i = 0; i < comparators.size(); i++) {
+         Wrapper<String, Comparator<Sprite>> w = comparators.get(i);
+         if(w.getT2().equals(c)) {
+            return w.getT1();
+         }
+      }
+      throw new RuntimeException("Comparator not found");
+   }
 
    // -----------------------------------------------------
    // The remaining methods set up the gui bit on the side
@@ -567,7 +603,7 @@ public class ControlPanel extends JPanel {
    private void setUpTopStatsBox() {
       float textSize = defaultTextSize + 1;
       Box box = Box.createVerticalBox();
-      box.setBorder(BorderFactory.createEmptyBorder(5, 20, 0, 20));
+      box.setBorder(BorderFactory.createEmptyBorder(2, 20, 0, 20));
       box.setOpaque(false);
       box.add(createLevelLabel(defaultTextColour));
       box.add(createLeftRightPanel("Money", textSize, defaultTextColour, moneyLabel));
@@ -575,7 +611,6 @@ public class ControlPanel extends JPanel {
       box.add(createLeftRightPanel("Interest", textSize, defaultTextColour, interestLabel));
       box.add(createLeftRightPanel("Bonuses", textSize, defaultTextColour, upgradesLabel));
       updateInterestLabel();
-
       add(box);
    }
 
@@ -591,6 +626,10 @@ public class ControlPanel extends JPanel {
          MyJLabel label) {
       MyJLabel leftText = createJLabel(text, textSize, textColour);
       return createLeftRightPanel(leftText, textSize, textColour, label);
+   }
+   
+   private MyJLabel createJLabel(String text) {
+      return createJLabel(text, defaultTextSize, defaultTextColour);
    }
    
    private MyJLabel createJLabel(String text, float textSize, Color textColour) {
@@ -610,7 +649,7 @@ public class ControlPanel extends JPanel {
    private void setUpNewTowers() {
       JPanel panel = new JPanel();
       panel.setOpaque(false);
-      panel.setBorder(BorderFactory.createEmptyBorder(7, 0, 5, 0));
+      panel.setBorder(BorderFactory.createEmptyBorder(5, 0, 4, 0));
       int numX = 6;
       int numY = 3;
       int total = numX * numY;
@@ -714,7 +753,7 @@ public class ControlPanel extends JPanel {
 
    private void setUpCurrentTowerStats() {
       Box box = Box.createVerticalBox();
-      box.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
+      box.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 5));
       box.setOpaque(false);
       for(int i = 0; i < Attribute.values().length; i++) {
          if(i != 0) {
@@ -762,7 +801,50 @@ public class ControlPanel extends JPanel {
       centralRow.add(killsLabel);
       box.add(centralRow);
       box.add(SwingHelper.createWrapperPanel(damageDealtLabel));
+      targetLabel.setFontSize(textSize);
+      targetButton.setFont(targetButton.getFont().deriveFont(textSize));
+      JPanel p = SwingHelper.createLeftRightPanel(targetLabel, targetButton);
+      p.setBorder(BorderFactory.createEmptyBorder(0, 40, 3, 40));
+      box.add(p);
       add(box);
+   }
+   
+   private JButton createTargetButton() {
+      JButton button = new JButton(){
+         @Override
+         public void setEnabled(boolean b) {
+            super.setEnabled(b);
+            setBorderPainted(b);
+            if(!b) {
+               setText(" ");
+            }
+         }
+      };
+      button.setForeground(defaultTextColour);
+      button.setOpaque(false);
+      button.setContentAreaFilled(false);
+      button.setFocusPainted(false);
+      // Hack to make the button smaller
+      button.setBorder(BorderFactory.createCompoundBorder(button.getBorder(),
+            BorderFactory.createEmptyBorder(-10, -5, -10, -5)));
+      button.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            processTargetButtonPressed((JButton)e.getSource());
+         }
+      });
+      return button;
+   }
+   
+   private List<Wrapper<String, Comparator<Sprite>>> createComparators() {
+      List<Wrapper<String, Comparator<Sprite>>> list = new ArrayList<Wrapper<String,
+         Comparator<Sprite>>>();
+      list.add(new Wrapper<String, Comparator<Sprite>>("First", new Sprite.FirstComparator()));
+      list.add(new Wrapper<String, Comparator<Sprite>>("Last", new Sprite.LastComparator()));
+      list.add(new Wrapper<String, Comparator<Sprite>>("Fastest", new Sprite.FastestComparator()));
+      list.add(new Wrapper<String, Comparator<Sprite>>("Slowest", new Sprite.SlowestComparator()));
+      list.add(new Wrapper<String, Comparator<Sprite>>("Most HP", new Sprite.MostHPComparator()));
+      list.add(new Wrapper<String, Comparator<Sprite>>("Least HP", new Sprite.LeastHPComparator()));
+      return list;
    }
    
    private void setUpLevelStats() {
@@ -771,8 +853,7 @@ public class ControlPanel extends JPanel {
       box.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 30));
       box.setOpaque(false);
       box.add(createLeftRightPanel("Number", textSize, defaultTextColour, numSpritesLabel));
-      box.add(createLeftRightPanel("Average HP", textSize, defaultTextColour, avgHPLabel));
-      
+      box.add(createLeftRightPanel("Average HP", textSize, defaultTextColour, avgHPLabel));      
       add(box);
    }
 
@@ -787,7 +868,7 @@ public class ControlPanel extends JPanel {
    
    private void setUpCurrentCost() {
       JPanel panel = SwingHelper.createBorderLayedOutJPanel();
-      panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
+      panel.setBorder(BorderFactory.createEmptyBorder(4, 5, 0, 5));
       panel.add(currentCostStringLabel, BorderLayout.WEST);
       panel.add(currentCostLabel, BorderLayout.EAST);
       add(panel);

@@ -23,6 +23,7 @@ import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -42,6 +43,8 @@ public interface Sprite {
    public boolean tick();
    public int getHalfWidth();
    public Point2D getPosition();
+   public double getSpeed();
+   public double getHPLeft();
    public double getTotalDistanceTravelled();
    public Shape getBounds();
    public boolean isAlive();
@@ -62,6 +65,56 @@ public interface Sprite {
    public void slow(double factor, int numTicks);
    public void setDamageMultiplier(double multiplier, int numTicks);
    
+   public abstract class AbstractSpriteComparator implements Comparator<Sprite> {
+      @Override
+      public boolean equals(Object o) {
+         return getClass() == o.getClass();
+      }
+   }
+
+   public class FirstComparator extends AbstractSpriteComparator {
+      @Override
+      public int compare(Sprite s1, Sprite s2) {
+         return (int) (s2.getTotalDistanceTravelled() - s1.getTotalDistanceTravelled());
+      }
+   }
+   
+   public class LastComparator extends FirstComparator {
+      @Override
+      public int compare(Sprite s1, Sprite s2) {
+         return -super.compare(s1, s2);
+      }
+   }
+   
+   public class FastestComparator extends AbstractSpriteComparator {
+      @Override
+      public int compare(Sprite s1, Sprite s2) {
+         return (int)((s2.getSpeed() - s1.getSpeed()) * 100);
+      }
+   }
+   
+   public class SlowestComparator extends FastestComparator {
+      @Override
+      public int compare(Sprite s1, Sprite s2) {
+         return -super.compare(s1, s2);
+      }
+   }
+   
+   public class MostHPComparator extends AbstractSpriteComparator {
+      @Override
+      public int compare(Sprite s1, Sprite s2) {
+         int sign = s2.getHPLeft() > s1.getHPLeft() ? 1 : -1;
+         // Take the log here as the hp difference can get larger than an int
+         return sign * (int)Math.log(Math.abs(s2.getHPLeft() - s1.getHPLeft()) + 1);
+      }
+   }
+   
+   public class LeastHPComparator extends MostHPComparator {
+      @Override
+      public int compare(Sprite s1, Sprite s2) {
+         return -super.compare(s1, s2);
+      }
+   }
    
    public class DamageReport {
       
