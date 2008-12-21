@@ -25,9 +25,9 @@ import images.ImageHelper;
 
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -51,7 +51,7 @@ public class BasicBullet implements Bullet {
    private static final BufferedImage image = ImageHelper.makeImage(radius * 2, radius * 2,
          "other", "bullet.png");
    protected static final int halfWidth = image.getWidth() / 2;
-   private final Polygon path;
+   private final Rectangle2D pathBounds;
    
    /**
     * Creates a new BasicBuller with fields set, but tick and draw
@@ -63,8 +63,9 @@ public class BasicBullet implements Bullet {
     * @param range
     * @param speed
     */
-   protected BasicBullet(Polygon path, Tower shotBy, double damage, int range, double speed) {
-      this.path = path;
+   protected BasicBullet(Rectangle2D pathBounds, Tower shotBy, double damage, int range,
+         double speed) {
+      this.pathBounds = pathBounds;
       this.shotBy = shotBy;
       this.damage = damage;
       this.range = range;
@@ -74,7 +75,7 @@ public class BasicBullet implements Bullet {
    }
    
    public BasicBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-         double speed, double damage, Point p, Polygon path) {
+         double speed, double damage, Point p, Rectangle2D pathBounds) {
       this.shotBy = shotBy;
       int turretWidthPlusRadius = turretWidth + radius;
       this.range = range - turretWidthPlusRadius;
@@ -85,7 +86,7 @@ public class BasicBullet implements Bullet {
       position = new Point2D.Double(p.getX() + turretWidthPlusRadius * dx / divisor,
             p.getY() + turretWidthPlusRadius * dy / divisor);
       lastPosition = new Point2D.Double(position.getX(), position.getY());
-      this.path = path;
+      this.pathBounds = pathBounds;
    }
 
    public final double tick(List<Sprite> sprites) {
@@ -154,7 +155,7 @@ public class BasicBullet implements Bullet {
    
    protected boolean doPointsIntersectPath(List<Point2D> points) {
       for(Point2D p : points) {
-         if(path.contains(p)) {
+         if(pathBounds.contains(p)) {
             return true;
          }
       }

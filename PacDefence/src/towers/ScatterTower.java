@@ -20,7 +20,7 @@
 package towers;
 
 import java.awt.Point;
-import java.awt.Polygon;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +35,9 @@ public class ScatterTower extends AbstractTower {
       this(new Point(), null);
    }
    
-   public ScatterTower(Point p, Polygon path) {
-      super(p, path, "Scatter", 40, 100, 5, 4.5, 50, 10, "scatter.png", "ScatterTower.png", false);
+   public ScatterTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Scatter", 40, 100, 5, 4.5, 50, 10, "scatter.png", "ScatterTower.png",
+            false);
    }
 
    @Override
@@ -65,8 +66,8 @@ public class ScatterTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Polygon path) {
-      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, path);
+         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
 
    @Override

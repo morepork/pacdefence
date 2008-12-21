@@ -19,12 +19,12 @@
 
 package towers;
 
-import gui.GameMap;
+import gui.GameMapPanel;
 import gui.Helper;
 import images.ImageHelper;
 
 import java.awt.Point;
-import java.awt.Polygon;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import sprites.Sprite;
@@ -40,13 +40,13 @@ public class HomingTower extends AbstractTower {
       this(new Point(), null);
    }
    
-   public HomingTower(Point p, Polygon path) {
-      super(p, path, "Homing", 40, 100, 5, 10, 50, 18, "homing.png", "HomingTower.png");
+   public HomingTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Homing", 40, 100, 5, 10, 50, 18, "homing.png", "HomingTower.png");
    }
    
    @Override
    public String getSpecial() {
-      return Helper.format(maxRedirectAngle * GameMap.CLOCK_TICKS_PER_SECOND, 1) + "°/s";
+      return Helper.format(maxRedirectAngle * GameMapPanel.CLOCK_TICKS_PER_SECOND, 1) + "°/s";
    }
 
    @Override
@@ -56,8 +56,8 @@ public class HomingTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Polygon path) {
-      return new HomingBullet(this, dx, dy, turretWidth, range, speed, damage, p, path, s,
+         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+      return new HomingBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, s,
             maxRedirectAngle);
    }
 
@@ -73,9 +73,9 @@ public class HomingTower extends AbstractTower {
       private final double maxRedirectAngle;
       
       private HomingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Polygon path, Sprite s,
+            double speed, double damage, Point p, Rectangle2D pathBounds, Sprite s,
             double maxRedirectAngle) {
-         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, path);
+         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          target = s;
          this.maxRedirectAngle = Math.toRadians(maxRedirectAngle);
       }

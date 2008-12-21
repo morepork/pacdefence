@@ -74,8 +74,7 @@ public class ControlPanel extends JPanel {
    
    //private static final int BASE_TOWER_PRICE = 1000;
    
-   private final BufferedImage backgroundImage = ImageHelper.makeImage("control_panel",
-         "blue_lava.jpg");
+   private final BufferedImage backgroundImage;
    private int level = 0;
    // These labels are in the top stats box
    private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel, upgradesLabel;
@@ -93,7 +92,7 @@ public class ControlPanel extends JPanel {
    private MyJLabel numSpritesLabel, avgHPLabel;
    private MyJLabel currentCostStringLabel, currentCostLabel;
    private final ImageButton start = new ImageButton("start", ".png", true);
-   private final GameMap map;
+   private final GameMapPanel map;
    private Tower selectedTower, buildingTower, rolloverTower, hoverOverTower;
    private final Color defaultTextColour = Color.YELLOW;
    private final float defaultTextSize = 12F;
@@ -107,7 +106,8 @@ public class ControlPanel extends JPanel {
    private static final int upgradeMoney = 1000;
    private static final double upgradeInterest = 0.005;
 
-   public ControlPanel(int width, int height, GameMap map) {
+   public ControlPanel(int width, int height, BufferedImage backgroundImage, GameMapPanel map) {
+      this.backgroundImage = ImageHelper.resize(backgroundImage, width, height);
       // Reflective method to set up the MyJLabels
       setUpJLabels();
       // I know this is terrible coupling, I plan to fix it later
@@ -556,7 +556,7 @@ public class ControlPanel extends JPanel {
       levelLabel.setHorizontalAlignment(JLabel.CENTER);
       levelLabel.setFontSize(25);
       updateLevelStats();
-      return createBorderLayedOutJPanel(levelLabel, BorderLayout.CENTER);
+      return SwingHelper.createBorderLayedOutWrapperPanel(levelLabel, BorderLayout.CENTER);
    }
 
    private JPanel createLeftRightPanel(String text, float textSize, Color textColour,
@@ -764,12 +764,6 @@ public class ControlPanel extends JPanel {
       panel.add(currentCostLabel, BorderLayout.EAST);
       add(panel);
    }
-
-   private JPanel createBorderLayedOutJPanel(Component comp, String pos) {
-      JPanel panel = SwingHelper.createBorderLayedOutJPanel();
-      panel.add(comp, pos);
-      return panel;
-   }
    
    private JButton createSellButton() {
       JButton b = new OverlayButton("buttons", "sell.png");
@@ -786,34 +780,6 @@ public class ControlPanel extends JPanel {
          }
       });
       return b;
-   }
-   
-   private class MyJLabel extends JLabel {
-      // This class just makes it easier to set the values of the text fields as I
-      // can just pass a number instead of changing them to Strings all the time
-      public MyJLabel() {
-         super();
-      }
-      
-      public MyJLabel(String text) {
-         super(text);
-      }
-      
-      public void setFontSize(float size) {
-         setFont(getFont().deriveFont(size));
-      }
-      
-      public void setText(int i) {
-         setText(String.valueOf(i));
-      }
-      
-      public void setText(long l) {
-         setText(String.valueOf(l));
-      }
-      
-      public void setText(double d){
-         setText(String.valueOf(d));
-      }      
    }
 
    private static class TowerStat {

@@ -19,11 +19,11 @@
 
 package towers;
 
-import gui.GameMap;
+import gui.GameMapPanel;
 
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import sprites.Sprite;
@@ -33,18 +33,19 @@ public abstract class SlowTower extends AbstractTower {
    
    protected double slowFactor = 0.50;
    // So it starts at 1s
-   protected double slowTicks = GameMap.CLOCK_TICKS_PER_SECOND;
+   protected double slowTicks = GameMapPanel.CLOCK_TICKS_PER_SECOND;
 
-   public SlowTower(Point p, Polygon path, String name, int fireRate, int range, double bulletSpeed,
-         double damage, int width, int turretWidth, String imageName, String buttonImageName) {
-      super(p, path, name, fireRate, range, bulletSpeed, damage, width, turretWidth, imageName,
+   public SlowTower(Point p, Rectangle2D pathBounds, String name, int fireRate, int range,
+         double bulletSpeed, double damage, int width, int turretWidth, String imageName,
+         String buttonImageName) {
+      super(p, pathBounds, name, fireRate, range, bulletSpeed, damage, width, turretWidth, imageName,
             buttonImageName);
    }
    
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Polygon path) {
-      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, path) {
+         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds) {
          @Override
          public void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
             s.slow(slowFactor, (int)slowTicks);

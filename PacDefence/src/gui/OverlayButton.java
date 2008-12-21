@@ -35,7 +35,7 @@ public class OverlayButton extends JButton {
    static final Color baseColour = new Color(11, 0, 160);
    static final Color pressedColour = new Color(225, 229, 82);
    static final Color rolloverColour = new Color(237, 201, 0);
-   static final Color disabledColour = new Color(188, 188, 188);
+   static final Color disabledColour = new Color(188, 188, 188, 100);
    private static final int overlayWidth = 2;
    
    private static final int TOWER_BUTTON_WIDTH = 30;
@@ -82,10 +82,12 @@ public class OverlayButton extends JButton {
       BufferedImage clone = ImageHelper.cloneImage(image);
       Graphics g = clone.getGraphics();
       g.setColor(colour);
-      g.fillRect(0, 0, overlayWidth, image.getHeight());
-      g.fillRect(0, 0, image.getWidth(), overlayWidth);
-      g.fillRect(image.getWidth() - overlayWidth, 0, overlayWidth, image.getHeight());
-      g.fillRect(0, image.getHeight() - overlayWidth, image.getWidth(), overlayWidth);
+      g.fillRect(0, 0, overlayWidth, image.getHeight() - overlayWidth);
+      g.fillRect(overlayWidth, 0, image.getWidth() - overlayWidth, overlayWidth);
+      g.fillRect(image.getWidth() - overlayWidth, overlayWidth, overlayWidth,
+            image.getHeight() - overlayWidth);
+      g.fillRect(0, image.getHeight() - overlayWidth, image.getWidth() - overlayWidth,
+            overlayWidth);
       return new ImageIcon(clone);
    }
 }

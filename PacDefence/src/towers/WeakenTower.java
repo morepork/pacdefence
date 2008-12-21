@@ -19,12 +19,12 @@
 
 package towers;
 
-import gui.GameMap;
+import gui.GameMapPanel;
 import gui.Helper;
 
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import sprites.Sprite;
@@ -32,21 +32,21 @@ import sprites.Sprite;
 
 public class WeakenTower extends AbstractTower {
    
-   private double extraDamageTicks = GameMap.CLOCK_TICKS_PER_SECOND / 2;
-   private double upgradeIncreaseTicks = GameMap.CLOCK_TICKS_PER_SECOND / 10;
+   private double extraDamageTicks = GameMapPanel.CLOCK_TICKS_PER_SECOND / 2;
+   private double upgradeIncreaseTicks = GameMapPanel.CLOCK_TICKS_PER_SECOND / 10;
    private double increaseDamageFactor = 2;
    
    public WeakenTower() {
       this(new Point(), null);
    }
 
-   public WeakenTower(Point p, Polygon path) {
-      super(p, path, "Weaken", 40, 100, 5, 3, 50, 19, "weaken.png", "WeakenTower.png");
+   public WeakenTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Weaken", 40, 100, 5, 3, 50, 19, "weaken.png", "WeakenTower.png");
    }
 
    @Override
    public String getSpecial() {
-      return Helper.format(extraDamageTicks / GameMap.CLOCK_TICKS_PER_SECOND, 1) + "s";
+      return Helper.format(extraDamageTicks / GameMapPanel.CLOCK_TICKS_PER_SECOND, 1) + "s";
    }
 
    @Override
@@ -56,8 +56,8 @@ public class WeakenTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Polygon path) {
-      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, path){
+         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds){
          @Override
          protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
             s.setDamageMultiplier(increaseDamageFactor, (int)extraDamageTicks);

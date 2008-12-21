@@ -19,30 +19,30 @@
 
 package towers;
 
-import gui.GameMap;
+import gui.GameMapPanel;
 import gui.Helper;
 
 import java.awt.Point;
-import java.awt.Polygon;
+import java.awt.geom.Rectangle2D;
 
 
 public class FreezeTower extends SlowTower {
    
-   private final double upgradeIncreaseTicks = GameMap.CLOCK_TICKS_PER_SECOND / 10;
+   private final double upgradeIncreaseTicks = GameMapPanel.CLOCK_TICKS_PER_SECOND / 10;
       
    public FreezeTower() {
       this(new Point(), null);
    }
    
-   public FreezeTower(Point p, Polygon path) {
-      super(p, path, "Freeze", 40, 100, 5, 1, 50, 22, "freeze.png", "FreezeTower.png");
-      slowTicks = GameMap.CLOCK_TICKS_PER_SECOND / 2.0;
+   public FreezeTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Freeze", 40, 100, 5, 1, 50, 22, "freeze.png", "FreezeTower.png");
+      slowTicks = GameMapPanel.CLOCK_TICKS_PER_SECOND / 2.0;
       slowFactor = 0;
    }
 
    @Override
    public String getSpecial() {
-      return Helper.format(slowTicks / GameMap.CLOCK_TICKS_PER_SECOND, 1) + "s";
+      return Helper.format(slowTicks / GameMapPanel.CLOCK_TICKS_PER_SECOND, 1) + "s";
    }
 
    @Override

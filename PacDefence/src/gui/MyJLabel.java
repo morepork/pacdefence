@@ -17,39 +17,35 @@
  *  (C) Liam Byrne, 2008.
  */
 
-package towers;
+package gui;
 
-import gui.GameMapPanel;
-import gui.Helper;
+import javax.swing.JLabel;
 
-import java.awt.Point;
-import java.awt.geom.Rectangle2D;
-
-
-public class SlowLengthTower extends SlowTower {
-   
-   public SlowLengthTower() {
-      this(new Point(), null);
+@SuppressWarnings("serial")
+public class MyJLabel extends JLabel {
+   // This class just makes it easier to set the values of the text fields as I
+   // can just pass a number instead of changing them to Strings all the time
+   public MyJLabel() {
+      super();
    }
    
-   public SlowLengthTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Slow (length)", 40, 100, 5, 1, 50, 23, "slowLength.png",
-            "SlowLengthTower.png");
+   public MyJLabel(String text) {
+      super(text);
    }
-
-   @Override
-   public String getSpecial() {
-      return Helper.format(slowTicks / GameMapPanel.CLOCK_TICKS_PER_SECOND, 1) + "s";
+   
+   public void setFontSize(float size) {
+      setFont(getFont().deriveFont(size));
    }
-
-   @Override
-   public String getSpecialName() {
-      return "Slow Length";
+   
+   public void setText(int i) {
+      setText(String.valueOf(i));
    }
-
-   @Override
-   protected void upgradeSpecial() {
-      slowTicks *= upgradeIncreaseFactor;
+   
+   public void setText(long l) {
+      setText(String.valueOf(l));
    }
-
+   
+   public void setText(double d){
+      setText(String.valueOf(d));
+   }      
 }

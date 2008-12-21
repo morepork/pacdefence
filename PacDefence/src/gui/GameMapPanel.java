@@ -50,7 +50,7 @@ import towers.Tower.Attribute;
 
 
 @SuppressWarnings("serial")
-public class GameMap extends JPanel {
+public class GameMapPanel extends JPanel {
 
 
    // Time clock takes to update in ms
@@ -86,18 +86,20 @@ public class GameMap extends JPanel {
    private GameOver gameOver = null;
    private final TextDisplay textDisplay = new TextDisplay(); 
 
-   public GameMap(int width, int height, BufferedImage background, BufferedImage pathImage) {
+   public GameMapPanel(int width, int height, BufferedImage background, GameMap map) {
       setDoubleBuffered(false);
       setPreferredSize(new Dimension(width, height));
       backgroundImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
       Graphics g = backgroundImage.getGraphics();
       g.drawImage(background, 0, 0, width, height, null);
-      g.drawImage(pathImage, 0, 0, width, height, null);
+      g.drawImage(map.getImage(), 0, 0, width, height, null);
       buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
       bufferGraphics = (Graphics2D) buffer.getGraphics();
-      pathPoints = makePathPoints();
-      path = makePath();
-      //printClickedCoords();
+      pathPoints = map.getPathPoints();
+      path = map.getPath();
+      if(debugPath) {
+         printClickedCoords();
+      }
       addMouseListeners();
       clockRunnable = new Clock();
       clock = new Thread(clockRunnable);
@@ -206,7 +208,7 @@ public class GameMap extends JPanel {
       if(buildingTower != null) {
          Point p = getMousePosition();
          if (p != null) {
-            buildingTower = buildingTower.constructNew(p, clonePath());
+            buildingTower = buildingTower.constructNew(p, path.getBounds2D());
             buildingTower.drawShadow(g);
          }
       }
@@ -286,7 +288,7 @@ public class GameMap extends JPanel {
       if(buildingTower == null) {
          return;
       }
-      Tower toBuild = buildingTower.constructNew(p, clonePath());
+      Tower toBuild = buildingTower.constructNew(p, path.getBounds2D());
       for(Tower t : towers) {
          // Checks that the point doesn't clash with another tower
          if(t.doesTowerClashWith(toBuild)) {
@@ -318,24 +320,6 @@ public class GameMap extends JPanel {
       }
    }
    
-   private List<Point> makePathPoints(){
-      List<Point> list = new ArrayList<Point>();
-      list.add(new Point(0, 135));
-      list.add(new Point(235, 135));
-      list.add(new Point(235, 335));
-      list.add(new Point(100, 335));
-      list.add(new Point(100, 470));
-      list.add(new Point(600, 470));
-      return Collections.unmodifiableList(list);
-   }
-   
-   private Polygon makePath() {
-      // These need to be worked out depending on the image.
-      int[] xPoints = new int[]{0, 273, 273, 137, 137, 600, 600, 67, 67, 203, 203, 0};
-      int[] yPoints = new int[]{106, 106, 372, 372, 438, 438, 503, 503, 305, 305, 166, 166};
-      return new Polygon(xPoints, yPoints, xPoints.length);
-   }
-   
    private void selectTower(Tower t) {
       cp.selectTower(t);
       t.select(true);
@@ -360,10 +344,6 @@ public class GameMap extends JPanel {
       if(gameOver == null) {
          gameOver = new GameOver();
       }
-   }
-   
-   private Polygon clonePath() {
-      return new Polygon(path.xpoints, path.ypoints, path.npoints);
    }
    
    /**
@@ -403,6 +383,38 @@ public class GameMap extends JPanel {
             System.out.println("Mouse clicked on map at (" + e.getX() + "," + e.getY() + ")");
          }
       });
+   }
+   
+   public static class GameMap {
+
+      private final String description;
+      private final List<Point> pathPoints;
+      private final Polygon path;
+      private final BufferedImage image;
+      
+      public GameMap(String description, List<Point> pathPoints, Polygon path,
+            BufferedImage image) {
+         this.description = description;
+         this.pathPoints = pathPoints;
+         this.path = path;
+         this.image = image;
+      }
+      
+      public String getDescription() {
+         return description;
+      }
+      
+      public List<Point> getPathPoints() {
+         return pathPoints;
+      }
+      
+      public Polygon getPath() {
+         return path;
+      }
+      
+      public BufferedImage getImage() {
+         return image;
+      }
    }
    
    private class Clock implements Runnable {

@@ -21,7 +21,7 @@ package towers;
 
 import gui.Circle;
 import gui.Formulae;
-import gui.GameMap;
+import gui.GameMapPanel;
 import gui.Helper;
 import images.ImageHelper;
 
@@ -31,9 +31,9 @@ import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -97,7 +97,7 @@ public abstract class AbstractTower implements Tower {
    private BufferedImage currentImage;
    private final BufferedImage buttonImage;
    
-   private final Polygon path;
+   private final Rectangle2D pathBounds;
 
    private boolean isSelected = false;
 
@@ -111,18 +111,18 @@ public abstract class AbstractTower implements Tower {
    
    private List<Bullet> bulletsToAdd = new ArrayList<Bullet>();
 
-   protected AbstractTower(Point p, Polygon path, String name, int fireRate, double range,
-         double bulletSpeed, double damage, int width, int turretWidth, String imageName,
-         String buttonImageName) {
-      this(p, path, name, fireRate, range, bulletSpeed, damage, width, turretWidth, imageName,
-            buttonImageName, true);
+   protected AbstractTower(Point p, Rectangle2D pathBounds, String name, int fireRate,
+         double range, double bulletSpeed, double damage, int width, int turretWidth,
+         String imageName, String buttonImageName) {
+      this(p, pathBounds, name, fireRate, range, bulletSpeed, damage, width, turretWidth,
+            imageName, buttonImageName, true);
    }
    
-   protected AbstractTower(Point p, Polygon path, String name, int fireRate, double range,
-         double bulletSpeed, double damage, int width, int turretWidth, String imageName,
-         String buttonImageName, boolean rotateTurret) {
+   protected AbstractTower(Point p, Rectangle2D pathBounds, String name, int fireRate,
+         double range, double bulletSpeed, double damage, int width, int turretWidth,
+         String imageName, String buttonImageName, boolean rotateTurret) {
       centre = new Point(p);
-      this.path = path;
+      this.pathBounds = pathBounds;
       // Only temporary, it gets actually set later
       topLeft = new Point(0, 0);
       this.name = name;
@@ -293,7 +293,7 @@ public abstract class AbstractTower implements Tower {
          case Range:
             return Helper.format(range, 0);
          case Rate:
-            return Helper.format(fireRate / GameMap.CLOCK_TICKS_PER_SECOND, 2) + "s";
+            return Helper.format(fireRate / GameMapPanel.CLOCK_TICKS_PER_SECOND, 2) + "s";
          case Speed:
             return Helper.format(bulletSpeed, 2);
          case Special:
@@ -320,11 +320,11 @@ public abstract class AbstractTower implements Tower {
    }
    
    @Override
-   public Tower constructNew(Point p, Polygon path) {
+   public Tower constructNew(Point p, Rectangle2D pathBounds) {
       try {
          Constructor<? extends Tower> c = this.getClass().getConstructor(Point.class,
-               Polygon.class);
-         return c.newInstance(p, path);
+               Rectangle2D.class);
+         return c.newInstance(p, pathBounds);
       } catch(Exception e) {
          // No exception should be thrown if the superclass is reasonably behaved
          throw new RuntimeException("\nSuperclass of AbstractTower is not well behaved.\n" + e +
@@ -421,12 +421,12 @@ public abstract class AbstractTower implements Tower {
    protected abstract String getSpecialName();
    
    protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Sprite s, Polygon path);
+            double speed, double damage, Point p, Sprite s, Rectangle2D pathBounds);
    
    protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Sprite s, Polygon path) {
+            double speed, double damage, Point p, Sprite s, Rectangle2D pathBounds) {
       return Helper.makeListContaining(makeBullet(dx, dy, turretWidth, range, speed,
-            damage, p, s, path));
+            damage, p, s, pathBounds));
    }
    
    protected List<Bullet> fireBullets(List<Sprite> sprites) {
@@ -468,7 +468,7 @@ public abstract class AbstractTower implements Tower {
       if(imageRotates && rotateTurret) {
          currentImage = rotateImage(ImageHelper.vectorAngle(dx, -dy));
       }
-      return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, s, path);
+      return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, s, pathBounds);
    }
 
    protected void upgradeDamage() {

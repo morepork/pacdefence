@@ -20,8 +20,8 @@
 package towers;
 
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,8 +37,8 @@ public class JumpingTower extends AbstractTower {
       this(new Point(), null);
    }
    
-   public JumpingTower(Point p, Polygon path) {
-      super(p, path, "Jumper", 40, 100, 5, 4, 50, 20, "jumping.png", "JumpingTower.png");
+   public JumpingTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Jumper", 40, 100, 5, 4, 50, 20, "jumping.png", "JumpingTower.png");
    }
 
    @Override
@@ -53,8 +53,8 @@ public class JumpingTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Polygon path) {
-      return new JumpingBullet(this, dx, dy, turretWidth, range, speed, damage, p, path, jumps);
+         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+      return new JumpingBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, jumps);
    }
 
    @Override
@@ -70,8 +70,8 @@ public class JumpingTower extends AbstractTower {
       private static final double jumpRangeDividend = 2;
 
       public JumpingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Polygon path, int jumps) {
-         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, path);
+            double speed, double damage, Point p, Rectangle2D pathBounds, int jumps) {
+         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          hitsLeft = jumps;
          jumpRange = (int)(range / jumpRangeDividend);
       }

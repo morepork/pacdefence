@@ -24,10 +24,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import sprites.Sprite;
@@ -42,8 +42,8 @@ public class LaserTower extends AbstractTower {
       this(new Point(), null);
    }
    
-   public LaserTower(Point p, Polygon path) {
-      super(p, path, "Laser", 40, 100, 8, 1.3, 50, 24, "laser.png", "LaserTower.png");
+   public LaserTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Laser", 40, 100, 8, 1.4, 50, 24, "laser.png", "LaserTower.png");
    }
 
    @Override
@@ -58,13 +58,13 @@ public class LaserTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Polygon path) {
+         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
       double divisor = Math.sqrt(dx * dx + dy * dy);
       Point2D firstPoint = new Point2D.Double(p.getX() + turretWidth * dx / divisor,
             p.getY() + turretWidth * dy / divisor);
       Point2D lastPoint = new Point2D.Double(p.getX() + range * dx / divisor,
             p.getY() + range * dy / divisor);
-      return new Laser(path, this, firstPoint, lastPoint, speed, damage, range - turretWidth, beamLength);
+      return new Laser(pathBounds, this, firstPoint, lastPoint, speed, damage, range - turretWidth, beamLength);
    }
 
    @Override
@@ -81,9 +81,9 @@ public class LaserTower extends AbstractTower {
       private final double xStep, yStep;
       private double moneyEarnt = 0;
       
-      public Laser(Polygon path, Tower shotBy, Point2D firstPoint, Point2D lastPoint, double speed,
-            double damage, int range, double length) {
-         super(path, shotBy, damage, range, speed);
+      public Laser(Rectangle2D pathBounds, Tower shotBy, Point2D firstPoint, Point2D lastPoint,
+            double speed, double damage, int range, double length) {
+         super(pathBounds, shotBy, damage, range, speed);
          this.lastPoint = lastPoint;
          this.length = length;
          double distance = firstPoint.distance(lastPoint);

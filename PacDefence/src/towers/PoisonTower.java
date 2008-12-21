@@ -19,13 +19,13 @@
 
 package towers;
 
-import gui.GameMap;
+import gui.GameMapPanel;
 import gui.Helper;
 
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import sprites.Sprite;
@@ -35,24 +35,25 @@ public class PoisonTower extends AbstractTower {
    
    // Half the damage is by poison, and half normal damage at the start
    private static final double baseDamage = 6;
-   private double damagePerTick = baseDamage / GameMap.CLOCK_TICKS_PER_SECOND;
-   private double poisonTicks = GameMap.CLOCK_TICKS_PER_SECOND;
+   private double damagePerTick = baseDamage / GameMapPanel.CLOCK_TICKS_PER_SECOND;
+   private double poisonTicks = GameMapPanel.CLOCK_TICKS_PER_SECOND;
    private final double poisonTicksUpgrade = poisonTicks * (upgradeIncreaseFactor - 1);
    
    public PoisonTower() {
       this(new Point(), null);
    }
    
-   public PoisonTower(Point p, Polygon path) {
-      super(p, path, "Poison", 40, 100, 5, baseDamage, 50, 20, "poison.png", "PoisonTower.png");
+   public PoisonTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Poison", 40, 100, 5, baseDamage, 50, 20, "poison.png",
+            "PoisonTower.png");
    }
 
    @Override
    public String getSpecial() {
       StringBuilder s = new StringBuilder();
-      s.append(Helper.format(damagePerTick * GameMap.CLOCK_TICKS_PER_SECOND, 2));
+      s.append(Helper.format(damagePerTick * GameMapPanel.CLOCK_TICKS_PER_SECOND, 2));
       s.append(" hp/s for ");
-      s.append(Helper.format(poisonTicks / GameMap.CLOCK_TICKS_PER_SECOND, 2));
+      s.append(Helper.format(poisonTicks / GameMapPanel.CLOCK_TICKS_PER_SECOND, 2));
       s.append("s");
       return s.toString();
    }
@@ -65,13 +66,13 @@ public class PoisonTower extends AbstractTower {
    @Override
    protected void upgradeDamage() {
       super.upgradeDamage();
-      damagePerTick = getDamage() / GameMap.CLOCK_TICKS_PER_SECOND;
+      damagePerTick = getDamage() / GameMapPanel.CLOCK_TICKS_PER_SECOND;
    }
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Polygon path) {
-      return new PoisonBullet(this, dx, dy, turretWidth, range, speed, damage, p, path);
+         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+      return new PoisonBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
 
    @Override
@@ -86,8 +87,8 @@ public class PoisonTower extends AbstractTower {
       private int poisonTicksLeft;
       
       public PoisonBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Polygon path) {
-         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, path);
+            double speed, double damage, Point p, Rectangle2D pathBounds) {
+         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          poisonTicksLeft = (int)poisonTicks;
       }
       

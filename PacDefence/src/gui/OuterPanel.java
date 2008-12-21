@@ -19,6 +19,7 @@
 
 package gui;
 
+import gui.GameMapPanel.GameMap;
 import images.ImageHelper;
 
 import java.awt.BorderLayout;
@@ -45,23 +46,41 @@ public class OuterPanel extends JPanel {
    public static final int CONTROLS_HEIGHT = MAP_HEIGHT;
 
    private final Title title;
-   private final GameMap map;
-   private final ControlPanel controlPanel; 
+   private SelectionScreens selection;
+   private GameMapPanel map;
+   private ControlPanel controlPanel; 
    
    public OuterPanel() {
-      map = new GameMap(MAP_WIDTH, MAP_HEIGHT, ImageHelper.makeImage("maps",
-            "rainbowColours.jpg"), ImageHelper.makeImage("maps", "mosaicPathMedium.png"));
-      controlPanel = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT, map);
-      title = new Title(WIDTH, HEIGHT, new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
-            remove(title);
-            add(map, BorderLayout.WEST);
-            add(controlPanel, BorderLayout.EAST);
-            revalidate();
-         }
-      });
+      title = createTitle();
       setLayout(new BorderLayout());
       setPreferredSize(new Dimension(WIDTH, HEIGHT));
       add(title);
+   }
+   
+   public Title createTitle() {
+      return new Title(WIDTH, HEIGHT, new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            selection = createSelectionScreens();
+            remove(title);
+            add(selection);
+            revalidate();
+         }
+      });
+   }
+   
+   private SelectionScreens createSelectionScreens() {
+      return new SelectionScreens(WIDTH, HEIGHT, new CarryOn());
+   }
+   
+   public class CarryOn {
+      public void carryOn(GameMap g) {
+         map = new GameMapPanel(MAP_WIDTH, MAP_HEIGHT, ImageHelper.makeImage("maps",
+               "rainbowColours.jpg"), g);
+         controlPanel = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
+         ImageHelper.makeImage("control_panel", "blue_lava.jpg"), map);
+         add(map, BorderLayout.WEST);
+         add(controlPanel, BorderLayout.EAST);
+         revalidate();
+      }
    }
 }

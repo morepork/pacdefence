@@ -27,7 +27,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
@@ -48,8 +47,8 @@ public class WaveTower extends AbstractTower {
       this(new Point(), null);
    }
 
-   public WaveTower(Point p, Polygon path) {
-      super(p, path, "Wave", 40, 100, 5, 5.25, 50, 6, "wave.png", "WaveTower.png");
+   public WaveTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Wave", 40, 100, 5, 5.25, 50, 6, "wave.png", "WaveTower.png");
    }
 
    @Override
@@ -64,8 +63,8 @@ public class WaveTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Polygon path) {
-      return new WaveBullet(this, dx, dy, turretWidth, range, speed, damage, p, path, angle);
+         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+      return new WaveBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, angle);
    }
 
    @Override
@@ -85,14 +84,14 @@ public class WaveTower extends AbstractTower {
       private final Rectangle2D pathBounds;
       
       public WaveBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Polygon path, int angle) {
-         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, path);
+            double speed, double damage, Point p, Rectangle2D pathBounds, int angle) {
+         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          double midAngle = ImageHelper.vectorAngle(dx, dy);
          startAngle = Math.toDegrees(midAngle - Math.PI / 2) - angle / 2;
          extentAngle = angle;
          start = p;
          this.turretWidth = turretWidth;
-         pathBounds = path.getBounds2D();
+         this.pathBounds = pathBounds;
       }
       
       @Override

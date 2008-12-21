@@ -41,6 +41,12 @@ public class SwingHelper {
       panel.setLayout(new BorderLayout());
       return panel;
    }
+
+   public static JPanel createBorderLayedOutWrapperPanel(Component comp, String pos) {
+      JPanel panel = SwingHelper.createBorderLayedOutJPanel();
+      panel.add(comp, pos);
+      return panel;
+   }
    
    public static JPanel createLeftRightPanel(Component left, Component right) {
       JPanel panel = createBorderLayedOutJPanel();

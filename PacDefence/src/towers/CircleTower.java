@@ -24,8 +24,8 @@ import images.ImageHelper;
 
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,8 +40,9 @@ public class CircleTower extends AbstractTower {
       this(new Point(), null);
    }
 
-   public CircleTower(Point p, Polygon path) {
-      super(p, path, "Circle", 40, 100, 5, 10, 50, 0, "circle.png", "CircleTower.png", false);
+   public CircleTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Circle", 40, 100, 5, 10, 50, 0, "circle.png", "CircleTower.png",
+            false);
    }
 
    @Override
@@ -56,8 +57,8 @@ public class CircleTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Polygon path) {
-      return new CirclingBullet(this, dx, dy, turretWidth, range, speed, damage, p, s, path);
+         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+      return new CirclingBullet(this, dx, dy, turretWidth, range, speed, damage, p, s, pathBounds);
    }
 
    @Override
@@ -77,8 +78,8 @@ public class CircleTower extends AbstractTower {
       private Collection<Sprite> hitSprites = new ArrayList<Sprite>();
 
       public CirclingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Sprite s, Polygon path) {
-         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, path);
+            double speed, double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          double distance = p.distance(s.getPosition()) - s.getHalfWidth();
          double angleToSprite = ImageHelper.vectorAngle(dx, dy);
          double theta = angleToSprite - Math.acos(distance / getRange());

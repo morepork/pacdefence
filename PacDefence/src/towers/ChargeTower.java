@@ -19,11 +19,11 @@
 
 package towers;
 
-import gui.GameMap;
+import gui.GameMapPanel;
 import gui.Helper;
 
 import java.awt.Point;
-import java.awt.Polygon;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import sprites.Sprite;
@@ -33,14 +33,14 @@ public class ChargeTower extends AbstractTower {
    
    private double maxDamageMultiplier = 5;
    private double nextDamageMultiplier = 1;
-   private static final int ticksToCharge = (int)(2 * GameMap.CLOCK_TICKS_PER_SECOND);
+   private static final int ticksToCharge = (int)(2 * GameMapPanel.CLOCK_TICKS_PER_SECOND);
 
    public ChargeTower() {
       this(new Point(), null);
    }
    
-   public ChargeTower(Point p, Polygon path) {
-      super(p, path, "Charge", 40, 100, 5, 9, 50, 16, "charge.png", "ChargeTower.png");
+   public ChargeTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Charge", 40, 100, 5, 9, 50, 16, "charge.png", "ChargeTower.png");
    }
    
    @Override
@@ -73,8 +73,8 @@ public class ChargeTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Polygon path) {
-      return new BasicBullet(this, dx, dy, turretWidth, range, speed, getNextDamage(), p, path);
+         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+      return new BasicBullet(this, dx, dy, turretWidth, range, speed, getNextDamage(), p, pathBounds);
    }
 
    @Override

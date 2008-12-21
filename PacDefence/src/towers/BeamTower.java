@@ -20,7 +20,7 @@
 package towers;
 
 import gui.Circle;
-import gui.GameMap;
+import gui.GameMapPanel;
 import gui.Helper;
 import images.ImageHelper;
 
@@ -29,7 +29,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
@@ -47,15 +46,15 @@ import sprites.Sprite.DamageReport;
 public class BeamTower extends AbstractTower {
    
    // The number of ticks the beam lasts for
-   private double beamLastTicks = GameMap.CLOCK_TICKS_PER_SECOND / 2;
-   private static final double upgradeBeamLastTicks = GameMap.CLOCK_TICKS_PER_SECOND / 20;
+   private double beamLastTicks = GameMapPanel.CLOCK_TICKS_PER_SECOND / 2;
+   private static final double upgradeBeamLastTicks = GameMapPanel.CLOCK_TICKS_PER_SECOND / 20;
    
    public BeamTower() {
       this(new Point(), null);
    }
 
-   public BeamTower(Point p, Polygon path) {
-      super(p, path, "Beam", 40, 100, 40, 4.5, 50, 0, "beam.png", "BeamTower.png", false);
+   public BeamTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Beam", 40, 100, 40, 4.5, 50, 0, "beam.png", "BeamTower.png", false);
    }
    
    @Override
@@ -69,7 +68,7 @@ public class BeamTower extends AbstractTower {
 
    @Override
    protected String getSpecial() {
-      return Helper.format(beamLastTicks / GameMap.CLOCK_TICKS_PER_SECOND, 2) + "s";
+      return Helper.format(beamLastTicks / GameMapPanel.CLOCK_TICKS_PER_SECOND, 2) + "s";
    }
 
    @Override
@@ -79,9 +78,9 @@ public class BeamTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Polygon path) {
+         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
       double angle = ImageHelper.vectorAngle(dx, dy);
-      return new Beam(this, p, angle, range, speed, damage, path, s, (int)beamLastTicks);
+      return new Beam(this, p, angle, range, speed, damage, pathBounds, s, (int)beamLastTicks);
    }
    
    @Override
@@ -109,13 +108,13 @@ public class BeamTower extends AbstractTower {
       //private List<Point2D> points = Collections.emptyList();
       
       private Beam(Tower t, Point2D centre, double angle, int range, double speed, double damage,
-            Polygon path, Sprite target, int numTicks) {
+            Rectangle2D pathBounds, Sprite target, int numTicks) {
          deltaAlpha = (beamColour.getAlpha() - minAlpha) / numTicks;
          this.centre = centre;
-         pathBounds = path.getBounds2D();
+         this.pathBounds = pathBounds;
          this.launchedBy = t;
          currentAngle = Math.toDegrees(angle);
-         deltaAngle = speed / GameMap.CLOCK_TICKS_PER_SECOND;
+         deltaAngle = speed / GameMapPanel.CLOCK_TICKS_PER_SECOND;
          circle = new Circle(centre, range);
          this.target = target;
          ticksLeft = numTicks;
@@ -169,7 +168,7 @@ public class BeamTower extends AbstractTower {
          Point2D centre = circle.getCentre();
          double angleBetween = ImageHelper.vectorAngle(p.getX() - centre.getX(),
                p.getY() - centre.getY());
-         int mult = (angleBetween > currentAngle) ? -1 : 1;
+         int mult = (Math.toDegrees(angleBetween) > currentAngle) ? -1 : 1;
          deltaAngle *= mult;
          target = null;
       }

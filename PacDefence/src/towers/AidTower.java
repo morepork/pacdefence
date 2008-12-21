@@ -19,10 +19,10 @@
 
 package towers;
 
-import gui.GameMap;
+import gui.GameMapPanel;
 
 import java.awt.Point;
-import java.awt.Polygon;
+import java.awt.geom.Rectangle2D;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
@@ -52,8 +52,8 @@ public class AidTower extends AbstractTower {
       this(new Point(), null);
    }
 
-   public AidTower(Point p, Polygon path) {
-      super(p, path, "Aid", 0, 100, 0, 0, 50, 0, "aid.png", "AidTower.png", false);
+   public AidTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Aid", 0, 100, 0, 0, 50, 0, "aid.png", "AidTower.png", false);
    }
    
    @Override
@@ -88,7 +88,7 @@ public class AidTower extends AbstractTower {
          public void run() {
             addTowers();
          }
-      }, 0, GameMap.CLOCK_TICK);
+      }, 0, GameMapPanel.CLOCK_TICK);
    }
 
    @Override
@@ -103,7 +103,7 @@ public class AidTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Polygon path) {
+         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
       throw new RuntimeException("makeBullet called on AidTower which doesn't shoot");
    }
    

@@ -1,7 +1,7 @@
 package towers;
 
 import java.awt.Point;
-import java.awt.Polygon;
+import java.awt.geom.Rectangle2D;
 
 import sprites.Sprite;
 
@@ -14,14 +14,14 @@ public class BasicTower extends AbstractTower {
       this(new Point(), null);
    }
    
-   public BasicTower(Point p, Polygon path) {
-      super(p, path, "Basic", 40, 100, 5, 10, 50, 25, "basic.png", "BasicTower.png");
+   public BasicTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Basic", 40, 100, 5, 10, 50, 25, "basic.png", "BasicTower.png");
    }
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Polygon path) {
-      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, path);
+         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
 
    @Override
