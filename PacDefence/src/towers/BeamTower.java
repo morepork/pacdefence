@@ -76,7 +76,7 @@ public class BeamTower extends AbstractTower {
       if(a == Attribute.Speed) {
          return "Beam Speed";
       } else {
-         return super.getStat(a);
+         return super.getStatName(a);
       }
    }
 
