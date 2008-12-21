@@ -40,7 +40,7 @@ public class ChargeTower extends AbstractTower {
    }
    
    public ChargeTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Charge", 40, 100, 5, 9, 50, 16, "charge.png", "ChargeTower.png");
+      super(p, pathBounds, "Charge", 40, 100, 5, 10, 50, 16, "charge.png", "ChargeTower.png");
    }
    
    @Override

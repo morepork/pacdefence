@@ -34,10 +34,10 @@ import sprites.Sprite;
 public class PoisonTower extends AbstractTower {
    
    // Half the damage is by poison, and half normal damage at the start
-   private static final double baseDamage = 6;
+   private static final double baseDamage = 8;
    private double damagePerTick = baseDamage / GameMapPanel.CLOCK_TICKS_PER_SECOND;
    private double poisonTicks = GameMapPanel.CLOCK_TICKS_PER_SECOND;
-   private final double poisonTicksUpgrade = poisonTicks * (upgradeIncreaseFactor - 1);
+   private final double poisonTicksUpgrade = GameMapPanel.CLOCK_TICKS_PER_SECOND / 10;
    
    public PoisonTower() {
       this(new Point(), null);
@@ -53,7 +53,7 @@ public class PoisonTower extends AbstractTower {
       StringBuilder s = new StringBuilder();
       s.append(Helper.format(damagePerTick * GameMapPanel.CLOCK_TICKS_PER_SECOND, 2));
       s.append(" hp/s for ");
-      s.append(Helper.format(poisonTicks / GameMapPanel.CLOCK_TICKS_PER_SECOND, 2));
+      s.append(Helper.format(poisonTicks / GameMapPanel.CLOCK_TICKS_PER_SECOND, 1));
       s.append("s");
       return s.toString();
    }

@@ -41,7 +41,7 @@ public class HomingTower extends AbstractTower {
    }
    
    public HomingTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Homing", 40, 100, 5, 10, 50, 18, "homing.png", "HomingTower.png");
+      super(p, pathBounds, "Homing", 40, 100, 5, 12.5, 50, 18, "homing.png", "HomingTower.png");
    }
    
    @Override

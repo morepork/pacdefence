@@ -41,7 +41,7 @@ public class WeakenTower extends AbstractTower {
    }
 
    public WeakenTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Weaken", 40, 100, 5, 3, 50, 19, "weaken.png", "WeakenTower.png");
+      super(p, pathBounds, "Weaken", 40, 100, 5, 1, 50, 19, "weaken.png", "WeakenTower.png");
    }
 
    @Override

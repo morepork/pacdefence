@@ -38,7 +38,7 @@ public class PiercerTower extends AbstractTower {
    }
    
    public PiercerTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Piercer", 40, 100, 5, 7, 50, 20, "piercer.png", "PiercingTower.png");
+      super(p, pathBounds, "Piercer", 40, 100, 5, 8, 50, 20, "piercer.png", "PiercingTower.png");
    }
 
    @Override

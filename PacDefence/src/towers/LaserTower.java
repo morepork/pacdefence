@@ -43,7 +43,7 @@ public class LaserTower extends AbstractTower {
    }
    
    public LaserTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Laser", 40, 100, 8, 1.4, 50, 24, "laser.png", "LaserTower.png");
+      super(p, pathBounds, "Laser", 40, 100, 8, 1.5, 50, 24, "laser.png", "LaserTower.png");
    }
 
    @Override

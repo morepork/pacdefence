@@ -70,6 +70,15 @@ public class BeamTower extends AbstractTower {
          return super.getStat(a);
       }
    }
+   
+   @Override
+   public String getStatName(Attribute a) {
+      if(a == Attribute.Speed) {
+         return "Beam Speed";
+      } else {
+         return super.getStat(a);
+      }
+   }
 
    @Override
    protected String getSpecial() {

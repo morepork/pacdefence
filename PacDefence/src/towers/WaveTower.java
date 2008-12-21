@@ -48,7 +48,7 @@ public class WaveTower extends AbstractTower {
    }
 
    public WaveTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Wave", 40, 100, 5, 5.25, 50, 6, "wave.png", "WaveTower.png");
+      super(p, pathBounds, "Wave", 40, 100, 5, 5.5, 50, 6, "wave.png", "WaveTower.png");
    }
 
    @Override

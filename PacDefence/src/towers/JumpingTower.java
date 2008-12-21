@@ -38,7 +38,7 @@ public class JumpingTower extends AbstractTower {
    }
    
    public JumpingTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Jumper", 40, 100, 5, 4, 50, 20, "jumping.png", "JumpingTower.png");
+      super(p, pathBounds, "Jumper", 40, 100, 5, 4.5, 50, 20, "jumping.png", "JumpingTower.png");
    }
 
    @Override
