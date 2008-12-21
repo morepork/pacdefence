@@ -55,6 +55,11 @@ public class BeamTower extends AbstractTower {
 
    public BeamTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Beam", 40, 100, 40, 4.5, 50, 0, "beam.png", "BeamTower.png", false);
+      // This is a grossly overpowered version for testing performance.
+      /*super(p, pathBounds, "Beam", 0, 1000, 100, 0.1, 50, 0, "beam.png", "BeamTower.png", false);
+      for(int i = 0; i < 20; i++) {
+         upgradeSpecial();
+      }*/
    }
    
    @Override
@@ -176,12 +181,49 @@ public class BeamTower extends AbstractTower {
       private List<Point2D> makePoints() {
          List<Point2D> points = new ArrayList<Point2D>();
          Arc2D a = new Arc2D.Double();
+         double angleStart = currentAngle - 90;
+         double radAngleStart = Math.toRadians(currentAngle);
+         double sinAngle = Math.sin(radAngleStart);
+         double cosAngle = Math.cos(radAngleStart);
+         double numPointsMult = 2 * Math.PI * deltaAngle / 360;
          for(int i = 1; i <= circle.getRadius(); i++) {
-            a.setArcByCenter(centre.getX(), centre.getY(), i, currentAngle - 90, deltaAngle,
+            a.setArcByCenter(centre.getX(), centre.getY(), i, angleStart, deltaAngle,
                   Arc2D.OPEN);
-            points.addAll(Helper.getPointsOnArc(a, pathBounds));
+            //points.addAll(Helper.getPointsOnArc(a, pathBounds));
+            points.addAll(getPointsOnArc(a, i, i * numPointsMult, sinAngle, cosAngle,
+                  pathBounds));
          }
          //this.points = points;
+         return points;
+      }
+      
+      public static List<Point2D> getPointsOnArc(Arc2D a, double radius, double numPoints, double sinAngle, double cosAngle, Rectangle2D containingRect) {
+         // Copied from the one in helper with a few optimisations as the arcs
+         // are the same except with different radii. Gave an ~20% improvement
+         // in a simple test.
+         double deltaAngle = 1 / radius;
+         List<Point2D> points = new ArrayList<Point2D>();
+         Point2D p = a.getStartPoint();
+         if(containingRect.contains(p)) {
+            points.add(p);
+         }
+         double x = a.getCenterX();
+         double y = a.getCenterY();
+         double sinDeltaAngle = Math.sin(deltaAngle);
+         double cosDeltaAngle = Math.cos(deltaAngle);
+         for(int i = 0; i < numPoints; i++) {
+            double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
+            cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
+            sinAngle = newSinAngle;
+            p = new Point2D.Double(x + radius * sinAngle, y + radius * cosAngle);
+            if(containingRect.contains(p)) {
+               points.add(p);
+            }
+         }
+         p = a.getEndPoint();
+         if(containingRect.contains(p)) {
+            points.add(p);
+         }
          return points;
       }
       

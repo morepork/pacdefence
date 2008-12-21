@@ -122,8 +122,6 @@ public class Helper {
       double angle = Math.toRadians(a.getAngleStart() + 90);
       List<Point2D> points = new ArrayList<Point2D>();
       Point2D p = a.getStartPoint();
-      // Only actually check the bounds as the contains method can be quite slow
-      // for a complicated polygon
       if(containingRect == null || containingRect.contains(p)) {
          points.add(p);
       }
@@ -137,7 +135,7 @@ public class Helper {
          //angle += deltaAngle;
          //p = new Point2D.Double(x + radius * Math.sin(angle), y + radius * Math.cos(angle));
          // These next few lines do the same as the above, just using a trig identity
-         // for better performance as there are fewer trig calls
+         // for better performance as there are no more trig calls
          double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
          cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
          sinAngle = newSinAngle;

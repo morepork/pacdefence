@@ -65,9 +65,9 @@ public class GameMapPanel extends JPanel {
    private final Graphics2D bufferGraphics;
    private final Polygon path;
    private final List<Point> pathPoints;
-   private final List<Sprite> sprites = new ArrayList<Sprite>();
+   private final List<Sprite> sprites = Collections.synchronizedList(new ArrayList<Sprite>());
    private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
-   private final List<Bullet> bullets = new ArrayList<Bullet>();
+   private final List<Bullet> bullets = Collections.synchronizedList(new ArrayList<Bullet>());
    private Clock clockRunnable;
    private ControlPanel cp;
    private long processTime = 0;
@@ -446,6 +446,29 @@ public class GameMapPanel extends JPanel {
       private final long[] processTowersTimes = new long[timesLength + 1];
       private final long[] drawTimes = new long[timesLength + 1];
       private boolean keepRunning = true;
+      private boolean isWaiting;
+      private final int numProcessors;
+      private final BulletTickThread[] bulletTickThreads;
+      private final boolean[] isThreadRunning;
+      private final List<Integer> toRemove = new ArrayList<Integer>();
+      private double moneyEarnt = 0;
+      
+      public Clock() {
+         numProcessors = Runtime.getRuntime().availableProcessors();
+         if(numProcessors > 1) {
+            bulletTickThreads = new BulletTickThread[numProcessors];
+            isThreadRunning = new boolean[numProcessors];
+            for(int i = 0; i < numProcessors; i++) {
+               bulletTickThreads[i] = new BulletTickThread(i);
+               bulletTickThreads[i].start();
+               isThreadRunning[i] = false;
+            }
+         } else {
+            // If there is only one core, use the original single threaded version.
+            bulletTickThreads = null;
+            isThreadRunning = null;
+         }
+      }
             
       public void run() {
          while(keepRunning) {
@@ -586,6 +609,48 @@ public class GameMapPanel extends JPanel {
       }
       
       private long doBulletTicks(List<Sprite> unmodifiableSprites) {
+         if(numProcessors == 1) {
+            return doBulletTicksSingleThread(unmodifiableSprites);
+         }
+         isWaiting = true;
+         int bulletsPerThread = bullets.size() / numProcessors;
+         int remainder = bullets.size() - bulletsPerThread * numProcessors;
+         int firstPos, lastPos = 0;
+         for(int i = 0; i < numProcessors; i++) {
+            firstPos = lastPos;
+            lastPos = firstPos + bulletsPerThread + (i < remainder ? 1 : 0);
+            // Copying the list should reduce the lag of each thread trying to access
+            // the same list
+            bulletTickThreads[i].tickBullets(firstPos, lastPos, bullets,
+                  new ArrayList<Sprite>(unmodifiableSprites));
+         }
+         while(isWaiting) {
+            try {
+               Thread.sleep(1);
+            } catch(InterruptedException e) {}
+         }
+         Collections.sort(toRemove);
+         Helper.removeAll(bullets, toRemove);
+         toRemove.clear();
+         double toReturn = moneyEarnt;
+         moneyEarnt = 0;
+         return (long)toReturn;
+      }
+      
+      private synchronized void informFinished(int threadNumber, double moneyEarnt,
+            List<Integer> toRemove) {
+         this.moneyEarnt += moneyEarnt;
+         this.toRemove.addAll(toRemove);
+         isThreadRunning[threadNumber] = false;
+         for(boolean b : isThreadRunning) {
+            if(b) {
+               return;
+            }
+         }
+         isWaiting = false;
+      }
+      
+      private long doBulletTicksSingleThread(List<Sprite> unmodifiableSprites) {
          double moneyEarnt = 0;
          List<Integer> toRemove = new ArrayList<Integer>();
          for(int i = 0; i < bullets.size(); i++) {
@@ -599,6 +664,52 @@ public class GameMapPanel extends JPanel {
          return (long)moneyEarnt;
       }
       
+      private class BulletTickThread extends Thread {
+         
+         private final int threadNumber;
+         private int firstPos, lastPos;
+         private List<Bullet> bulletsToTick;
+         private List<Sprite> sprites;
+         private boolean doTick;
+         
+         public BulletTickThread(int number) {
+            super();
+            this.threadNumber = number;
+         }
+         
+         public void tickBullets(int firstPos, int lastPos, List<Bullet> bulletsToTick,
+               List<Sprite> sprites) {
+            isThreadRunning[threadNumber] = true;
+            this.firstPos = firstPos;
+            this.lastPos = lastPos;
+            this.bulletsToTick = bulletsToTick;
+            this.sprites = sprites;
+            doTick = true;
+         }
+         
+         @Override
+         public void run() {
+            while(true) {
+               if(doTick) {
+                  double moneyEarnt = 0;
+                  List<Integer> toRemove = new ArrayList<Integer>();
+                  for(int i = firstPos; i < lastPos; i++) {
+                     double money = bulletsToTick.get(i).tick(sprites);
+                     if(money >= 0) {
+                        moneyEarnt += money;
+                        toRemove.add(i);
+                     }
+                  }
+                  informFinished(threadNumber, moneyEarnt, toRemove);
+                  doTick = false;
+               } else {
+                  try {
+                     sleep(1);
+                  } catch (InterruptedException e) {}
+               }
+            }
+         }         
+      }
    }
    
    /**
