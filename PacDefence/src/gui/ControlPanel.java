@@ -27,6 +27,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -75,13 +76,13 @@ public class ControlPanel extends JPanel {
    //private static final int BASE_TOWER_PRICE = 1000;
    
    private final BufferedImage backgroundImage;
-   private int level = 0;
+   private int level;
    // These labels are in the top stats box
    private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel, upgradesLabel;
    private final Map<OverlayButton, Tower> towerTypes = new HashMap<OverlayButton, Tower>();
    private OverlayButton damageUpgrade, rangeUpgrade, rateUpgrade, speedUpgrade,
          specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade;
-   private Map<Attribute, Integer> upgradesSoFar =
+   private final Map<Attribute, Integer> upgradesSoFar =
          new EnumMap<Attribute, Integer>(Attribute.class);
    // These labels and the sell button below are in the tower info box
    private MyJLabel towerNameLabel, towerLevelLabel, damageDealtLabel, killsLabel;
@@ -94,19 +95,20 @@ public class ControlPanel extends JPanel {
    private final ImageButton start = new ImageButton("start", ".png", true);
    private final GameMapPanel map;
    private Tower selectedTower, buildingTower, rolloverTower, hoverOverTower;
-   private final Color defaultTextColour = Color.YELLOW;
-   private final float defaultTextSize = 12F;
+   private static final Color defaultTextColour = Color.YELLOW;
+   private static final float defaultTextSize = 12F;
    // This is the initial money
-   private long money = 4000;
-   private int lives = 25;
+   private long money;
+   private int lives;
    private int livesLostOnThisLevel;
-   private double interestRate = 1.03;
-   private int endLevelUpgradesLeft = 0;
+   private double interestRate;
+   private int endLevelUpgradesLeft;
    private static final int upgradeLives = 5;
    private static final int upgradeMoney = 1000;
    private static final double upgradeInterest = 0.005;
 
-   public ControlPanel(int width, int height, BufferedImage backgroundImage, GameMapPanel map) {
+   public ControlPanel(int width, int height, BufferedImage backgroundImage, GameMapPanel map,
+         ActionListener toTitle) {
       this.backgroundImage = ImageHelper.resize(backgroundImage, width, height);
       // Reflective method to set up the MyJLabels
       setUpJLabels();
@@ -115,6 +117,8 @@ public class ControlPanel extends JPanel {
       this.map = map;
       setPreferredSize(new Dimension(width, height));      
       setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+      // Sets the stats to their starting values
+      setStartingStats();
       // Creates each of the sub panels of this panel
       setUpTopStatsBox();
       setUpNewTowers();
@@ -124,6 +128,7 @@ public class ControlPanel extends JPanel {
       setUpLevelStats();
       setUpCurrentCost();
       setUpStartButton();
+      setUpBottomButtons(toTitle);
       // Updates it all
       updateAll();
    }
@@ -212,6 +217,20 @@ public class ControlPanel extends JPanel {
    
    public int getLevel() {
       return level;
+   }
+   
+   private void setStartingStats() {
+      level = 0;
+      upgradesSoFar.clear();
+      selectedTower = null;
+      buildingTower = null;
+      rolloverTower = null;
+      hoverOverTower = null;
+      money = 4000;
+      lives = 25;
+      livesLostOnThisLevel = 0;
+      interestRate = 1.03;
+      endLevelUpgradesLeft = 0;
    }
    
    private void multiplyMoney(double factor) {
@@ -395,8 +414,8 @@ public class ControlPanel extends JPanel {
    }
    
    private void setStats(Tower t) {
-      for(TowerStat ts : towerStats) {
-         ts.setText(t);
+      for(int i = 0; i < towerStats.size(); i++) {
+         towerStats.get(i).setText(t);
       }
    }
    
@@ -416,8 +435,8 @@ public class ControlPanel extends JPanel {
    }
    
    private void enableTowerStatsButtons(boolean enable) {
-      for(TowerStat ts : towerStats) {
-         ts.enableButton(enable);
+      for(int i = 0; i < towerStats.size(); i++) {
+         towerStats.get(i).enableButton(enable);
       }
    }
    
@@ -530,6 +549,15 @@ public class ControlPanel extends JPanel {
    
    private long sellValue(Tower t) {
       return Formulae.sellValue(t, map.getTowers().size(), numTowersOfType(t.getClass()));
+   }
+   
+   private void restart() {
+      setStartingStats();
+      for(OverlayButton b : towerTypes.keySet()) {
+         towerTypes.put(b, towerTypes.get(b).constructNew(new Point(), null));
+      }
+      updateAll();
+      map.restart();
    }
 
    // -----------------------------------------------------
@@ -780,6 +808,22 @@ public class ControlPanel extends JPanel {
          }
       });
       return b;
+   }
+   
+   private void setUpBottomButtons(ActionListener toTitle) {
+      JPanel panel = SwingHelper.createBorderLayedOutJPanel();
+      JButton title = new OverlayButton("buttons", "title.png");
+      title.addActionListener(toTitle);
+      JButton restart = new OverlayButton("buttons", "restart.png");
+      restart.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            restart();
+         }
+      });
+      panel.add(title, BorderLayout.WEST);
+      panel.add(restart, BorderLayout.EAST);
+      panel.setBorder(BorderFactory.createEmptyBorder(0, 13, 0, 13));
+      add(panel);
    }
 
    private static class TowerStat {

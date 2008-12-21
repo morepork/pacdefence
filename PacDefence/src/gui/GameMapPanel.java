@@ -68,8 +68,7 @@ public class GameMapPanel extends JPanel {
    private final List<Sprite> sprites = new ArrayList<Sprite>();
    private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
    private final List<Bullet> bullets = new ArrayList<Bullet>();
-   private final Clock clockRunnable;
-   private final Thread clock;
+   private Clock clockRunnable;
    private ControlPanel cp;
    private long processTime = 0;
    private long processSpritesTime = 0;
@@ -102,8 +101,7 @@ public class GameMapPanel extends JPanel {
       }
       addMouseListeners();
       clockRunnable = new Clock();
-      clock = new Thread(clockRunnable);
-      clock.start();
+      new Thread(clockRunnable).start();
    }
    
    @Override
@@ -186,6 +184,23 @@ public class GameMapPanel extends JPanel {
       if(t == selectedTower) {
          selectedTower = null;
       }
+   }
+   
+   public void restart() {
+      clockRunnable.end();
+      sprites.clear();
+      towers.clear();
+      bullets.clear();
+      spritesToAdd = 0;
+      gameOver = null;
+      buildingTower = null;
+      selectedTower = null;
+      hoverOverTower = null;
+      levelInProgress = false;
+      clockRunnable = new Clock();
+      new Thread(clockRunnable).start();
+      needsRepaint = true;
+      repaint();
    }
    
    private void drawUpdate(Graphics g) {
@@ -430,9 +445,10 @@ public class GameMapPanel extends JPanel {
       private final long[] processBulletsTimes = new long[timesLength + 1];
       private final long[] processTowersTimes = new long[timesLength + 1];
       private final long[] drawTimes = new long[timesLength + 1];
+      private boolean keepRunning = true;
             
       public void run() {
-         while(true) {
+         while(keepRunning) {
             // Used nanoTime as many OS, notably windows, don't record ms times less than 10ms
             long beginTime = System.nanoTime();
             if(gameOver == null) {
@@ -455,6 +471,10 @@ public class GameMapPanel extends JPanel {
                }
             }
          }
+      }
+      
+      public void end() {
+         keepRunning = false;
       }
       
       private void tick() {

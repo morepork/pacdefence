@@ -47,8 +47,8 @@ public class OuterPanel extends JPanel {
 
    private final Title title;
    private SelectionScreens selection;
-   private GameMapPanel map;
-   private ControlPanel controlPanel; 
+   private GameMapPanel mapPanel;
+   private ControlPanel controlPanel;
    
    public OuterPanel() {
       title = createTitle();
@@ -60,25 +60,32 @@ public class OuterPanel extends JPanel {
    public Title createTitle() {
       return new Title(WIDTH, HEIGHT, new ActionListener() {
          public void actionPerformed(ActionEvent e) {
-            selection = createSelectionScreens();
             remove(title);
+            selection = new SelectionScreens(WIDTH, HEIGHT, new CarryOn());
             add(selection);
             revalidate();
+            repaint();
          }
       });
    }
    
-   private SelectionScreens createSelectionScreens() {
-      return new SelectionScreens(WIDTH, HEIGHT, new CarryOn());
-   }
-   
    public class CarryOn {
       public void carryOn(GameMap g) {
-         map = new GameMapPanel(MAP_WIDTH, MAP_HEIGHT, ImageHelper.makeImage("maps",
+         remove(selection);
+         mapPanel = new GameMapPanel(MAP_WIDTH, MAP_HEIGHT, ImageHelper.makeImage("maps",
                "rainbowColours.jpg"), g);
          controlPanel = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
-         ImageHelper.makeImage("control_panel", "blue_lava.jpg"), map);
-         add(map, BorderLayout.WEST);
+               ImageHelper.makeImage("control_panel", "blue_lava.jpg"), mapPanel,
+               new ActionListener(){
+            public void actionPerformed(ActionEvent e) {
+               remove(mapPanel);
+               remove(controlPanel);
+               add(title);
+               revalidate();
+               repaint();
+            }
+         });
+         add(mapPanel, BorderLayout.WEST);
          add(controlPanel, BorderLayout.EAST);
          revalidate();
       }
