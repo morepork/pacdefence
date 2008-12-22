@@ -49,6 +49,12 @@ public class WaveTower extends AbstractTower {
 
    public WaveTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Wave", 40, 100, 5, 5.5, 50, 6, "wave.png", "WaveTower.png");
+      // This is a grossly overpowered (but with really low damage) version for
+      // performance testing purposes
+      /*super(p, pathBounds, "Wave", 1, 500, 25, 0.1, 50, 6, "wave.png", "WaveTower.png");
+      for(int i = 0; i < 20; i++) {
+         upgradeSpecial();
+      }*/
    }
 
    @Override
@@ -100,14 +106,14 @@ public class WaveTower extends AbstractTower {
          g2D.setColor(Color.PINK);
          Stroke s = g2D.getStroke();
          g2D.setStroke(new BasicStroke(4));
+         g2D.draw(arc);
+         g2D.setStroke(s);
          // Debug code that draws squares on each point from getPointsFromArc
          // to make sure they're in the right place
          /*g2D.setColor(Color.RED);
          for(Point2D p : Helper.getPointsOnArc(arc)) {
             g2D.drawRect((int)p.getX(), (int)p.getY(), 1, 1);
          }*/
-         g2D.draw(arc);
-         g2D.setStroke(s);
       }
       
       @Override
@@ -126,14 +132,23 @@ public class WaveTower extends AbstractTower {
       
       @Override
       protected double checkIfSpriteIsHit(List<Sprite> sprites) {
+         if(sprites.isEmpty()) {
+            return -1;
+         }
          List<Point2D> points = new ArrayList<Point2D>();
          Arc2D a = new Arc2D.Double();
+         double radAngleStart = Math.toRadians(startAngle + 90);
+         double sinAngle = Math.sin(radAngleStart);
+         double cosAngle = Math.cos(radAngleStart);
+         double numPointsMult = 2 * Math.PI * extentAngle / 360;
          for(double d = lastRadius; d < currentRadius; d++) {
             setArc(a, d);
             // I tried converting the Point2Ds to points and using a set to
             // eliminate duplicates but it only reduced the number of points
             // in the list by around 10% so didn't deem it worth the overhead
-            points.addAll(Helper.getPointsOnArc(a, pathBounds));
+            //points.addAll(Helper.getPointsOnArc(a, pathBounds);
+            points.addAll(Helper.getPointsOnArc(a, d, d * numPointsMult, sinAngle, cosAngle,
+                  pathBounds));
          }
          double d = 0;
          for(Sprite s : sprites) {

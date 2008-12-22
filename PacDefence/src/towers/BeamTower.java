@@ -166,8 +166,10 @@ public class BeamTower extends AbstractTower {
          }
          List<Sprite> hittableSprites = new ArrayList<Sprite>(sprites);
          hittableSprites.removeAll(hitSprites);
-         List<Point2D> points = makePoints();
-         hitSprites(hittableSprites, points);
+         if(!hittableSprites.isEmpty()) {
+            List<Point2D> points = makePoints();
+            hitSprites(hittableSprites, points);
+         }
          currentAngle += deltaAngle;
          setBeam();
          return -1;
@@ -199,40 +201,10 @@ public class BeamTower extends AbstractTower {
             a.setArcByCenter(centre.getX(), centre.getY(), i, angleStart, deltaAngle,
                   Arc2D.OPEN);
             //points.addAll(Helper.getPointsOnArc(a, pathBounds));
-            points.addAll(getPointsOnArc(a, i, i * numPointsMult, sinAngle, cosAngle,
+            points.addAll(Helper.getPointsOnArc(a, i, i * numPointsMult, sinAngle, cosAngle,
                   pathBounds));
          }
          //this.points = points;
-         return points;
-      }
-      
-      public static List<Point2D> getPointsOnArc(Arc2D a, double radius, double numPoints, double sinAngle, double cosAngle, Rectangle2D containingRect) {
-         // Copied from the one in helper with a few optimisations as the arcs
-         // are the same except with different radii. Gave an ~20% improvement
-         // in a simple test.
-         double deltaAngle = 1 / radius;
-         List<Point2D> points = new ArrayList<Point2D>();
-         Point2D p = a.getStartPoint();
-         if(containingRect.contains(p)) {
-            points.add(p);
-         }
-         double x = a.getCenterX();
-         double y = a.getCenterY();
-         double sinDeltaAngle = Math.sin(deltaAngle);
-         double cosDeltaAngle = Math.cos(deltaAngle);
-         for(int i = 0; i < numPoints; i++) {
-            double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
-            cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
-            sinAngle = newSinAngle;
-            p = new Point2D.Double(x + radius * sinAngle, y + radius * cosAngle);
-            if(containingRect.contains(p)) {
-               points.add(p);
-            }
-         }
-         p = a.getEndPoint();
-         if(containingRect.contains(p)) {
-            points.add(p);
-         }
          return points;
       }
       

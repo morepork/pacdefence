@@ -151,6 +151,37 @@ public class Helper {
       return points;
    }
    
+   public static List<Point2D> getPointsOnArc(Arc2D a, double radius, double numPoints,
+         double sinAngle, double cosAngle, Rectangle2D containingRect) {
+      // Copied from the one above with a few optimisations for wave and beam towers
+      // as the arcs are the same except with different radii. Gave an ~20% improvement
+      // in a simple test for beam tower.
+      double deltaAngle = 1 / radius;
+      List<Point2D> points = new ArrayList<Point2D>();
+      Point2D p = a.getStartPoint();
+      if(containingRect.contains(p)) {
+         points.add(p);
+      }
+      double x = a.getCenterX();
+      double y = a.getCenterY();
+      double sinDeltaAngle = Math.sin(deltaAngle);
+      double cosDeltaAngle = Math.cos(deltaAngle);
+      for(int i = 0; i < numPoints; i++) {
+         double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
+         cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
+         sinAngle = newSinAngle;
+         p = new Point2D.Double(x + radius * sinAngle, y + radius * cosAngle);
+         if(containingRect.contains(p)) {
+            points.add(p);
+         }
+      }
+      p = a.getEndPoint();
+      if(containingRect.contains(p)) {
+         points.add(p);
+      }
+      return points;
+   }
+   
    public static void main(String[] args) {
       for(int a = 0; a < 5; a++) {
          long beginTime = System.nanoTime();

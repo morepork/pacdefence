@@ -120,6 +120,9 @@ public class BasicBullet implements Bullet {
    }
    
    protected double checkIfSpriteIsHit(Point2D p1, Point2D p2, List<Sprite> sprites) {
+      if(sprites.isEmpty()) {
+         return -1;
+      }
       List<Point2D> points = Helper.getPointsOnLine(p1, p2);
       if(doPointsIntersectPath(points)) {
          // A sprite can only be hit if the bullet is on the path
