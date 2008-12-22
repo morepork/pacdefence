@@ -48,6 +48,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.metal.MetalButtonUI;
 
 import sprites.Sprite;
 import towers.AidTower;
@@ -325,20 +326,10 @@ public class ControlPanel extends JPanel {
       Tower t = null;
       if(selectedTower != null) {
          t = selectedTower;
-         sellButton.setEnabled(true);
-         Comparator<Sprite> c = t.getSpriteComparator();
-         if(c != null) {
-            targetLabel.setText("Target");
-            targetButton.setEnabled(true);
-            targetButton.setText(getNameOfComparator(c));
-         }
       } else {
-         sellButton.setEnabled(false);
          if(hoverOverTower != null) {
             t = hoverOverTower;
          }
-         targetLabel.setText(" ");
-         targetButton.setEnabled(false);
       }
       setCurrentTowerInfo(t);
    }
@@ -350,12 +341,22 @@ public class ControlPanel extends JPanel {
          towerLevelLabel.setText(" ");
          killsLabel.setText(" ");
          damageDealtLabel.setText(" ");
+         sellButton.setEnabled(false);
+         targetLabel.setText(" ");
+         targetButton.setEnabled(false);
       } else {
          towerNameLabel.setText(t.getName() + " Tower");
          towerLevelLabel.setText("Level: " + t.getExperienceLevel());
          killsLabel.setText("Kills: " + t.getKills() + " (" + t.getKillsForUpgrade() + ")");
          damageDealtLabel.setText("Dmg: " + t.getDamageDealt() + " (" +
                t.getDamageDealtForUpgrade() + ")");
+         Comparator<Sprite> c = t.getSpriteComparator();
+         if(c != null) {
+            sellButton.setEnabled(true);
+            targetLabel.setText("Target");
+            targetButton.setEnabled(true);
+            targetButton.setText(getNameOfComparator(c));
+         }
       }
    }
    
@@ -377,7 +378,7 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   private void processUpgradeButtonPressed(TowerUpgradeButton b) {
+   private void processUpgradeButtonPressed(JButton b) {
       Tower.Attribute a = TowerStat.getButtonsAttribute(b);
       long cost = 0;
       if(selectedTower == null) {
@@ -399,7 +400,7 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   private void processUpgradeButtonChanged(TowerUpgradeButton b) {
+   private void processUpgradeButtonChanged(JButton b) {
       if(!checkIfMovedOff(b)) {
          Tower.Attribute a = TowerStat.getButtonsAttribute(b);
          String description = a.toString() + " Upgrade";
@@ -759,7 +760,7 @@ public class ControlPanel extends JPanel {
          if(i != 0) {
             box.add(Box.createRigidArea(new Dimension(0, 2)));
          }
-         TowerUpgradeButton b = createTowerUpgradeButton(defaultTextColour, defaultTextSize);
+         JButton b = createTowerUpgradeButton(defaultTextColour, defaultTextSize);
          MyJLabel l = new MyJLabel();
          l.setFontSize(defaultTextSize);
          l.setForeground(defaultTextColour);
@@ -769,16 +770,31 @@ public class ControlPanel extends JPanel {
       add(box);
    }
    
-   private TowerUpgradeButton createTowerUpgradeButton(Color textColour, float textSize) {
-      TowerUpgradeButton b = new TowerUpgradeButton(textColour, textSize);
+   private JButton createTowerUpgradeButton(final Color textColour, float textSize) {
+      JButton b = new JButton();
+      // Hack to set the disabled text colour. If you change this UI do the same
+      // for the target button so they're consistent.
+      b.setUI(new MetalButtonUI(){
+         @Override
+         public Color getDisabledTextColor() {
+            return textColour;
+         }
+      });
+      b.setFont(b.getFont().deriveFont(textSize));
+      b.setForeground(textColour);
+      b.setOpaque(false);
+      b.setContentAreaFilled(false);
+      // Hack to make the buttons slightly smaller
+      b.setBorder(BorderFactory.createCompoundBorder(b.getBorder(),
+            BorderFactory.createEmptyBorder(-1, -5, -1, -5)));
       b.addActionListener(new ActionListener(){
          public void actionPerformed(ActionEvent e) {
-            processUpgradeButtonPressed((TowerUpgradeButton)e.getSource());
+            processUpgradeButtonPressed((JButton)e.getSource());
          }
       });
       b.addChangeListener(new ChangeListener(){
          public void stateChanged(ChangeEvent e) {
-            processUpgradeButtonChanged((TowerUpgradeButton)e.getSource());
+            processUpgradeButtonChanged((JButton)e.getSource());
          }
       });
       return b;
@@ -810,29 +826,32 @@ public class ControlPanel extends JPanel {
    }
    
    private JButton createTargetButton() {
-      JButton button = new JButton(){
+      JButton b = new JButton(){
          @Override
          public void setEnabled(boolean b) {
             super.setEnabled(b);
+            // If the border isn't painted and there is no text it's effectively invisible
             setBorderPainted(b);
             if(!b) {
                setText(" ");
             }
          }
       };
-      button.setForeground(defaultTextColour);
-      button.setOpaque(false);
-      button.setContentAreaFilled(false);
-      button.setFocusPainted(false);
+      // Changing this should result in changing the tower upgrade buttons for consistency
+      b.setUI(new MetalButtonUI());
+      b.setForeground(defaultTextColour);
+      b.setOpaque(false);
+      b.setContentAreaFilled(false);
+      b.setFocusPainted(false);
       // Hack to make the button smaller
-      button.setBorder(BorderFactory.createCompoundBorder(button.getBorder(),
+      b.setBorder(BorderFactory.createCompoundBorder(b.getBorder(),
             BorderFactory.createEmptyBorder(-10, -5, -10, -5)));
-      button.addActionListener(new ActionListener() {
+      b.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             processTargetButtonPressed((JButton)e.getSource());
          }
       });
-      return button;
+      return b;
    }
    
    private List<Wrapper<String, Comparator<Sprite>>> createComparators() {
@@ -903,19 +922,19 @@ public class ControlPanel extends JPanel {
       });
       panel.add(title, BorderLayout.WEST);
       panel.add(restart, BorderLayout.EAST);
-      panel.setBorder(BorderFactory.createEmptyBorder(0, 13, 0, 13));
+      panel.setBorder(BorderFactory.createEmptyBorder(0, 13, 1, 13));
       add(panel);
    }
 
    private static class TowerStat {
       
-      private static final Map<TowerUpgradeButton, Attribute> buttonAttributeMap =
-            new HashMap<TowerUpgradeButton, Attribute>();
-      private final TowerUpgradeButton button;
+      private static final Map<JButton, Attribute> buttonAttributeMap =
+            new HashMap<JButton, Attribute>();
+      private final JButton button;
       private final JLabel label;
       private final Attribute attrib;
       
-      private TowerStat(TowerUpgradeButton b, JLabel l, Attribute a) {
+      private TowerStat(JButton b, JLabel l, Attribute a) {
          if(buttonAttributeMap.put(b, a) != null) {
             throw new IllegalArgumentException("This button has already been used.");
          }
@@ -924,7 +943,7 @@ public class ControlPanel extends JPanel {
          attrib = a;
       }
       
-      private static Attribute getButtonsAttribute(TowerUpgradeButton b) {
+      private static Attribute getButtonsAttribute(JButton b) {
          return buttonAttributeMap.get(b);
       }
       
@@ -940,18 +959,6 @@ public class ControlPanel extends JPanel {
       
       private void enableButton(boolean b) {
          button.setEnabled(b);
-      }
-      
-      protected TowerUpgradeButton getButton() {
-         return button;
-      }
-      
-      protected JLabel getLabel() {
-         return label;
-      }
-      
-      protected Attribute getAttrib() {
-         return attrib;
       }
    }
    

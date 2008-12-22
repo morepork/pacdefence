@@ -182,7 +182,6 @@ public class AidTower extends AbstractTower {
    private class AidDamageNotifier implements DamageNotifier {
       
       private int killsSinceLastIncrease = 0;
-      private double damageSinceLastIncrease = 0;
       
       public synchronized void notifyOfKills(int kills) {
          killsSinceLastIncrease += kills;
@@ -194,14 +193,8 @@ public class AidTower extends AbstractTower {
          }
       }
       
-      public synchronized void notifyOfDamage(double damage) {
-         damageSinceLastIncrease += damage;
-         // Only updates damage dealt when damage notified of exceeds xpDivisor
-         // i.e. at least one damage is given to increaseDamageDealt
-         if(damageSinceLastIncrease >= xpDivisor) {
-            increaseDamageDealt(damageSinceLastIncrease / xpDivisor);
-            damageSinceLastIncrease = 0;
-         }
+      public void notifyOfDamage(double damage) {
+         increaseDamageDealt(damage / xpDivisor);
       }
    }
 }

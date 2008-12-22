@@ -38,14 +38,14 @@ public class BomberTower extends AbstractTower {
    private int blastRadius = 20;
    // If the radius increases exponentially it just gets silly
    private final int blastRadiusIncrease = 2;
-   private static final double bombDamageDividend = 4;
+   private static final double bombDamageDividend = 2;
 
    public BomberTower() {
       this(new Point(), null);
    }
 
    public BomberTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Bomber", 40, 100, 5, 8, 50, 15, "bomber.png", "BomberTower.png");
+      super(p, pathBounds, "Bomber", 40, 100, 5, 7, 50, 15, "bomber.png", "BomberTower.png");
    }
 
    @Override
@@ -138,7 +138,7 @@ public class BomberTower extends AbstractTower {
                // Sprites are only affected by the blast once
                if (blast.intersects(s.getBounds())) {
                   hitSprites.add(s);
-                  DamageReport d = s.hit(getDamage() / bombDamageDividend);
+                  DamageReport d = s.hit(damage / bombDamageDividend);
                   if (d != null) {
                      moneyEarnt += processDamageReport(d);
                   }

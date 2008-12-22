@@ -104,6 +104,7 @@ public abstract class AbstractTower implements Tower {
 
    private List<DamageNotifier> damageNotifiers = new ArrayList<DamageNotifier>();
    private long damageDealt = 0;
+   private double fractionalDamageDealt = 0;
    private int kills = 0;
    private int killsLevel = 1;
    private int damageDealtLevel = 1;
@@ -343,12 +344,20 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public void increaseDamageDealt(double damage) {
+   public synchronized void increaseDamageDealt(double damage) {
       assert damage > 0 : "Damage given was negative or zero.";
       for(DamageNotifier d : damageNotifiers) {
          d.notifyOfDamage(damage);
       }
-      damageDealt += damage;
+      long longDamage = (long)damage;
+      damageDealt += longDamage;
+      // Handling of fractional amounts
+      fractionalDamageDealt += damage - longDamage;
+      if(fractionalDamageDealt > 1) {
+         longDamage = (long)fractionalDamageDealt;
+         damageDealt += longDamage;
+         fractionalDamageDealt -= longDamage;
+      }
       if(damageDealt >= nextUpgradeDamage) {
          damageDealtLevel++;
          nextUpgradeDamage = Formulae.nextUpgradeDamage(damageDealtLevel);
@@ -357,7 +366,7 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public void increaseKills(int kills) {
+   public synchronized void increaseKills(int kills) {
       assert kills > 0 : "Kills given was less than or equal to zero";
       for(DamageNotifier d : damageNotifiers) {
          d.notifyOfKills(kills);
