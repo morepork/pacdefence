@@ -35,8 +35,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.LockSupport;
 
 import javax.swing.JPanel;
 
@@ -68,7 +70,7 @@ public class GameMapPanel extends JPanel {
    private final List<Sprite> sprites = Collections.synchronizedList(new ArrayList<Sprite>());
    private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
    private final List<Bullet> bullets = Collections.synchronizedList(new ArrayList<Bullet>());
-   private Clock clockRunnable;
+   private Clock clock;
    private ControlPanel cp;
    private long processTime = 0;
    private long processSpritesTime = 0;
@@ -99,8 +101,8 @@ public class GameMapPanel extends JPanel {
          printClickedCoords();
       }
       addMouseListeners();
-      clockRunnable = new Clock();
-      new Thread(clockRunnable).start();
+      clock = new Clock();
+      clock.start();
    }
    
    @Override
@@ -130,7 +132,7 @@ public class GameMapPanel extends JPanel {
          levelInProgress = true;
          spritesToAdd = Formulae.numSprites(level);
          levelHP = Formulae.hp(level);
-         clockRunnable.ticksBetweenAddSprite = Formulae.ticksBetweenAddSprite(level);
+         clock.ticksBetweenAddSprite = Formulae.ticksBetweenAddSprite(level);
          //System.out.println(clockRunnable.ticksBetweenAddSprite);
          return true;
       } else {
@@ -170,7 +172,7 @@ public class GameMapPanel extends JPanel {
    }
    
    public void restart() {
-      clockRunnable.end();
+      clock.end();
       sprites.clear();
       towers.clear();
       bullets.clear();
@@ -180,8 +182,8 @@ public class GameMapPanel extends JPanel {
       selectedTower = null;
       hoverOverTower = null;
       levelInProgress = false;
-      clockRunnable = new Clock();
-      new Thread(clockRunnable).start();
+      clock = new Clock();
+      clock.start();
       repaint();
    }
    
@@ -372,7 +374,7 @@ public class GameMapPanel extends JPanel {
       }
    }
    
-   private class Clock implements Runnable {
+   private class Clock extends Thread {
       
       private int ticksBetweenAddSprite;
       private int addSpriteIn = 0;
@@ -410,6 +412,7 @@ public class GameMapPanel extends JPanel {
          }
       }
             
+      @Override
       public void run() {
          while(keepRunning) {
             try {
@@ -521,8 +524,6 @@ public class GameMapPanel extends JPanel {
          }
       }
       
-
-      
       private void drawUpdate(Graphics g) {
          // This should completely cover the old image in the buffer
          g.drawImage(backgroundImage, 0, 0, null);
@@ -618,12 +619,15 @@ public class GameMapPanel extends JPanel {
       }
       
       private long doBulletTicks(List<Sprite> unmodifiableSprites) {
-         if(numThreads == 1) {
+         if(numThreads == 1 || bullets.size() <= 1) {
+            // Use single thread version if only one processor or 1 or fewer bullets
+            // as it will be faster.
             return doBulletTicksSingleThread(unmodifiableSprites);
          }
          isWaiting = true;
          int bulletsPerThread = bullets.size() / numThreads;
          int remainder = bullets.size() - bulletsPerThread * numThreads;
+         Arrays.fill(isThreadRunning, true);
          int firstPos, lastPos = 0;
          for(int i = 0; i < numThreads; i++) {
             firstPos = lastPos;
@@ -634,9 +638,7 @@ public class GameMapPanel extends JPanel {
                   new ArrayList<Sprite>(unmodifiableSprites));
          }
          while(isWaiting) {
-            try {
-               Thread.sleep(1);
-            } catch(InterruptedException e) {}
+            LockSupport.park();
          }
          Collections.sort(toRemove);
          Helper.removeAll(bullets, toRemove);
@@ -657,6 +659,7 @@ public class GameMapPanel extends JPanel {
             }
          }
          isWaiting = false;
+         LockSupport.unpark(this);
       }
       
       private long doBulletTicksSingleThread(List<Sprite> unmodifiableSprites) {
@@ -688,12 +691,12 @@ public class GameMapPanel extends JPanel {
          
          public void tickBullets(int firstPos, int lastPos, List<Bullet> bulletsToTick,
                List<Sprite> sprites) {
-            isThreadRunning[threadNumber] = true;
             this.firstPos = firstPos;
             this.lastPos = lastPos;
             this.bulletsToTick = bulletsToTick;
             this.sprites = sprites;
             doTick = true;
+            LockSupport.unpark(this);
          }
          
          @Override
@@ -709,15 +712,12 @@ public class GameMapPanel extends JPanel {
                         toRemove.add(i);
                      }
                   }
-                  informFinished(threadNumber, moneyEarnt, toRemove);
                   doTick = false;
-               } else {
-                  try {
-                     sleep(1);
-                  } catch (InterruptedException e) {}
+                  informFinished(threadNumber, moneyEarnt, toRemove);
                }
+               LockSupport.park();
             }
-         }         
+         }
       }
    }
    

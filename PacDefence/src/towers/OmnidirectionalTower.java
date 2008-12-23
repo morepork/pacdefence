@@ -38,8 +38,14 @@ public class OmnidirectionalTower extends AbstractTower {
    }
    
    public OmnidirectionalTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Omnidirectional", 40, 100, 5, 5, 50, 10, "omnidirectional.png",
+      super(p, pathBounds, "Omnidirectional", 40, 1000, 5, 5, 50, 10, "omnidirectional.png",
             "OmnidirectionalTower.png", false);
+      // Testing tower with way too many bullets
+      /*super(p, pathBounds, "Omnidirectional", 0, 1000, 5, 0.005, 50, 10, "omnidirectional.png",
+            "OmnidirectionalTower.png", false);
+      for(int i = 0; i < 100; i++) {
+         upgradeSpecial();
+      }*/
    }
 
    @Override
