@@ -107,7 +107,9 @@ public class GameMapPanel extends JPanel {
    
    @Override
    public synchronized void paintComponent(Graphics g) {
+      long beginTime = System.nanoTime();
       g.drawImage(buffers[bufferIndex], 0, 0, null);
+      clock.setLastDrawTime(beginTime);
    }
    
    /**
@@ -434,6 +436,7 @@ public class GameMapPanel extends JPanel {
                   try {
                      Thread.sleep(CLOCK_TICK - elapsedTime);
                   } catch(InterruptedException e) {
+                     e.printStackTrace();
                      // The sleep should never be interrupted
                   }
                }
@@ -495,6 +498,7 @@ public class GameMapPanel extends JPanel {
       
       private long insertAndReturnSum(long[] array) {
          array[timesPos] = array[timesLength];
+         array[timesLength] = 0;
          long sum = 0;
          for(int i = 0; i < timesLength; i++) {
             sum += array[i];
@@ -503,22 +507,25 @@ public class GameMapPanel extends JPanel {
       }
       
       private void setLastDrawTime(long beginTime) {
-         drawTimes[timesLength] = calculateElapsedTime(beginTime);
+         // += as there are two stages to the drawing, firstly to the offscreen buffer
+         // then drawing that buffer to screen.
+         drawTimes[timesLength] += calculateElapsedTime(beginTime);
       }
       
       private void draw() {
          long beginTime = System.nanoTime();
-         // Each time draw on a different buffer so that the a half drawn buffer
-         // isn't drawn on the component.
-         int nextBufferIndex = bufferIndex == 0 ? 1 : 0;
-         Graphics2D bufferGraphics = (Graphics2D) buffers[nextBufferIndex].getGraphics();
          if(gameOver == null) {
+            // Each time draw on a different buffer so that the a half drawn buffer
+            // isn't drawn on the component.
+            int nextBufferIndex = bufferIndex == 0 ? 1 : 0;
+            Graphics2D bufferGraphics = (Graphics2D) buffers[nextBufferIndex].getGraphics();
             drawUpdate(bufferGraphics);
             textDisplay.draw(bufferGraphics);
+            bufferIndex = nextBufferIndex;
          } else {
-            gameOver.draw(bufferGraphics);
+            // Game over needs to always draw on the same buffer for its sliding effect
+            gameOver.draw(buffers[bufferIndex].getGraphics());
          }
-         bufferIndex = nextBufferIndex;
          if(debugTimes) {
             setLastDrawTime(beginTime);
          }
