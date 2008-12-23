@@ -25,7 +25,6 @@ import images.ImageHelper;
 
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -123,8 +122,8 @@ public class BasicBullet implements Bullet {
       if(sprites.isEmpty()) {
          return -1;
       }
-      List<Point2D> points = Helper.getPointsOnLine(p1, p2);
-      if(doPointsIntersectPath(points)) {
+      List<Point2D> points = Helper.getPointsOnLine(p1, p2, pathBounds);
+      if(!points.isEmpty()) {
          // A sprite can only be hit if the bullet is on the path
          // The path check is more for optimisation than anything
          for(Sprite s : sprites) {
@@ -150,19 +149,6 @@ public class BasicBullet implements Bullet {
    
    protected double processDamageReport(DamageReport d) {
       return processDamageReport(d, shotBy);
-   }
-   
-   protected boolean doesLineIntersectPath(Line2D line) {
-      return doPointsIntersectPath(Helper.getPointsOnLine(line));
-   }
-   
-   protected boolean doPointsIntersectPath(List<Point2D> points) {
-      for(Point2D p : points) {
-         if(pathBounds.contains(p)) {
-            return true;
-         }
-      }
-      return false;
    }
    
    protected boolean checkIfBulletCanBeRemovedAsOffScreen() {
@@ -196,6 +182,10 @@ public class BasicBullet implements Bullet {
          position.setLocation(position.getX() + dir[0], position.getY() + dir[1]);
          return checkIfSpriteIsHit(sprites);
       }
+   }
+   
+   protected Rectangle2D getPathBounds() {
+      return pathBounds;
    }
 
 }

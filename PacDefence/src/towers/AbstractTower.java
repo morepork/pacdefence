@@ -455,7 +455,9 @@ public abstract class AbstractTower implements Tower {
    
    protected List<Bullet> fireBullets(List<Sprite> sprites) {
       for (Sprite s : sprites) {
-         if (checkDistance(s)) {
+         // Checking that the pathBounds contains the sprites position means a tower won't
+         // shoot so that it's bullet almost immediately goes off screen and is wasted
+         if (pathBounds.contains(s.getPosition()) && checkDistance(s)) {
             return fireBulletsAt(s, true);
          }
       }

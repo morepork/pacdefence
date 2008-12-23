@@ -567,8 +567,10 @@ public class GameMapPanel extends JPanel {
          if(spritesToAdd > 0) {
             if(addSpriteIn < 1) {
                sprites.add(new Pacman(cp.getLevel(), levelHP, clonePathPoints()));
-               addSpriteIn = ticksBetweenAddSprite;
+               // Adds a sprite in somewhere between 0 and twice the designated time
+               addSpriteIn = (int)(Math.random() * (ticksBetweenAddSprite * 2 + 1));
                spritesToAdd--;
+               cp.setNumberLeft(spritesToAdd);
             } else {
                addSpriteIn--;
             }

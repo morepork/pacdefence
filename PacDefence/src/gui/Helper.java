@@ -45,6 +45,10 @@ public class Helper {
    }
    
    public static List<Point2D> getPointsOnLine(Point2D p1, Point2D p2) {
+      return getPointsOnLine(p1, p2, null);
+   }
+   
+   public static List<Point2D> getPointsOnLine(Point2D p1, Point2D p2, Rectangle2D containedIn) {
       double dx = p2.getX() - p1.getX();
       double dy = p2.getY() - p1.getY();
       // The maximum length in either the x or y directions to divide the line
@@ -55,13 +59,19 @@ public class Helper {
       double xStep = dx / length;
       double yStep = dy / length;
       List<Point2D> points = new ArrayList<Point2D>((int) length + 2);
-      points.add((Point2D) p1.clone());
+      if(containedIn == null || containedIn.contains(p1)) {
+         points.add((Point2D) p1.clone());
+      }
       Point2D lastPoint = p1;
       for(int i = 1; i <= length; i++) {
          lastPoint = new Point2D.Double(lastPoint.getX() + xStep, lastPoint.getY() + yStep);
-         points.add(lastPoint);
+         if(containedIn == null || containedIn.contains(lastPoint)) {
+            points.add(lastPoint);
+         }
       }
-      points.add((Point2D) p2.clone());
+      if(containedIn == null || containedIn.contains(p2)) {
+         points.add((Point2D) p2.clone());
+      }
       return points;
    }
    
@@ -110,7 +120,7 @@ public class Helper {
       return getPointsOnArc(a, null);
    }
    
-   public static List<Point2D> getPointsOnArc(Arc2D a, Rectangle2D containingRect) {
+   public static List<Point2D> getPointsOnArc(Arc2D a, Rectangle2D containedIn) {
       double radius = a.getStartPoint().distance(a.getCenterX(), a.getCenterY());
       /*double circumference = 2 * Math.PI * radius;
       double numPoints = circumference * a.getAngleExtent() / 360;
@@ -122,7 +132,7 @@ public class Helper {
       double angle = Math.toRadians(a.getAngleStart() + 90);
       List<Point2D> points = new ArrayList<Point2D>();
       Point2D p = a.getStartPoint();
-      if(containingRect == null || containingRect.contains(p)) {
+      if(containedIn == null || containedIn.contains(p)) {
          points.add(p);
       }
       double x = a.getCenterX();
@@ -140,12 +150,12 @@ public class Helper {
          cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
          sinAngle = newSinAngle;
          p = new Point2D.Double(x + radius * sinAngle, y + radius * cosAngle);
-         if(containingRect == null || containingRect.contains(p)) {
+         if(containedIn == null || containedIn.contains(p)) {
             points.add(p);
          }
       }
       p = a.getEndPoint();
-      if(containingRect == null || containingRect.contains(p)) {
+      if(containedIn == null || containedIn.contains(p)) {
          points.add(p);
       }
       return points;

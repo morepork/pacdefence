@@ -115,7 +115,7 @@ public class CircleTower extends AbstractTower {
       protected double checkIfSpriteIsHit(List<Sprite> sprites) {
          List<Point2D> points = makeArcPoints();
          double moneyEarnt = 0;
-         if(doPointsIntersectPath(points)) {
+         if(!points.isEmpty()) {
             for (Sprite s : sprites) {
                for (Point2D p : points) {
                   if (s.intersects(p)) {
@@ -144,7 +144,10 @@ public class CircleTower extends AbstractTower {
          List<Point2D> points = new ArrayList<Point2D>();
          double delta = deltaTheta / arcLengthPerTick;
          for (double a = angle + delta; a <= angle + deltaTheta; a += delta) {
-            points.add(route.getPointAt(a));
+            Point2D p = route.getPointAt(a);
+            if(getPathBounds().contains(p)) {
+               points.add(p);
+            }
          }
          return points;
       }

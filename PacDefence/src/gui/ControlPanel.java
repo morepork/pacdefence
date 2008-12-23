@@ -96,7 +96,7 @@ public class ControlPanel extends JPanel {
    // These are in the current tower stats box
    private final List<TowerStat> towerStats = new ArrayList<TowerStat>();
    // These labels are in the level stats box
-   private MyJLabel numSpritesLabel, avgHPLabel;
+   private MyJLabel numSpritesLabel, hpLabel;
    private MyJLabel currentCostStringLabel, currentCostLabel;
    private final ImageButton start = new ImageButton("start", ".png", true);
    private final GameMapPanel map;
@@ -225,6 +225,10 @@ public class ControlPanel extends JPanel {
       return level;
    }
    
+   public void setNumberLeft(int number) {
+      numSpritesLabel.setText(number);
+   }
+   
    private void setStartingStats() {
       level = 0;
       upgradesSoFar.clear();
@@ -285,7 +289,8 @@ public class ControlPanel extends JPanel {
       }
       levelLabel.setText("Level " + level);
       numSpritesLabel.setText(Formulae.numSprites(level));
-      avgHPLabel.setText(Formulae.hp(level));
+      long hp = Formulae.hp(level);
+      hpLabel.setText((long)(0.5 * hp) + " - " + hp * 2);
    }
    
    private void updateInterestLabel() {
@@ -871,8 +876,8 @@ public class ControlPanel extends JPanel {
       Box box = Box.createVerticalBox();
       box.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 30));
       box.setOpaque(false);
-      box.add(createLeftRightPanel("Number", textSize, defaultTextColour, numSpritesLabel));
-      box.add(createLeftRightPanel("Average HP", textSize, defaultTextColour, avgHPLabel));      
+      box.add(createLeftRightPanel("Number Left", textSize, defaultTextColour, numSpritesLabel));
+      box.add(createLeftRightPanel("HP", textSize, defaultTextColour, hpLabel));      
       add(box);
    }
 
