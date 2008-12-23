@@ -96,7 +96,7 @@ public class ControlPanel extends JPanel {
    // These are in the current tower stats box
    private final List<TowerStat> towerStats = new ArrayList<TowerStat>();
    // These labels are in the level stats box
-   private MyJLabel numSpritesLabel, hpLabel;
+   private MyJLabel numSpritesLabel, timeBetweenSpritesLabel, hpLabel;
    private MyJLabel currentCostStringLabel, currentCostLabel;
    private final ImageButton start = new ImageButton("start", ".png", true);
    private final GameMapPanel map;
@@ -291,6 +291,8 @@ public class ControlPanel extends JPanel {
       numSpritesLabel.setText(Formulae.numSprites(level));
       long hp = Formulae.hp(level);
       hpLabel.setText((long)(0.5 * hp) + " - " + hp * 2);
+      timeBetweenSpritesLabel.setText("0 - " + Helper.format(Formulae.
+            ticksBetweenAddSprite(level) * 2 / GameMapPanel.CLOCK_TICKS_PER_SECOND, 2) + "s");
    }
    
    private void updateInterestLabel() {
@@ -791,7 +793,7 @@ public class ControlPanel extends JPanel {
       b.setContentAreaFilled(false);
       // Hack to make the buttons slightly smaller
       b.setBorder(BorderFactory.createCompoundBorder(b.getBorder(),
-            BorderFactory.createEmptyBorder(-1, -5, -1, -5)));
+            BorderFactory.createEmptyBorder(-2, -5, -2, -5)));
       b.addActionListener(new ActionListener(){
          public void actionPerformed(ActionEvent e) {
             processUpgradeButtonPressed((JButton)e.getSource());
@@ -874,9 +876,11 @@ public class ControlPanel extends JPanel {
    private void setUpLevelStats() {
       float textSize = defaultTextSize;
       Box box = Box.createVerticalBox();
-      box.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 30));
+      box.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
       box.setOpaque(false);
       box.add(createLeftRightPanel("Number Left", textSize, defaultTextColour, numSpritesLabel));
+      box.add(createLeftRightPanel("Between Sprites", textSize, defaultTextColour,
+            timeBetweenSpritesLabel));
       box.add(createLeftRightPanel("HP", textSize, defaultTextColour, hpLabel));      
       add(box);
    }

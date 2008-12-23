@@ -20,6 +20,7 @@
 package towers;
 
 import gui.Circle;
+import gui.Helper;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -35,9 +36,9 @@ import sprites.Sprite.DamageReport;
 
 public class BomberTower extends AbstractTower {
    
-   private int blastRadius = 20;
+   private double blastRadius = 25;
    // If the radius increases exponentially it just gets silly
-   private final int blastRadiusIncrease = 2;
+   private final double blastRadiusIncrease = 2.5;
    private static final double bombDamageDividend = 2;
 
    public BomberTower() {
@@ -50,7 +51,7 @@ public class BomberTower extends AbstractTower {
 
    @Override
    public String getSpecial() {
-      return Integer.toString(blastRadius);
+      return Helper.format(blastRadius, 1);
    }
 
    @Override
@@ -75,7 +76,7 @@ public class BomberTower extends AbstractTower {
       private boolean expanding = true;
       private Set<Sprite> hitSprites = new HashSet<Sprite>();
       private final Color blastColour = new Color(255, 0, 0, 100);
-      private final int blastSizeIncrement;
+      private final double blastSizeIncrement;
       private final int frames = 5;
       private final Circle blast = new Circle(new Point(0, 0), 0);
       private double moneyEarnt;

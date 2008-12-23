@@ -31,7 +31,15 @@ public class Formulae {
    private final static List<Double> moneyDivisors = new ArrayList<Double>();
    
    public static int numSprites(int level) {
-      return 20 + 2 * (level - 1);
+      return 20 + 5 * (level - 1);
+   }
+   
+   public static int ticksBetweenAddSprite(int level) {
+      int ticks = 40;
+      for(int i = 1; i < level; i++) {
+         ticks *= 0.95;
+      }
+      return ticks > 1 ? ticks : 1;
    }
    
    public static long hp(int level) {
@@ -61,8 +69,8 @@ public class Formulae {
    private static synchronized double getMoneyDivisor(int level) {
       // Keep a list of these as this is called every time a bullet hits.
       level--;
-      if(level >= moneyDivisors.size()) {
-         moneyDivisors.add(Math.pow(1.15, level));
+      for(int i = moneyDivisors.size(); i <= level; i++) {
+         moneyDivisors.add(Math.pow(1.15, i));
       }
       return moneyDivisors.get(level);
    }
