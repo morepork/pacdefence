@@ -173,7 +173,7 @@ public abstract class AbstractTower implements Tower {
          bulletsToAdd.addAll(fired);
       }
       List<Bullet> bullets = bulletsToAdd;
-      bulletsToAdd = new ArrayList<Bullet>();
+      bulletsToAdd = new ArrayList<Bullet>(bulletsToAdd.size());
       return bullets;
    }
 

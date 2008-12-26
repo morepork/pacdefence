@@ -31,7 +31,7 @@ public class Formulae {
    private final static List<Double> moneyDivisors = new ArrayList<Double>();
    
    public static int numSprites(int level) {
-      return 20 + 5 * (level - 1);
+      return 20 + 4 * (level - 1);
    }
    
    public static int ticksBetweenAddSprite(int level) {

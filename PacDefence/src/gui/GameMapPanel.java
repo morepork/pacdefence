@@ -578,6 +578,9 @@ public class GameMapPanel extends JPanel {
          if(levelInProgress && sprites.isEmpty() && spritesToAdd <= 0) {
             cp.endLevel();
             levelInProgress = false;
+            // If the level is just finished it's a good time to run the garbage
+            // collector rather than have it run during a level.
+            System.gc();
          }
          if(spritesToAdd > 0) {
             if(addSpriteIn < 1) {

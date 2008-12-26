@@ -43,7 +43,7 @@ public class OmnidirectionalTower extends AbstractTower {
       // Testing tower with way too many bullets
       /*super(p, pathBounds, "Omnidirectional", 0, 1000, 5, 0.005, 50, 10, "omnidirectional.png",
             "OmnidirectionalTower.png", false);
-      for(int i = 0; i < 100; i++) {
+      for(int i = 0; i < 200; i++) {
          upgradeSpecial();
       }*/
    }
