@@ -33,10 +33,6 @@ public class PiercerTower extends AbstractTower {
    
    private int pierces = 1;
 
-   public PiercerTower() {
-      this(new Point(), null);
-   }
-   
    public PiercerTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Piercer", 40, 100, 5, 8, 50, 20, "piercer.png", "PiercingTower.png");
    }

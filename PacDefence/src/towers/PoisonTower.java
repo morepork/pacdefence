@@ -38,10 +38,6 @@ public class PoisonTower extends AbstractTower {
    private double poisonTicks = Game.CLOCK_TICKS_PER_SECOND;
    private final double poisonTicksUpgrade = Game.CLOCK_TICKS_PER_SECOND / 10;
    
-   public PoisonTower() {
-      this(new Point(), null);
-   }
-   
    public PoisonTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Poison", 40, 100, 5, baseDamage, 50, 20, "poison.png",
             "PoisonTower.png");

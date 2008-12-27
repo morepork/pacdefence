@@ -38,10 +38,6 @@ public class LaserTower extends AbstractTower {
    private double beamLength = 20;
    private final double beamLengthUpgrade = beamLength * (upgradeIncreaseFactor - 1);
 
-   public LaserTower() {
-      this(new Point(), null);
-   }
-   
    public LaserTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Laser", 40, 100, 8, 1.5, 50, 24, "laser.png", "LaserTower.png");
    }

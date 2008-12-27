@@ -33,10 +33,6 @@ public class JumpingTower extends AbstractTower {
    
    private int jumps = 1;
    
-   public JumpingTower() {
-      this(new Point(), null);
-   }
-   
    public JumpingTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Jumper", 40, 100, 5, 4.5, 50, 20, "jumping.png", "JumpingTower.png");
    }

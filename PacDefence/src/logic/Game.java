@@ -200,24 +200,24 @@ public class Game {
    
    private List<Tower> createTowerImplementations() {
       List<Tower> towerTypes = new ArrayList<Tower>();
-      towerTypes.add(new BomberTower());
-      towerTypes.add(new PiercerTower());
-      towerTypes.add(new SlowLengthTower());
-      towerTypes.add(new FreezeTower());
-      towerTypes.add(new JumpingTower());
-      towerTypes.add(new CircleTower());
-      towerTypes.add(new ScatterTower());
-      towerTypes.add(new MultiShotTower());
-      towerTypes.add(new LaserTower());
-      towerTypes.add(new PoisonTower());
-      towerTypes.add(new OmnidirectionalTower());
-      towerTypes.add(new WeakenTower());
-      towerTypes.add(new WaveTower());
-      towerTypes.add(new HomingTower());
-      towerTypes.add(new ChargeTower());
-      towerTypes.add(new ZapperTower());
-      towerTypes.add(new BeamTower());
-      towerTypes.add(new AidTower());
+      towerTypes.add(new BomberTower(new Point(), null));
+      towerTypes.add(new PiercerTower(new Point(), null));
+      towerTypes.add(new SlowLengthTower(new Point(), null));
+      towerTypes.add(new FreezeTower(new Point(), null));
+      towerTypes.add(new JumpingTower(new Point(), null));
+      towerTypes.add(new CircleTower(new Point(), null));
+      towerTypes.add(new ScatterTower(new Point(), null));
+      towerTypes.add(new MultiShotTower(new Point(), null));
+      towerTypes.add(new LaserTower(new Point(), null));
+      towerTypes.add(new PoisonTower(new Point(), null));
+      towerTypes.add(new OmnidirectionalTower(new Point(), null));
+      towerTypes.add(new WeakenTower(new Point(), null));
+      towerTypes.add(new WaveTower(new Point(), null));
+      towerTypes.add(new HomingTower(new Point(), null));
+      towerTypes.add(new ChargeTower(new Point(), null));
+      towerTypes.add(new ZapperTower(new Point(), null));
+      towerTypes.add(new BeamTower(new Point(), null));
+      towerTypes.add(new AidTower(new Point(), null));
       return towerTypes;
    }
    

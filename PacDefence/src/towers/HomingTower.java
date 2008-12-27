@@ -36,10 +36,6 @@ public class HomingTower extends AbstractTower {
    private double maxRedirectAngle = 1;
    private static final double upgradeIncreaseAngle = 0.1;
 
-   public HomingTower() {
-      this(new Point(), null);
-   }
-   
    public HomingTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Homing", 40, 100, 5, 12.5, 50, 18, "homing.png", "HomingTower.png");
    }

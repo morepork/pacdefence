@@ -34,7 +34,7 @@ public abstract class SlowTower extends AbstractTower {
    // So it starts at 1s
    protected double slowTicks = Game.CLOCK_TICKS_PER_SECOND;
 
-   public SlowTower(Point p, Rectangle2D pathBounds, String name, int fireRate, int range,
+   protected SlowTower(Point p, Rectangle2D pathBounds, String name, int fireRate, int range,
          double bulletSpeed, double damage, int width, int turretWidth, String imageName,
          String buttonImageName) {
       super(p, pathBounds, name, fireRate, range, bulletSpeed, damage, width, turretWidth, imageName,

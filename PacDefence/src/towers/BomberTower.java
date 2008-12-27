@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Set;
 
 import logic.Helper;
-
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
 
@@ -41,10 +40,6 @@ public class BomberTower extends AbstractTower {
    // If the radius increases exponentially it just gets silly
    private final double blastRadiusIncrease = 2.5;
    private static final double bombDamageDividend = 2;
-
-   public BomberTower() {
-      this(new Point(), null);
-   }
 
    public BomberTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Bomber", 40, 100, 5, 9, 50, 15, "bomber.png", "BomberTower.png");

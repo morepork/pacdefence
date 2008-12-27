@@ -34,10 +34,6 @@ public class ChargeTower extends AbstractTower {
    private double nextDamageMultiplier = 1;
    private static final int ticksToCharge = (int)(2 * Game.CLOCK_TICKS_PER_SECOND);
 
-   public ChargeTower() {
-      this(new Point(), null);
-   }
-   
    public ChargeTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Charge", 40, 100, 5, 10, 50, 16, "charge.png", "ChargeTower.png");
    }

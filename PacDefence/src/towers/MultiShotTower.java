@@ -32,10 +32,6 @@ public class MultiShotTower extends AbstractTower {
    private static final double speedDividend = 1.07;
    private int shots = 5;
    
-   public MultiShotTower() {
-      this(new Point(), null);
-   }
-   
    public MultiShotTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Multi-Shot", 40, 100, 7.5, 1.3, 50, 5, "multiShot.png",
             "MultiShotTower.png");

@@ -33,10 +33,6 @@ public class OmnidirectionalTower extends AbstractTower {
    
    private int numShots = 3;
    
-   public OmnidirectionalTower() {
-      this(new Point(), null);
-   }
-   
    public OmnidirectionalTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Omnidirectional", 40, 100, 5, 5, 50, 10, "omnidirectional.png",
             "OmnidirectionalTower.png", false);

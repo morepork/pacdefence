@@ -35,10 +35,6 @@ public class WeakenTower extends AbstractTower {
    private double upgradeIncreaseTicks = Game.CLOCK_TICKS_PER_SECOND / 10;
    private double increaseDamageFactor = 2;
    
-   public WeakenTower() {
-      this(new Point(), null);
-   }
-
    public WeakenTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Weaken", 40, 100, 5, 1, 50, 19, "weaken.png", "WeakenTower.png");
    }

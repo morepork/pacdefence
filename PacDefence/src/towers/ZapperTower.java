@@ -42,10 +42,6 @@ public class ZapperTower extends AbstractTower {
    private int numZaps = 5;
    private static final int upgradeIncreaseZaps = 1;
    
-   public ZapperTower() {
-      this(new Point(), null);
-   }
-
    public ZapperTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Zapper", 40, 100, 1, 1, 50, 21, "zapper.png", "ZapperTower.png");
    }

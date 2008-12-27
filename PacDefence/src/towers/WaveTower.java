@@ -43,10 +43,6 @@ public class WaveTower extends AbstractTower {
    private int angle = 30;
    private final double upgradeIncreaseAngle = angle / 10;
    
-   public WaveTower() {
-      this(new Point(), null);
-   }
-
    public WaveTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Wave", 40, 100, 5, 5.5, 50, 6, "wave.png", "WaveTower.png");
       // This is a grossly overpowered (but with really low damage) version for

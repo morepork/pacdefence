@@ -28,10 +28,6 @@ import logic.Helper;
 // Should remove this later as it is poor compared to the freeze tower
 public class SlowFactorTower extends SlowTower {
    
-   public SlowFactorTower() {
-      this(new Point(), null);
-   }
-   
    public SlowFactorTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Slow (factor)", 40, 100, 5, 1, 50, 23, "slowFactor.png",
             "SlowFactorTower.png");

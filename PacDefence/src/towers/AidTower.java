@@ -50,10 +50,6 @@ public class AidTower extends AbstractTower {
    private final Timer timer = new Timer();
    private final DamageNotifier damageNotifier = new AidDamageNotifier();
 
-   public AidTower() {
-      this(new Point(), null);
-   }
-
    public AidTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Aid", 0, 100, 0, 0, 50, 0, "aid.png", "AidTower.png", false);
    }
