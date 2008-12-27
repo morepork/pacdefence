@@ -43,6 +43,8 @@ public class AidTower extends AbstractTower {
    private final Map<Attribute, Integer> aidAmounts = makeAidAmounts();
    private static int nextID = 0;
    private final int id = nextID++;
+   // This set keeps references to towers that are sold keeping them alive
+   // I don't think it's much of a memory issue though.
    private final Set<Tower> aidingTowers = new HashSet<Tower>();
    private List<Tower> towers;
    private final Timer timer = new Timer();
@@ -80,6 +82,7 @@ public class AidTower extends AbstractTower {
    }
    
    public void setTowers(List<Tower> towers) {
+      System.out.println(id);
       assert this.towers == null : "List of towers is should not be set again";
       this.towers = towers;
       // You can't just rely on the tick method as ticks stop between levels
@@ -154,14 +157,28 @@ public class AidTower extends AbstractTower {
    }
    
    private void addTowers() {
-      assert towers.size() > 0 : "The size of the list of towers isn't > 0";
-      for(int i = 0; i < towers.size(); i++) {
-         Tower t = towers.get(i);
-         if(!(t instanceof AidTower) && !aidingTowers.contains(t)) {
-            if(super.getCentre().distance(t.getCentre()) < getRange()) {
-               aidingTowers.add(t);
-               aid(t);
-               t.addDamageNotifier(damageNotifier);
+      if(towers.isEmpty()) {
+         // If the size of the list of towers is 0 
+         timer.cancel();
+         aidingTowers.clear();
+      } else if(!towers.contains(this)) {
+         // The aid tower has been sold
+         timer.cancel();
+         for(Tower t : aidingTowers) {
+            for(Attribute a : aidAmounts.keySet()) {
+               t.aidAttribute(a, 1, id);
+            }
+         }
+         aidingTowers.clear();
+      } else {
+         for(int i = 0; i < towers.size(); i++) {
+            Tower t = towers.get(i);
+            if(!(t instanceof AidTower) && !aidingTowers.contains(t)) {
+               if(super.getCentre().distance(t.getCentre()) < getRange()) {
+                  aidingTowers.add(t);
+                  aid(t);
+                  t.addDamageNotifier(damageNotifier);
+               }
             }
          }
       }

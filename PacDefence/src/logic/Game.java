@@ -921,8 +921,8 @@ public class Game {
       
       public void processSellButtonPressed(JButton b) {
          if(selectedTower != null) {
-            removeTower(selectedTower);
             increaseMoney(sellValue(selectedTower));
+            removeTower(selectedTower);
             setSelectedTower(null);
          }
       }

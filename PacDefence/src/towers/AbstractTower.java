@@ -46,6 +46,7 @@ import java.util.TreeMap;
 import logic.Formulae;
 import logic.Game;
 import logic.Helper;
+import sprites.LooseFloat;
 import sprites.Sprite;
 
 public abstract class AbstractTower implements Tower {
@@ -282,16 +283,33 @@ public abstract class AbstractTower implements Tower {
    @Override
    public void aidAttribute(Attribute a, double factor, int towerID) {
       assert a != Attribute.Special : "Special cannot be aided";
-      if(!aidFactors.containsKey(towerID)) {
-         aidFactors.put(towerID, new EnumMap<Attribute, Double>(Attribute.class));
-      }
-      aidFactors.get(towerID).put(a, factor);
       double currentFactor = currentFactors.get(a);
-      // This limits it to one aid tower's upgrade (the best one)
-      if(factor > currentFactor) {
-         // This applies the new upgrade and cancels out the last one
-         multiplyAttribute(a, factor / currentFactor);
-         currentFactors.put(a, factor);
+      if(factor == 1) { // This signals that this aid tower has been sold
+         aidFactors.remove(towerID);
+         // Find the best factor from the remaining factors
+         for(Map<Attribute, Double> m : aidFactors.values()) {
+            double d = m.get(a);
+            if(d > factor) {
+               factor = d;
+            }
+         }
+         // and if it isn't the current factor, make it so, as the current factor
+         // would've been removed.
+         if(factor != currentFactor) {
+            multiplyAttribute(a, factor / currentFactor);
+            currentFactors.put(a, factor);
+         }
+      } else {
+         if(!aidFactors.containsKey(towerID)) {
+            aidFactors.put(towerID, new EnumMap<Attribute, Double>(Attribute.class));
+         }
+         aidFactors.get(towerID).put(a, factor);
+         // This limits it to one aid tower's upgrade (the best one)
+         if(factor > currentFactor) {
+            // This applies the new upgrade and cancels out the last one
+            multiplyAttribute(a, factor / currentFactor);
+            currentFactors.put(a, factor);
+         }
       }
    }
    
@@ -591,7 +609,7 @@ public abstract class AbstractTower implements Tower {
       Map<LooseFloat, BufferedImage> m = rotatedImages.get(getClass());
       // Use LooseFloat to reduce precision so rotated images are less likely
       // to be duplicated
-      LooseFloat f = new LooseFloat(angle);
+      LooseFloat f = new AbstractTowerLooseFloat(angle);
       if(!m.containsKey(f)) {
          m.put(f, ImageHelper.rotateImage(originalImage, angle));
          /*int numImages = 0;
@@ -612,34 +630,20 @@ public abstract class AbstractTower implements Tower {
       return map;
    }
    
-   private static class LooseFloat implements Comparable<LooseFloat> {
+   private class AbstractTowerLooseFloat extends LooseFloat {
       
-      private static final float precision = 0.012F;
-      private final Float f;
-      
-      private LooseFloat(float f) {
-         this.f = f;
+      public AbstractTowerLooseFloat(float f) {
+         super(f);
       }
       
-      private LooseFloat(double d) {
-         this.f = (float)d;
-      }
-      
-      @Override
-      public boolean equals(Object obj) {
-         if(obj instanceof LooseFloat) {
-            return Math.abs(this.f - ((LooseFloat)obj).f) < precision;
-         } else {
-            return false;
-         }
+      public AbstractTowerLooseFloat(double d) {
+         super(d);
       }
 
       @Override
-      public int compareTo(LooseFloat lf) {
-         return (int)((this.f - lf.f) / precision);
+      protected float getPrecision() {
+         return 0.012F;
       }
-      
-      
    }
 
 }

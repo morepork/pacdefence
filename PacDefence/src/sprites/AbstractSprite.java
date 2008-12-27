@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 
 import logic.Formulae;
 import logic.Helper;
@@ -54,9 +55,9 @@ public abstract class AbstractSprite implements Sprite {
 
    // Keep track of rotated images so every time a sprite rounds a corner
    // the original images do not need to be re-rotated
-   private static final Map<Class<? extends AbstractSprite>, Map<Float,
+   private static final Map<Class<? extends AbstractSprite>, Map<LooseFloat,
          List<BufferedImage>>> rotatedImages = new HashMap<Class<? extends AbstractSprite>,
-         Map<Float, List<BufferedImage>>>();
+         Map<LooseFloat, List<BufferedImage>>>();
    private final List<BufferedImage> originalImages;
    private List<BufferedImage> currentImages;
    private BufferedImage currentImage;
@@ -323,16 +324,17 @@ public abstract class AbstractSprite implements Sprite {
    
    private void rotateImages(double angle) {
       if(!rotatedImages.containsKey(getClass())) {
-         rotatedImages.put(getClass(), new HashMap<Float, List<BufferedImage>>());
+         rotatedImages.put(getClass(), new TreeMap<LooseFloat, List<BufferedImage>>());
       }
-      Map<Float, List<BufferedImage>> m = rotatedImages.get(getClass());
-      // Cast to a float to reduce precision so rotated images are less likely to be duplicated
-      float f = (float) angle;
+      Map<LooseFloat, List<BufferedImage>> m = rotatedImages.get(getClass());
+      // Use LooseFloat to reduce precision so rotated images are less likely to be duplicated
+      LooseFloat f = new AbstractSpriteLooseFloat(angle);
       if(!m.containsKey(f)) {
          List<BufferedImage> images = new ArrayList<BufferedImage>(originalImages.size());
          for(BufferedImage i : originalImages) {
             images.add(ImageHelper.rotateImage(i, angle));
          }
+         System.out.println("Adding sprite image");
          m.put(f, Collections.unmodifiableList(images));
       }
       currentImages = new ArrayList<BufferedImage>(m.get(f));
@@ -409,6 +411,22 @@ public abstract class AbstractSprite implements Sprite {
          if(adjustedDamageTicksLeft <= 0) {
             damageMultiplier = 1;
          }
+      }
+   }
+   
+   private class AbstractSpriteLooseFloat extends LooseFloat {
+      
+      public AbstractSpriteLooseFloat(float f) {
+         super(f);
+      }
+      
+      public AbstractSpriteLooseFloat(double d) {
+         super(d);
+      }
+
+      @Override
+      protected float getPrecision() {
+         return 0.012F;
       }
    }
    

@@ -91,6 +91,14 @@ public interface Tower extends Cloneable {
    public Shape getBounds();
    public int getAttributeLevel(Attribute a);
    public void raiseAttributeLevel(Attribute a, boolean boughtUpgrade);
+   
+   /**
+    * Aids the specified attribute by increaseFactor.
+    * 
+    * Towers should only be aided by the highest increaseFactor they are currently
+    * receiving in each attribute. An increaseFactor of 1 (which means no increase)
+    * signals that the aiding tower has been sold.
+    */
    public void aidAttribute(Attribute a, double increaseFactor, int towerID);
    public String getStat(Attribute a);
    public String getStatName(Attribute a);
