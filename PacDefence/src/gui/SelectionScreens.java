@@ -48,18 +48,16 @@ public class SelectionScreens extends JPanel {
    private static final Color textColour = Color.YELLOW;
    private final MyJLabel title = new MyJLabel();
    private final BufferedImage background;
-   private int selectedGameMap;
-   private List<GameMap> gameMaps = new ArrayList<GameMap>();
-   private final Game.CarryOn carryOn;
+   private final List<GameMap> gameMaps = createGameMapList();
+   private final Game.ContinueOn continueOn;
 
-   public SelectionScreens(int width, int height, Game.CarryOn carryOn) {
+   public SelectionScreens(int width, int height, Game.ContinueOn continueOn) {
       super(new BorderLayout());
       title.setForeground(textColour);
       title.setFontSize(40F);
       title.setHorizontalAlignment(JLabel.CENTER);
       background = ImageHelper.makeImage("maps", "theGreenPlace.png");
-      addGameMaps();
-      this.carryOn = carryOn;
+      this.continueOn = continueOn;
       add(title, BorderLayout.NORTH);
       add(createMapSelections());
    }
@@ -69,14 +67,12 @@ public class SelectionScreens extends JPanel {
       g.drawImage(background, 0, 0, null);
    }
    
-   public GameMap getSelectedGameMap() {
-      return gameMaps.get(selectedGameMap);
-   }
-   
-   private void addGameMaps() {
-      gameMaps.add(loadMap("mosaicPathEasy", "mosaicPathEasy.png"));
-      gameMaps.add(loadMap("mosaicPathMedium", "mosaicPathMedium.png"));
-      gameMaps.add(loadMap("mosaicPathHard", "mosaicPathHard.png"));
+   private List<GameMap> createGameMapList() {
+      List<GameMap> list = new ArrayList<GameMap>();
+      list.add(loadMap("mosaicPathEasy", "mosaicPathEasy.png"));
+      list.add(loadMap("mosaicPathMedium", "mosaicPathMedium.png"));
+      list.add(loadMap("mosaicPathHard", "mosaicPathHard.png"));
+      return list;
    }
    
    private Component createMapSelections() {
@@ -88,7 +84,7 @@ public class SelectionScreens extends JPanel {
          OverlayButton button = new OverlayButton(g.getImage(), 250, 250);
          button.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
-               carryOn.carryOn(g);
+               continueOn.continueOn(g);
             }
          });
          b.add(button, BorderLayout.NORTH);

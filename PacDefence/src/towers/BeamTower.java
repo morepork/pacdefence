@@ -28,11 +28,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
-import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -54,7 +54,7 @@ public class BeamTower extends AbstractTower {
    }
 
    public BeamTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Beam", 40, 100, 40, 4.5, 50, 0, "beam.png", "BeamTower.png", false);
+      super(p, pathBounds, "Beam", 40, 100, 40, 4, 50, 0, "beam.png", "BeamTower.png", false);
       // This is a grossly overpowered version for testing performance.
       /*super(p, pathBounds, "Beam", 0, 1000, 100, 0.1, 50, 0, "beam.png", "BeamTower.png", false);
       for(int i = 0; i < 20; i++) {
@@ -119,7 +119,7 @@ public class BeamTower extends AbstractTower {
       private int ticksLeft;
       private final double damage;
       private double moneyEarnt = 0;
-      //private List<Point2D> points = Collections.emptyList();
+      private List<Point2D> points = Collections.emptyList();
       
       private Beam(Tower t, Point2D centre, double angle, int range, double speed, double damage,
             Rectangle2D pathBounds, Sprite target, int numTicks) {
@@ -145,10 +145,10 @@ public class BeamTower extends AbstractTower {
          g2D.draw(beam);
          g2D.setStroke(s);
          // Debugging code to make sure the points are in the right place
-         /*g2D.setColor(Color.RED);
+         g2D.setColor(Color.RED);
          for(Point2D p : points) {
             g2D.drawRect((int)p.getX(), (int)p.getY(), 1, 1);
-         }*/
+         }
       }
 
       @Override
@@ -191,20 +191,20 @@ public class BeamTower extends AbstractTower {
       
       private List<Point2D> makePoints() {
          List<Point2D> points = new ArrayList<Point2D>();
-         Arc2D a = new Arc2D.Double();
-         double angleStart = currentAngle - 90;
+         //Arc2D a = new Arc2D.Double();
+         //double angleStart = currentAngle - 90;
          double radAngleStart = Math.toRadians(currentAngle);
          double sinAngle = Math.sin(radAngleStart);
          double cosAngle = Math.cos(radAngleStart);
-         double numPointsMult = 2 * Math.PI * deltaAngle / 360;
+         double numPointsMult = Math.abs(2 * Math.PI * deltaAngle / 360);
          for(int i = 1; i <= circle.getRadius(); i++) {
-            a.setArcByCenter(centre.getX(), centre.getY(), i, angleStart, deltaAngle,
-                  Arc2D.OPEN);
+            //a.setArcByCenter(centre.getX(), centre.getY(), i, angleStart, deltaAngle,
+            //      Arc2D.OPEN);
             //points.addAll(Helper.getPointsOnArc(a, pathBounds));
-            points.addAll(Helper.getPointsOnArc(a, i, i * numPointsMult, sinAngle, cosAngle,
-                  pathBounds));
+            points.addAll(Helper.getPointsOnArc(centre.getX(), centre.getY(), i,
+                  i * numPointsMult, sinAngle, cosAngle, pathBounds));
          }
-         //this.points = points;
+         this.points = points;
          return points;
       }
       

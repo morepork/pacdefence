@@ -35,7 +35,6 @@ import java.util.Collection;
 import java.util.List;
 
 import logic.Helper;
-
 import sprites.Sprite;
 
 
@@ -137,19 +136,19 @@ public class WaveTower extends AbstractTower {
             return -1;
          }
          List<Point2D> points = new ArrayList<Point2D>();
-         Arc2D a = new Arc2D.Double();
+         //Arc2D a = new Arc2D.Double();
          double radAngleStart = Math.toRadians(startAngle + 90);
          double sinAngle = Math.sin(radAngleStart);
          double cosAngle = Math.cos(radAngleStart);
-         double numPointsMult = 2 * Math.PI * extentAngle / 360;
+         double numPointsMult = Math.abs(2 * Math.PI * extentAngle / 360);
          for(double d = lastRadius; d < currentRadius; d++) {
-            setArc(a, d);
             // I tried converting the Point2Ds to points and using a set to
             // eliminate duplicates but it only reduced the number of points
             // in the list by around 10% so didn't deem it worth the overhead
+            //setArc(a, d);
             //points.addAll(Helper.getPointsOnArc(a, pathBounds);
-            points.addAll(Helper.getPointsOnArc(a, d, d * numPointsMult, sinAngle, cosAngle,
-                  pathBounds));
+            points.addAll(Helper.getPointsOnArc(start.getX(), start.getY(), d, d * numPointsMult,
+                  sinAngle, cosAngle, pathBounds));
          }
          double d = 0;
          for(Sprite s : sprites) {

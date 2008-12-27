@@ -148,8 +148,7 @@ public class GameMapPanel extends JPanel {
       if(buildingTower != null) {
          Point p = getMousePosition();
          if (p != null) {
-            // TODO Maybe add a method to Tower interface to do this better
-            buildingTower.constructNew(p, path.getBounds2D()).drawShadow(g);
+            buildingTower.drawShadowAt(g, p);
          }
       }
    }
@@ -180,6 +179,7 @@ public class GameMapPanel extends JPanel {
       for(Point p : pathPoints) {
          int x = p.x;
          int y = p.y;
+         // These two lines are the cross at each point
          g.drawLine(x - 10, y - 10, x + 10, y + 10);
          g.drawLine(x - 10, y + 10, x + 10, y - 10);
          if (lastPoint != null) {
@@ -304,7 +304,7 @@ public class GameMapPanel extends JPanel {
       private final int height;
       private final BufferedImage display;
       private final Graphics displayGraphics;
-      private boolean displayed = false;
+      private boolean isOnDisplay = false;
       private boolean clearingFlag = false;
       private boolean drawingFlag = false;
       
@@ -322,7 +322,7 @@ public class GameMapPanel extends JPanel {
             currentPosition--;
             if(currentPosition <= startPosition - heightToDisplay) {
                drawingFlag = false;
-               displayed = true;
+               isOnDisplay = true;
             }
          } else if (clearingFlag) {
             currentPosition++;
@@ -331,27 +331,27 @@ public class GameMapPanel extends JPanel {
                currentPosition = startPosition;
                return;
             }
-         } else if (!displayed) {
+         } else if (!isOnDisplay) {
             return;
          }
          g.drawImage(display, offset, currentPosition, null);
       }
       
       public void displayText(String... lines) {
-         if(displayed) {
+         if(isOnDisplay) {
             throw new RuntimeException("There is already text on display.");
          }
          drawImage(lines);
          drawingFlag = true;
          clearingFlag = false;
-         displayed = false;
+         isOnDisplay = false;
       }
       
       public void clear() {
          heightToDisplay = 0;
          clearingFlag = true;
          drawingFlag = false;
-         displayed = false;
+         isOnDisplay = false;
       }
       
       private void drawImage(String[] lines) {

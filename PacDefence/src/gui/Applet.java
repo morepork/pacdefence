@@ -26,13 +26,8 @@ import logic.Game;
 @SuppressWarnings("serial")
 public class Applet extends JApplet {
    
-   //private OuterPanel outer;
-   
    @Override
    public void init() {
-      /*outer = new OuterPanel();
-      add(outer);
-      setSize(OuterPanel.WIDTH, OuterPanel.HEIGHT);*/
       new Game(this);
       setVisible(true);
    }

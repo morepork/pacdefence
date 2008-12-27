@@ -30,8 +30,9 @@ import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.List;
+
+import logic.Helper;
 
 // Not fully implemented
 
@@ -150,7 +151,7 @@ public class Circle implements Shape {
       if(p.contains(centre)) {
          return true;
       }
-      List<Line2D> outline = makePolygonOutline(p);
+      List<Line2D> outline = Helper.getPolygonOutline(p);
       for(Line2D line : outline) {
          if(intersects(line)) {
             return true;
@@ -198,19 +199,6 @@ public class Circle implements Shape {
    private void setBounds() {
       bounds = new Ellipse2D.Double(centre.getX() - radius, centre.getY() - radius, radius * 2,
             radius * 2);
-   }
-   
-   private List<Line2D> makePolygonOutline(Polygon p) {
-      List<Line2D> outline = new ArrayList<Line2D>();
-      int[] xPoints = p.xpoints;
-      int[] yPoints = p.ypoints;
-      int length = xPoints.length;
-      outline.add(new Line2D.Double(xPoints[length - 1], yPoints[length - 1], xPoints[0],
-            yPoints[0]));
-      for(int i = 1; i < length; i++) {
-         outline.add(new Line2D.Double(xPoints[i - 1], yPoints[i - 1], xPoints[i], yPoints[i]));
-      }
-      return outline;
    }
 
 }

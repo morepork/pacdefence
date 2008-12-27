@@ -194,14 +194,15 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public void drawShadow(Graphics g) {
+   public void drawShadowAt(Graphics g, Point p) {
       Graphics2D g2D = (Graphics2D) g;
-      drawRange(g2D);
+      drawRange(g2D, p);
       // Save the current composite to reset back to later
       Composite c = g2D.getComposite();
       // Makes it so what is drawn is partly transparent
       g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75f));  
-      g2D.drawImage(currentImage, (int) topLeft.getX(), (int) topLeft.getY(), width, width, null);
+      g2D.drawImage(currentImage, (int) p.getX() - halfWidth, (int) p.getY() - halfWidth, width,
+            width, null);
       g2D.setComposite(c);
    }
 
@@ -529,8 +530,12 @@ public abstract class AbstractTower implements Tower {
    }
    
    private void drawRange(Graphics g) {
-      int topLeftRangeX = (int)(centre.getX() - range);
-      int topLeftRangeY = (int)(centre.getY() - range);
+      drawRange(g, centre);
+   }
+   
+   private void drawRange(Graphics g, Point p) {
+      int topLeftRangeX = (int)(p.getX() - range);
+      int topLeftRangeY = (int)(p.getY() - range);
       g.setColor(rangeColour);
       g.fillOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
       g.setColor(Color.BLACK);

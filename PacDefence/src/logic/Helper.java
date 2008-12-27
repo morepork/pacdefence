@@ -19,6 +19,7 @@
 
 package logic;
 
+import java.awt.Polygon;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -130,29 +131,27 @@ public class Helper {
       double numPoints = 2 * Math.PI * radius * a.getAngleExtent() / 360;
       double deltaAngle = 1 / radius;
       double angle = Math.toRadians(a.getAngleStart() + 90);
-      List<Point2D> points = new ArrayList<Point2D>();
-      Point2D p = a.getStartPoint();
-      if(containedIn == null || containedIn.contains(p)) {
-         points.add(p);
-      }
+      List<Point2D> points = new ArrayList<Point2D>((int) numPoints + 3);
+      Point2D p;
       double x = a.getCenterX();
       double y = a.getCenterY();
       double sinAngle = Math.sin(angle);
       double cosAngle = Math.cos(angle);
       double sinDeltaAngle = Math.sin(deltaAngle);
       double cosDeltaAngle = Math.cos(deltaAngle);
-      for(int i = 0; i < numPoints; i++) {
+      for(int i = 0; i < numPoints + 1; i++) {
          //angle += deltaAngle;
          //p = new Point2D.Double(x + radius * Math.sin(angle), y + radius * Math.cos(angle));
          // These next few lines do the same as the above, just using a trig identity
          // for better performance as there are no more trig calls
-         double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
-         cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
-         sinAngle = newSinAngle;
          p = new Point2D.Double(x + radius * sinAngle, y + radius * cosAngle);
          if(containedIn == null || containedIn.contains(p)) {
             points.add(p);
          }
+         // Having these after means the first point is the first point on the arc
+         double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
+         cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
+         sinAngle = newSinAngle;
       }
       p = a.getEndPoint();
       if(containedIn == null || containedIn.contains(p)) {
@@ -161,35 +160,38 @@ public class Helper {
       return points;
    }
    
-   public static List<Point2D> getPointsOnArc(Arc2D a, double radius, double numPoints,
-         double sinAngle, double cosAngle, Rectangle2D containingRect) {
-      // Copied from the one above with a few optimisations for wave and beam towers
+   public static List<Point2D> getPointsOnArc(double x, double y, double radius,
+         double numPoints, double sinAngle, double cosAngle, Rectangle2D containingRect) {
+      // Copied from the one above with a lot of optimisations for wave and beam towers
       // as the arcs are the same except with different radii. Gave an ~20% improvement
       // in a simple test for beam tower.
       double deltaAngle = 1 / radius;
-      List<Point2D> points = new ArrayList<Point2D>();
-      Point2D p = a.getStartPoint();
-      if(containingRect.contains(p)) {
-         points.add(p);
-      }
-      double x = a.getCenterX();
-      double y = a.getCenterY();
+      List<Point2D> points = new ArrayList<Point2D>((int)numPoints + 3);
       double sinDeltaAngle = Math.sin(deltaAngle);
       double cosDeltaAngle = Math.cos(deltaAngle);
-      for(int i = 0; i < numPoints; i++) {
-         double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
-         cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
-         sinAngle = newSinAngle;
-         p = new Point2D.Double(x + radius * sinAngle, y + radius * cosAngle);
+      for(int i = 0; i <= numPoints + 1; i++) {
+         Point2D p = new Point2D.Double(x + radius * sinAngle, y + radius * cosAngle);
          if(containingRect.contains(p)) {
             points.add(p);
          }
-      }
-      p = a.getEndPoint();
-      if(containingRect.contains(p)) {
-         points.add(p);
+         double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
+         cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
+         sinAngle = newSinAngle;
       }
       return points;
+   }
+   
+   public static List<Line2D> getPolygonOutline(Polygon p) {
+      int[] xPoints = p.xpoints;
+      int[] yPoints = p.ypoints;
+      int length = xPoints.length;
+      List<Line2D> outline = new ArrayList<Line2D>(length);
+      outline.add(new Line2D.Double(xPoints[length - 1], yPoints[length - 1], xPoints[0],
+            yPoints[0]));
+      for(int i = 1; i < length; i++) {
+         outline.add(new Line2D.Double(xPoints[i - 1], yPoints[i - 1], xPoints[i], yPoints[i]));
+      }
+      return outline;
    }
    
    public static void main(String[] args) {

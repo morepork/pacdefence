@@ -95,7 +95,7 @@ public class Formulae {
          }
       }
       for(int i = 1; i < t.getExperienceLevel(); i++) {
-         value *= 1.05;
+         value *= 1.1;
       }
       return (long)(value * 0.9);
    }

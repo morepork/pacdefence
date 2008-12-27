@@ -79,14 +79,12 @@ public class Game {
    
    public static final int WIDTH = 800;
    public static final int HEIGHT = 600;
-   
    public static final int MAP_WIDTH = WIDTH - 200;
    public static final int MAP_HEIGHT = HEIGHT;
-   
    public static final int CONTROLS_WIDTH = WIDTH - MAP_WIDTH;
    public static final int CONTROLS_HEIGHT = MAP_HEIGHT;
    
-   // Time clock takes to update in ms
+   // Time between each update in ms
    public static final int CLOCK_TICK = 30;
    public static final double CLOCK_TICKS_PER_SECOND = (double)1000 / CLOCK_TICK;
    
@@ -101,22 +99,20 @@ public class Game {
    
    private Polygon path;
    private List<Point> pathPoints;
-   
-   private final Title title;
-   private SelectionScreens selectionScreens;
-   private ControlPanel cp;
-   private GameMapPanel gmp;
-   
-   private boolean levelInProgress = false;
-   
-   private final Container container;
 
-   private int level;
+   private final Container outerContainer;
+   private final Title title = createTitle();
+   private final SelectionScreens selectionScreens = createSelectionScreens();
+   private ControlPanel controlPanel;
+   private GameMapPanel gameMap;
    
-   private final Map<Attribute, Integer> upgradesSoFar = new EnumMap<Attribute, Integer>(Attribute.class);
+   private final Map<Attribute, Integer> upgradesSoFar =
+         new EnumMap<Attribute, Integer>(Attribute.class);
 
    private List<Wrapper<String, Comparator<Sprite>>> comparators = createComparators();
    
+   private int level;
+   private boolean levelInProgress;
    private long money;
    private int lives;
    private int livesLostOnThisLevel;
@@ -125,51 +121,82 @@ public class Game {
    private static final int upgradeLives = 5;
    private static final int upgradeMoney = 1000;
    private static final double upgradeInterest = 0.005;
-   // These should only be set during a level using their set methods
-   private Tower selectedTower, buildingTower, rolloverTower, hoverOverTower;
+   // These should only be set during a level using their set methods. Only one should
+   // be non null at any particular time
+   // The currently selected tower
+   private Tower selectedTower;
+   // The tower that is being built
+   private Tower buildingTower;
+   // The tower whose button is rolled over in the control panel
+   private Tower rolloverTower;
+   // The tower that is being hovered over on the map
+   private Tower hoverOverTower;
    
    public Game(Container c) {
-      container = c;
-      container.setLayout(new BorderLayout());
-      title = createTitle();
-      container.add(title);
+      outerContainer = c;
+      outerContainer.setLayout(new BorderLayout());
+      outerContainer.add(title);
    }
    
-   public void setSelectedTower(Tower t) {
-      if(t == null) {
-         if(selectedTower != null) {
-            selectedTower.select(false);
-         }
-      } else {
-         t.select(true);
+   private void setSelectedTower(Tower t) {
+      if(selectedTower != null) {
+         // If there was a selected tower before deselect it
+         selectedTower.select(false);
       }
       selectedTower = t;
+      if(selectedTower != null) {
+         // and if a tower has been selected, select it
+         selectedTower.select(true);
+      }
    }
    
-   public void setBuildingTower(Tower t) {
+   private void setBuildingTower(Tower t) {
+      controlPanel.enableTowerStatsButtons(t == null);
       buildingTower = t;
    }
    
-   public void setRolloverTower(Tower t) {
+   private void setRolloverTower(Tower t) {
       rolloverTower = t;
    }
    
-   public void setHoverOverTower(Tower t) {
+   private void setHoverOverTower(Tower t) {
       hoverOverTower = t;
    }
    
-   public Title createTitle() {
+   private Title createTitle() {
       return new Title(WIDTH, HEIGHT, new ActionListener() {
          public void actionPerformed(ActionEvent e) {
-            container.remove(title);
-            selectionScreens = new SelectionScreens(WIDTH, HEIGHT, new CarryOn());
-            container.add(selectionScreens);
-            container.validate();
+            outerContainer.remove(title);
+            outerContainer.add(selectionScreens);
+            outerContainer.validate();
+            outerContainer.repaint();
          }
       });
    }
    
-   private List<Tower> getTowerImplementations() {
+   private SelectionScreens createSelectionScreens() {
+      return new SelectionScreens(WIDTH, HEIGHT, new ContinueOn());
+   }
+   
+   private GameMapPanel createGameMapPanel(GameMap g) {
+      GameMapPanel gmp = new GameMapPanel(MAP_WIDTH, MAP_HEIGHT, ImageHelper.makeImage("maps",
+            "rainbowColours.jpg"), g, debugTimes, debugPath);
+      gmp.addMouseListener(new MouseAdapter(){
+         @Override
+         public void mouseReleased(MouseEvent e) {
+            processMouseReleased(e);
+         }
+      });
+      gmp.addMouseMotionListener(new MouseMotionAdapter(){
+         @Override
+         public void mouseMoved(MouseEvent e) {
+            processMouseMoved(e);
+         }
+      });
+      return gmp;
+   }
+   
+   private List<Tower> createTowerImplementations() {
       List<Tower> towerTypes = new ArrayList<Tower>();
       towerTypes.add(new BomberTower());
       towerTypes.add(new PiercerTower());
@@ -216,9 +243,8 @@ public class Game {
       return cost;
    }
    
-   public void endLevel() {
+   private void endLevel() {
       endLevelUpgradesLeft++;
-      updateEndLevelUpgradesLabel();
       long moneyBefore = money; 
       multiplyMoney(interestRate);
       long interest = money - moneyBefore;
@@ -239,39 +265,46 @@ public class Game {
          text.append(" bonus for losing no lives.");
       }
       increaseMoney(levelEndBonus + noEnemiesThroughBonus);
-      updateMoneyLabel();
-      gmp.displayText(text.toString());
-      cp.enableStartButton(true);
+      updateAllButLevelStats();
+      gameMap.displayText(text.toString());
+      controlPanel.enableStartButton(true);
    }
    
-   public boolean canBuildTower(Class<? extends Tower> towerType) {
+   private boolean canBuildTower(Class<? extends Tower> towerType) {
       return money >= getNextTowerCost(towerType);
    }
    
-   public void buildTower(Tower t) {
+   private void buildTower(Tower t) {
+      // New towers get half the effect of all the bonus upgrades so far, rounded down
       for(Attribute a : upgradesSoFar.keySet()) {
-         // New towers get half the effect of all the bonus upgrades
-         // so far, rounded down
          for(int i = 0; i < upgradesSoFar.get(a) / 2; i++) {
             t.raiseAttributeLevel(a, false);
          }
       }
       decreaseMoney(getNextTowerCost(t.getClass()));
-      updateMoneyLabel();
+      updateMoney();
    }
    
-   public void increaseMoney(long amount) {
+   private void increaseMoney(long amount) {
       money += amount;
-      updateMoneyLabel();
+      updateMoney();
       // If a tower is selected, more money earnt means it could've done more
       // damage and this may have caused its stats to be upgraded
-      updateStats();
+      updateTowerStats();
    }
    
-   public boolean decrementLives(int livesLost) {
+   private void decreaseMoney(long amount) {
+      money -= amount;
+   }
+   
+   private void multiplyMoney(double factor) {
+      money *= factor;
+   }
+   
+   private boolean decrementLives(int livesLost) {
       livesLostOnThisLevel += livesLost;
       lives -= livesLost;
-      updateLivesLabel();
+      updateLives();
       return lives <= 0;
    }
    
@@ -288,14 +321,6 @@ public class Game {
       interestRate = 1.03;
       endLevelUpgradesLeft = 0;
       updateAll();
-   }
-   
-   private void multiplyMoney(double factor) {
-      money *= factor;
-   }
-   
-   private void decreaseMoney(long amount) {
-      money -= amount;
    }
    
    private int getNextTowerCost(Class<? extends Tower> towerType) {
@@ -318,19 +343,20 @@ public class Game {
    }
    
    private void updateAllButLevelStats() {
+      // Level stats are a bit slower, and only need to be done once per level
       updateEndLevelUpgradesLabel();
       updateInterestLabel();
-      updateLivesLabel();
-      updateMoneyLabel();
-      updateStats();
+      updateLives();
+      updateMoney();
+      updateTowerStats();
    }
    
-   private void updateMoneyLabel() {
-      cp.updateMoneyLabel(money);
+   private void updateMoney() {
+      controlPanel.updateMoney(money);
    }
    
-   private void updateLivesLabel() {
-      cp.updateLivesLabel(lives);
+   private void updateLives() {
+      controlPanel.updateLives(lives);
    }
    
    private void updateLevelStats() {
@@ -344,31 +370,33 @@ public class Game {
       String hpText = String.valueOf((long)(0.5 * hp) + " - " + hp * 2);
       String timeBetweenSprites = "0 - " + Helper.format(Formulae.
             ticksBetweenAddSprite(level) * 2 / Game.CLOCK_TICKS_PER_SECOND, 2) + "s";
-      cp.updateLevelStats(levelText, numSprites, hpText, timeBetweenSprites);
+      controlPanel.updateLevelStats(levelText, numSprites, hpText, timeBetweenSprites);
    }
    
    private void updateInterestLabel() {
-      cp.updateInterest(Helper.format(((interestRate - 1) * 100), 2) + "%");
+      controlPanel.updateInterest(Helper.format(((interestRate - 1) * 100), 2) + "%");
    }
    
    private void updateEndLevelUpgradesLabel() {
-     cp.updateEndLevelUpgrades(endLevelUpgradesLeft);
+     controlPanel.updateEndLevelUpgrades(endLevelUpgradesLeft);
    }
    
-   private void updateStats() {
-      Tower t;
-      if(rolloverTower != null) {
-         t = rolloverTower;
-         cp.updateCurrentCostLabel(rolloverTower.getName() + " Tower", getNextTowerCost(t.getClass()));
-      } else if(hoverOverTower != null) {
-         t = hoverOverTower;
+   private void updateTowerStats() {
+      Tower t = null;
+      if(selectedTower != null) {
+         t = selectedTower;
       } else if(buildingTower != null) {
          t = buildingTower;
-         cp.updateCurrentCostLabel(buildingTower.getName() + " Tower", getNextTowerCost(t.getClass()));
-      } else {
-         t = selectedTower;
+         controlPanel.updateCurrentCost(buildingTower.getName() + " Tower",
+               getNextTowerCost(t.getClass()));
+      } else if(hoverOverTower != null) {
+         t = hoverOverTower;
+      } else if(rolloverTower != null) {
+         t = rolloverTower;
+         controlPanel.updateCurrentCost(rolloverTower.getName() + " Tower",
+               getNextTowerCost(t.getClass()));
       }
-      cp.setStats(t);
+      controlPanel.setStats(t);
       updateCurrentTowerInfo();
    }
    
@@ -376,52 +404,14 @@ public class Game {
       Tower t = null;
       if(selectedTower != null) {
          t = selectedTower;
-      } else {
-         if(hoverOverTower != null) {
-            t = hoverOverTower;
-         }
+      } else if(hoverOverTower != null) {
+         t = hoverOverTower;
       }
-      cp.setCurrentTowerInfo(t);
+      controlPanel.setCurrentTowerInfo(t);
    }
    
    private long sellValue(Tower t) {
       return Formulae.sellValue(t, towers.size(), numTowersOfType(t.getClass()));
-   }
-   
-   public class CarryOn {
-      public void carryOn(GameMap g) {
-         pathPoints = g.getPathPoints();
-         path = g.getPath();
-         container.remove(selectionScreens);
-         gmp = createGameMapPanel(g);
-         cp = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
-               ImageHelper.makeImage("control_panel", "blue_lava.jpg"),
-               new ControlEventProcessor(), getTowerImplementations());
-         container.add(gmp, BorderLayout.WEST);
-         container.add(cp, BorderLayout.EAST);
-         container.validate();
-         setStartingStats();
-         clock = new Clock();
-         clock.start();
-      }
-   }
-   
-   private GameMapPanel createGameMapPanel(GameMap g) {
-      GameMapPanel gmp = new GameMapPanel(MAP_WIDTH, MAP_HEIGHT, ImageHelper.makeImage("maps",
-            "rainbowColours.jpg"), g, debugTimes, debugPath);
-      gmp.addMouseListener(new MouseAdapter(){
-         @Override
-         public void mouseReleased(MouseEvent e) {
-            processMouseReleased(e);
-         }
-      });
-      gmp.addMouseMotionListener(new MouseMotionAdapter(){
-         @Override
-         public void mouseMoved(MouseEvent e) {
-            processMouseMoved(e);
-         }
-      });
-      return gmp;
    }
    
    private void processMouseReleased(MouseEvent e) {
@@ -432,7 +422,7 @@ public class Game {
          return;
       }
       Point p = e.getPoint();
-      Tower t = containedInTower(p);
+      Tower t = getTowerContaining(p);
       if(t == null) {
          tryToBuildTower(p);
       } else {
@@ -443,79 +433,18 @@ public class Game {
    
    private void processMouseMoved(MouseEvent e) {
       if(selectedTower == null && buildingTower == null) {
-         Tower t = containedInTower(e.getPoint());
-         if(hoverOverTower == null && t == null) {
-            return;
-         }
+         Tower t = getTowerContaining(e.getPoint());
          setHoverOverTower(t);
       }
    }
    
-   /**
-    * Notifies the map that a tower button has been pressed.
-    * @param t
-    * @return
-    *        true if a tower is to be shadowed, false if none
-    */
-   public boolean towerButtonPressed(Tower t) {
-      if(buildingTower == null || !buildingTower.getClass().equals(t.getClass())) {
-         deselectTower();
-         buildingTower = t;
-         return true;
-      } else {
-         setBuildingTower(null);
-         return false;
-      }
-   }
-   
-   public void selectTower(Tower t) {
-      t.select(true);
-      selectedTower = t;
-      setBuildingTower(null);
-   }
-   
-   public void deselectTower() {
-      if(selectedTower != null) {
-         selectedTower.select(false);
-         selectedTower = null;
-      }
-   }
-   
-   private void start() {
-      if(!levelInProgress) {
-         level++;
-         gmp.removeText();
-         livesLostOnThisLevel = 0;
-         levelInProgress = true;
-         clock.spritesToAdd = Formulae.numSprites(level);
-         clock.levelHP = Formulae.hp(level);
-         clock.ticksBetweenAddSprite = Formulae.ticksBetweenAddSprite(level);
-         updateLevelStats();
-      }
-   }
-   
-   public void upgradeAll(Attribute a) {
-      for(Tower t : towers) {
-         t.raiseAttributeLevel(a, false);
-      }
-   }
-   
-   public void removeTower(Tower t) {
+   private void removeTower(Tower t) {
       if(!towers.remove(t)) {
-         throw new RuntimeException("Tower that wasn't on screen sold.");
+         throw new RuntimeException("Tower that wasn't on screen is being removed.");
       }
       if(t == selectedTower) {
          setSelectedTower(null);
       }
-   }
-   
-   private void restart() {
-      stopRunning();
-      gmp.restart();
-      cp.restart();
-      setStartingStats();
-      clock = new Clock();
-      clock.start();
    }
    
    private void stopRunning() {
@@ -526,7 +455,7 @@ public class Game {
       levelInProgress = false;
    }
    
-   private Tower containedInTower(Point p) {
+   private Tower getTowerContaining(Point p) {
       for(Tower t : towers) {
          if(t.contains(p)) {
             return t;
@@ -567,161 +496,6 @@ public class Game {
          }
          if(!canBuildTower(buildingTower.getClass())) {
             setBuildingTower(null);
-         }
-      }
-   }
-   
-   public class ControlEventProcessor {
-      
-      public void processStartButtonPressed() {
-         start();
-      }
-      
-      public void processUpgradeButtonPressed(JButton b, Attribute a) {
-         long cost = 0;
-         if(selectedTower == null) {
-            cost = costToUpgradeTowers(a, towers);
-            if(cost <= money) {
-               decreaseMoney(cost);
-               for(Tower t : towers) {
-                  t.raiseAttributeLevel(a, true);
-               }
-            }
-         } else {
-            cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
-            if(cost <= money) {
-               decreaseMoney(cost);
-               selectedTower.raiseAttributeLevel(a, true);
-               updateStats();
-            }
-         }
-      }
-      
-      public void processUpgradeButtonChanged(JButton b, Attribute a) {
-         if(!checkIfMovedOff(b)) {
-            String description = a.toString() + " Upgrade";
-            long cost;
-            if(selectedTower == null) {
-               description += " (all)";
-               cost = costToUpgradeAllTowers(a);
-            } else {
-               cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
-            }
-            cp.updateCurrentCostLabel(description, cost);
-         }
-      }
-      
-      public void processTowerButtonAction(JButton b, Tower t) {
-         if(money >= getNextTowerCost(t.getClass())) {
-            if(towerButtonPressed(t)) {
-               setBuildingTower(t);
-               updateStats();
-            }
-         }
-      }
-      
-      public void processTowerButtonChangeEvent(JButton b, Tower t) {
-         setRolloverTower(t);
-         if(!checkIfMovedOff(b)) {
-            updateStats();
-         }
-      }
-      
-      public void processEndLevelUpgradeButtonPress(JButton b, boolean livesUpgrade,
-            boolean interestUpgrade, boolean moneyUpgrade, Attribute a) {
-         if(endLevelUpgradesLeft > 0) {
-            endLevelUpgradesLeft--;
-            if(livesUpgrade) {
-               lives += upgradeLives;
-            } else if(interestUpgrade) {
-               interestRate += upgradeInterest;
-            } else if(moneyUpgrade) {
-               increaseMoney(upgradeMoney);
-            }
-            if(a != null) {
-               int nextValue = 1;
-               if(upgradesSoFar.containsKey(a)) {
-                  nextValue = upgradesSoFar.get(a) + 1;
-               }
-               if(nextValue / 2 == (nextValue + 1) / 2) {
-                  // It is even, i.e every second time
-                  cp.increaseTowersAttribute(a);
-               }
-               upgradesSoFar.put(a, nextValue);
-               upgradeAll(a);
-            }
-            updateAllButLevelStats();
-         }
-      }
-      
-      public void processEndLevelUpgradeButtonChanged(JButton b, boolean livesUpgrade,
-            boolean interestUpgrade, boolean moneyUpgrade, Attribute a) {
-         if(!checkIfMovedOff(b)) {
-            String description = " ";
-            String cost = "Free";
-            if(a != null) {
-               description = a.toString() + " Upgrade (all)";
-            } else if(livesUpgrade) {
-               description = upgradeLives + " bonus lives";
-            } else if(interestUpgrade) {
-               description = "+" + upgradeInterest * 100 + "% interest rate";
-            } else if(moneyUpgrade) {
-               description = upgradeMoney + " bonus money";
-            }
-            cp.updateCurrentCostLabel(description, cost);
-         }
-      }
-      
-      public void processSellButtonPressed(JButton b) {
-         if(selectedTower != null) {
-            removeTower(selectedTower);
-            increaseMoney(sellValue(selectedTower));
-            setSelectedTower(null);
-         }
-      }
-      
-      public void processSellButtonChanged(JButton b) {
-         if(selectedTower != null && !checkIfMovedOff(b)) {
-            cp.updateCurrentCostLabel("Sell " + selectedTower.getName() + " Tower",
-                  sellValue(selectedTower));
-         }
-      }
-      
-      public void processTargetButtonPressed(JButton b) {
-         String s = b.getText();
-         for(int i = 0; i < comparators.size(); i++) {
-            if(comparators.get(i).getT1().equals(s)) {
-               int nextIndex = (i + 1) % comparators.size();
-               Wrapper<String, Comparator<Sprite>> w = comparators.get(nextIndex);
-               b.setText(w.getT1());
-               selectedTower.setSpriteComparator(w.getT2());
-               return;
-            }
-         }
-      }
-      
-      public void processTitleButtonPressed() {
-         stopRunning();
-         container.remove(gmp);
-         container.remove(cp);
-         container.add(title);
-         container.validate();
-         container.repaint();
-      }
-      
-      public void processRestartPressed() {
-         restart();
-      }
-      
-      private boolean checkIfMovedOff(JButton b) {
-         if(b.getMousePosition() == null) {
-            // This means the cursor isn't over the button, so the mouse was moved off it
-            setRolloverTower(null);
-            cp.updateCurrentCostLabel(" ", " ");
-            updateStats();
-            return true;
-         } else {
-            return false;
          }
       }
    }
@@ -773,41 +547,37 @@ public class Game {
             bulletTickThreads = null;
             isThreadRunning = null;
          }
+         start();
       }
             
       @Override
       public void run() {
          while(keepRunning) {
-            try {
-               // Used nanoTime as many OS, notably windows, don't record ms times less than 10ms
-               long beginTime = System.nanoTime();
-               if(!gameOver) {
-                  if(debugTimes) {
-                     calculateTimesTaken();
-                  }
-                  tick();
-               }
+            // Used nanoTime as many OS, notably windows, don't record ms times less than 10ms
+            long beginTime = System.nanoTime();
+            if(!gameOver) {
                if(debugTimes) {
-                  processTimes[timesLength] = calculateElapsedTime(beginTime);
+                  calculateTimesTaken();
                }
-               long drawingBeginTime = gmp.draw(Collections.unmodifiableList(towers),
-                     selectedTower, buildingTower, Collections.unmodifiableList(sprites),
-                     Collections.unmodifiableList(bullets), processTime, processSpritesTime,
-                     processBulletsTime, processTowersTime, drawTime, bullets.size());
-               drawTimes[timesLength] = calculateElapsedTime(drawingBeginTime);
-               gmp.repaint();
-               long elapsedTime = calculateElapsedTime(beginTime);
-               if(elapsedTime < CLOCK_TICK) {
-                  try {
-                     Thread.sleep(CLOCK_TICK - elapsedTime);
-                  } catch(InterruptedException e) {
-                     e.printStackTrace();
-                     // The sleep should never be interrupted
-                  }
+               tick();
+            }
+            if(debugTimes) {
+               processTimes[timesLength] = calculateElapsedTime(beginTime);
+            }
+            long drawingBeginTime = gameMap.draw(Collections.unmodifiableList(towers),
+                  selectedTower, buildingTower, Collections.unmodifiableList(sprites),
+                  Collections.unmodifiableList(bullets), processTime, processSpritesTime,
+                  processBulletsTime, processTowersTime, drawTime, bullets.size());
+            drawTimes[timesLength] = calculateElapsedTime(drawingBeginTime);
+            gameMap.repaint();
+            long elapsedTime = calculateElapsedTime(beginTime);
+            if(elapsedTime < CLOCK_TICK) {
+               try {
+                  Thread.sleep(CLOCK_TICK - elapsedTime);
+               } catch(InterruptedException e) {
+                  e.printStackTrace();
+                  // The sleep should never be interrupted
                }
-            } catch(Exception e) {
-               e.printStackTrace();
-               // This means that the game will continue even if there is some strange bug
             }
          }
       }
@@ -823,13 +593,13 @@ public class Game {
          List<Sprite> sortedSprites = new ArrayList<Sprite>(sprites);
          Collections.sort(sortedSprites, new FirstComparator());
          List<Sprite> unmodifiableSprites = Collections.unmodifiableList(sortedSprites);
-         if(cp != null) {
+         if(controlPanel != null) {
             long beginTime;
             if(debugTimes) {
                beginTime = System.nanoTime();
             }
             if(decrementLives(tickSprites())) {
-               gmp.signalGameOver();
+               gameMap.signalGameOver();
             }
             if(debugTimes) {
                processSpritesTimes[timesLength] = calculateElapsedTime(beginTime);
@@ -886,7 +656,7 @@ public class Game {
                // Adds a sprite in somewhere between 0 and twice the designated time
                addSpriteIn = (int)(Math.random() * (ticksBetweenAddSprite * 2 + 1));
                spritesToAdd--;
-               cp.setNumberLeft(spritesToAdd);
+               controlPanel.updateNumberLeft(spritesToAdd);
             } else {
                addSpriteIn--;
             }
@@ -1026,6 +796,188 @@ public class Game {
                LockSupport.park();
             }
          }
+      }
+   }
+   
+   public class ControlEventProcessor {
+      
+      public void processStartButtonPressed() {
+         if(!levelInProgress) {
+            controlPanel.enableStartButton(false);
+            level++;
+            gameMap.removeText();
+            livesLostOnThisLevel = 0;
+            levelInProgress = true;
+            clock.spritesToAdd = Formulae.numSprites(level);
+            clock.levelHP = Formulae.hp(level);
+            clock.ticksBetweenAddSprite = Formulae.ticksBetweenAddSprite(level);
+            updateLevelStats();
+         }
+      }
+      
+      public void processUpgradeButtonPressed(JButton b, Attribute a) {
+         long cost = 0;
+         if(selectedTower == null) {
+            cost = costToUpgradeTowers(a, towers);
+            if(cost <= money) {
+               decreaseMoney(cost);
+               for(Tower t : towers) {
+                  t.raiseAttributeLevel(a, true);
+               }
+            }
+         } else {
+            cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
+            if(cost <= money) {
+               decreaseMoney(cost);
+               selectedTower.raiseAttributeLevel(a, true);
+               updateTowerStats();
+            }
+         }
+      }
+      
+      public void processUpgradeButtonChanged(JButton b, Attribute a) {
+         if(checkIfMovedOff(b)) {
+            controlPanel.clearCurrentCost();
+         } else {
+            String description = a.toString() + " Upgrade";
+            long cost;
+            if(selectedTower == null) {
+               description += " (all)";
+               cost = costToUpgradeAllTowers(a);
+            } else {
+               cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
+            }
+            controlPanel.updateCurrentCost(description, cost);
+         }
+      }
+      
+      public void processTowerButtonPressed(JButton b, Tower t) {
+         if(money >= getNextTowerCost(t.getClass())) {
+            setSelectedTower(null);
+            setBuildingTower(t);
+            updateTowerStats();
+         }
+      }
+      
+      public void processTowerButtonChangeEvent(JButton b, Tower t) {
+         if(checkIfMovedOff(b)) {
+            t = null;
+         }
+         setRolloverTower(t);
+         updateTowerStats();
+      }
+      
+      public void processEndLevelUpgradeButtonPress(JButton b, boolean livesUpgrade,
+            boolean interestUpgrade, boolean moneyUpgrade, Attribute a) {
+         if(endLevelUpgradesLeft > 0) {
+            endLevelUpgradesLeft--;
+            if(a != null) {
+               int nextValue = upgradesSoFar.containsKey(a) ? upgradesSoFar.get(a) + 1 : 1;
+               if(nextValue % 2 == 0) {
+                  // It is even, i.e every second time
+                  controlPanel.increaseTowersAttribute(a);
+               }
+               upgradesSoFar.put(a, nextValue);
+               for(Tower t : towers) {
+                  t.raiseAttributeLevel(a, false);
+               }
+            } else if(livesUpgrade) {
+               lives += upgradeLives;
+            } else if(interestUpgrade) {
+               interestRate += upgradeInterest;
+            } else if(moneyUpgrade) {
+               increaseMoney(upgradeMoney);
+            }
+            updateAllButLevelStats();
+         }
+      }
+      
+      public void processEndLevelUpgradeButtonChanged(JButton b, boolean livesUpgrade,
+            boolean interestUpgrade, boolean moneyUpgrade, Attribute a) {
+         if(checkIfMovedOff(b)) {
+            controlPanel.clearCurrentCost();
+         } else {
+            String description = new String();
+            String cost = "Free";
+            if(a != null) {
+               description = a.toString() + " Upgrade (all)";
+            } else if(livesUpgrade) {
+               description = upgradeLives + " bonus lives";
+            } else if(interestUpgrade) {
+               description = "+" + upgradeInterest * 100 + "% interest rate";
+            } else if(moneyUpgrade) {
+               description = upgradeMoney + " bonus money";
+            }
+            controlPanel.updateCurrentCost(description, cost);
+         }
+      }
+      
+      public void processSellButtonPressed(JButton b) {
+         if(selectedTower != null) {
+            removeTower(selectedTower);
+            increaseMoney(sellValue(selectedTower));
+            setSelectedTower(null);
+         }
+      }
+      
+      public void processSellButtonChanged(JButton b) {
+         if(selectedTower != null && !checkIfMovedOff(b)) {
+            controlPanel.updateCurrentCost("Sell " + selectedTower.getName() + " Tower",
+                  sellValue(selectedTower));
+         }
+      }
+      
+      public void processTargetButtonPressed(JButton b) {
+         String s = b.getText();
+         for(int i = 0; i < comparators.size(); i++) {
+            if(comparators.get(i).getT1().equals(s)) {
+               int nextIndex = (i + 1) % comparators.size();
+               Wrapper<String, Comparator<Sprite>> w = comparators.get(nextIndex);
+               b.setText(w.getT1());
+               selectedTower.setSpriteComparator(w.getT2());
+               return;
+            }
+         }
+      }
+      
+      public void processTitleButtonPressed() {
+         stopRunning();
+         outerContainer.remove(gameMap);
+         outerContainer.remove(controlPanel);
+         outerContainer.add(title);
+         outerContainer.validate();
+         outerContainer.repaint();
+      }
+      
+      public void processRestartPressed() {
+         stopRunning();
+         gameMap.restart();
+         controlPanel.restart();
+         setStartingStats();
+         clock = new Clock();
+      }
+      
+      private boolean checkIfMovedOff(JButton b) {
+         // null means the cursor isn't over the button, so the mouse was moved off it
+         return b.getMousePosition() == null;
+      }
+   }
+   
+   public class ContinueOn {
+      public void continueOn(GameMap g) {
+         pathPoints = g.getPathPoints();
+         path = g.getPath();
+         gameMap = createGameMapPanel(g);
+         controlPanel = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
+               ImageHelper.makeImage("control_panel", "blue_lava.jpg"),
+               new ControlEventProcessor(), createTowerImplementations());
+         outerContainer.remove(selectionScreens);
+         outerContainer.add(gameMap, BorderLayout.WEST);
+         outerContainer.add(controlPanel, BorderLayout.EAST);
+         outerContainer.validate();
+         outerContainer.repaint();
+         setStartingStats();
+         clock = new Clock();
       }
    }
 

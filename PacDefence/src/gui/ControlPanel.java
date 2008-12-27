@@ -58,8 +58,6 @@ import towers.Tower.Attribute;
 @SuppressWarnings("serial")
 public class ControlPanel extends JPanel {
    
-   //private static final int BASE_TOWER_PRICE = 1000;
-   
    private final BufferedImage backgroundImage;
    // These labels are in the top stats box
    private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel, upgradesLabel;
@@ -81,7 +79,6 @@ public class ControlPanel extends JPanel {
    private static final Color defaultTextColour = Color.YELLOW;
    private static final float defaultTextSize = 12F;
 
-   
    private final ControlEventProcessor eventProcessor;
 
    public ControlPanel(int width, int height, BufferedImage backgroundImage,
@@ -109,26 +106,8 @@ public class ControlPanel extends JPanel {
       g.drawImage(backgroundImage, 0, 0, null);
    }
    
-   public void setNumberLeft(int number) {
+   public void updateNumberLeft(int number) {
       numSpritesLabel.setText(number);
-   }
-   
-   private void setUpJLabels() {
-      for (Field f : getClass().getDeclaredFields()) {
-         if (f.getType().equals(MyJLabel.class)) {
-            try {
-               MyJLabel j = new MyJLabel();
-               // This means it's actually drawn
-               j.setText(" ");
-               j.setForeground(defaultTextColour);
-               j.setFontSize(defaultTextSize);
-               f.set(this, j);
-            } catch(IllegalAccessException e) {
-               // This shouldn't ever be thrown
-               System.err.println(e);
-            }
-         }
-      }
    }
    
    public void setStats(Tower t) {
@@ -169,14 +148,6 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   private void enableEndLevelUpgradeButtons(boolean enable) {
-      JButton[] buttons = new JButton[]{damageUpgrade, rangeUpgrade, rateUpgrade, speedUpgrade,
-               specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade};
-      for(JButton b : buttons) {
-         b.setEnabled(enable);
-      }
-   }
-   
    public void updateLevelStats(String level, String numSprites, String hp,
          String timeBetweenSprites) {
       levelLabel.setText(level);
@@ -185,13 +156,34 @@ public class ControlPanel extends JPanel {
       timeBetweenSpritesLabel.setText(timeBetweenSprites);
    }
    
-   public void updateCurrentCostLabel(String description, long cost) {
-      updateCurrentCostLabel(description, String.valueOf(cost));
+   public void updateCurrentCost(String description, long cost) {
+      updateCurrentCost(description, String.valueOf(cost));
    }
    
-   public void updateCurrentCostLabel(String description, String cost) {
+   public void updateCurrentCost(String description, String cost) {
       currentCostStringLabel.setText(description);
       currentCostLabel.setText(cost);
+   }
+   
+   public void clearCurrentCost() {
+      updateCurrentCost(" ", " ");
+   }
+   
+   public void updateEndLevelUpgrades(long upgradesLeft) {
+      upgradesLabel.setText(upgradesLeft);
+      enableEndLevelUpgradeButtons(upgradesLeft > 0);
+   }
+   
+   public void updateInterest(String value) {
+      interestLabel.setText(value);
+   }
+   
+   public void updateMoney(long money) {
+      moneyLabel.setText(money);
+   }
+   
+   public void updateLives(int lives) {
+      livesLabel.setText(lives);
    }
    
    public void enableStartButton(boolean enable) {
@@ -209,12 +201,39 @@ public class ControlPanel extends JPanel {
       for(OverlayButton b : towerTypes.keySet()) {
          towerTypes.put(b, towerTypes.get(b).constructNew(new Point(), null));
       }
+      start.setEnabled(true);
+   }
+   
+   private void enableEndLevelUpgradeButtons(boolean enable) {
+      JButton[] buttons = new JButton[]{damageUpgrade, rangeUpgrade, rateUpgrade, speedUpgrade,
+               specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade};
+      for(JButton b : buttons) {
+         b.setEnabled(enable);
+      }
    }
 
-   // -----------------------------------------------------
-   // The remaining methods set up the gui bit on the side
-   // -----------------------------------------------------
+   // ---------------------------------------
+   // The remaining methods set up the gui
+   // ---------------------------------------
 
+   private void setUpJLabels() {
+      for (Field f : getClass().getDeclaredFields()) {
+         if (f.getType().equals(MyJLabel.class)) {
+            try {
+               MyJLabel j = new MyJLabel();
+               // This means it's actually drawn
+               j.setText(" ");
+               j.setForeground(defaultTextColour);
+               j.setFontSize(defaultTextSize);
+               f.set(this, j);
+            } catch(IllegalAccessException e) {
+               // This shouldn't ever be thrown
+               System.err.println(e);
+            }
+         }
+      }
+   }
+   
    private void setUpTopStatsBox() {
       float textSize = defaultTextSize + 1;
       Box box = Box.createVerticalBox();
@@ -278,7 +297,7 @@ public class ControlPanel extends JPanel {
          button.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
                JButton b = (JButton) e.getSource();
-               eventProcessor.processTowerButtonAction(b, towerTypes.get(b));
+               eventProcessor.processTowerButtonPressed(b, towerTypes.get(b));
             }
          });
          button.addChangeListener(new ChangeListener(){
@@ -516,23 +535,6 @@ public class ControlPanel extends JPanel {
       panel.add(restart, BorderLayout.EAST);
       panel.setBorder(BorderFactory.createEmptyBorder(0, 13, 1, 13));
       add(panel);
-   }
-   
-   public void updateEndLevelUpgrades(long upgradesLeft) {
-      upgradesLabel.setText(upgradesLeft);
-      enableEndLevelUpgradeButtons(upgradesLeft > 0);
-   }
-   
-   public void updateInterest(String value) {
-      interestLabel.setText(value);
-   }
-   
-   public void updateMoneyLabel(long money) {
-      moneyLabel.setText(money);
-   }
-   
-   public void updateLivesLabel(int lives) {
-      livesLabel.setText(lives);
    }
 
    private static class TowerStat {
