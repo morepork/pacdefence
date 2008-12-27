@@ -20,9 +20,6 @@
 package towers;
 
 import gui.Circle;
-import gui.Formulae;
-import gui.GameMapPanel;
-import gui.Helper;
 import images.ImageHelper;
 
 import java.awt.AlphaComposite;
@@ -46,6 +43,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import logic.Formulae;
+import logic.Game;
+import logic.Helper;
 import sprites.Sprite;
 
 public abstract class AbstractTower implements Tower {
@@ -299,7 +299,7 @@ public abstract class AbstractTower implements Tower {
          case Range:
             return Helper.format(range, 0);
          case Rate:
-            return Helper.format(fireRate / GameMapPanel.CLOCK_TICKS_PER_SECOND, 2) + "s";
+            return Helper.format(fireRate / Game.CLOCK_TICKS_PER_SECOND, 2) + "s";
          case Speed:
             return Helper.format(bulletSpeed, 2);
          case Special:

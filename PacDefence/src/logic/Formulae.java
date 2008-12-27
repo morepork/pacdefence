@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008.
  */
 
-package gui;
+package logic;
 
 import java.util.ArrayList;
 import java.util.List;

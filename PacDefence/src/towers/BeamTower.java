@@ -20,8 +20,6 @@
 package towers;
 
 import gui.Circle;
-import gui.GameMapPanel;
-import gui.Helper;
 import images.ImageHelper;
 
 import java.awt.BasicStroke;
@@ -39,6 +37,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import logic.Game;
+import logic.Helper;
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
 
@@ -46,8 +46,8 @@ import sprites.Sprite.DamageReport;
 public class BeamTower extends AbstractTower {
    
    // The number of ticks the beam lasts for
-   private double beamLastTicks = GameMapPanel.CLOCK_TICKS_PER_SECOND / 2;
-   private static final double upgradeBeamLastTicks = GameMapPanel.CLOCK_TICKS_PER_SECOND / 20;
+   private double beamLastTicks = Game.CLOCK_TICKS_PER_SECOND / 2;
+   private static final double upgradeBeamLastTicks = Game.CLOCK_TICKS_PER_SECOND / 20;
    
    public BeamTower() {
       this(new Point(), null);
@@ -82,7 +82,7 @@ public class BeamTower extends AbstractTower {
 
    @Override
    protected String getSpecial() {
-      return Helper.format(beamLastTicks / GameMapPanel.CLOCK_TICKS_PER_SECOND, 2) + "s";
+      return Helper.format(beamLastTicks / Game.CLOCK_TICKS_PER_SECOND, 2) + "s";
    }
 
    @Override
@@ -128,7 +128,7 @@ public class BeamTower extends AbstractTower {
          this.pathBounds = pathBounds;
          this.launchedBy = t;
          currentAngle = Math.toDegrees(angle);
-         deltaAngle = speed / GameMapPanel.CLOCK_TICKS_PER_SECOND;
+         deltaAngle = speed / Game.CLOCK_TICKS_PER_SECOND;
          circle = new Circle(centre, range);
          this.target = target;
          ticksLeft = numTicks;

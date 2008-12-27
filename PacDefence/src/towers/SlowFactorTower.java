@@ -19,10 +19,11 @@
 
 package towers;
 
-import gui.Helper;
 
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
+
+import logic.Helper;
 
 // Should remove this later as it is poor compared to the freeze tower
 public class SlowFactorTower extends SlowTower {

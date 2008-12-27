@@ -19,15 +19,14 @@
 
 package towers;
 
-import gui.GameMapPanel;
-import gui.Helper;
-
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
+import logic.Game;
+import logic.Helper;
 import sprites.Sprite;
 
 
@@ -35,9 +34,9 @@ public class PoisonTower extends AbstractTower {
    
    // Half the damage is by poison, and half normal damage at the start
    private static final double baseDamage = 8;
-   private double damagePerTick = baseDamage / GameMapPanel.CLOCK_TICKS_PER_SECOND;
-   private double poisonTicks = GameMapPanel.CLOCK_TICKS_PER_SECOND;
-   private final double poisonTicksUpgrade = GameMapPanel.CLOCK_TICKS_PER_SECOND / 10;
+   private double damagePerTick = baseDamage / Game.CLOCK_TICKS_PER_SECOND;
+   private double poisonTicks = Game.CLOCK_TICKS_PER_SECOND;
+   private final double poisonTicksUpgrade = Game.CLOCK_TICKS_PER_SECOND / 10;
    
    public PoisonTower() {
       this(new Point(), null);
@@ -51,9 +50,9 @@ public class PoisonTower extends AbstractTower {
    @Override
    public String getSpecial() {
       StringBuilder s = new StringBuilder();
-      s.append(Helper.format(damagePerTick * GameMapPanel.CLOCK_TICKS_PER_SECOND, 2));
+      s.append(Helper.format(damagePerTick * Game.CLOCK_TICKS_PER_SECOND, 2));
       s.append(" hp/s for ");
-      s.append(Helper.format(poisonTicks / GameMapPanel.CLOCK_TICKS_PER_SECOND, 1));
+      s.append(Helper.format(poisonTicks / Game.CLOCK_TICKS_PER_SECOND, 1));
       s.append("s");
       return s.toString();
    }
@@ -66,7 +65,7 @@ public class PoisonTower extends AbstractTower {
    @Override
    protected void upgradeDamage() {
       super.upgradeDamage();
-      damagePerTick = getDamage() / GameMapPanel.CLOCK_TICKS_PER_SECOND;
+      damagePerTick = getDamage() / Game.CLOCK_TICKS_PER_SECOND;
    }
 
    @Override

@@ -20,8 +20,6 @@
 package sprites;
 
 import gui.Circle;
-import gui.Formulae;
-import gui.Helper;
 import images.ImageHelper;
 
 import java.awt.Graphics;
@@ -39,6 +37,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import logic.Formulae;
+import logic.Helper;
 
 public abstract class AbstractSprite implements Sprite {
    

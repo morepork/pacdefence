@@ -19,8 +19,6 @@
 
 package towers;
 
-import gui.OuterPanel;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -34,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import logic.Game;
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
 
@@ -128,8 +127,8 @@ public class ZapperTower extends AbstractTower {
       protected boolean checkIfBulletCanBeRemovedAsOffScreen() {
          // Bullet shouldn't be removed if it can still zap sprites
          return position.getX() < -zapRange || position.getY() < -zapRange ||
-               position.getX() > OuterPanel.MAP_WIDTH + zapRange ||
-               position.getY() > OuterPanel.MAP_HEIGHT + zapRange;
+               position.getX() > Game.MAP_WIDTH + zapRange ||
+               position.getY() > Game.MAP_HEIGHT + zapRange;
       }
       
       private void tryToFireZap(List<Sprite> sprites) {

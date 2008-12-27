@@ -21,16 +21,19 @@ package gui;
 
 import javax.swing.JApplet;
 
+import logic.Game;
+
 @SuppressWarnings("serial")
 public class Applet extends JApplet {
    
-   private OuterPanel outer;
+   //private OuterPanel outer;
    
    @Override
    public void init() {
-      outer = new OuterPanel();
+      /*outer = new OuterPanel();
       add(outer);
-      setSize(OuterPanel.WIDTH, OuterPanel.HEIGHT);
+      setSize(OuterPanel.WIDTH, OuterPanel.HEIGHT);*/
+      new Game(this);
       setVisible(true);
    }
 

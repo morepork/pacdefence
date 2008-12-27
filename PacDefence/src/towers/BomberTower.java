@@ -20,7 +20,6 @@
 package towers;
 
 import gui.Circle;
-import gui.Helper;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -30,6 +29,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import logic.Helper;
 
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;

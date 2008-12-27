@@ -40,6 +40,8 @@ import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import logic.Game;
+
 @SuppressWarnings("serial")
 public class SelectionScreens extends JPanel {
    
@@ -48,9 +50,9 @@ public class SelectionScreens extends JPanel {
    private final BufferedImage background;
    private int selectedGameMap;
    private List<GameMap> gameMaps = new ArrayList<GameMap>();
-   private final OuterPanel.CarryOn carryOn;
+   private final Game.CarryOn carryOn;
 
-   public SelectionScreens(int width, int height, OuterPanel.CarryOn carryOn) {
+   public SelectionScreens(int width, int height, Game.CarryOn carryOn) {
       super(new BorderLayout());
       title.setForeground(textColour);
       title.setFontSize(40F);

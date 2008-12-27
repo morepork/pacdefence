@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008.
  */
 
-package gui;
+package logic;
 
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;

@@ -19,7 +19,6 @@
 
 package towers;
 
-import gui.Helper;
 import images.ImageHelper;
 
 import java.awt.BasicStroke;
@@ -34,6 +33,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import logic.Helper;
 
 import sprites.Sprite;
 

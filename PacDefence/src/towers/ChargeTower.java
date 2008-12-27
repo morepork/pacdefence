@@ -19,13 +19,12 @@
 
 package towers;
 
-import gui.GameMapPanel;
-import gui.Helper;
-
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
+import logic.Game;
+import logic.Helper;
 import sprites.Sprite;
 
 
@@ -33,7 +32,7 @@ public class ChargeTower extends AbstractTower {
    
    private double maxDamageMultiplier = 5;
    private double nextDamageMultiplier = 1;
-   private static final int ticksToCharge = (int)(2 * GameMapPanel.CLOCK_TICKS_PER_SECOND);
+   private static final int ticksToCharge = (int)(2 * Game.CLOCK_TICKS_PER_SECOND);
 
    public ChargeTower() {
       this(new Point(), null);

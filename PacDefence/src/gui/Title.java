@@ -22,6 +22,7 @@ package gui;
 import images.ImageHelper;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -40,6 +41,7 @@ public class Title extends JPanel {
       JButton continueButton = new OverlayButton("buttons", "continue.png");
       continueButton.addActionListener(continueListener);
       add(SwingHelper.createWrapperPanel(continueButton, 10), BorderLayout.SOUTH);
+      setPreferredSize(new Dimension(width, height));
    }
    
    @Override

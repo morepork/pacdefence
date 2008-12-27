@@ -24,6 +24,8 @@ import java.awt.Toolkit;
 
 import javax.swing.JFrame;
 
+import logic.Game;
+
 
 public class Application {
    
@@ -31,7 +33,8 @@ public class Application {
       JFrame frame = new JFrame("Pac Defence");
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       frame.setResizable(false);
-      frame.add(new OuterPanel());
+      //frame.add(new OuterPanel());
+      new Game(frame);
       frame.pack();
       Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
       // Centres the frame on screen

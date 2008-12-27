@@ -29,64 +29,39 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.locks.LockSupport;
 
 import javax.swing.JPanel;
 
-import sprites.Pacman;
 import sprites.Sprite;
-import sprites.Sprite.FirstComparator;
-import towers.AidTower;
 import towers.Bullet;
 import towers.Tower;
-import towers.Tower.Attribute;
 
 
 @SuppressWarnings("serial")
 public class GameMapPanel extends JPanel {
-
-
-   // Time clock takes to update in ms
-   public static final int CLOCK_TICK = 30;
-   public static final double CLOCK_TICKS_PER_SECOND = (double)1000 / CLOCK_TICK;
    
-   private final boolean debugTimes = true;
-   private final boolean debugPath = false;
+   private final boolean debugTimes;
+   private final boolean debugPath;
    
    private final BufferedImage backgroundImage;
    private int bufferIndex = 0;
    private final BufferedImage[] buffers = new BufferedImage[2];
    private final Polygon path;
    private final List<Point> pathPoints;
-   private final List<Sprite> sprites = Collections.synchronizedList(new ArrayList<Sprite>());
-   private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
-   private final List<Bullet> bullets = Collections.synchronizedList(new ArrayList<Bullet>());
-   private Clock clock;
-   private ControlPanel cp;
-   private long processTime = 0;
-   private long processSpritesTime = 0;
-   private long processBulletsTime = 0;
-   private long processTowersTime = 0;
-   private long drawTime = 0;
-   private Tower buildingTower = null;
-   private Tower selectedTower = null;
-   private Tower hoverOverTower = null;
-   private int spritesToAdd;
-   private long levelHP;
-   private boolean levelInProgress = false;
-   private GameOver gameOver = null;
-   private final TextDisplay textDisplay = new TextDisplay(); 
 
-   public GameMapPanel(int width, int height, BufferedImage background, GameMap map) {
+   private GameOver gameOver = null;
+   private final TextDisplay textDisplay;
+   
+   private long lastPaintTime = 0;
+
+   public GameMapPanel(int width, int height, BufferedImage background, GameMap map,
+         boolean debugTimes, boolean debugPath) {
+      this.debugTimes = debugTimes;
+      this.debugPath = debugPath;
       backgroundImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
       Graphics g = backgroundImage.getGraphics();
       g.drawImage(background, 0, 0, width, height, null);
@@ -97,53 +72,17 @@ public class GameMapPanel extends JPanel {
       setPreferredSize(new Dimension(width, height));
       pathPoints = map.getPathPoints();
       path = map.getPath();
+      textDisplay = new TextDisplay(width, height);
       if(debugPath) {
          printClickedCoords();
       }
-      addMouseListeners();
-      clock = new Clock();
-      clock.start();
    }
    
    @Override
    public synchronized void paintComponent(Graphics g) {
       long beginTime = System.nanoTime();
       g.drawImage(buffers[bufferIndex], 0, 0, null);
-      clock.setLastDrawTime(beginTime);
-   }
-   
-   /**
-    * Notifies the map that a tower button has been pressed.
-    * @param t
-    * @return
-    *        true if a tower is to be shadowed, false if none
-    */
-   public boolean towerButtonPressed(Tower t) {
-      if(buildingTower == null || !buildingTower.getClass().equals(t.getClass())) {
-         deselectTower();
-         buildingTower = t;
-         return true;
-      } else {
-         clearBuildingTower();
-         return false;
-      }
-   }
-   
-   public boolean start(int level){
-      if(sprites.isEmpty()) {
-         levelInProgress = true;
-         spritesToAdd = Formulae.numSprites(level);
-         levelHP = Formulae.hp(level);
-         clock.ticksBetweenAddSprite = Formulae.ticksBetweenAddSprite(level);
-         //System.out.println(clockRunnable.ticksBetweenAddSprite);
-         return true;
-      } else {
-         return false;
-      }
-   }
-   
-   public void setControlPanel(ControlPanel cp) {
-      this.cp = cp;
+      lastPaintTime = System.nanoTime() - beginTime;
    }
    
    public void displayText(String... lines) {
@@ -154,154 +93,81 @@ public class GameMapPanel extends JPanel {
       textDisplay.clear();
    }
    
-   public void upgradeAll(Attribute a) {
-      for(Tower t : towers) {
-         t.raiseAttributeLevel(a, false);
-      }
-   }
-   
-   public List<Tower> getTowers() {
-      return Collections.unmodifiableList(towers);
-   }
-   
-   public void removeTower(Tower t) {
-      if(!towers.remove(t)) {
-         throw new RuntimeException("Tower that wasn't on screen sold.");
-      }
-      if(t == selectedTower) {
-         selectedTower = null;
-      }
-   }
-   
    public void restart() {
-      clock.end();
-      sprites.clear();
-      towers.clear();
-      bullets.clear();
-      spritesToAdd = 0;
       gameOver = null;
-      buildingTower = null;
-      selectedTower = null;
-      hoverOverTower = null;
-      levelInProgress = false;
-      clock = new Clock();
-      clock.start();
       repaint();
    }
    
-   private void addMouseListeners() {
-      addMouseListener(new MouseAdapter(){
-         @Override
-         public void mouseReleased(MouseEvent e) {
-            processMouseReleased(e);
-         }
-      });
-      addMouseMotionListener(new MouseMotionAdapter(){
-         @Override
-         public void mouseMoved(MouseEvent e) {
-            processMouseMoved(e);
-         }
-      });
-   }
-   
-   private void processMouseReleased(MouseEvent e) {
-      deselectTower();
-      if(e.getButton() == MouseEvent.BUTTON3) {
-         // Stop everything if it's the right mouse button
-         clearBuildingTower();
-         return;
-      }
-      Point p = e.getPoint();
-      Tower t = containedInTower(p);
-      if(t == null) {
-         tryToBuildTower(p);
-      } else {
-         // Select a tower if one is clicked on
-         selectTower(t);
-      }    
-   }
-   
-   private void processMouseMoved(MouseEvent e) {
-      if(selectedTower == null && buildingTower == null) {
-         Tower t = containedInTower(e.getPoint());
-         if(hoverOverTower == null && t == null) {
-            return;
-         }
-         if(hoverOverTower != t) {
-            cp.hoverOverTower(t);
-         }
-         hoverOverTower = t;
-      }
-   }
-   
-   private Tower containedInTower(Point p) {
-      for(Tower t : towers) {
-         if(t.contains(p)) {
-            return t;
-         }
-      }
-      return null;
-   }
-   
-   private void tryToBuildTower(Point p) {
-      if(buildingTower == null) {
-         return;
-      }
-      Tower toBuild = buildingTower.constructNew(p, path.getBounds2D());
-      for(Tower t : towers) {
-         // Checks that the point doesn't clash with another tower
-         if(t.doesTowerClashWith(toBuild)) {
-            return;
-         }
-      }
-      // Checks that the point isn't on the path
-      Shape bounds = toBuild.getBounds();
-      if(bounds instanceof Circle) {
-         if(((Circle) bounds).intersects(path)) {
-            return;
-         }
-      } else {
-         if(path.intersects(bounds.getBounds())) {
-            return;
-         }
-      }
-      if(cp.canBuildTower(toBuild.getClass())) {
-         cp.buildTower(toBuild);
-         // Have to add after telling the control panel otherwise
-         // the price will be wrong
-         towers.add(toBuild);
-         if(toBuild instanceof AidTower) {
-            ((AidTower) toBuild).setTowers(Collections.unmodifiableList(towers));
-         }
-         if(!cp.canBuildTower(buildingTower.getClass())) {
-            clearBuildingTower();
-         }
-      }
-   }
-   
-   private void selectTower(Tower t) {
-      cp.selectTower(t);
-      t.select(true);
-      selectedTower = t;
-      clearBuildingTower();
-   }
-   
-   private void deselectTower() {
-      cp.deselectTower();
-      if(selectedTower != null) {
-         selectedTower.select(false);
-         selectedTower = null;
-      }
-   }
-   
-   private void clearBuildingTower() {
-      buildingTower = null;
-      cp.clearBuildingTower();
-   }
-   
-   private void signalGameOver() {
+   public void signalGameOver() {
       if(gameOver == null) {
          gameOver = new GameOver();
+      }
+   }
+   
+   public long draw(List<Tower> towers, Tower selectedTower, Tower buildingTower,
+         List<Sprite> sprites, List<Bullet> bullets, long processTime, long processSpritesTime,
+         long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
+      long beginTime = System.nanoTime();
+      if(gameOver == null) {
+         // Each time draw on a different buffer so that the a half drawn buffer
+         // isn't drawn on the component.
+         int nextBufferIndex = bufferIndex == 0 ? 1 : 0;
+         Graphics2D bufferGraphics = (Graphics2D) buffers[nextBufferIndex].getGraphics();
+         drawUpdate(bufferGraphics, towers, selectedTower, buildingTower, sprites, bullets,
+               processTime, processSpritesTime, processBulletsTime, processTowersTime, drawTime,
+               numBullets);
+         textDisplay.draw(bufferGraphics);
+         bufferIndex = nextBufferIndex;
+      } else {
+         // Game over needs to always draw on the same buffer for its sliding effect
+         gameOver.draw(buffers[bufferIndex].getGraphics());
+      }
+      return beginTime - lastPaintTime;
+   }
+   
+   private void drawUpdate(Graphics g, List<Tower> towers, Tower selectedTower, Tower buildingTower,
+         List<Sprite> sprites, List<Bullet> bullets, long processTime, long processSpritesTime,
+         long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
+      // This should completely cover the old image in the buffer
+      g.drawImage(backgroundImage, 0, 0, null);
+      // Don't use for each loops here to avoid concurrent modification exceptions
+      for(int i = 0; i < towers.size(); i++) {
+         towers.get(i).draw(g);
+      }
+      for(int i = 0; i < sprites.size(); i++) {
+         sprites.get(i).draw(g);
+      }
+      if(selectedTower != null) {
+         selectedTower.drawSelected(g);
+      }
+      for(int i = 0; i < bullets.size(); i++) {
+         bullets.get(i).draw(g);
+      }
+      drawDebug(g, processTime, processSpritesTime, processBulletsTime, processTowersTime,
+            drawTime, numBullets);
+      if(buildingTower != null) {
+         Point p = getMousePosition();
+         if (p != null) {
+            // TODO Maybe add a method to Tower interface to do this better
+            buildingTower.constructNew(p, path.getBounds2D()).drawShadow(g);
+         }
+      }
+   }
+   
+   private void drawDebug(Graphics g, long processTime, long processSpritesTime,
+         long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
+      if(debugTimes) {
+         g.setColor(Color.WHITE);
+         g.drawString("Process time: " + processTime, 10, 15);
+         g.drawString("Draw time: " + drawTime, 10, 30);
+         g.drawString("Sprites time: " + processSpritesTime, 150, 15);
+         g.drawString("Bullets time: " + processBulletsTime, 150, 30);
+         g.drawString("Towers time: " + processTowersTime, 150, 45);
+         g.drawString("Num bullets: " + numBullets, 400, 15);
+      }
+      if(debugPath) {
+         drawPath(g);
+         drawPathOutline(g);
       }
    }
    
@@ -376,361 +242,6 @@ public class GameMapPanel extends JPanel {
       }
    }
    
-   private class Clock extends Thread {
-      
-      private int ticksBetweenAddSprite;
-      private int addSpriteIn = 0;
-      private final int timesLength = (int)(CLOCK_TICKS_PER_SECOND / 2);
-      private int timesPos = 0;
-      // In each of these the last position is used to store the last time
-      // and is not used for calculating the average
-      private final long[] processTimes = new long[timesLength + 1];
-      private final long[] processSpritesTimes = new long[timesLength + 1];
-      private final long[] processBulletsTimes = new long[timesLength + 1];
-      private final long[] processTowersTimes = new long[timesLength + 1];
-      private final long[] drawTimes = new long[timesLength + 1];
-      private boolean keepRunning = true;
-      private boolean isWaiting;
-      private final int numThreads;
-      private final BulletTickThread[] bulletTickThreads;
-      private final boolean[] isThreadRunning;
-      private final List<Integer> toRemove = new ArrayList<Integer>();
-      private double moneyEarnt = 0;
-      
-      public Clock() {
-         numThreads = Runtime.getRuntime().availableProcessors();
-         if(numThreads > 1) {
-            bulletTickThreads = new BulletTickThread[numThreads];
-            isThreadRunning = new boolean[numThreads];
-            for(int i = 0; i < numThreads; i++) {
-               bulletTickThreads[i] = new BulletTickThread(i);
-               bulletTickThreads[i].start();
-               isThreadRunning[i] = false;
-            }
-         } else {
-            // If there is only one core, use the original single threaded version.
-            bulletTickThreads = null;
-            isThreadRunning = null;
-         }
-      }
-            
-      @Override
-      public void run() {
-         while(keepRunning) {
-            try {
-               // Used nanoTime as many OS, notably windows, don't record ms times less than 10ms
-               long beginTime = System.nanoTime();
-               if(gameOver == null) {
-                  if(debugTimes) {
-                     calculateTimesTaken();
-                  }
-                  tick();
-               }
-               if(debugTimes) {
-                  processTimes[timesLength] = calculateElapsedTime(beginTime);
-               }
-               draw();
-               repaint();
-               long elapsedTime = calculateElapsedTime(beginTime);
-               if(elapsedTime < CLOCK_TICK) {
-                  try {
-                     Thread.sleep(CLOCK_TICK - elapsedTime);
-                  } catch(InterruptedException e) {
-                     e.printStackTrace();
-                     // The sleep should never be interrupted
-                  }
-               }
-            } catch(Exception e) {
-               e.printStackTrace();
-               // This means that the game will continue even if there is some strange bug
-            }
-         }
-      }
-      
-      public void end() {
-         keepRunning = false;
-      }
-      
-      private void tick() {
-         // I don't want to sort the actual list of sprites as that would affect
-         // the order they're drawn which looks weird, and the order can change
-         // tick by tick so it's easiest to sort them once each time.
-         List<Sprite> sortedSprites = new ArrayList<Sprite>(sprites);
-         Collections.sort(sortedSprites, new FirstComparator());
-         List<Sprite> unmodifiableSprites = Collections.unmodifiableList(sortedSprites);
-         if(cp != null) {
-            long beginTime;
-            if(debugTimes) {
-               beginTime = System.nanoTime();
-            }
-            if(cp.decrementLives(doSpriteTicks())) {
-               signalGameOver();
-            }
-            if(debugTimes) {
-               processSpritesTimes[timesLength] = calculateElapsedTime(beginTime);
-               beginTime = System.nanoTime();
-            }
-            cp.increaseMoney(doBulletTicks(unmodifiableSprites));
-            if(debugTimes) {
-               processBulletsTimes[timesLength] = calculateElapsedTime(beginTime);
-               beginTime = System.nanoTime();
-            }
-            doTowerTicks(unmodifiableSprites);
-            if(debugTimes) {
-               processTowersTimes[timesLength] = calculateElapsedTime(beginTime);
-            }
-         }
-      }
-      
-      private long calculateElapsedTime(long beginTime) {
-         // Returns in ms, though the beginTime is in ns
-         return (System.nanoTime() - beginTime) / 1000000;
-      }
-      
-      private void calculateTimesTaken() {
-         processTime = insertAndReturnSum(processTimes);
-         processSpritesTime = insertAndReturnSum(processSpritesTimes);
-         processBulletsTime = insertAndReturnSum(processBulletsTimes);
-         processTowersTime = insertAndReturnSum(processTowersTimes);
-         drawTime = insertAndReturnSum(drawTimes);
-         timesPos = (timesPos + 1) % timesLength;
-      }
-      
-      private long insertAndReturnSum(long[] array) {
-         array[timesPos] = array[timesLength];
-         array[timesLength] = 0;
-         long sum = 0;
-         for(int i = 0; i < timesLength; i++) {
-            sum += array[i];
-         }
-         return sum / timesLength;
-      }
-      
-      private void setLastDrawTime(long beginTime) {
-         // += as there are two stages to the drawing, firstly to the offscreen buffer
-         // then drawing that buffer to screen.
-         drawTimes[timesLength] += calculateElapsedTime(beginTime);
-      }
-      
-      private void draw() {
-         long beginTime = System.nanoTime();
-         if(gameOver == null) {
-            // Each time draw on a different buffer so that the a half drawn buffer
-            // isn't drawn on the component.
-            int nextBufferIndex = bufferIndex == 0 ? 1 : 0;
-            Graphics2D bufferGraphics = (Graphics2D) buffers[nextBufferIndex].getGraphics();
-            drawUpdate(bufferGraphics);
-            textDisplay.draw(bufferGraphics);
-            bufferIndex = nextBufferIndex;
-         } else {
-            // Game over needs to always draw on the same buffer for its sliding effect
-            gameOver.draw(buffers[bufferIndex].getGraphics());
-         }
-         if(debugTimes) {
-            setLastDrawTime(beginTime);
-         }
-      }
-      
-      private void drawUpdate(Graphics g) {
-         // This should completely cover the old image in the buffer
-         g.drawImage(backgroundImage, 0, 0, null);
-         // Don't use for each loops here to avoid concurrent modification exceptions
-         for(int i = 0; i < towers.size(); i++) {
-            towers.get(i).draw(g);
-         }
-         for(int i = 0; i < sprites.size(); i++) {
-            sprites.get(i).draw(g);
-         }
-         if(selectedTower != null) {
-            selectedTower.drawSelected(g);
-         }
-         for(int i = 0; i < bullets.size(); i++) {
-            bullets.get(i).draw(g);
-         }
-         drawDebug(g);
-         if(buildingTower != null) {
-            Point p = getMousePosition();
-            if (p != null) {
-               buildingTower = buildingTower.constructNew(p, path.getBounds2D());
-               buildingTower.drawShadow(g);
-            }
-         }
-      }
-      
-      private void drawDebug(Graphics g) {
-         if(debugTimes) {
-            g.setColor(Color.WHITE);
-            g.drawString("Process time: " + processTime, 10, 15);
-            g.drawString("Draw time: " + drawTime, 10, 30);
-            g.drawString("Sprites time: " + processSpritesTime, 150, 15);
-            g.drawString("Bullets time: " + processBulletsTime, 150, 30);
-            g.drawString("Towers time: " + processTowersTime, 150, 45);
-            g.drawString("Num bullets: " + bullets.size(), 400, 15);
-         }
-         if(debugPath) {
-            drawPath(g);
-            drawPathOutline(g);
-         }
-      }
-      
-      private int doSpriteTicks() {
-         int livesLost = 0;
-         if(levelInProgress && sprites.isEmpty() && spritesToAdd <= 0) {
-            cp.endLevel();
-            levelInProgress = false;
-            // If the level is just finished it's a good time to run the garbage
-            // collector rather than have it run during a level.
-            System.gc();
-         }
-         if(spritesToAdd > 0) {
-            if(addSpriteIn < 1) {
-               sprites.add(new Pacman(cp.getLevel(), levelHP, clonePathPoints()));
-               // Adds a sprite in somewhere between 0 and twice the designated time
-               addSpriteIn = (int)(Math.random() * (ticksBetweenAddSprite * 2 + 1));
-               spritesToAdd--;
-               cp.setNumberLeft(spritesToAdd);
-            } else {
-               addSpriteIn--;
-            }
-         }
-         List<Integer> toRemove = new ArrayList<Integer>();
-         for(int i = 0; i < sprites.size(); i++) {
-            Sprite s = sprites.get(i);
-            if(s.tick()) {
-               toRemove.add(i);
-               if(s.isAlive()) {
-                  // If the sprite is being removed and is still alive, it went
-                  // off the edge of the screen
-                  livesLost++;
-               }
-            }
-         }
-         Helper.removeAll(sprites, toRemove);
-         return livesLost;
-      }
-      
-      private List<Point> clonePathPoints() {
-         List<Point> clone = new ArrayList<Point>(pathPoints.size());
-         for(Point p : pathPoints) {
-            clone.add(new Point(p));
-         }
-         return clone;
-      }
-      
-      private void doTowerTicks(List<Sprite> unmodifiableSprites) {
-         // Only do this if there's a level going, to decrease load and
-         // so towers such as charge towers don't charge between levels
-         if(levelInProgress) {
-            // Don't use for each loop here as a new tower can be built
-            for(int i = 0; i < towers.size(); i++ ) {
-               bullets.addAll(towers.get(i).tick(unmodifiableSprites));
-            }
-         }
-      }
-      
-      private long doBulletTicks(List<Sprite> unmodifiableSprites) {
-         if(numThreads == 1 || bullets.size() <= 1) {
-            // Use single thread version if only one processor or 1 or fewer bullets
-            // as it will be faster.
-            return doBulletTicksSingleThread(unmodifiableSprites);
-         }
-         isWaiting = true;
-         int bulletsPerThread = bullets.size() / numThreads;
-         int remainder = bullets.size() - bulletsPerThread * numThreads;
-         Arrays.fill(isThreadRunning, true);
-         int firstPos, lastPos = 0;
-         for(int i = 0; i < numThreads; i++) {
-            firstPos = lastPos;
-            lastPos = firstPos + bulletsPerThread + (i < remainder ? 1 : 0);
-            // Copying the list should reduce the lag of each thread trying to access
-            // the same list
-            bulletTickThreads[i].tickBullets(firstPos, lastPos, bullets,
-                  new ArrayList<Sprite>(unmodifiableSprites));
-         }
-         while(isWaiting) {
-            LockSupport.park();
-         }
-         Collections.sort(toRemove);
-         Helper.removeAll(bullets, toRemove);
-         toRemove.clear();
-         double toReturn = moneyEarnt;
-         moneyEarnt = 0;
-         return (long)toReturn;
-      }
-      
-      private synchronized void informFinished(int threadNumber, double moneyEarnt,
-            List<Integer> toRemove) {
-         this.moneyEarnt += moneyEarnt;
-         this.toRemove.addAll(toRemove);
-         isThreadRunning[threadNumber] = false;
-         for(boolean b : isThreadRunning) {
-            if(b) {
-               return;
-            }
-         }
-         isWaiting = false;
-         LockSupport.unpark(this);
-      }
-      
-      private long doBulletTicksSingleThread(List<Sprite> unmodifiableSprites) {
-         double moneyEarnt = 0;
-         List<Integer> toRemove = new ArrayList<Integer>();
-         for(int i = 0; i < bullets.size(); i++) {
-            double money = bullets.get(i).tick(unmodifiableSprites);
-            if(money >= 0) {
-               moneyEarnt += money;
-               toRemove.add(i);
-            }
-         }
-         Helper.removeAll(bullets, toRemove);
-         return (long)moneyEarnt;
-      }
-      
-      private class BulletTickThread extends Thread {
-         
-         private final int threadNumber;
-         private int firstPos, lastPos;
-         private List<Bullet> bulletsToTick;
-         private List<Sprite> sprites;
-         private boolean doTick;
-         
-         public BulletTickThread(int number) {
-            super();
-            this.threadNumber = number;
-         }
-         
-         public void tickBullets(int firstPos, int lastPos, List<Bullet> bulletsToTick,
-               List<Sprite> sprites) {
-            this.firstPos = firstPos;
-            this.lastPos = lastPos;
-            this.bulletsToTick = bulletsToTick;
-            this.sprites = sprites;
-            doTick = true;
-            LockSupport.unpark(this);
-         }
-         
-         @Override
-         public void run() {
-            while(true) {
-               if(doTick) {
-                  double moneyEarnt = 0;
-                  List<Integer> toRemove = new ArrayList<Integer>();
-                  for(int i = firstPos; i < lastPos; i++) {
-                     double money = bulletsToTick.get(i).tick(sprites);
-                     if(money >= 0) {
-                        moneyEarnt += money;
-                        toRemove.add(i);
-                     }
-                  }
-                  doTick = false;
-                  informFinished(threadNumber, moneyEarnt, toRemove);
-               }
-               LockSupport.park();
-            }
-         }
-      }
-   }
-   
    /**
     * Draws game over screen for a loss
     * 
@@ -782,21 +293,29 @@ public class GameMapPanel extends JPanel {
       
       private static final Color backgroundColour = new Color(255, 255, 255, 120);
       private static final Color textColour = Color.BLACK;
-      private final int startPosition = OuterPanel.MAP_HEIGHT;
-      private int currentPosition = startPosition;
+      private final int startPosition;
+      private int currentPosition;
       private int heightToDisplay;
       private static final int rounding = 40;
       private static final int aboveTextMargin = 5;
       private static final int sideMargin = 12;
       private static final int offset = 5;
-      private static final int width = OuterPanel.MAP_WIDTH - offset * 2;
-      private static final int height = OuterPanel.MAP_HEIGHT;
-      private final BufferedImage display = new BufferedImage(width, height,
-            BufferedImage.TYPE_INT_ARGB_PRE);
-      private final Graphics displayGraphics = display.getGraphics();
+      private final int width;
+      private final int height;
+      private final BufferedImage display;
+      private final Graphics displayGraphics;
       private boolean displayed = false;
       private boolean clearingFlag = false;
       private boolean drawingFlag = false;
+      
+      public TextDisplay(int width, int height) {
+         startPosition = height;
+         currentPosition = startPosition;
+         this.width = width - offset * 2;
+         this.height = height;
+         display  = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
+         displayGraphics = display.getGraphics();
+      }
       
       public void draw(Graphics g) {
          if (drawingFlag) {

@@ -19,11 +19,11 @@
 
 package towers;
 
-import gui.GameMapPanel;
-import gui.Helper;
-
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
+
+import logic.Game;
+import logic.Helper;
 
 
 public class SlowLengthTower extends SlowTower {
@@ -39,7 +39,7 @@ public class SlowLengthTower extends SlowTower {
 
    @Override
    public String getSpecial() {
-      return Helper.format(slowTicks / GameMapPanel.CLOCK_TICKS_PER_SECOND, 1) + "s";
+      return Helper.format(slowTicks / Game.CLOCK_TICKS_PER_SECOND, 1) + "s";
    }
 
    @Override

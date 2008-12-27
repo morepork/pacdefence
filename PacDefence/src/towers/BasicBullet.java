@@ -19,8 +19,6 @@
 
 package towers;
 
-import gui.Helper;
-import gui.OuterPanel;
 import images.ImageHelper;
 
 import java.awt.Graphics;
@@ -30,6 +28,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import logic.Game;
+import logic.Helper;
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
 
@@ -161,8 +161,8 @@ public class BasicBullet implements Bullet {
    
    protected boolean checkIfPointIsOffScreen(Point2D p) {
       return p.getX() < -halfWidth || p.getY() < -halfWidth ||
-            p.getX() > OuterPanel.MAP_WIDTH + halfWidth ||
-            p.getY() > OuterPanel.MAP_HEIGHT + halfWidth;
+            p.getX() > Game.MAP_WIDTH + halfWidth ||
+            p.getY() > Game.MAP_HEIGHT + halfWidth;
    }
    
    protected double doTick(List<Sprite> sprites) {

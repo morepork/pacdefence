@@ -19,13 +19,12 @@
 
 package towers;
 
-import gui.GameMapPanel;
-
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
+import logic.Game;
 import sprites.Sprite;
 
 
@@ -33,7 +32,7 @@ public abstract class SlowTower extends AbstractTower {
    
    protected double slowFactor = 0.50;
    // So it starts at 1s
-   protected double slowTicks = GameMapPanel.CLOCK_TICKS_PER_SECOND;
+   protected double slowTicks = Game.CLOCK_TICKS_PER_SECOND;
 
    public SlowTower(Point p, Rectangle2D pathBounds, String name, int fireRate, int range,
          double bulletSpeed, double damage, int width, int turretWidth, String imageName,

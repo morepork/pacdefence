@@ -70,12 +70,20 @@ public interface Sprite {
       public boolean equals(Object o) {
          return getClass() == o.getClass();
       }
+      
+      @Override
+      public abstract String toString();
    }
 
    public class FirstComparator extends AbstractSpriteComparator {
       @Override
       public int compare(Sprite s1, Sprite s2) {
          return (int) (s2.getTotalDistanceTravelled() - s1.getTotalDistanceTravelled());
+      }
+      
+      @Override
+      public String toString() {
+         return "First";
       }
    }
    
@@ -84,6 +92,11 @@ public interface Sprite {
       public int compare(Sprite s1, Sprite s2) {
          return -super.compare(s1, s2);
       }
+      
+      @Override
+      public String toString() {
+         return "Last";
+      }
    }
    
    public class FastestComparator extends AbstractSpriteComparator {
@@ -91,12 +104,22 @@ public interface Sprite {
       public int compare(Sprite s1, Sprite s2) {
          return (int)((s2.getSpeed() - s1.getSpeed()) * 100);
       }
+      
+      @Override
+      public String toString() {
+         return "Fastest";
+      }
    }
    
    public class SlowestComparator extends FastestComparator {
       @Override
       public int compare(Sprite s1, Sprite s2) {
          return -super.compare(s1, s2);
+      }
+      
+      @Override
+      public String toString() {
+         return "Slowest";
       }
    }
    
@@ -107,12 +130,22 @@ public interface Sprite {
          // Take the log here as the hp difference can get larger than an int
          return sign * (int)Math.log(Math.abs(s2.getHPLeft() - s1.getHPLeft()) + 1);
       }
+      
+      @Override
+      public String toString() {
+         return "Most HP";
+      }
    }
    
    public class LeastHPComparator extends MostHPComparator {
       @Override
       public int compare(Sprite s1, Sprite s2) {
          return -super.compare(s1, s2);
+      }
+      
+      @Override
+      public String toString() {
+         return "Least HP";
       }
    }
    

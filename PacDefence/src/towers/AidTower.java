@@ -19,20 +19,19 @@
 
 package towers;
 
-import gui.GameMapPanel;
-
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CopyOnWriteArraySet;
 
+import logic.Game;
 import sprites.Sprite;
 
 
@@ -44,7 +43,7 @@ public class AidTower extends AbstractTower {
    private final Map<Attribute, Integer> aidAmounts = makeAidAmounts();
    private static int nextID = 0;
    private final int id = nextID++;
-   private final Set<Tower> aidingTowers = new CopyOnWriteArraySet<Tower>();
+   private final Set<Tower> aidingTowers = new HashSet<Tower>();
    private List<Tower> towers;
    private final Timer timer = new Timer();
    private final DamageNotifier damageNotifier = new AidDamageNotifier();
@@ -89,7 +88,7 @@ public class AidTower extends AbstractTower {
          public void run() {
             addTowers();
          }
-      }, 0, GameMapPanel.CLOCK_TICK);
+      }, 0, Game.CLOCK_TICK);
    }
    
    @Override
@@ -156,7 +155,8 @@ public class AidTower extends AbstractTower {
    
    private void addTowers() {
       assert towers.size() > 0 : "The size of the list of towers isn't > 0";
-      for(Tower t : towers) {
+      for(int i = 0; i < towers.size(); i++) {
+         Tower t = towers.get(i);
          if(!(t instanceof AidTower) && !aidingTowers.contains(t)) {
             if(super.getCentre().distance(t.getCentre()) < getRange()) {
                aidingTowers.add(t);
