@@ -32,7 +32,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -119,7 +118,7 @@ public class BeamTower extends AbstractTower {
       private int ticksLeft;
       private final double damage;
       private double moneyEarnt = 0;
-      private List<Point2D> points = Collections.emptyList();
+      //private List<Point2D> points = Collections.emptyList();
       
       private Beam(Tower t, Point2D centre, double angle, int range, double speed, double damage,
             Rectangle2D pathBounds, Sprite target, int numTicks) {
@@ -145,10 +144,10 @@ public class BeamTower extends AbstractTower {
          g2D.draw(beam);
          g2D.setStroke(s);
          // Debugging code to make sure the points are in the right place
-         g2D.setColor(Color.RED);
+         /*g2D.setColor(Color.RED);
          for(Point2D p : points) {
             g2D.drawRect((int)p.getX(), (int)p.getY(), 1, 1);
-         }
+         }*/
       }
 
       @Override
@@ -204,7 +203,7 @@ public class BeamTower extends AbstractTower {
             points.addAll(Helper.getPointsOnArc(centre.getX(), centre.getY(), i,
                   i * numPointsMult, sinAngle, cosAngle, pathBounds));
          }
-         this.points = points;
+         //this.points = points;
          return points;
       }
       

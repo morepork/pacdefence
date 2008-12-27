@@ -107,7 +107,6 @@ public class GameMapPanel extends JPanel {
    public long draw(List<Tower> towers, Tower selectedTower, Tower buildingTower,
          List<Sprite> sprites, List<Bullet> bullets, long processTime, long processSpritesTime,
          long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
-      long beginTime = System.nanoTime();
       if(gameOver == null) {
          // Each time draw on a different buffer so that the a half drawn buffer
          // isn't drawn on the component.
@@ -122,7 +121,7 @@ public class GameMapPanel extends JPanel {
          // Game over needs to always draw on the same buffer for its sliding effect
          gameOver.draw(buffers[bufferIndex].getGraphics());
       }
-      return beginTime - lastPaintTime;
+      return lastPaintTime;
    }
    
    private void drawUpdate(Graphics g, List<Tower> towers, Tower selectedTower, Tower buildingTower,
@@ -130,7 +129,6 @@ public class GameMapPanel extends JPanel {
          long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
       // This should completely cover the old image in the buffer
       g.drawImage(backgroundImage, 0, 0, null);
-      // Don't use for each loops here to avoid concurrent modification exceptions
       for(int i = 0; i < towers.size(); i++) {
          towers.get(i).draw(g);
       }

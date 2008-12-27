@@ -24,7 +24,6 @@ import gui.ControlPanel;
 import gui.GameMapPanel;
 import gui.SelectionScreens;
 import gui.Title;
-import gui.Wrapper;
 import gui.GameMapPanel.GameMap;
 import images.ImageHelper;
 
@@ -89,7 +88,7 @@ public class Game {
    public static final double CLOCK_TICKS_PER_SECOND = (double)1000 / CLOCK_TICK;
    
    private final boolean debugTimes = true;
-   private final boolean debugPath = true;
+   private final boolean debugPath = false;
    
    private final List<Sprite> sprites = Collections.synchronizedList(new ArrayList<Sprite>());
    private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
@@ -109,7 +108,7 @@ public class Game {
    private final Map<Attribute, Integer> upgradesSoFar =
          new EnumMap<Attribute, Integer>(Attribute.class);
 
-   private List<Wrapper<String, Comparator<Sprite>>> comparators = createComparators();
+   private List<Comparator<Sprite>> comparators = createComparators();
    
    private int level;
    private boolean levelInProgress;
@@ -151,6 +150,9 @@ public class Game {
    }
    
    private void setBuildingTower(Tower t) {
+      if(t != null) {
+         setSelectedTower(null);
+      }
       controlPanel.enableTowerStatsButtons(t == null);
       buildingTower = t;
    }
@@ -219,15 +221,14 @@ public class Game {
       return towerTypes;
    }
    
-   private List<Wrapper<String, Comparator<Sprite>>> createComparators() {
-      List<Wrapper<String, Comparator<Sprite>>> list = new ArrayList<Wrapper<String,
-         Comparator<Sprite>>>();
-      list.add(new Wrapper<String, Comparator<Sprite>>("First", new Sprite.FirstComparator()));
-      list.add(new Wrapper<String, Comparator<Sprite>>("Last", new Sprite.LastComparator()));
-      list.add(new Wrapper<String, Comparator<Sprite>>("Fastest", new Sprite.FastestComparator()));
-      list.add(new Wrapper<String, Comparator<Sprite>>("Slowest", new Sprite.SlowestComparator()));
-      list.add(new Wrapper<String, Comparator<Sprite>>("Most HP", new Sprite.MostHPComparator()));
-      list.add(new Wrapper<String, Comparator<Sprite>>("Least HP", new Sprite.LeastHPComparator()));
+   private List<Comparator<Sprite>> createComparators() {
+      List<Comparator<Sprite>> list = new ArrayList<Comparator<Sprite>>();
+      list.add(new Sprite.FirstComparator());
+      list.add(new Sprite.LastComparator());
+      list.add(new Sprite.FastestComparator());
+      list.add(new Sprite.SlowestComparator());
+      list.add(new Sprite.MostHPComparator());
+      list.add(new Sprite.LeastHPComparator());
       return list;
    }
    
@@ -428,6 +429,7 @@ public class Game {
       } else {
          // Select a tower if one is clicked on
          setSelectedTower(t);
+         setBuildingTower(null);
       }    
    }
    
@@ -564,11 +566,15 @@ public class Game {
             if(debugTimes) {
                processTimes[timesLength] = calculateElapsedTime(beginTime);
             }
-            long drawingBeginTime = gameMap.draw(Collections.unmodifiableList(towers),
+            long drawingBeginTime = System.nanoTime();
+            // Copy the list of towers as they could be sold while this is running
+            drawingBeginTime -= gameMap.draw(new ArrayList<Tower>(towers),
                   selectedTower, buildingTower, Collections.unmodifiableList(sprites),
                   Collections.unmodifiableList(bullets), processTime, processSpritesTime,
                   processBulletsTime, processTowersTime, drawTime, bullets.size());
-            drawTimes[timesLength] = calculateElapsedTime(drawingBeginTime);
+            if(debugTimes) {
+               drawTimes[timesLength] = calculateElapsedTime(drawingBeginTime);
+            }
             gameMap.repaint();
             long elapsedTime = calculateElapsedTime(beginTime);
             if(elapsedTime < CLOCK_TICK) {
@@ -599,6 +605,7 @@ public class Game {
                beginTime = System.nanoTime();
             }
             if(decrementLives(tickSprites())) {
+               gameOver = true;
                gameMap.signalGameOver();
             }
             if(debugTimes) {
@@ -930,11 +937,11 @@ public class Game {
       public void processTargetButtonPressed(JButton b) {
          String s = b.getText();
          for(int i = 0; i < comparators.size(); i++) {
-            if(comparators.get(i).getT1().equals(s)) {
+            if(comparators.get(i).toString().equals(s)) {
                int nextIndex = (i + 1) % comparators.size();
-               Wrapper<String, Comparator<Sprite>> w = comparators.get(nextIndex);
-               b.setText(w.getT1());
-               selectedTower.setSpriteComparator(w.getT2());
+               Comparator<Sprite> c = comparators.get(nextIndex);
+               b.setText(c.toString());
+               selectedTower.setSpriteComparator(c);
                return;
             }
          }
