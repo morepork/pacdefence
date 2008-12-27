@@ -190,11 +190,9 @@ public abstract class AbstractTower implements Tower {
       if (isSelected) {
          drawRange(g);
          g.drawImage(currentImage, (int)topLeft.getX(), (int)topLeft.getY(), width, width, null);
-      } else {
-         // This is possible as the selectedTower is passed as an argument to draw
-         // before it is drawn, and it could be deselected in the mean time.
-         System.err.println("Tower that isn't selected is being drawn as if it was");
       }
+      // It is possible for the selectedTower to be drawn like this once as it is passed
+      // as an argument to draw and it could be deselected before it is drawn.
    }
 
    @Override

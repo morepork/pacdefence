@@ -334,9 +334,9 @@ public abstract class AbstractSprite implements Sprite {
          for(BufferedImage i : originalImages) {
             images.add(ImageHelper.rotateImage(i, angle));
          }
-         System.out.println("Adding sprite image");
          m.put(f, Collections.unmodifiableList(images));
       }
+      // Need to copy this as when the sprite dies the images are changed
       currentImages = new ArrayList<BufferedImage>(m.get(f));
    }
 
@@ -350,7 +350,7 @@ public abstract class AbstractSprite implements Sprite {
          int newWidth = (int) (width * 0.85);
          int pos = (width - newWidth)/2;
          for(int i = 0; i < currentImages.size(); i++) {
-            // It might be faster to clear the old bi than create a new one
+            // Create a new image here as modifying it would mess up the other sprites
             BufferedImage newBI = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = (Graphics2D) newBI.getGraphics();
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
@@ -427,22 +427,6 @@ public abstract class AbstractSprite implements Sprite {
       @Override
       protected float getPrecision() {
          return 0.012F;
-      }
-   }
-   
-   public static void main(String... args) {
-      int width = 50;
-      BufferedImage image;
-      long nanotime;
-      for(int i = 0; i < 10; i++) {
-         nanotime = System.nanoTime();
-         image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
-         System.out.println(System.nanoTime() - nanotime);
-         image = ImageHelper.makeImage(width, width, "sprites", "pacman_yellow1.png");
-         nanotime = System.nanoTime();
-         ImageHelper.clearImage(image);
-         System.out.println(System.nanoTime() - nanotime);
-         System.out.println(image.getType());
       }
    }
 

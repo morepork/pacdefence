@@ -23,6 +23,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.net.URL;
 
@@ -124,7 +125,12 @@ public class ImageHelper {
    }
    
    public static void clearImage(BufferedImage image) {
-      image.setData(image.getColorModel().createCompatibleWritableRaster(image.getWidth(),
-            image.getHeight()));
+      WritableRaster r = image.getRaster();
+      Object o = image.getColorModel().getDataElements(0, null);
+      for(int x = 0; x < image.getWidth(); x++) {
+         for(int y = 0; y < image.getHeight(); y++) {
+            r.setDataElements(x, y, o);
+         }
+      }
    }
 }
