@@ -886,6 +886,9 @@ public class Game {
       public void processTowerButtonChangeEvent(JButton b, Tower t) {
          if(checkIfMovedOff(b)) {
             t = null;
+            if(buildingTower == null) {
+               controlPanel.clearCurrentCost();
+            }
          }
          setRolloverTower(t);
          updateTowerStats();
