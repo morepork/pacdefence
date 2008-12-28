@@ -101,6 +101,9 @@ public class BasicBullet implements Bullet {
    }
    
    public static double processDamageReport(DamageReport d, Tower t) {
+      if(d == null) {
+         return 0;
+      }
       if(d.wasKill()) {
          t.increaseKills(1);
       }

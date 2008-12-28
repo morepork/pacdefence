@@ -180,19 +180,10 @@ public abstract class AbstractTower implements Tower {
 
    @Override
    public void draw(Graphics g) {
-      if (!isSelected) {
-         g.drawImage(currentImage, (int) topLeft.getX(), (int) topLeft.getY(), null);
-      }
-   }
-
-   @Override
-   public void drawSelected(Graphics g) {
       if (isSelected) {
          drawRange(g);
-         g.drawImage(currentImage, (int)topLeft.getX(), (int)topLeft.getY(), width, width, null);
       }
-      // It is possible for the selectedTower to be drawn like this once as it is passed
-      // as an argument to draw and it could be deselected before it is drawn.
+      g.drawImage(currentImage, (int) topLeft.getX(), (int) topLeft.getY(), null);
    }
 
    @Override

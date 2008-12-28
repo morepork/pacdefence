@@ -19,6 +19,8 @@
 
 package gui;
 
+import java.awt.Dimension;
+
 import javax.swing.JApplet;
 
 import logic.Game;
@@ -29,6 +31,7 @@ public class Applet extends JApplet {
    @Override
    public void init() {
       new Game(this);
+      setSize(new Dimension(Game.WIDTH, Game.HEIGHT));
       setVisible(true);
    }
 

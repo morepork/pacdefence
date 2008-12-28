@@ -535,7 +535,9 @@ public class Game {
       private boolean gameOver = false;
       
       public Clock() {
+         super("Pac Defence Clock");
          numThreads = Runtime.getRuntime().availableProcessors();
+         System.out.println(numThreads + " processor(s) detected.");
          if(numThreads > 1) {
             bulletTickThreads = new BulletTickThread[numThreads];
             isThreadRunning = new boolean[numThreads];
@@ -558,24 +560,16 @@ public class Game {
             // Used nanoTime as many OS, notably windows, don't record ms times less than 10ms
             long beginTime = System.nanoTime();
             if(!gameOver) {
+               tick();
                if(debugTimes) {
                   calculateTimesTaken();
+                  processTimes[timesLength] = calculateElapsedTime(beginTime);
                }
-               tick();
             }
-            if(debugTimes) {
-               processTimes[timesLength] = calculateElapsedTime(beginTime);
-            }
-            long drawingBeginTime = System.nanoTime();
-            // Copy the list of towers as they could be sold while this is running
-            drawingBeginTime -= gameMap.draw(new ArrayList<Tower>(towers),
-                  selectedTower, buildingTower, Collections.unmodifiableList(sprites),
-                  Collections.unmodifiableList(bullets), processTime, processSpritesTime,
-                  processBulletsTime, processTowersTime, drawTime, bullets.size());
+            long drawingBeginTime = draw();
             if(debugTimes) {
                drawTimes[timesLength] = calculateElapsedTime(drawingBeginTime);
             }
-            gameMap.repaint();
             long elapsedTime = calculateElapsedTime(beginTime);
             if(elapsedTime < CLOCK_TICK) {
                try {
@@ -622,6 +616,24 @@ public class Game {
                processTowersTimes[timesLength] = calculateElapsedTime(beginTime);
             }
          }
+      }
+      
+      private long draw() {
+         long drawingBeginTime = System.nanoTime();
+         // Copy the list of towers as they could be sold while this is running
+         List<Tower> towersToDraw = new ArrayList<Tower>(towers);
+         if(selectedTower != null) {
+            // Set the selected tower to be drawn last, so its range is drawn
+            // over all the other towers, rather than some drawn under it and
+            // some over it.
+            Collections.swap(towers, towers.indexOf(selectedTower), towers.size() - 1);
+         }
+         drawingBeginTime -= gameMap.draw(towersToDraw, buildingTower,
+               Collections.unmodifiableList(sprites), Collections.unmodifiableList(bullets),
+               processTime, processSpritesTime, processBulletsTime, processTowersTime,
+               drawTime, bullets.size());
+         gameMap.repaint();
+         return drawingBeginTime;
       }
       
       private long calculateElapsedTime(long beginTime) {
@@ -728,9 +740,10 @@ public class Game {
          Collections.sort(toRemove);
          Helper.removeAll(bullets, toRemove);
          toRemove.clear();
-         double toReturn = moneyEarnt;
-         moneyEarnt = 0;
-         return (long)toReturn;
+         long toReturn = (long)moneyEarnt;
+         // Fractional amounts of money are kept until the next tick
+         moneyEarnt -= toReturn;
+         return toReturn;
       }
       
       private synchronized void informFinished(int threadNumber, double moneyEarnt,
@@ -748,7 +761,6 @@ public class Game {
       }
       
       private long tickBulletsSingleThread(List<Sprite> unmodifiableSprites) {
-         double moneyEarnt = 0;
          List<Integer> toRemove = new ArrayList<Integer>();
          for(int i = 0; i < bullets.size(); i++) {
             double money = bullets.get(i).tick(unmodifiableSprites);
@@ -758,7 +770,10 @@ public class Game {
             }
          }
          Helper.removeAll(bullets, toRemove);
-         return (long)moneyEarnt;
+         long toReturn = (long)moneyEarnt;
+         // Fractional amounts of money are kept until the next tick
+         moneyEarnt -= toReturn;
+         return toReturn;
       }
       
       private class BulletTickThread extends Thread {
@@ -770,7 +785,7 @@ public class Game {
          private boolean doTick;
          
          public BulletTickThread(int number) {
-            super();
+            super("Bullet Tick Thread #" + number);
             this.threadNumber = number;
          }
          
@@ -822,24 +837,26 @@ public class Game {
          }
       }
       
-      public void processUpgradeButtonPressed(JButton b, Attribute a) {
-         long cost = 0;
-         if(selectedTower == null) {
-            cost = costToUpgradeTowers(a, towers);
-            if(cost <= money) {
-               decreaseMoney(cost);
-               for(Tower t : towers) {
-                  t.raiseAttributeLevel(a, true);
+      public void processUpgradeButtonPressed(ActionEvent e, JButton b, Attribute a) {
+         int numTimes = (e.getModifiers() & ActionEvent.CTRL_MASK) != 0 ? 5 : 1;
+         for(int i = 0; i < numTimes; i++) {
+            if(selectedTower == null) {
+               long cost = costToUpgradeTowers(a, towers);
+               if(cost <= money) {
+                  decreaseMoney(cost);
+                  for(Tower t : towers) {
+                     t.raiseAttributeLevel(a, true);
+                  }
+               }
+            } else {
+               long cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
+               if(cost <= money) {
+                  decreaseMoney(cost);
+                  selectedTower.raiseAttributeLevel(a, true);
                }
             }
-         } else {
-            cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
-            if(cost <= money) {
-               decreaseMoney(cost);
-               selectedTower.raiseAttributeLevel(a, true);
-               updateTowerStats();
-            }
          }
+         updateTowerStats();
       }
       
       public void processUpgradeButtonChanged(JButton b, Attribute a) {
@@ -847,7 +864,7 @@ public class Game {
             controlPanel.clearCurrentCost();
          } else {
             String description = a.toString() + " Upgrade";
-            long cost;
+            long cost = 0;
             if(selectedTower == null) {
                description += " (all)";
                cost = costToUpgradeAllTowers(a);

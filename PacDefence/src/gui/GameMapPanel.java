@@ -104,7 +104,7 @@ public class GameMapPanel extends JPanel {
       }
    }
    
-   public long draw(List<Tower> towers, Tower selectedTower, Tower buildingTower,
+   public long draw(List<Tower> towers, Tower buildingTower,
          List<Sprite> sprites, List<Bullet> bullets, long processTime, long processSpritesTime,
          long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
       if(gameOver == null) {
@@ -112,9 +112,8 @@ public class GameMapPanel extends JPanel {
          // isn't drawn on the component.
          int nextBufferIndex = bufferIndex == 0 ? 1 : 0;
          Graphics2D bufferGraphics = (Graphics2D) buffers[nextBufferIndex].getGraphics();
-         drawUpdate(bufferGraphics, towers, selectedTower, buildingTower, sprites, bullets,
-               processTime, processSpritesTime, processBulletsTime, processTowersTime, drawTime,
-               numBullets);
+         drawUpdate(bufferGraphics, towers, buildingTower, sprites, bullets, processTime,
+               processSpritesTime, processBulletsTime, processTowersTime, drawTime, numBullets);
          textDisplay.draw(bufferGraphics);
          bufferIndex = nextBufferIndex;
       } else {
@@ -124,19 +123,18 @@ public class GameMapPanel extends JPanel {
       return lastPaintTime;
    }
    
-   private void drawUpdate(Graphics g, List<Tower> towers, Tower selectedTower, Tower buildingTower,
+   private void drawUpdate(Graphics g, List<Tower> towers, Tower buildingTower,
          List<Sprite> sprites, List<Bullet> bullets, long processTime, long processSpritesTime,
          long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
       // This should completely cover the old image in the buffer
       g.drawImage(backgroundImage, 0, 0, null);
-      for(int i = 0; i < towers.size(); i++) {
-         towers.get(i).draw(g);
-      }
       for(int i = 0; i < sprites.size(); i++) {
          sprites.get(i).draw(g);
       }
-      if(selectedTower != null) {
-         selectedTower.drawSelected(g);
+      // Draw towers after sprites so the sprites aren't drawn on the range of the
+      // selected tower
+      for(int i = 0; i < towers.size(); i++) {
+         towers.get(i).draw(g);
       }
       for(int i = 0; i < bullets.size(); i++) {
          bullets.get(i).draw(g);

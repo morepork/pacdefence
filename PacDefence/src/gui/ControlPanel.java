@@ -402,7 +402,7 @@ public class ControlPanel extends JPanel {
       b.addActionListener(new ActionListener(){
          public void actionPerformed(ActionEvent e) {
             JButton b = (JButton)e.getSource();
-            eventProcessor.processUpgradeButtonPressed(b, TowerStat.getButtonsAttribute(b));
+            eventProcessor.processUpgradeButtonPressed(e, b, TowerStat.getButtonsAttribute(b));
          }
       });
       b.addChangeListener(new ChangeListener(){
