@@ -132,8 +132,8 @@ public class ControlPanel extends JPanel {
          killsLabel.setText("Kills: " + t.getKills() + " (" + t.getKillsForUpgrade() + ")");
          damageDealtLabel.setText("Dmg: " + t.getDamageDealt() + " (" +
                t.getDamageDealtForUpgrade() + ")");
-         Comparator<Sprite> c = t.getSpriteComparator();
          sellButton.setEnabled(true);
+         Comparator<Sprite> c = t.getSpriteComparator();
          if(c != null) {
             targetLabel.setText("Target");
             targetButton.setEnabled(true);

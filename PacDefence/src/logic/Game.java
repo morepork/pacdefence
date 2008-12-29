@@ -384,31 +384,18 @@ public class Game {
    
    private void updateTowerStats() {
       Tower t = null;
-      if(selectedTower != null) {
-         t = selectedTower;
-      } else if(buildingTower != null) {
-         t = buildingTower;
-         controlPanel.updateCurrentCost(buildingTower.getName() + " Tower",
-               getNextTowerCost(t.getClass()));
-      } else if(hoverOverTower != null) {
-         t = hoverOverTower;
-      } else if(rolloverTower != null) {
-         t = rolloverTower;
-         controlPanel.updateCurrentCost(rolloverTower.getName() + " Tower",
-               getNextTowerCost(t.getClass()));
+      if(rolloverTower != null || buildingTower != null) {
+         // This needs to be first as rollover tower takes precedence over selected
+         t = rolloverTower != null ? rolloverTower : buildingTower;
+         controlPanel.updateCurrentCost(t.getName() + " Tower", getNextTowerCost(t.getClass()));
+         controlPanel.setCurrentTowerInfo(null);
+      } else if(selectedTower != null || hoverOverTower != null) {
+         t = selectedTower != null ? selectedTower : hoverOverTower;
+         controlPanel.setCurrentTowerInfo(t);
+      } else {
+         controlPanel.setCurrentTowerInfo(null);
       }
       controlPanel.setStats(t);
-      updateCurrentTowerInfo();
-   }
-   
-   private void updateCurrentTowerInfo() {
-      Tower t = null;
-      if(selectedTower != null) {
-         t = selectedTower;
-      } else if(hoverOverTower != null) {
-         t = hoverOverTower;
-      }
-      controlPanel.setCurrentTowerInfo(t);
    }
    
    private long sellValue(Tower t) {
