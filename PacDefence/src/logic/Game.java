@@ -246,6 +246,7 @@ public class Game {
    }
    
    private void endLevel() {
+      levelInProgress = false;
       endLevelUpgradesLeft++;
       long moneyBefore = money; 
       multiplyMoney(interestRate);
@@ -270,6 +271,15 @@ public class Game {
       updateAllButLevelStats();
       gameMap.displayText(text.toString());
       controlPanel.enableStartButton(true);
+      // Remove all the ghosts at the end of the level
+      for(int i = 0; i < towers.size(); i++) {
+         if(towers.get(i) instanceof Ghost) {
+            towers.remove(i--);
+         }
+      }
+      // If the level is just finished it's a good time to run the garbage
+      // collector rather than have it run during a level.
+      System.gc();
    }
    
    private boolean canBuildTower(Class<? extends Tower> towerType) {
@@ -658,10 +668,6 @@ public class Game {
          int livesLost = 0;
          if(levelInProgress && sprites.isEmpty() && spritesToAdd <= 0) {
             endLevel();
-            levelInProgress = false;
-            // If the level is just finished it's a good time to run the garbage
-            // collector rather than have it run during a level.
-            System.gc();
          }
          if(spritesToAdd > 0) {
             if(addSpriteIn < 1) {
