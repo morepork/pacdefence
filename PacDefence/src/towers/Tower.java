@@ -21,6 +21,7 @@ package towers;
 
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -83,7 +84,8 @@ public interface Tower extends Cloneable {
     *         up to this one
     */
    public List<Bullet> tick(List<Sprite> sprites);  
-   public boolean doesTowerClashWith(Tower t);   
+   public boolean doesTowerClashWith(Tower t);
+   public boolean canTowerBeBuilt(List<Polygon> path);
    public boolean contains(Point p);
    public Point getCentre();
    public String getName();

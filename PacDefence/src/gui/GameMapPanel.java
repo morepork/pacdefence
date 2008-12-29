@@ -50,7 +50,7 @@ public class GameMapPanel extends JPanel {
    private final BufferedImage backgroundImage;
    private int bufferIndex = 0;
    private final BufferedImage[] buffers = new BufferedImage[2];
-   private final Polygon path;
+   private final List<Polygon> path;
    private final List<Point> pathPoints;
 
    private GameOver gameOver = null;
@@ -189,8 +189,12 @@ public class GameMapPanel extends JPanel {
     * Test method that draws an outline of the path.
     */
    private void drawPathOutline(Graphics g) {
-      g.setColor(Color.BLACK);
-      g.drawPolygon(path);
+      for(Polygon p : path) {
+         g.setColor(Color.RED);
+         g.drawPolygon(p);
+         g.setColor(new Color(0, 0, 0, 50));
+         g.fillPolygon(p);
+      }
    }
    
    /**
@@ -210,10 +214,10 @@ public class GameMapPanel extends JPanel {
 
       private final String description;
       private final List<Point> pathPoints;
-      private final Polygon path;
+      private final List<Polygon> path;
       private final BufferedImage image;
       
-      public GameMap(String description, List<Point> pathPoints, Polygon path,
+      public GameMap(String description, List<Point> pathPoints, List<Polygon> path,
             BufferedImage image) {
          this.description = description;
          this.pathPoints = pathPoints;
@@ -229,7 +233,7 @@ public class GameMapPanel extends JPanel {
          return pathPoints;
       }
       
-      public Polygon getPath() {
+      public List<Polygon> getPath() {
          return path;
       }
       

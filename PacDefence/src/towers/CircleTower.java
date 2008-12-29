@@ -19,7 +19,6 @@
 
 package towers;
 
-import gui.Circle;
 import images.ImageHelper;
 
 import java.awt.Graphics;
@@ -29,6 +28,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import logic.Circle;
 
 import sprites.Sprite;
 

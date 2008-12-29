@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008.
  */
 
-package gui;
+package logic;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -32,7 +32,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
-import logic.Helper;
 
 // Not fully implemented
 

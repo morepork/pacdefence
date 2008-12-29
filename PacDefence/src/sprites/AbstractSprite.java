@@ -19,7 +19,6 @@
 
 package sprites;
 
-import gui.Circle;
 import images.ImageHelper;
 
 import java.awt.Graphics;
@@ -39,6 +38,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
+import logic.Circle;
 import logic.Formulae;
 import logic.Helper;
 

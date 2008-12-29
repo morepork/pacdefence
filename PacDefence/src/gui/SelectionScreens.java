@@ -107,16 +107,21 @@ public class SelectionScreens extends JPanel {
    private GameMap loadMap(String textFileName, String imageName) {
       Scanner scan = new Scanner(getClass().getResourceAsStream("maps/" + textFileName));
       String description = scan.nextLine();
-      String currentToken = skipComments(scan, scan.next());
-      List<Point> polygonPoints = new ArrayList<Point>();
-      while(!isComment(currentToken)) {
-         polygonPoints.add(new Point(Integer.valueOf(currentToken), Integer.valueOf(scan.next())));
-         currentToken = scan.next();
-      }
-      Polygon path = new Polygon();
-      for(Point p : polygonPoints) {
-         path.addPoint(p.x, p.y);
-      }
+      List<Polygon> path = new ArrayList<Polygon>();
+      String currentToken = scan.next();
+      do {
+         currentToken = skipComments(scan, currentToken);
+         List<Point> polygonPoints = new ArrayList<Point>();
+         while(!isComment(currentToken)) {
+            polygonPoints.add(new Point(Integer.valueOf(currentToken), Integer.valueOf(scan.next())));
+            currentToken = scan.next();
+         }
+         Polygon polygon = new Polygon();
+         for(Point p : polygonPoints) {
+            polygon.addPoint(p.x, p.y);
+         }
+         path.add(polygon);
+      } while(currentToken.equalsIgnoreCase("//Next"));
       currentToken = skipComments(scan, currentToken);
       List<Point> pathPoints = new ArrayList<Point>();
       while(!isComment(currentToken)) {

@@ -19,7 +19,6 @@
 
 package towers;
 
-import gui.Circle;
 import images.ImageHelper;
 
 import java.awt.AlphaComposite;
@@ -28,6 +27,7 @@ import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import logic.Circle;
 import logic.Formulae;
 import logic.Game;
 import logic.Helper;
@@ -51,6 +52,7 @@ import sprites.Sprite;
 
 public abstract class AbstractTower implements Tower {
 
+   public static final float shadowAmount = 0.75F;
    // The color of the range of the tower when drawn
    private static final Color rangeColour = new Color(255, 255, 255, 100);
    protected static final float upgradeIncreaseFactor = 1.05F;
@@ -193,7 +195,7 @@ public abstract class AbstractTower implements Tower {
       // Save the current composite to reset back to later
       Composite c = g2D.getComposite();
       // Makes it so what is drawn is partly transparent
-      g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75f));  
+      g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, shadowAmount));  
       g2D.drawImage(currentImage, (int) p.getX() - halfWidth, (int) p.getY() - halfWidth, width,
             width, null);
       g2D.setComposite(c);
@@ -210,6 +212,16 @@ public abstract class AbstractTower implements Tower {
       } else {
          return bounds.intersects(s.getBounds2D());
       }
+   }
+   
+   @Override
+   public boolean canTowerBeBuilt(List<Polygon> path) {
+      for(Polygon p : path) {
+         if(bounds.intersects(p)) {
+            return false;
+         }
+      }
+      return true;
    }
 
    @Override
@@ -230,7 +242,7 @@ public abstract class AbstractTower implements Tower {
 
    @Override
    public String getName() {
-      return name;
+      return name + " Tower";
    }
 
    @Override

@@ -1,5 +1,7 @@
 Easy
 //Path bounds (x y)
+//This is tricky as any inner par of a polygon's outline must be contained
+//inside another polygon, otherwise creating a ghost fails.
 0 100
 450 100
 450 500
@@ -12,6 +14,17 @@ Easy
 392 441
 392 158
 0 158
+//Next polygon
+103 252
+103 310
+600 310
+600 252
+//Next polygon
+392 100
+392 500
+450 500
+450 100
+//End
 //Path points (x y)
 0 130
 420 130

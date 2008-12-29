@@ -19,7 +19,6 @@
 
 package towers;
 
-import gui.Circle;
 import images.ImageHelper;
 
 import java.awt.BasicStroke;
@@ -36,6 +35,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import logic.Circle;
 import logic.Game;
 import logic.Helper;
 import sprites.Sprite;

@@ -19,7 +19,6 @@
 
 package logic;
 
-import gui.Circle;
 import gui.ControlPanel;
 import gui.GameMapPanel;
 import gui.SelectionScreens;
@@ -31,12 +30,12 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,12 +57,12 @@ import towers.Bullet;
 import towers.ChargeTower;
 import towers.CircleTower;
 import towers.FreezeTower;
+import towers.Ghost;
 import towers.HomingTower;
 import towers.JumpingTower;
 import towers.LaserTower;
 import towers.MultiShotTower;
 import towers.OmnidirectionalTower;
-import towers.PiercerTower;
 import towers.PoisonTower;
 import towers.ScatterTower;
 import towers.SlowLengthTower;
@@ -96,7 +95,8 @@ public class Game {
    
    private Clock clock;
    
-   private Polygon path;
+   private List<Polygon> path;
+   private Rectangle2D pathBounds;
    private List<Point> pathPoints;
 
    private final Container outerContainer;
@@ -113,6 +113,7 @@ public class Game {
    private int level;
    private boolean levelInProgress;
    private long money;
+   private int nextGhostCost;
    private int lives;
    private int livesLostOnThisLevel;
    private double interestRate;
@@ -201,7 +202,6 @@ public class Game {
    private List<Tower> createTowerImplementations() {
       List<Tower> towerTypes = new ArrayList<Tower>();
       towerTypes.add(new BomberTower(new Point(), null));
-      towerTypes.add(new PiercerTower(new Point(), null));
       towerTypes.add(new SlowLengthTower(new Point(), null));
       towerTypes.add(new FreezeTower(new Point(), null));
       towerTypes.add(new JumpingTower(new Point(), null));
@@ -218,6 +218,7 @@ public class Game {
       towerTypes.add(new ZapperTower(new Point(), null));
       towerTypes.add(new BeamTower(new Point(), null));
       towerTypes.add(new AidTower(new Point(), null));
+      towerTypes.add(new Ghost(new Point()));
       return towerTypes;
    }
    
@@ -317,6 +318,7 @@ public class Game {
       rolloverTower = null;
       hoverOverTower = null;
       money = 4000;
+      nextGhostCost = Formulae.towerCost(0, 0);
       lives = 25;
       livesLostOnThisLevel = 0;
       interestRate = 1.03;
@@ -325,7 +327,17 @@ public class Game {
    }
    
    private int getNextTowerCost(Class<? extends Tower> towerType) {
-      return Formulae.towerCost(towers.size(), numTowersOfType(towerType));
+      if(towerType.equals(Ghost.class)) {
+         return nextGhostCost;
+      } else {
+         int numGhosts = 0;
+         for(Tower t : towers) {
+            if(t instanceof Ghost) {
+               numGhosts++;
+            }
+         }
+         return Formulae.towerCost(towers.size() - numGhosts, numTowersOfType(towerType));
+      }
    }
    
    private int numTowersOfType(Class<? extends Tower> towerType) {
@@ -387,7 +399,7 @@ public class Game {
       if(rolloverTower != null || buildingTower != null) {
          // This needs to be first as rollover tower takes precedence over selected
          t = rolloverTower != null ? rolloverTower : buildingTower;
-         controlPanel.updateCurrentCost(t.getName() + " Tower", getNextTowerCost(t.getClass()));
+         controlPanel.updateCurrentCost(t.getName(), getNextTowerCost(t.getClass()));
          controlPanel.setCurrentTowerInfo(null);
       } else if(selectedTower != null || hoverOverTower != null) {
          t = selectedTower != null ? selectedTower : hoverOverTower;
@@ -457,7 +469,7 @@ public class Game {
       if(buildingTower == null) {
          return;
       }
-      Tower toBuild = buildingTower.constructNew(p, path.getBounds2D());
+      Tower toBuild = buildingTower.constructNew(p, (Rectangle2D) pathBounds.clone());
       for(Tower t : towers) {
          // Checks that the point doesn't clash with another tower
          if(t.doesTowerClashWith(toBuild)) {
@@ -465,15 +477,8 @@ public class Game {
          }
       }
       // Checks that the point isn't on the path
-      Shape bounds = toBuild.getBounds();
-      if(bounds instanceof Circle) {
-         if(((Circle) bounds).intersects(path)) {
-            return;
-         }
-      } else {
-         if(path.intersects(bounds.getBounds())) {
-            return;
-         }
+      if(!toBuild.canTowerBeBuilt(path)) {
+         return;
       }
       if(canBuildTower(toBuild.getClass())) {
          buildTower(toBuild);
@@ -482,6 +487,8 @@ public class Game {
          towers.add(toBuild);
          if(toBuild instanceof AidTower) {
             ((AidTower) toBuild).setTowers(Collections.unmodifiableList(towers));
+         } else if(toBuild instanceof Ghost) {
+            nextGhostCost *= 2;
          }
          if(!canBuildTower(buildingTower.getClass())) {
             setBuildingTower(null);
@@ -697,7 +704,13 @@ public class Game {
          if(levelInProgress) {
             // Don't use for each loop here as a new tower can be built
             for(int i = 0; i < towers.size(); i++ ) {
-               bullets.addAll(towers.get(i).tick(unmodifiableSprites));
+               List<Bullet> toAdd = towers.get(i).tick(unmodifiableSprites);
+               if(toAdd == null) {
+                  towers.remove(i);
+                  i--;
+               } else {
+                  bullets.addAll(toAdd);
+               }
             }
          }
       }
@@ -981,6 +994,10 @@ public class Game {
       public void continueOn(GameMap g) {
          pathPoints = g.getPathPoints();
          path = g.getPath();
+         pathBounds = path.get(0).getBounds2D();
+         for(int i = 1; i < path.size(); i++) {
+            pathBounds = pathBounds.createUnion(pathBounds);
+         }
          gameMap = createGameMapPanel(g);
          controlPanel = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
                ImageHelper.makeImage("control_panel", "blue_lava.jpg"),
