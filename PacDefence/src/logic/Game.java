@@ -571,12 +571,14 @@ public class Game {
                }
             }
             long drawingBeginTime = draw();
+            gameMap.repaint();
             if(debugTimes) {
                drawTimes[timesLength] = calculateElapsedTime(drawingBeginTime);
             }
             long elapsedTime = calculateElapsedTime(beginTime);
             if(elapsedTime < CLOCK_TICK) {
                try {
+                  //System.out.println(CLOCK_TICK - elapsedTime);
                   Thread.sleep(CLOCK_TICK - elapsedTime);
                } catch(InterruptedException e) {
                   e.printStackTrace();
@@ -636,7 +638,6 @@ public class Game {
                Collections.unmodifiableList(sprites), Collections.unmodifiableList(bullets),
                processTime, processSpritesTime, processBulletsTime, processTowersTime,
                drawTime, bullets.size());
-         gameMap.repaint();
          return drawingBeginTime;
       }
       

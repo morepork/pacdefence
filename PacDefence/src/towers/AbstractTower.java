@@ -53,8 +53,6 @@ import sprites.Sprite;
 public abstract class AbstractTower implements Tower {
 
    public static final float shadowAmount = 0.75F;
-   // The color of the range of the tower when drawn
-   private static final Color rangeColour = new Color(255, 255, 255, 100);
    protected static final float upgradeIncreaseFactor = 1.05F;
    private static final Map<String, BufferedImage> towerImages =
          new HashMap<String, BufferedImage>();
@@ -558,10 +556,14 @@ public abstract class AbstractTower implements Tower {
    private void drawRange(Graphics g, Point p) {
       int topLeftRangeX = (int)(p.getX() - range);
       int topLeftRangeY = (int)(p.getY() - range);
-      g.setColor(rangeColour);
-      g.fillOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
-      g.setColor(Color.BLACK);
-      g.drawOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
+      Graphics2D g2D = (Graphics2D) g;
+      Composite c = g2D.getComposite();
+      g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5F));  
+      g2D.setColor(Color.WHITE);
+      g2D.fillOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
+      g2D.setComposite(c);
+      g2D.setColor(Color.BLACK);
+      g2D.drawOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
    }
 
    private void setTopLeft() {

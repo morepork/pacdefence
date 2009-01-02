@@ -21,20 +21,29 @@ package gui;
 
 import images.ImageHelper;
 
+import java.awt.AWTException;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.ImageCapabilities;
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.Transparency;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.util.List;
 
 import javax.swing.JPanel;
+
+import logic.Game;
 
 import sprites.Sprite;
 import towers.Bullet;
@@ -57,6 +66,8 @@ public class GameMapPanel extends JPanel {
    private final TextDisplay textDisplay;
    
    private long lastPaintTime = 0;
+   
+   
 
    public GameMapPanel(int width, int height, BufferedImage background, GameMap map,
          boolean debugTimes, boolean debugPath) {
@@ -66,8 +77,11 @@ public class GameMapPanel extends JPanel {
       Graphics g = backgroundImage.getGraphics();
       g.drawImage(background, 0, 0, width, height, null);
       g.drawImage(map.getImage(), 0, 0, width, height, null);
-      buffers[0] = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-      buffers[1] = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+      GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().
+            getDefaultScreenDevice().getDefaultConfiguration();
+      for(int i = 0; i < buffers.length; i++) {
+         buffers[i] = gc.createCompatibleImage(width, height);
+      }
       setDoubleBuffered(false);
       setPreferredSize(new Dimension(width, height));
       pathPoints = map.getPathPoints();
@@ -79,7 +93,7 @@ public class GameMapPanel extends JPanel {
    }
    
    @Override
-   public synchronized void paintComponent(Graphics g) {
+   public void paintComponent(Graphics g) {
       long beginTime = System.nanoTime();
       g.drawImage(buffers[bufferIndex], 0, 0, null);
       lastPaintTime = System.nanoTime() - beginTime;
@@ -104,21 +118,22 @@ public class GameMapPanel extends JPanel {
       }
    }
    
-   public long draw(List<Tower> towers, Tower buildingTower,
-         List<Sprite> sprites, List<Bullet> bullets, long processTime, long processSpritesTime,
+   public long draw(List<Tower> towers, Tower buildingTower, List<Sprite> sprites,
+         List<Bullet> bullets, long processTime, long processSpritesTime,
          long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
       if(gameOver == null) {
          // Each time draw on a different buffer so that the a half drawn buffer
          // isn't drawn on the component.
-         int nextBufferIndex = bufferIndex == 0 ? 1 : 0;
-         Graphics2D bufferGraphics = (Graphics2D) buffers[nextBufferIndex].getGraphics();
-         drawUpdate(bufferGraphics, towers, buildingTower, sprites, bullets, processTime,
+         int nextBufferIndex = (bufferIndex + 1) % buffers.length;
+         Graphics2D g = buffers[nextBufferIndex].createGraphics();
+         drawUpdate(g, towers, buildingTower, sprites, bullets, processTime,
                processSpritesTime, processBulletsTime, processTowersTime, drawTime, numBullets);
-         textDisplay.draw(bufferGraphics);
+         textDisplay.draw(g);
          bufferIndex = nextBufferIndex;
+         g.dispose();
       } else {
          // Game over needs to always draw on the same buffer for its sliding effect
-         gameOver.draw(buffers[bufferIndex].getGraphics());
+         gameOver.draw(buffers[bufferIndex].createGraphics());
       }
       return lastPaintTime;
    }
@@ -266,7 +281,7 @@ public class GameMapPanel extends JPanel {
          currentX = getWidth()/2 - img.getWidth()/2;
       }
       
-      private void draw(Graphics g) {
+      private void draw(Graphics2D g) {
          if(iterations > numTimes) {
             return;
          }
@@ -278,14 +293,13 @@ public class GameMapPanel extends JPanel {
             currentX += deltaX;
             iterations++;
          }
-         Graphics2D g2D = (Graphics2D)g;
          // Save the current composite to reset back to later
-         Composite c = g2D.getComposite();
+         Composite c = g.getComposite();
          // Makes it so what is drawn is partly transparent
-         g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
                0.7f/(framesBetweenRedraw + 1)));
          g.drawImage(img, currentX, currentY, null);
-         g2D.setComposite(c);
+         g.setComposite(c);
       }
    }
 
