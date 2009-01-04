@@ -55,7 +55,8 @@ public class WaveTower extends AbstractTower {
 
    @Override
    public String getSpecial() {
-      return angle + "°";
+      // \ub00b0 is the degree symbol
+      return angle + "\ub00b0";
    }
 
    @Override

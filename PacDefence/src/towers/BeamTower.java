@@ -21,8 +21,10 @@ package towers;
 
 import images.ImageHelper;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -31,11 +33,10 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
-import logic.Circle;
 import logic.Game;
 import logic.Helper;
 import sprites.Sprite;
@@ -60,7 +61,8 @@ public class BeamTower extends AbstractTower {
    @Override
    public String getStat(Attribute a) {
       if(a == Attribute.Speed) {
-         return super.getStat(a) + "°/s";
+         // \ub00b0 is the degree symbol
+         return super.getStat(a) + "\u00b0/s";
       } else {
          return super.getStat(a);
       }
@@ -99,17 +101,26 @@ public class BeamTower extends AbstractTower {
    
    private static class Beam implements Bullet {
 
-      private Color beamColour = new Color(138, 138, 138);
-      private static final int minAlpha = 60;
-      private final int deltaAlpha;
+      private static final Color beamColour = new Color(138, 138, 138);
+      private float currentAlpha = 1F;
+      private static final float minAlpha = 0.2F;
+      private static final Stroke stroke = new BasicStroke(4);
+      private final float deltaAlpha;
       private final Rectangle2D pathBounds;
       private final Tower launchedBy;
-      private final Set<Sprite> hitSprites = new CopyOnWriteArraySet<Sprite>();
+      // Tried using a HashSet and a TreeMap here but there was no noticeable performance
+      // improvement even with a large number of sprites.
+      private final Collection<Sprite> hitSprites = new ArrayList<Sprite>();
       private final Line2D beam = new Line2D.Double();
       private final Point2D centre;
-      private final Circle circle;      
-      private double currentAngle;
+      private final double startingAngle;
+      private double sinAngle;
+      private double cosAngle;
       private double deltaAngle;
+      private double sinDeltaAngle;
+      private double cosDeltaAngle;
+      private final int range;
+      private final double numPointsMult;
       private Sprite target;
       private int ticksLeft;
       private final double damage;
@@ -118,13 +129,16 @@ public class BeamTower extends AbstractTower {
       
       private Beam(Tower t, Point2D centre, double angle, int range, double speed, double damage,
             Rectangle2D pathBounds, Sprite target, int numTicks) {
-         deltaAlpha = (beamColour.getAlpha() - minAlpha) / numTicks;
+         deltaAlpha = (1 - minAlpha) / numTicks;
          this.centre = centre;
          this.pathBounds = pathBounds;
          this.launchedBy = t;
-         currentAngle = Math.toDegrees(angle);
-         deltaAngle = speed / Game.CLOCK_TICKS_PER_SECOND;
-         circle = new Circle(centre, range);
+         startingAngle = angle;
+         sinAngle = Math.sin(angle);
+         cosAngle = Math.cos(angle);
+         deltaAngle = Math.toRadians(speed / Game.CLOCK_TICKS_PER_SECOND);
+         numPointsMult = Math.abs(deltaAngle);
+         this.range = range;
          this.target = target;
          ticksLeft = numTicks;
          setBeam();
@@ -134,11 +148,18 @@ public class BeamTower extends AbstractTower {
       @Override
       public void draw(Graphics g) {
          Graphics2D g2D = (Graphics2D) g;
+         
          g2D.setColor(beamColour);
+         Composite c = g2D.getComposite();
+         g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, currentAlpha));
          Stroke s = g2D.getStroke();
-         g2D.setStroke(new BasicStroke(4));
+         g2D.setStroke(stroke);
+         
          g2D.draw(beam);
+         
+         g2D.setComposite(c);
          g2D.setStroke(s);
+         
          // Debugging code to make sure the points are in the right place
          /*g2D.setColor(Color.RED);
          for(Point2D p : points) {
@@ -155,47 +176,39 @@ public class BeamTower extends AbstractTower {
             return moneyEarnt;
          }
          ticksLeft--;
-         if(beamColour.getAlpha() > minAlpha) {
-            beamColour = new Color(beamColour.getRed(), beamColour.getGreen(), beamColour.getBlue(),
-                     beamColour.getAlpha() - deltaAlpha);
-         }
+         currentAlpha -= deltaAlpha;
          List<Sprite> hittableSprites = new ArrayList<Sprite>(sprites);
          hittableSprites.removeAll(hitSprites);
          if(!hittableSprites.isEmpty()) {
-            List<Point2D> points = makePoints();
-            hitSprites(hittableSprites, points);
+            hitSprites(hittableSprites, makePoints());
          }
-         currentAngle += deltaAngle;
+         // Use trig identities here as they should be faster than calling sin and cos.
+         // sinAngle and cosAngle become sin and cos of (previous angle + deltaAngle).
+         double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
+         cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
+         sinAngle = newSinAngle;
          setBeam();
          return -1;
       }
       
       private void setBeam() {
-         beam.setLine(centre, circle.getPointAt(Math.toRadians(currentAngle)));
+         beam.setLine(centre, new Point2D.Double(centre.getX() + range * sinAngle,
+               centre.getY() + range * cosAngle));
       }
       
       private void setCorrectDirection() {
          Point2D p = target.getPosition();
-         Point2D centre = circle.getCentre();
          double angleBetween = ImageHelper.vectorAngle(p.getX() - centre.getX(),
                p.getY() - centre.getY());
-         int mult = (Math.toDegrees(angleBetween) > currentAngle) ? -1 : 1;
-         deltaAngle *= mult;
+         deltaAngle *= (angleBetween > startingAngle) ? -1 : 1;
+         sinDeltaAngle = Math.sin(deltaAngle);
+         cosDeltaAngle = Math.cos(deltaAngle);
          target = null;
       }
       
       private List<Point2D> makePoints() {
          List<Point2D> points = new ArrayList<Point2D>();
-         //Arc2D a = new Arc2D.Double();
-         //double angleStart = currentAngle - 90;
-         double radAngleStart = Math.toRadians(currentAngle);
-         double sinAngle = Math.sin(radAngleStart);
-         double cosAngle = Math.cos(radAngleStart);
-         double numPointsMult = Math.abs(2 * Math.PI * deltaAngle / 360);
-         for(int i = 1; i <= circle.getRadius(); i++) {
-            //a.setArcByCenter(centre.getX(), centre.getY(), i, angleStart, deltaAngle,
-            //      Arc2D.OPEN);
-            //points.addAll(Helper.getPointsOnArc(a, pathBounds));
+         for(int i = 1; i <= range; i++) {
             points.addAll(Helper.getPointsOnArc(centre.getX(), centre.getY(), i,
                   i * numPointsMult, sinAngle, cosAngle, pathBounds));
          }
@@ -204,6 +217,7 @@ public class BeamTower extends AbstractTower {
       }
       
       private void hitSprites(List<Sprite> sprites, List<Point2D> points) {
+         // TODO Optimise this somehow? This is the biggest bottleneck
          for(Sprite s : sprites) {
             if(s.intersects(points) != null) {
                DamageReport d = s.hit(damage);

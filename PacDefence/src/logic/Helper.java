@@ -135,8 +135,9 @@ public class Helper {
       Point2D p;
       double x = a.getCenterX();
       double y = a.getCenterY();
-      double sinAngle = Math.sin(angle);
-      double cosAngle = Math.cos(angle);
+      // Can premultiply by the radius which saves having to do it at each iteration
+      double sinAngle = Math.sin(angle) * radius;
+      double cosAngle = Math.cos(angle) * radius;
       double sinDeltaAngle = Math.sin(deltaAngle);
       double cosDeltaAngle = Math.cos(deltaAngle);
       for(int i = 0; i < numPoints + 1; i++) {
@@ -144,7 +145,7 @@ public class Helper {
          //p = new Point2D.Double(x + radius * Math.sin(angle), y + radius * Math.cos(angle));
          // These next few lines do the same as the above, just using a trig identity
          // for better performance as there are no more trig calls
-         p = new Point2D.Double(x + radius * sinAngle, y + radius * cosAngle);
+         p = new Point2D.Double(x + sinAngle, y + cosAngle);
          if(containedIn == null || containedIn.contains(p)) {
             points.add(p);
          }
@@ -166,11 +167,13 @@ public class Helper {
       // as the arcs are the same except with different radii. Gave an ~20% improvement
       // in a simple test for beam tower.
       double deltaAngle = 1 / radius;
-      List<Point2D> points = new ArrayList<Point2D>((int)numPoints + 3);
       double sinDeltaAngle = Math.sin(deltaAngle);
       double cosDeltaAngle = Math.cos(deltaAngle);
+      sinAngle *= radius;
+      cosAngle *= radius;
+      List<Point2D> points = new ArrayList<Point2D>((int)numPoints + 3);
       for(int i = 0; i <= numPoints + 1; i++) {
-         Point2D p = new Point2D.Double(x + radius * sinAngle, y + radius * cosAngle);
+         Point2D p = new Point2D.Double(x + sinAngle, y + cosAngle);
          if(containingRect.contains(p)) {
             points.add(p);
          }
