@@ -345,6 +345,7 @@ public abstract class AbstractSprite implements Sprite {
          onScreen = false;
          return;
       } else {
+         // TODO Optimise this so it only really does it once
          shrinkCounter++;
          // Shrinks the current image to this size
          int newWidth = (int) (width * 0.85);

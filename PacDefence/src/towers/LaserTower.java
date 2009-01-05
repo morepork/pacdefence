@@ -39,7 +39,7 @@ public class LaserTower extends AbstractTower {
    private final double beamLengthUpgrade = beamLength * (upgradeIncreaseFactor - 1);
 
    public LaserTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Laser", 40, 100, 8, 1.5, 50, 24, "laser.png", "LaserTower.png");
+      super(p, pathBounds, "Laser", 40, 100, 7.5, 1.5, 50, 24, "laser.png", "LaserTower.png");
    }
 
    @Override
@@ -50,6 +50,15 @@ public class LaserTower extends AbstractTower {
    @Override
    public String getSpecialName() {
       return "Beam Length";
+   }
+   
+   @Override
+   public String getStatName(Attribute a) {
+      if(a == Attribute.Speed) {
+         return "Beam speed";
+      } else {
+         return super.getStatName(a);
+      }
    }
 
    @Override

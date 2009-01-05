@@ -75,8 +75,8 @@ public class ControlPanel extends JPanel {
    private MyJLabel numSpritesLabel, timeBetweenSpritesLabel, hpLabel;
    private MyJLabel currentCostStringLabel, currentCostLabel;
    private final ImageButton start = new ImageButton("start", ".png", true);
-   //private Tower selectedTower, buildingTower, rolloverTower, hoverOverTower;
    private static final Color defaultTextColour = Color.YELLOW;
+   private static final Color costLabelsColour = Color.GREEN;
    private static final float defaultTextSize = 12F;
 
    private final ControlEventProcessor eventProcessor;
@@ -493,6 +493,8 @@ public class ControlPanel extends JPanel {
       float textSize = defaultTextSize - 1;
       currentCostStringLabel.setFontSize(textSize);
       currentCostLabel.setFontSize(textSize);
+      currentCostStringLabel.setForeground(costLabelsColour);
+      currentCostLabel.setForeground(costLabelsColour);
       JPanel panel = SwingHelper.createBorderLayedOutJPanel();
       panel.setBorder(BorderFactory.createEmptyBorder(4, 5, 0, 5));
       panel.add(currentCostStringLabel, BorderLayout.WEST);

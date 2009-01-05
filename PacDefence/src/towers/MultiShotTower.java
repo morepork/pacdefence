@@ -41,6 +41,15 @@ public class MultiShotTower extends AbstractTower {
    public String getSpecial() {
       return Integer.toString(shots);
    }
+   
+   @Override
+   public String getStatName(Attribute a) {
+      if(a == Attribute.Speed) {
+         return "Max " + a.toString();
+      } else {
+         return super.getStatName(a);
+      }
+   }
 
    @Override
    public String getSpecialName() {

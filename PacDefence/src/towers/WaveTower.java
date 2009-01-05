@@ -55,8 +55,17 @@ public class WaveTower extends AbstractTower {
 
    @Override
    public String getSpecial() {
-      // \ub00b0 is the degree symbol
-      return angle + "\ub00b0";
+      // \u00b0 is the degree symbol
+      return angle + "\u00b0";
+   }
+   
+   @Override
+   public String getStatName(Attribute a) {
+      if(a == Attribute.Speed) {
+         return "Wave Speed";
+      } else {
+         return super.getStatName(a);
+      }
    }
 
    @Override

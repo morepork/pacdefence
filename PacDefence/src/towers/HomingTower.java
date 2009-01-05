@@ -42,7 +42,8 @@ public class HomingTower extends AbstractTower {
    
    @Override
    public String getSpecial() {
-      return Helper.format(maxRedirectAngle * Game.CLOCK_TICKS_PER_SECOND, 1) + "°/s";
+      // \u00b0 is the degree sym
+      return Helper.format(maxRedirectAngle * Game.CLOCK_TICKS_PER_SECOND, 1) + "\u00b0/s";
    }
 
    @Override
