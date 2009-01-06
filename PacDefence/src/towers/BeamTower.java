@@ -113,15 +113,12 @@ public class BeamTower extends AbstractTower {
       private final Collection<Sprite> hitSprites = new ArrayList<Sprite>();
       private final Line2D beam = new Line2D.Double();
       private final Point2D centre;
-      private final double startingAngle;
       private double sinAngle;
       private double cosAngle;
-      private double deltaAngle;
-      private double sinDeltaAngle;
-      private double cosDeltaAngle;
+      private final double sinDeltaAngle;
+      private final double cosDeltaAngle;
       private final int range;
       private final double numPointsMult;
-      private Sprite target;
       private int ticksLeft;
       private final double damage;
       private double moneyEarnt = 0;
@@ -133,13 +130,14 @@ public class BeamTower extends AbstractTower {
          this.centre = centre;
          this.pathBounds = pathBounds;
          this.launchedBy = t;
-         startingAngle = angle;
          sinAngle = Math.sin(angle);
          cosAngle = Math.cos(angle);
-         deltaAngle = Math.toRadians(speed / Game.CLOCK_TICKS_PER_SECOND);
+         double deltaAngle = Math.toRadians(speed / Game.CLOCK_TICKS_PER_SECOND) *
+               getDirectionModifier(target);
+         sinDeltaAngle = Math.sin(deltaAngle);
+         cosDeltaAngle = Math.cos(deltaAngle);
          numPointsMult = Math.abs(deltaAngle);
          this.range = range;
-         this.target = target;
          ticksLeft = numTicks;
          setBeam();
          this.damage = damage;
@@ -169,9 +167,6 @@ public class BeamTower extends AbstractTower {
 
       @Override
       public double tick(List<Sprite> sprites) {
-         if(target != null) {
-            setCorrectDirection();
-         }
          if(ticksLeft <= 0) {
             return moneyEarnt;
          }
@@ -196,14 +191,16 @@ public class BeamTower extends AbstractTower {
                centre.getY() + range * cosAngle));
       }
       
-      private void setCorrectDirection() {
-         Point2D p = target.getPosition();
+      private int getDirectionModifier(Sprite s) {
+         Point2D p = s.getPosition();
          double angleBetween = ImageHelper.vectorAngle(p.getX() - centre.getX(),
                p.getY() - centre.getY());
-         deltaAngle *= (angleBetween > startingAngle) ? -1 : 1;
-         sinDeltaAngle = Math.sin(deltaAngle);
-         cosDeltaAngle = Math.cos(deltaAngle);
-         target = null;
+         // Two points just ahead of where the sprite is now
+         double nextX = p.getX() + Math.sin(s.getCurrentAngle());
+         double nextY = p.getY() - Math.cos(s.getCurrentAngle());
+         double nextAngleBetween = ImageHelper.vectorAngle(nextX - centre.getX(),
+               nextY - centre.getY());
+         return (nextAngleBetween > angleBetween) ? -1 : 1;
       }
       
       private List<Point2D> makePoints() {

@@ -43,6 +43,7 @@ public interface Sprite {
    public boolean tick();
    public int getHalfWidth();
    public Point2D getPosition();
+   public double getCurrentAngle();
    public double getSpeed();
    public double getHPLeft();
    public double getTotalDistanceTravelled();

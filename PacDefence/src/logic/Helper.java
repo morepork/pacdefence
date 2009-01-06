@@ -37,6 +37,8 @@ public class Helper {
    private static final Map<Integer, DecimalFormat> formats =
          new HashMap<Integer, DecimalFormat>();
    
+   private static final double twoPi = 2 * Math.PI;
+   
    public static double distanceSq(Point2D p1, Point2D p2) {
       return Point2D.distanceSq(p1.getX(), p1.getY(), p2.getX(), p2.getY());
    }
@@ -195,6 +197,16 @@ public class Helper {
          outline.add(new Line2D.Double(xPoints[i - 1], yPoints[i - 1], xPoints[i], yPoints[i]));
       }
       return outline;
+   }
+   
+   public static double reduceAngle(double angle) {
+      while(angle > Math.PI) {
+         angle -= twoPi;
+      }
+      while(angle < -Math.PI) {
+         angle -= twoPi;
+      }
+      return angle;
    }
    
    public static void main(String[] args) {

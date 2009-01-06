@@ -159,6 +159,11 @@ public abstract class AbstractSprite implements Sprite {
    }
    
    @Override
+   public double getCurrentAngle() {
+      return currentAngle;
+   }
+   
+   @Override
    public double getSpeed() {
       return speedFactor * speed;
    }
