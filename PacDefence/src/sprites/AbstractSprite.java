@@ -58,6 +58,11 @@ public abstract class AbstractSprite implements Sprite {
    private static final Map<Class<? extends AbstractSprite>, Map<LooseFloat,
          List<BufferedImage>>> rotatedImages = new HashMap<Class<? extends AbstractSprite>,
          Map<LooseFloat, List<BufferedImage>>>();
+   // Keep track of the images for when a sprite dies, filed under class, and the imageIndex
+   // the sprite died on
+   private static final Map<Class<? extends AbstractSprite>, Map<Integer, List<BufferedImage>>>
+         dyingImages = new HashMap<Class<? extends AbstractSprite>, Map<Integer,
+         List<BufferedImage>>>();
    private final List<BufferedImage> originalImages;
    private List<BufferedImage> currentImages;
    private BufferedImage currentImage;
@@ -88,6 +93,7 @@ public abstract class AbstractSprite implements Sprite {
    private boolean onScreen = true;
    // How many times the image has been shrunk after it died
    private int shrinkCounter = 0;
+   private static final int dieFrames = 15;
    private double speedFactor = 1;
    private int adjustedSpeedTicksLeft = 0;
    private double damageMultiplier = 1;
@@ -341,26 +347,45 @@ public abstract class AbstractSprite implements Sprite {
    }
 
    private void die() {
-      if (shrinkCounter > 10) {
+      if (shrinkCounter >= dieFrames) {
          onScreen = false;
          return;
       } else {
-         // TODO Optimise this so it only really does it once
-         shrinkCounter++;
-         // Shrinks the current image to this size
-         int newWidth = (int) (width * 0.85);
-         int pos = (width - newWidth)/2;
-         for(int i = 0; i < currentImages.size(); i++) {
-            // Create a new image here as modifying it would mess up the other sprites
-            BufferedImage newBI = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g = (Graphics2D) newBI.getGraphics();
-            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                  RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            g.drawImage(currentImages.get(i), pos, pos, newWidth, newWidth, null);
-            currentImages.set(i, newBI);
+         if(shrinkCounter == 0) {
+            currentImages = getDyingImages();
+            currentImageIndex = 0;
+            currentImage = currentImages.get(currentImageIndex);
          }
-
+         shrinkCounter++;
       }
+   }
+   
+   private List<BufferedImage> getDyingImages() {
+      if(!dyingImages.containsKey(getClass())) {
+         dyingImages.put(getClass(), new HashMap<Integer, List<BufferedImage>>());
+      }
+      Map<Integer, List<BufferedImage>> imageLists = dyingImages.get(getClass());
+      if(!imageLists.containsKey(currentImageIndex)) {
+         imageLists.put(currentImageIndex, makeDyingImages());
+      }
+      return imageLists.get(currentImageIndex);
+   }
+   
+   private List<BufferedImage> makeDyingImages() {
+      List<BufferedImage> images = new ArrayList<BufferedImage>(dieFrames);
+      double newWidth = width;
+      for(int i = 0; i < dieFrames; i++) {
+         // Shrinks the current image to this size
+         newWidth *= 0.85;
+         int pos = (int)((width - newWidth)/2);
+         BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB);
+         Graphics2D g = image.createGraphics();
+         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+               RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+         g.drawImage(currentImage, pos, pos, (int)newWidth, (int)newWidth, null);
+         images.add(image);
+      }
+      return images;
    }
    
    /**
