@@ -58,15 +58,18 @@ public abstract class AbstractSprite implements Sprite {
    private static final Map<Class<? extends AbstractSprite>, Map<LooseFloat,
          List<BufferedImage>>> rotatedImages = new HashMap<Class<? extends AbstractSprite>,
          Map<LooseFloat, List<BufferedImage>>>();
-   // Keep track of the images for when a sprite dies, filed under class, and the imageIndex
-   // the sprite died on
-   private static final Map<Class<? extends AbstractSprite>, Map<Integer, List<BufferedImage>>>
-         dyingImages = new HashMap<Class<? extends AbstractSprite>, Map<Integer,
-         List<BufferedImage>>>();
+   
+   // Keep track of the images for when a sprite dies, filed under class, the imageIndex
+   // amd the angle the sprite died on
+   private static final Map<Class<? extends AbstractSprite>, Map<Integer, Map<LooseFloat,
+         List<BufferedImage>>>> dyingImages = new HashMap<Class<? extends AbstractSprite>,
+         Map<Integer, Map<LooseFloat, List<BufferedImage>>>>();
+   
    private final List<BufferedImage> originalImages;
    private List<BufferedImage> currentImages;
    private BufferedImage currentImage;
    private int currentImageIndex = 0;
+   private double currentAngle;
 
    private final int currentLevel;
    private final double speed;
@@ -329,6 +332,7 @@ public abstract class AbstractSprite implements Sprite {
    }
    
    private void rotateImages(double angle) {
+      currentAngle = angle;
       if(!rotatedImages.containsKey(getClass())) {
          rotatedImages.put(getClass(), new TreeMap<LooseFloat, List<BufferedImage>>());
       }
@@ -362,13 +366,18 @@ public abstract class AbstractSprite implements Sprite {
    
    private List<BufferedImage> getDyingImages() {
       if(!dyingImages.containsKey(getClass())) {
-         dyingImages.put(getClass(), new HashMap<Integer, List<BufferedImage>>());
+         dyingImages.put(getClass(), new HashMap<Integer, Map<LooseFloat, List<BufferedImage>>>());
       }
-      Map<Integer, List<BufferedImage>> imageLists = dyingImages.get(getClass());
-      if(!imageLists.containsKey(currentImageIndex)) {
-         imageLists.put(currentImageIndex, makeDyingImages());
+      Map<Integer, Map<LooseFloat, List<BufferedImage>>> indexMap = dyingImages.get(getClass());
+      if(!indexMap.containsKey(currentImageIndex)) {
+         indexMap.put(currentImageIndex, new TreeMap<LooseFloat, List<BufferedImage>>());
       }
-      return imageLists.get(currentImageIndex);
+      Map<LooseFloat, List<BufferedImage>> imageLists = indexMap.get(currentImageIndex);
+      LooseFloat f = new AbstractSpriteLooseFloat(currentAngle);
+      if(!imageLists.containsKey(f)) {
+         imageLists.put(f, makeDyingImages());
+      }
+      return imageLists.get(f);
    }
    
    private List<BufferedImage> makeDyingImages() {
