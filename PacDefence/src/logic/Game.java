@@ -59,7 +59,7 @@ import towers.CircleTower;
 import towers.FreezeTower;
 import towers.Ghost;
 import towers.HomingTower;
-import towers.JumpingTower;
+import towers.JumperTower;
 import towers.LaserTower;
 import towers.MultiShotTower;
 import towers.OmnidirectionalTower;
@@ -204,7 +204,7 @@ public class Game {
       towerTypes.add(new BomberTower(new Point(), null));
       towerTypes.add(new SlowLengthTower(new Point(), null));
       towerTypes.add(new FreezeTower(new Point(), null));
-      towerTypes.add(new JumpingTower(new Point(), null));
+      towerTypes.add(new JumperTower(new Point(), null));
       towerTypes.add(new CircleTower(new Point(), null));
       towerTypes.add(new ScatterTower(new Point(), null));
       towerTypes.add(new MultiShotTower(new Point(), null));

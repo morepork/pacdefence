@@ -24,33 +24,37 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
 public class ImageHelper {
    
-   public static URL createImageURL(String... foldersAndFileName) {
+   public static String createPath(String... foldersAndFileName) {
       String path = "";
       for (String s : foldersAndFileName) {
          path += s + "/";
       }
       // Removes the extra "/"
-      path = path.substring(0, path.length() - 1);
-      // System.out.println(path);
-      return new ImageHelper().getClass().getResource(path);
+      return path.substring(0, path.length() - 1);
+   }
+   
+   public static URL createImageURL(String... foldersAndFileName) {
+      return new ImageHelper().getClass().getResource(createPath(foldersAndFileName));
    }
 
    public static BufferedImage makeImage(String... foldersAndFileName) {
       URL imageURL = createImageURL(foldersAndFileName);
       if (imageURL == null) {
-         throw new IllegalArgumentException("Image: '" +
-               foldersAndFileName[foldersAndFileName.length - 1] + "' not found.");
+         throw new IllegalArgumentException("Image: '" + createPath(foldersAndFileName) +
+               "' not found.");
       }
       try {
          return ImageIO.read(imageURL);
-         // return ImageIO.read(new File(path));
       } catch (IOException e) {
          throw new RuntimeException("Error occured while reading: " + imageURL);
       }
@@ -131,6 +135,21 @@ public class ImageHelper {
          for(int y = 0; y < image.getHeight(); y++) {
             r.setDataElements(x, y, o);
          }
+      }
+   }
+   
+   public static void writePNG(BufferedImage image, String... foldersAndFileName) {
+      File f;
+      try {
+         f = new File(createImageURL(Arrays.copyOfRange(foldersAndFileName, 0, foldersAndFileName.length - 1)).toURI());
+      } catch (URISyntaxException e) {
+         throw new RuntimeException(e);
+      }
+      f = new File(f, foldersAndFileName[foldersAndFileName.length - 1]);
+      try {
+         ImageIO.write(image, "png", f);
+      } catch (IOException e) {
+         throw new RuntimeException(e);
       }
    }
 }

@@ -42,7 +42,7 @@ public class BomberTower extends AbstractTower {
    private static final double bombDamageDividend = 2;
 
    public BomberTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Bomber", 40, 100, 5, 9, 50, 15, "bomber.png", null, "BomberTower.png");
+      super(p, pathBounds, "Bomber", 40, 100, 5, 9, 50, 15, true);
    }
 
    @Override

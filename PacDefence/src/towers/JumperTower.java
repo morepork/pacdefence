@@ -29,12 +29,12 @@ import java.util.List;
 import sprites.Sprite;
 
 
-public class JumpingTower extends AbstractTower {
+public class JumperTower extends AbstractTower {
    
    private int jumps = 1;
    
-   public JumpingTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Jumper", 40, 100, 5, 4.5, 50, 20, "jumping.png", null, "JumpingTower.png");
+   public JumperTower(Point p, Rectangle2D pathBounds) {
+      super(p, pathBounds, "Jumper", 40, 100, 5, 4.5, 50, 20, true);
    }
 
    @Override

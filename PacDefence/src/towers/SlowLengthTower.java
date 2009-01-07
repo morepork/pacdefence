@@ -29,8 +29,7 @@ import logic.Helper;
 public class SlowLengthTower extends SlowTower {
    
    public SlowLengthTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Slow (length)", 40, 100, 5, 1, 50, 23, "slowLength.png", null,
-            "SlowLengthTower.png");
+      super(p, pathBounds, "Slow Length", 40, 100, 5, 1, 50, 23, true);
    }
 
    @Override

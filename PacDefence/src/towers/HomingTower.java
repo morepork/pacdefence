@@ -37,7 +37,7 @@ public class HomingTower extends AbstractTower {
    private static final double upgradeIncreaseAngle = 0.1;
 
    public HomingTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Homing", 40, 100, 5, 12.5, 50, 18, "homing.png", null, "HomingTower.png");
+      super(p, pathBounds, "Homing", 40, 100, 5, 12.5, 50, 18, true);
    }
    
    @Override

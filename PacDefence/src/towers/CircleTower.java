@@ -38,7 +38,7 @@ public class CircleTower extends AbstractTower {
    private int hits = 1;
 
    public CircleTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Circle", 40, 100, 5, 12, 50, 0, "circle.png", null, "CircleTower.png");
+      super(p, pathBounds, "Circle", 40, 100, 5, 12, 50, 0, true);
    }
 
    @Override

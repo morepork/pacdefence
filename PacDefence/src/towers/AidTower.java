@@ -51,7 +51,7 @@ public class AidTower extends AbstractTower {
    private final DamageNotifier damageNotifier = new AidDamageNotifier();
 
    public AidTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Aid", 0, 100, 0, 0, 50, -1, "aid.png", null, "AidTower.png");
+      super(p, pathBounds, "Aid", 0, 100, 0, 0, 50, 0, false);
    }
    
    @Override

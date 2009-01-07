@@ -50,7 +50,7 @@ public class BeamTower extends AbstractTower {
    private static final double upgradeBeamLastTicks = Game.CLOCK_TICKS_PER_SECOND / 20;
    
    public BeamTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Beam", 40, 80, 40, 4, 50, -1, "beam.png", null, "BeamTower.png");
+      super(p, pathBounds, "Beam", 40, 80, 40, 4, 50, 0, false);
       // This is a grossly overpowered version for testing performance.
       /*super(p, pathBounds, "Beam", 0, 1000, 100, 0.1, 50, 0, "beam.png", "BeamTower.png", false);
       for(int i = 0; i < 20; i++) {

@@ -29,8 +29,7 @@ import logic.Helper;
 public class SlowFactorTower extends SlowTower {
    
    public SlowFactorTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Slow (factor)", 40, 100, 5, 1, 50, 23, "slowFactor.png", null,
-            "SlowFactorTower.png");
+      super(p, pathBounds, "Slow Factor", 40, 100, 5, 1, 50, 23, true);
    }
 
    @Override
