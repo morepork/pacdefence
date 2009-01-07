@@ -39,7 +39,7 @@ public class LaserTower extends AbstractTower {
    private final double beamLengthUpgrade = beamLength * (upgradeIncreaseFactor - 1);
 
    public LaserTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Laser", 40, 100, 7.5, 1.5, 50, 24, "laser.png", "LaserTower.png");
+      super(p, pathBounds, "Laser", 40, 100, 7.5, 1.5, 50, 24, "laser.png", null, "LaserTower.png");
    }
 
    @Override
@@ -106,7 +106,7 @@ public class LaserTower extends AbstractTower {
          Graphics2D g2D = (Graphics2D) g;
          g2D.setColor(beamColour);
          Stroke old = g2D.getStroke();
-         g2D.setStroke(new BasicStroke(4));
+         g2D.setStroke(new BasicStroke(AbstractTower.turretThickness));
          g2D.draw(laser);
          g2D.setStroke(old);
       }

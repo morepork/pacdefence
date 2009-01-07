@@ -11,7 +11,7 @@ import sprites.Sprite;
 public class BasicTower extends AbstractTower {
    
    public BasicTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Basic", 40, 100, 5, 13, 50, 25, "basic.png", "BasicTower.png");
+      super(p, pathBounds, "Basic", 40, 100, 5, 13, 50, 25, "basic.png", null, "BasicTower.png");
    }
 
    @Override

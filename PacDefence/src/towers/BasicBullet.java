@@ -43,13 +43,12 @@ public class BasicBullet implements Bullet {
    protected final Point2D lastPosition;
    protected final Point2D position;
    protected final int range;
-   private static final int radius = 3;
+   public static final int radius = 3;
    protected final double damage;
    private boolean draw = true;
    protected final Tower shotBy;
    private static final BufferedImage image = ImageHelper.makeImage(radius * 2, radius * 2,
          "other", "bullet.png");
-   protected static final int halfWidth = image.getWidth() / 2;
    private final Rectangle2D pathBounds;
    
    /**
@@ -163,9 +162,8 @@ public class BasicBullet implements Bullet {
    }
    
    protected boolean checkIfPointIsOffScreen(Point2D p) {
-      return p.getX() < -halfWidth || p.getY() < -halfWidth ||
-            p.getX() > Game.MAP_WIDTH + halfWidth ||
-            p.getY() > Game.MAP_HEIGHT + halfWidth;
+      return p.getX() < -radius || p.getY() < -radius || p.getX() > Game.MAP_WIDTH + radius ||
+            p.getY() > Game.MAP_HEIGHT + radius;
    }
    
    protected double doTick(List<Sprite> sprites) {

@@ -43,7 +43,7 @@ public class ZapperTower extends AbstractTower {
    private static final int upgradeIncreaseZaps = 1;
    
    public ZapperTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Zapper", 40, 100, 1, 1, 50, 21, "zapper.png", "ZapperTower.png");
+      super(p, pathBounds, "Zapper", 40, 100, 1, 1, 50, 21, "zapper.png", null, "ZapperTower.png");
    }
 
 
@@ -93,7 +93,7 @@ public class ZapperTower extends AbstractTower {
             Graphics2D g2D = (Graphics2D) g;
             g2D.setColor(zapColour);
             Stroke s = g2D.getStroke();
-            g2D.setStroke(new BasicStroke(2));
+            g2D.setStroke(new BasicStroke(3));
             g2D.draw(zap);
             g2D.setStroke(s);
          }

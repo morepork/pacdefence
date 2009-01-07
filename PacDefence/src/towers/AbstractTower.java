@@ -29,6 +29,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -54,7 +55,11 @@ public abstract class AbstractTower implements Tower {
 
    public static final float shadowAmount = 0.75F;
    protected static final float upgradeIncreaseFactor = 1.05F;
+   
+   // Keep track of the loaded images so they are only loaded once
    private static final Map<String, BufferedImage> towerImages =
+         new HashMap<String, BufferedImage>();
+   private static final Map<String, BufferedImage> rotatingImages =
          new HashMap<String, BufferedImage>();
    private static final Map<String, BufferedImage> towerButtonImages =
          new HashMap<String, BufferedImage>();
@@ -62,6 +67,10 @@ public abstract class AbstractTower implements Tower {
    private static final Map<Class<? extends AbstractTower>, Map<LooseFloat, BufferedImage>>
          rotatedImages = new HashMap<Class<? extends AbstractTower>, Map<LooseFloat,
          BufferedImage>>();
+   
+   private static final BufferedImage turretCentre = ImageHelper.makeImage("towers",
+         "rotatingOverlays", "turretCentre.png");
+   public static final int turretThickness = 4;
    
    // Maps the ID of an aid tower to the aid factor it gives for each attribute
    private final Map<Integer, Map<Attribute, Double>> aidFactors =
@@ -94,7 +103,8 @@ public abstract class AbstractTower implements Tower {
    // The width of the turret from the centre of the tower
    private final int turretWidth;
 
-   private final BufferedImage originalImage;
+   private final BufferedImage baseImage;
+   private final BufferedImage rotatingImage;
    private final boolean imageRotates;
    private BufferedImage currentImage;
    private final BufferedImage buttonImage;
@@ -118,14 +128,7 @@ public abstract class AbstractTower implements Tower {
 
    protected AbstractTower(Point p, Rectangle2D pathBounds, String name, int fireRate,
          double range, double bulletSpeed, double damage, int width, int turretWidth,
-         String imageName, String buttonImageName) {
-      this(p, pathBounds, name, fireRate, range, bulletSpeed, damage, width, turretWidth,
-            imageName, buttonImageName, true);
-   }
-   
-   protected AbstractTower(Point p, Rectangle2D pathBounds, String name, int fireRate,
-         double range, double bulletSpeed, double damage, int width, int turretWidth,
-         String imageName, String buttonImageName, boolean rotateTurret) {
+         String baseImageName, String rotatingImageName, String buttonImageName) {
       centre = new Point(p);
       this.pathBounds = pathBounds;
       // Only temporary, it gets actually set later
@@ -141,20 +144,21 @@ public abstract class AbstractTower implements Tower {
       this.width = width;
       halfWidth = width / 2;
       bounds = new Circle(centre, halfWidth);
-      this.turretWidth = turretWidth;
       setTopLeft();
       setBounds();
-      imageRotates = rotateTurret;
-      if(!towerImages.containsKey(imageName)) {
-         towerImages.put(imageName, ImageHelper.makeImage(width, width, "towers", imageName));
+      baseImage = loadImage(towerButtonImages, width, "towers", baseImageName);
+      imageRotates = (turretWidth > 0);
+      if(rotatingImageName != null) {
+         rotatingImage = loadImage(towerButtonImages, width, "towers", "rotatingOverlays",
+            rotatingImageName);
+      } else {
+         rotatingImage = createRotatingImage(turretWidth);
       }
-      originalImage = towerImages.get(imageName);
-      currentImage = originalImage;
-      if(!towerButtonImages.containsKey(buttonImageName)) {
-         towerButtonImages.put(buttonImageName, ImageHelper.makeImage("buttons", "towers",
-               buttonImageName));
-      }
-      buttonImage = towerButtonImages.get(buttonImageName);
+      // turretWidth should never be below zero otherwise bullets would shoot strangely
+      this.turretWidth = Math.max(turretWidth, 0);
+      currentImage = drawCurrentImage(rotatingImage);
+      buttonImage = loadImage(towerButtonImages, 0, "buttons", "towers",
+            buttonImageName);
    }
 
    @Override
@@ -513,7 +517,7 @@ public abstract class AbstractTower implements Tower {
       double dx = s.getPosition().getX() - p.getX();
       double dy = s.getPosition().getY() - p.getY();
       if(imageRotates && rotateTurret) {
-         currentImage = rotateImage(ImageHelper.vectorAngle(dx, -dy));
+         currentImage = drawCurrentImage(rotateImage(ImageHelper.vectorAngle(dx, -dy)));
       }
       return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, s, pathBounds);
    }
@@ -539,6 +543,48 @@ public abstract class AbstractTower implements Tower {
    
    protected void addExtraBullets(Bullet... bullets) {
       bulletsToAdd.addAll(Arrays.asList(bullets));
+   }
+   
+   private BufferedImage loadImage(Map<String, BufferedImage> map, int width,
+         String... imagePath) {
+      String imageName = imagePath[imagePath.length - 1];
+      if(!map.containsKey(imageName)) {
+         if(width == 0) {
+            map.put(imageName, ImageHelper.makeImage(imagePath));
+         } else {
+            map.put(imageName, ImageHelper.makeImage(width, width, imagePath));
+         }
+      }
+      return map.get(imageName);
+   }
+   
+   private BufferedImage createRotatingImage(int turretWidth) {
+      BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
+      if(turretWidth < 0) {
+         // Signal that the tower wants no turret
+         return image;
+      }
+      Graphics2D g = image.createGraphics();
+      if(turretWidth == 0) {
+         int i = BasicBullet.radius;
+         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+               RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+         g.drawImage(turretCentre, width/2 - i, width/2 - i, i * 2, i * 2, null);
+         return image;
+      }
+      g.drawImage(turretCentre, width/2 - turretThickness/2, width/2 - turretThickness/2, null);
+      g.setColor(Color.BLACK);
+      g.fillRect(width/2 - turretThickness/2, width/2 - turretWidth, turretThickness, turretWidth);
+      // TODO perhaps make the end of the turret a little prettier
+      return image;
+   }
+   
+   private BufferedImage drawCurrentImage(BufferedImage rotatingOverlay) {
+      BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
+      Graphics2D g = image.createGraphics();
+      g.drawImage(baseImage, 0, 0, null);
+      g.drawImage(rotatingOverlay, 0, 0, null);
+      return image;
    }
    
    private void upgradeAllStats() {
@@ -614,12 +660,7 @@ public abstract class AbstractTower implements Tower {
       // to be duplicated
       LooseFloat f = new AbstractTowerLooseFloat(angle);
       if(!m.containsKey(f)) {
-         m.put(f, ImageHelper.rotateImage(originalImage, angle));
-         /*int numImages = 0;
-         for(Map<LooseFloat, BufferedImage> a : rotatedImages.values()) {
-            numImages += a.size();
-         }
-         System.out.println(numImages);*/
+         m.put(f, ImageHelper.rotateImage(rotatingImage, angle));
       }
       return m.get(f);
    }

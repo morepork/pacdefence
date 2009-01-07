@@ -33,7 +33,7 @@ public class MultiShotTower extends AbstractTower {
    private int shots = 5;
    
    public MultiShotTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Multi-Shot", 40, 100, 7.5, 1.3, 50, 5, "multiShot.png",
+      super(p, pathBounds, "Multi-Shot", 40, 100, 7.5, 1.3, 50, 5, "multiShot.png", null, 
             "MultiShotTower.png");
    }
 

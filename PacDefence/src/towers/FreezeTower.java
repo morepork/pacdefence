@@ -31,7 +31,7 @@ public class FreezeTower extends SlowTower {
    private final double upgradeIncreaseTicks = Game.CLOCK_TICKS_PER_SECOND / 10;
       
    public FreezeTower(Point p, Rectangle2D pathBounds) {
-      super(p, pathBounds, "Freeze", 40, 100, 5, 1, 50, 22, "freeze.png", "FreezeTower.png");
+      super(p, pathBounds, "Freeze", 40, 100, 5, 1, 50, 22, "freeze.png", null, "FreezeTower.png");
       slowTicks = Game.CLOCK_TICKS_PER_SECOND / 2.0;
       slowFactor = 0;
    }
