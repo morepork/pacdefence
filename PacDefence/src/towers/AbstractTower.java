@@ -152,7 +152,7 @@ public abstract class AbstractTower implements Tower {
       // Need to remove the 'Tower' off the end
       className = className.substring(0, className.length() - 5);
       String nameLowerCase = makeFirstCharacterLowerCase(className);
-      baseImage = loadImage(towerButtonImages, width, "towers", nameLowerCase + ".png");
+      baseImage = loadImage(towerImages, width, "towers", nameLowerCase + ".png");
       imageRotates = (hasOverlay && turretWidth != 0);
       if(hasOverlay) {
          rotatingImage = loadImage(rotatingImages, width, "towers", "overlays",
