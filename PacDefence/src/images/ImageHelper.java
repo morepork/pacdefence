@@ -44,7 +44,7 @@ public class ImageHelper {
    }
    
    public static URL createImageURL(String... foldersAndFileName) {
-      return new ImageHelper().getClass().getResource(createPath(foldersAndFileName));
+      return ImageHelper.class.getResource(createPath(foldersAndFileName));
    }
 
    public static BufferedImage makeImage(String... foldersAndFileName) {
@@ -141,7 +141,9 @@ public class ImageHelper {
    public static void writePNG(BufferedImage image, String... foldersAndFileName) {
       File f;
       try {
-         f = new File(createImageURL(Arrays.copyOfRange(foldersAndFileName, 0, foldersAndFileName.length - 1)).toURI());
+         // The parent directory of this file
+         f = new File(createImageURL(Arrays.copyOfRange(foldersAndFileName, 0,
+               foldersAndFileName.length - 1)).toURI());
       } catch (URISyntaxException e) {
          throw new RuntimeException(e);
       }
