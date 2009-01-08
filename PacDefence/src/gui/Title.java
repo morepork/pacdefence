@@ -44,7 +44,9 @@ public class Title extends JPanel {
       g.drawImage(ImageHelper.makeImage(width, height, "other", "title.png"), 0, 0, null);
       JButton continueButton = new OverlayButton("buttons", "continue.png");
       continueButton.addActionListener(continueListener);
-      add(SwingHelper.createWrapperPanel(continueButton, 10), BorderLayout.SOUTH);
+      add(SwingHelper.createBorderLayedOutWrapperPanel(
+            SwingHelper.createWrapperPanel(
+                  continueButton, 10), BorderLayout.EAST), BorderLayout.SOUTH);
       setPreferredSize(new Dimension(width, height));
    }
    
