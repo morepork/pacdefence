@@ -56,7 +56,7 @@ public class SelectionScreens extends JPanel {
       title.setForeground(textColour);
       title.setFontSize(40F);
       title.setHorizontalAlignment(JLabel.CENTER);
-      background = ImageHelper.makeImage("maps", "theGreenPlace.png");
+      background = ImageHelper.makeImage("other", "hoops.png");
       this.continueOn = continueOn;
       add(title, BorderLayout.NORTH);
       add(createMapSelections());
@@ -69,9 +69,9 @@ public class SelectionScreens extends JPanel {
    
    private List<GameMap> createGameMapList() {
       List<GameMap> list = new ArrayList<GameMap>();
-      list.add(loadMap("mosaicPathEasy", "mosaicPathEasy.png"));
-      list.add(loadMap("mosaicPathMedium", "mosaicPathMedium.png"));
-      list.add(loadMap("mosaicPathHard", "mosaicPathHard.png"));
+      list.add(loadMap("mosaicPathEasy", "mosaicPathEasy.jpg"));
+      list.add(loadMap("mosaicPathMedium", "mosaicPathMedium.jpg"));
+      list.add(loadMap("mosaicPathHard", "mosaicPathHard.jpg"));
       return list;
    }
    

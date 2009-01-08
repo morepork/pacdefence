@@ -24,6 +24,7 @@ import images.ImageHelper;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
@@ -37,7 +38,10 @@ public class Title extends JPanel {
    
    public Title(int width, int height, ActionListener continueListener) {
       super(new BorderLayout());
-      background = ImageHelper.makeImage(width, height, "other", "title.png");
+      background = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
+      Graphics2D g = background.createGraphics();
+      g.drawImage(ImageHelper.makeImage(width, height, "other", "hoops.png"), 0, 0, null);
+      g.drawImage(ImageHelper.makeImage(width, height, "other", "title.png"), 0, 0, null);
       JButton continueButton = new OverlayButton("buttons", "continue.png");
       continueButton.addActionListener(continueListener);
       add(SwingHelper.createWrapperPanel(continueButton, 10), BorderLayout.SOUTH);

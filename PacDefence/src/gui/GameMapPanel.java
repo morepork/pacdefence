@@ -74,7 +74,9 @@ public class GameMapPanel extends JPanel {
       this.debugPath = debugPath;
       backgroundImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
       Graphics g = backgroundImage.getGraphics();
-      g.drawImage(background, 0, 0, width, height, null);
+      if(background != null) {
+         g.drawImage(background, 0, 0, width, height, null);
+      }
       g.drawImage(map.getImage(), 0, 0, width, height, null);
       GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().
             getDefaultScreenDevice().getDefaultConfiguration();

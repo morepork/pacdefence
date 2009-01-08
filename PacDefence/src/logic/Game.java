@@ -182,8 +182,9 @@ public class Game {
    }
    
    private GameMapPanel createGameMapPanel(GameMap g) {
-      GameMapPanel gmp = new GameMapPanel(MAP_WIDTH, MAP_HEIGHT, ImageHelper.makeImage("maps",
-            "rainbowColours.jpg"), g, debugTimes, debugPath);
+      // Give null here for the background image as for jar file size
+      // concerns I'm just using the one image now.
+      GameMapPanel gmp = new GameMapPanel(MAP_WIDTH, MAP_HEIGHT, null, g, debugTimes, debugPath);
       gmp.addMouseListener(new MouseAdapter(){
          @Override
          public void mouseReleased(MouseEvent e) {
