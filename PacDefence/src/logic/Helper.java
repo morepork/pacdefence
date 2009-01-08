@@ -189,7 +189,7 @@ public class Helper {
    public static List<Line2D> getPolygonOutline(Polygon p) {
       int[] xPoints = p.xpoints;
       int[] yPoints = p.ypoints;
-      int length = xPoints.length;
+      int length = p.npoints;
       List<Line2D> outline = new ArrayList<Line2D>(length);
       outline.add(new Line2D.Double(xPoints[length - 1], yPoints[length - 1], xPoints[0],
             yPoints[0]));
