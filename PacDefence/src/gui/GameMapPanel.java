@@ -59,6 +59,7 @@ public class GameMapPanel extends JPanel {
    private final BufferedImage backgroundImage;
    private int bufferIndex = 0;
    private final BufferedImage[] buffers = new BufferedImage[2];
+   private final VolatileImage[] volatileImages = new VolatileImage[2];
    private final List<Polygon> path;
    private final List<Point> pathPoints;
 
@@ -66,8 +67,6 @@ public class GameMapPanel extends JPanel {
    private final TextDisplay textDisplay;
    
    private long lastPaintTime = 0;
-   
-   
 
    public GameMapPanel(int width, int height, BufferedImage background, GameMap map,
          boolean debugTimes, boolean debugPath) {
@@ -137,6 +136,33 @@ public class GameMapPanel extends JPanel {
       }
       return lastPaintTime;
    }
+   
+   // draw implementation that uses a VolatileImage instead of a BufferedImage
+   // for the buffer, which should be faster, but it was about as fast in most
+   // cases, except much slower at drawing transparencies (under Xubuntu)
+   /*public long draw(List<Tower> towers, Tower buildingTower, List<Sprite> sprites,
+         List<Bullet> bullets, long processTime, long processSpritesTime,
+         long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
+      if(gameOver == null) {
+         int nextIndex = (bufferIndex + 1) % buffers.length;
+         VolatileImage vi = buffers[nextIndex];
+         do {
+            vi.validate(gc);
+            Graphics2D g = vi.createGraphics();
+            drawUpdate(g, towers, buildingTower, sprites, bullets, processTime,
+                  processSpritesTime, processBulletsTime, processTowersTime, drawTime, numBullets);
+            textDisplay.draw(g);
+            g.dispose();
+         } while(vi.contentsLost());
+         bufferIndex = nextIndex;
+      } else {
+         // Game over needs to always draw on the same buffer for its sliding effect
+          
+         // Needs changing to check the VolatileImage, maybe copy to a BufferedImage
+         gameOver.draw(buffers[bufferIndex].createGraphics());
+      }
+      return lastPaintTime;
+   }*/
    
    private void drawUpdate(Graphics g, List<Tower> towers, Tower buildingTower,
          List<Sprite> sprites, List<Bullet> bullets, long processTime, long processSpritesTime,
