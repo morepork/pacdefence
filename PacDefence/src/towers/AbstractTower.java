@@ -128,7 +128,6 @@ public abstract class AbstractTower implements Tower {
    protected AbstractTower(Point p, Rectangle2D pathBounds, String name, int fireRate,
          double range, double bulletSpeed, double damage, int width, int turretWidth,
          boolean hasOverlay) {
-      // TODO make images all dependant on the name of the tower
       centre = new Point(p);
       this.pathBounds = pathBounds;
       // Only temporary, it gets actually set later
@@ -653,7 +652,11 @@ public abstract class AbstractTower implements Tower {
       Map<LooseFloat, BufferedImage> m = rotatedImages.get(getClass());
       // Use LooseFloat to reduce precision so rotated images are less likely
       // to be duplicated
-      LooseFloat f = new AbstractTowerLooseFloat(angle);
+      LooseFloat f = new LooseFloat(angle) {
+         public float getPrecision() {
+            return 0.012F;
+         }         
+      };
       if(!m.containsKey(f)) {
          m.put(f, ImageHelper.rotateImage(rotatingImage, angle));
       }
@@ -667,22 +670,6 @@ public abstract class AbstractTower implements Tower {
          map.put(a, 1);
       }
       return map;
-   }
-   
-   private class AbstractTowerLooseFloat extends LooseFloat {
-      
-      public AbstractTowerLooseFloat(float f) {
-         super(f);
-      }
-      
-      public AbstractTowerLooseFloat(double d) {
-         super(d);
-      }
-
-      @Override
-      protected float getPrecision() {
-         return 0.012F;
-      }
    }
    
    private static BufferedImage createRotatingImage(int width, int turretWidth) {
