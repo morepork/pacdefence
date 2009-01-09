@@ -442,7 +442,8 @@ public class Game {
          // Select a tower if one is clicked on
          setSelectedTower(t);
          setBuildingTower(null);
-      }    
+      }
+      updateTowerStats();
    }
    
    private void processMouseMoved(MouseEvent e) {
@@ -671,7 +672,6 @@ public class Game {
                // Adds a sprite in somewhere between 0 and twice the designated time
                addSpriteIn = (int)(Math.random() * (ticksBetweenAddSprite * 2 + 1));
                spritesToAdd--;
-               controlPanel.updateNumberLeft(spritesToAdd);
             } else {
                addSpriteIn--;
             }
@@ -689,6 +689,7 @@ public class Game {
             }
          }
          Helper.removeAll(sprites, toRemove);
+         controlPanel.updateNumberLeft(spritesToAdd + sprites.size());
          return livesLost;
       }
       

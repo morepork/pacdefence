@@ -59,7 +59,6 @@ public class GameMapPanel extends JPanel {
    private final BufferedImage backgroundImage;
    private int bufferIndex = 0;
    private final BufferedImage[] buffers = new BufferedImage[2];
-   private final VolatileImage[] volatileImages = new VolatileImage[2];
    private final List<Polygon> path;
    private final List<Point> pathPoints;
 
