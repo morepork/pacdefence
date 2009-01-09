@@ -89,9 +89,11 @@ public class Game {
    private final boolean debugTimes = true;
    private final boolean debugPath = false;
    
-   private final List<Sprite> sprites = Collections.synchronizedList(new ArrayList<Sprite>());
+   private final List<Sprite> sprites = new ArrayList<Sprite>();
    private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
-   private final List<Bullet> bullets = Collections.synchronizedList(new ArrayList<Bullet>());
+   private final List<Bullet> bullets = new ArrayList<Bullet>();   
+   private List<Tower> towersToAdd = new ArrayList<Tower>();
+   private List<Tower> towersToRemove = new ArrayList<Tower>();
    
    private Clock clock;
    
@@ -273,9 +275,9 @@ public class Game {
       gameMap.displayText(text.toString());
       controlPanel.enableStartButton(true);
       // Remove all the ghosts at the end of the level
-      for(int i = 0; i < towers.size(); i++) {
-         if(towers.get(i) instanceof Ghost) {
-            towers.remove(i--);
+      for(Tower t : towers) {
+         if(t instanceof Ghost) {
+            towersToRemove.add(t);
          }
       }
       // If the level is just finished it's a good time to run the garbage
@@ -450,15 +452,6 @@ public class Game {
       }
    }
    
-   private void removeTower(Tower t) {
-      if(!towers.remove(t)) {
-         throw new RuntimeException("Tower that wasn't on screen is being removed.");
-      }
-      if(t == selectedTower) {
-         setSelectedTower(null);
-      }
-   }
-   
    private void stopRunning() {
       clock.end();
       sprites.clear();
@@ -495,7 +488,7 @@ public class Game {
          buildTower(toBuild);
          // Have to add after telling the control panel otherwise
          // the price will be wrong
-         towers.add(toBuild);
+         towersToAdd.add(toBuild);
          if(toBuild instanceof AidTower) {
             ((AidTower) toBuild).setTowers(Collections.unmodifiableList(towers));
          } else if(toBuild instanceof Ghost) {
@@ -633,7 +626,8 @@ public class Game {
             // Set the selected tower to be drawn last, so its range is drawn
             // over all the other towers, rather than some drawn under it and
             // some over it.
-            Collections.swap(towers, towers.indexOf(selectedTower), towers.size() - 1);
+            Collections.swap(towersToDraw, towersToDraw.indexOf(selectedTower),
+                  towersToDraw.size() - 1);
          }
          drawingBeginTime -= gameMap.draw(towersToDraw, buildingTower,
                Collections.unmodifiableList(sprites), Collections.unmodifiableList(bullets),
@@ -707,15 +701,26 @@ public class Game {
       }
       
       private void tickTowers(List<Sprite> unmodifiableSprites) {
-         // Only do this if there's a level going, to decrease load and
-         // so towers such as charge towers don't charge between levels
-         if(levelInProgress) {
-            // Don't use for each loop here as a new tower can be built
-            for(int i = 0; i < towers.size(); i++ ) {
-               List<Bullet> toAdd = towers.get(i).tick(unmodifiableSprites);
+         // Use these rather than addAll/removeAll and then clear as there's a chance
+         // a tower could be added to one of the lists before they are cleared but
+         // after the addAll/removeAll methods are finished, meaning it'd do nothing
+         // but still take/give you money.
+         if(!towersToRemove.isEmpty()) {
+            List<Tower> toRemove = towersToRemove;
+            towersToRemove = new ArrayList<Tower>();
+            towers.removeAll(toRemove);
+         }
+         if(!towersToAdd.isEmpty()) {
+            List<Tower> toAdd = towersToAdd;
+            towersToAdd = new ArrayList<Tower>();
+            towers.addAll(toAdd);
+         }
+         for(Tower t : towers) {
+            if(!towersToRemove.contains(t)) {
+               List<Bullet> toAdd = t.tick(unmodifiableSprites, levelInProgress);
                if(toAdd == null) {
-                  towers.remove(i);
-                  i--;
+                  // Signals that a ghost is finished
+                  towersToRemove.add(t);
                } else {
                   bullets.addAll(toAdd);
                }
@@ -950,7 +955,8 @@ public class Game {
       public void processSellButtonPressed(JButton b) {
          if(selectedTower != null) {
             increaseMoney(sellValue(selectedTower));
-            removeTower(selectedTower);
+            selectedTower.sell();
+            towersToRemove.add(selectedTower);
             setSelectedTower(null);
          }
       }

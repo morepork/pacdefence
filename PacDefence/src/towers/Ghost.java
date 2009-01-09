@@ -62,13 +62,13 @@ public class Ghost implements Tower {
    }
 
    @Override
-   public List<Bullet> tick(List<Sprite> sprites) {
+   public List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress) {
       if(hitsLeft <= 0) {
          return null;
       }
       List<Bullet> toReturn = new ArrayList<Bullet>();
       for(Sprite s : sprites) {
-         if(s.getPosition().distance(centre) < s.getHalfWidth() + halfWidth) {
+         if(s.isAlive() && s.getPosition().distance(centre) < s.getHalfWidth() + halfWidth) {
             Sprite.DamageReport d = s.hit(s.getHPLeft());
             if(d != null) {
                final double moneyEarnt = d.getMoneyEarnt();
@@ -256,6 +256,11 @@ public class Ghost implements Tower {
    @Override
    public void setSpriteComparator(Comparator<Sprite> c) {
       // Ghosts don't have comparators
+   }
+   
+   @Override
+   public void sell() {
+      throw new RuntimeException("Ghosts can't be sold.");
    }
 
 }

@@ -39,10 +39,11 @@ public class ChargeTower extends AbstractTower {
    }
    
    @Override
-   public List<Bullet> tick(List<Sprite> sprites) {
-      List<Bullet> bullets = super.tick(sprites);
+   public List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress) {
+      List<Bullet> bullets = super.tick(sprites, levelInProgress);
       if(bullets.isEmpty()) {
-         if(getTimeToNextShot() <= 0) {
+         // Only charge during levels
+         if(levelInProgress && getTimeToNextShot() <= 0) {
             increaseNextDamageMultiplier();
          }
       } else {

@@ -28,10 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import logic.Game;
 import sprites.Sprite;
 
 
@@ -47,8 +44,8 @@ public class AidTower extends AbstractTower {
    // I don't think it's much of a memory issue though.
    private final Set<Tower> aidingTowers = new HashSet<Tower>();
    private List<Tower> towers;
-   private final Timer timer = new Timer();
    private final DamageNotifier damageNotifier = new AidDamageNotifier();
+   private boolean isSold = false;
 
    public AidTower(Point p, Rectangle2D pathBounds) {
       super(p, pathBounds, "Aid", 0, 100, 0, 0, 50, 0, false);
@@ -73,25 +70,39 @@ public class AidTower extends AbstractTower {
    }
 
    @Override
-   public List<Bullet> tick(List<Sprite> sprites) {
+   public List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress) {
+      if(!isSold) {
+         for(Tower t : towers) {
+            if(!(t instanceof AidTower) && !aidingTowers.contains(t)) {
+               if(super.getCentre().distance(t.getCentre()) < getRange()) {
+                  aidingTowers.add(t);
+                  aid(t);
+                  t.addDamageNotifier(damageNotifier);
+               }
+            }
+         }
+      }
       return Collections.emptyList();
    }
    
    public void setTowers(List<Tower> towers) {
       assert this.towers == null : "List of towers is should not be set again";
       this.towers = towers;
-      // You can't just rely on the tick method as ticks stop between levels
-      timer.scheduleAtFixedRate(new TimerTask() {
-         @Override
-         public void run() {
-            tick();
-         }
-      }, 0, Game.CLOCK_TICK);
    }
    
    @Override
    public Comparator<Sprite> getSpriteComparator() {
       return null;
+   }
+   
+   @Override
+   public void sell() {
+      isSold = true;
+      for(Tower t : aidingTowers) {
+         for(Attribute a : aidAmounts.keySet()) {
+            t.aidAttribute(a, 1, id);
+         }
+      }
    }
 
    @Override
@@ -136,25 +147,6 @@ public class AidTower extends AbstractTower {
       aidAll();
    }
    
-   private void tick() {
-      if(towers.isEmpty()) {
-         // If the size of the list of towers is 0 
-         timer.cancel();
-         aidingTowers.clear();
-      } else if(!towers.contains(this)) {
-         // The aid tower has been sold
-         timer.cancel();
-         for(Tower t : aidingTowers) {
-            for(Attribute a : aidAmounts.keySet()) {
-               t.aidAttribute(a, 1, id);
-            }
-         }
-         aidingTowers.clear();
-      } else {
-         addTowers();
-      }
-   }
-   
    private static Map<Attribute, Integer> makeAidAmounts() {
       Map<Attribute, Integer> map = new EnumMap<Attribute, Integer>(Attribute.class);
       for(Attribute a : Attribute.values()) {
@@ -168,19 +160,6 @@ public class AidTower extends AbstractTower {
       assert a != Attribute.Special : "Special is dealt with separately";
       aidAmounts.put(a, aidAmounts.get(a) + upgradeAidAmount);
       aidAll();
-   }
-   
-   private void addTowers() {
-      for(int i = 0; i < towers.size(); i++) {
-         Tower t = towers.get(i);
-         if(!(t instanceof AidTower) && !aidingTowers.contains(t)) {
-            if(super.getCentre().distance(t.getCentre()) < getRange()) {
-               aidingTowers.add(t);
-               aid(t);
-               t.addDamageNotifier(damageNotifier);
-            }
-         }
-      }
    }
    
    private void aidAll() {

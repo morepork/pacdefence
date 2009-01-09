@@ -80,10 +80,11 @@ public interface Tower extends Cloneable {
    /**
     * 
     * @param sprites
+    * @param levelInProgress TODO
     * @return The bullets shot by this tower after the last tick and
     *         up to this one
     */
-   public List<Bullet> tick(List<Sprite> sprites);  
+   public List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress);
    public boolean doesTowerClashWith(Tower t);
    public boolean canTowerBeBuilt(List<Polygon> path);
    public boolean contains(Point p);
@@ -116,5 +117,6 @@ public interface Tower extends Cloneable {
    public BufferedImage getButtonImage();
    public void setSpriteComparator(Comparator<Sprite> c);
    public Comparator<Sprite> getSpriteComparator();
+   public void sell();
 
 }

@@ -173,7 +173,7 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public List<Bullet> tick(List<Sprite> sprites) {
+   public List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress) {
       sprites = new ArrayList<Sprite>(sprites);
       Collections.sort(sprites, spriteComparator);
       // Decrements here so it's on every tick, not just when it is able to shoot
@@ -454,6 +454,11 @@ public abstract class AbstractTower implements Tower {
    @Override
    public Comparator<Sprite> getSpriteComparator() {
       return spriteComparator;
+   }
+   
+   @Override
+   public void sell() {
+      // Defaults to doing nothing when sold
    }
    
    protected double getFireRate() {
