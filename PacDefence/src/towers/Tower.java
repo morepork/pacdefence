@@ -80,9 +80,9 @@ public interface Tower extends Cloneable {
    /**
     * 
     * @param sprites
-    * @param levelInProgress TODO
+    * @param levelInProgress
     * @return The bullets shot by this tower after the last tick and
-    *         up to this one
+    *         up to this one null if the tower is to be removed
     */
    public List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress);
    public boolean doesTowerClashWith(Tower t);
