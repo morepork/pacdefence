@@ -46,10 +46,7 @@
 		
 		<!-- advzip compresses the jar files a little further -->
 		<exec executable="advzip" os="Linux">
-			<arg line="-z -4 ${NoSrcJar}"/>
-		</exec>		
-		<exec executable="advzip" os="Linux">
-			<arg line="-z -4 ${SrcJar}"/>
+			<arg line="-z -4 ${NoSrcJar} ${SrcJar}"/>
 		</exec>
 	</target>
 

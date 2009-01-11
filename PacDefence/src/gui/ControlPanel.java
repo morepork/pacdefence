@@ -35,7 +35,6 @@ import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +72,7 @@ public class ControlPanel extends JPanel {
    private final JButton sellButton = createSellButton();
    // These are in the current tower stats box
    private final List<TowerStat> towerStats = new ArrayList<TowerStat>();
+   private final Map<JButton, Attribute> buttonAttributeMap = new HashMap<JButton, Attribute>();
    // These labels are in the level stats box
    private MyJLabel numSpritesLabel, timeBetweenSpritesLabel, hpLabel;
    private MyJLabel currentCostStringLabel, currentCostLabel;
@@ -404,13 +404,13 @@ public class ControlPanel extends JPanel {
       b.addActionListener(new ActionListener(){
          public void actionPerformed(ActionEvent e) {
             JButton b = (JButton)e.getSource();
-            eventProcessor.processUpgradeButtonPressed(e, TowerStat.getButtonsAttribute(b));
+            eventProcessor.processUpgradeButtonPressed(e, buttonAttributeMap.get(b));
          }
       });
       b.addChangeListener(new ChangeListener(){
          public void stateChanged(ChangeEvent e) {
             JButton b = (JButton)e.getSource();
-            eventProcessor.processUpgradeButtonChanged(b, TowerStat.getButtonsAttribute(b));
+            eventProcessor.processUpgradeButtonChanged(b, buttonAttributeMap.get(b));
          }
       });
       return b;
@@ -544,13 +544,8 @@ public class ControlPanel extends JPanel {
       add(panel);
    }
 
-   private static class TowerStat {
+   private class TowerStat {
       
-      // Use two maps here so we can go both ways
-      private static final Map<JButton, Attribute> buttonAttributeMap =
-            new HashMap<JButton, Attribute>();
-      private static final Map<Attribute, JButton> attributeButtonMap =
-            new EnumMap<Attribute, JButton>(Attribute.class);
       private final JButton button;
       private final JLabel label;
       private final Attribute attrib;
@@ -559,23 +554,9 @@ public class ControlPanel extends JPanel {
          if(buttonAttributeMap.put(b, a) != null) {
             throw new IllegalArgumentException("This button has already been used.");
          }
-         if(attributeButtonMap.put(a, b) != null) {
-            throw new IllegalArgumentException("This button has already been used.");
-         }
          button = b;
          label = l;
          attrib = a;
-      }
-      
-      private static void clickButton(Attribute a) {
-         JButton b = attributeButtonMap.get(a);
-         if(b != null) {
-            b.doClick();
-         }
-      }
-      
-      private static Attribute getButtonsAttribute(JButton b) {
-         return buttonAttributeMap.get(b);
       }
       
       private void setText(Tower t) {
