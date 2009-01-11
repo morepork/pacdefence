@@ -30,10 +30,12 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -366,7 +368,7 @@ public class ControlPanel extends JPanel {
 
    private void setUpCurrentTowerStats() {
       Box box = Box.createVerticalBox();
-      box.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 5));
+      box.setBorder(BorderFactory.createEmptyBorder(0, 1, 1, 5));
       box.setOpaque(false);
       for(int i = 0; i < Attribute.values().length; i++) {
          if(i != 0) {
@@ -402,7 +404,7 @@ public class ControlPanel extends JPanel {
       b.addActionListener(new ActionListener(){
          public void actionPerformed(ActionEvent e) {
             JButton b = (JButton)e.getSource();
-            eventProcessor.processUpgradeButtonPressed(e, b, TowerStat.getButtonsAttribute(b));
+            eventProcessor.processUpgradeButtonPressed(e, TowerStat.getButtonsAttribute(b));
          }
       });
       b.addChangeListener(new ChangeListener(){
@@ -486,6 +488,7 @@ public class ControlPanel extends JPanel {
             eventProcessor.processStartButtonPressed();
          }
       });
+      start.setMnemonic(KeyEvent.VK_S);
       add(SwingHelper.createWrapperPanel(start));
    }
    
@@ -496,7 +499,7 @@ public class ControlPanel extends JPanel {
       currentCostStringLabel.setForeground(costLabelsColour);
       currentCostLabel.setForeground(costLabelsColour);
       JPanel panel = SwingHelper.createBorderLayedOutJPanel();
-      panel.setBorder(BorderFactory.createEmptyBorder(4, 5, 0, 5));
+      panel.setBorder(BorderFactory.createEmptyBorder(2, 5, 0, 5));
       panel.add(currentCostStringLabel, BorderLayout.WEST);
       panel.add(currentCostLabel, BorderLayout.EAST);
       add(panel);
@@ -522,12 +525,14 @@ public class ControlPanel extends JPanel {
    private void setUpBottomButtons() {
       JPanel panel = SwingHelper.createBorderLayedOutJPanel();
       JButton title = new OverlayButton("buttons", "title.png");
+      title.setMnemonic(KeyEvent.VK_T);
       title.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             eventProcessor.processTitleButtonPressed();
          }
       });
       JButton restart = new OverlayButton("buttons", "restart.png");
+      restart.setMnemonic(KeyEvent.VK_R);
       restart.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             eventProcessor.processRestartPressed();
@@ -541,8 +546,11 @@ public class ControlPanel extends JPanel {
 
    private static class TowerStat {
       
+      // Use two maps here so we can go both ways
       private static final Map<JButton, Attribute> buttonAttributeMap =
             new HashMap<JButton, Attribute>();
+      private static final Map<Attribute, JButton> attributeButtonMap =
+            new EnumMap<Attribute, JButton>(Attribute.class);
       private final JButton button;
       private final JLabel label;
       private final Attribute attrib;
@@ -551,9 +559,19 @@ public class ControlPanel extends JPanel {
          if(buttonAttributeMap.put(b, a) != null) {
             throw new IllegalArgumentException("This button has already been used.");
          }
+         if(attributeButtonMap.put(a, b) != null) {
+            throw new IllegalArgumentException("This button has already been used.");
+         }
          button = b;
          label = l;
          attrib = a;
+      }
+      
+      private static void clickButton(Attribute a) {
+         JButton b = attributeButtonMap.get(a);
+         if(b != null) {
+            b.doClick();
+         }
       }
       
       private static Attribute getButtonsAttribute(JButton b) {

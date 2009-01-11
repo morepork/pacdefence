@@ -32,6 +32,7 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -45,7 +46,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.LockSupport;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 
 import sprites.Pacman;
 import sprites.Sprite;
@@ -106,6 +110,7 @@ public class Game {
    private final SelectionScreens selectionScreens = createSelectionScreens();
    private ControlPanel controlPanel;
    private GameMapPanel gameMap;
+   private ControlEventProcessor eventProcessor = new ControlEventProcessor();
    
    private final Map<Attribute, Integer> upgradesSoFar =
          new EnumMap<Attribute, Integer>(Attribute.class);
@@ -200,6 +205,24 @@ public class Game {
          }
       });
       return gmp;
+   }
+   
+   @SuppressWarnings("serial")
+   private ControlPanel createControlPanel() {
+      ControlPanel cp = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
+            ImageHelper.makeImage("control_panel", "blue_lava.jpg"), eventProcessor,
+            createTowerImplementations());
+      for(int i = 1; i <= Attribute.values().length; i++) {
+         final Attribute a = Attribute.values()[i - 1];
+         Character c = Character.forDigit(i, 10);
+         cp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(c), a);
+         cp.getActionMap().put(a, new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+               eventProcessor.processUpgradeButtonPressed(e, a);            
+            }         
+         });
+      }
+      return cp;
    }
    
    private List<Tower> createTowerImplementations() {
@@ -851,8 +874,8 @@ public class Game {
          }
       }
       
-      public void processUpgradeButtonPressed(ActionEvent e, JButton b, Attribute a) {
-         int numTimes = (e.getModifiers() & ActionEvent.CTRL_MASK) != 0 ? 5 : 1;
+      public void processUpgradeButtonPressed(ActionEvent e, Attribute a) {
+         int numTimes = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 5 : 1;
          for(int i = 0; i < numTimes; i++) {
             if(selectedTower == null) {
                long cost = costToUpgradeTowers(a, towers);
@@ -1014,14 +1037,13 @@ public class Game {
             pathBounds = pathBounds.createUnion(pathBounds);
          }
          gameMap = createGameMapPanel(g);
-         controlPanel = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
-               ImageHelper.makeImage("control_panel", "blue_lava.jpg"),
-               new ControlEventProcessor(), createTowerImplementations());
+         controlPanel = createControlPanel();
          outerContainer.remove(selectionScreens);
          outerContainer.add(gameMap, BorderLayout.WEST);
          outerContainer.add(controlPanel, BorderLayout.EAST);
          outerContainer.validate();
          outerContainer.repaint();
+         controlPanel.requestFocus();
          setStartingStats();
          clock = new Clock();
       }

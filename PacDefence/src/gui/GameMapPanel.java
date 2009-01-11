@@ -21,7 +21,6 @@ package gui;
 
 import images.ImageHelper;
 
-import java.awt.AWTException;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
@@ -30,20 +29,14 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
-import java.awt.Image;
-import java.awt.ImageCapabilities;
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.Transparency;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.VolatileImage;
 import java.util.List;
 
 import javax.swing.JPanel;
-
-import logic.Game;
 
 import sprites.Sprite;
 import towers.Bullet;
@@ -123,7 +116,8 @@ public class GameMapPanel extends JPanel {
          long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
       if(gameOver == null) {
          // Each time draw on a different buffer so that the a half drawn buffer
-         // isn't drawn on the component.
+         // isn't drawn on the component. I tried recreating the buffer each time
+         // but that was significantly slower than this implementation.
          int nextBufferIndex = (bufferIndex + 1) % buffers.length;
          Graphics2D g = buffers[nextBufferIndex].createGraphics();
          drawUpdate(g, towers, buildingTower, sprites, bullets, processTime,
@@ -170,16 +164,16 @@ public class GameMapPanel extends JPanel {
          long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
       // This should completely cover the old image in the buffer
       g.drawImage(backgroundImage, 0, 0, null);
-      for(int i = 0; i < sprites.size(); i++) {
-         sprites.get(i).draw(g);
+      for(Sprite s : sprites) {
+         s.draw(g);
       }
       // Draw towers after sprites so the sprites aren't drawn on the range of the
       // selected tower
-      for(int i = 0; i < towers.size(); i++) {
-         towers.get(i).draw(g);
+      for(Tower t : towers) {
+         t.draw(g);
       }
-      for(int i = 0; i < bullets.size(); i++) {
-         bullets.get(i).draw(g);
+      for(Bullet b : bullets) {
+         b.draw(g);
       }
       drawDebug(g, processTime, processSpritesTime, processBulletsTime, processTowersTime,
             drawTime, numBullets);
