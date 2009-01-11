@@ -332,7 +332,7 @@ public abstract class AbstractTower implements Tower {
          case Damage:
             return Helper.format(damage, 2);
          case Range:
-            return Helper.format(range, 0);
+            return Helper.format(range, 1);
          case Rate:
             return Helper.format(fireRate / Game.CLOCK_TICKS_PER_SECOND, 2) + "s";
          case Speed:
