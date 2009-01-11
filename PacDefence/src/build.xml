@@ -43,6 +43,14 @@
 				<attribute name="Main-Class" value="${MainClass}" />
 			</manifest>
 		</jar>
+		
+		<!-- advzip compresses the jar files a little further -->
+		<exec executable="advzip" os="Linux">
+			<arg line="-z -4 ${NoSrcJar}"/>
+		</exec>		
+		<exec executable="advzip" os="Linux">
+			<arg line="-z -4 ${SrcJar}"/>
+		</exec>
 	</target>
 
 </project>
