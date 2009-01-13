@@ -28,11 +28,20 @@ import logic.Game;
 @SuppressWarnings("serial")
 public class Applet extends JApplet {
    
+   private Game game;
+   
    @Override
    public void init() {
-      new Game(this, false, false);
+      game = new Game(this, false, false);
       setSize(new Dimension(Game.WIDTH, Game.HEIGHT));
       setVisible(true);
+   }
+   
+   @Override
+   public void destroy() {
+      removeAll();
+      game.end();
+      game = null;
    }
 
 }

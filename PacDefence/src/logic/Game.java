@@ -150,6 +150,20 @@ public class Game {
       outerContainer.add(title);
    }
    
+   public void end() {
+      if(clock != null) {
+         clock.end();
+      }
+      title.setVisible(false);
+      selectionScreens.setVisible(false);
+      if(gameMap != null) {
+         gameMap.setVisible(false);
+      }
+      if(controlPanel != null) {
+         controlPanel.setVisible(false);
+      }
+   }
+   
    private void setSelectedTower(Tower t) {
       if(selectedTower != null) {
          // If there was a selected tower before deselect it
@@ -883,7 +897,7 @@ public class Game {
          
          @Override
          public void run() {
-            while(true) {
+            while(keepRunning) {
                if(doTick) {
                   double moneyEarnt = 0;
                   List<Integer> toRemove = new ArrayList<Integer>();
