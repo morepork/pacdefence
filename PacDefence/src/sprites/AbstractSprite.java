@@ -418,11 +418,10 @@ public abstract class AbstractSprite implements Sprite {
       // A multiplier between one and maxMult
       double mult = ((maxMult - 1) * a + 1);
       if(a >= 0.5) {
-         // Rounds it up
-         this.hp = (int)(hp / mult + 0.5); 
+         this.hp = hp / mult; 
          return baseSpeed * mult;
       } else {
-         this.hp = (int)(hp * mult); 
+         this.hp = hp * mult; 
          return baseSpeed / mult;
       }
    }

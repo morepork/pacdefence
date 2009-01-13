@@ -50,6 +50,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.metal.MetalButtonUI;
 
+import logic.Game;
+import logic.Helper;
 import logic.Game.ControlEventProcessor;
 import sprites.Sprite;
 import towers.Tower;
@@ -118,16 +120,9 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   public void setCurrentTowerInfo(Tower t) {
+   public void setCurrentInfoToTower(Tower t) {
       if(t == null) {
-         // Don't use an empty string here so as not to collapse the label
-         towerNameLabel.setText(" ");
-         towerLevelLabel.setText(" ");
-         killsLabel.setText(" ");
-         damageDealtLabel.setText(" ");
-         sellButton.setEnabled(false);
-         targetLabel.setText(" ");
-         targetButton.setEnabled(false);
+         blankCurrentTowerInfo();
       } else {
          towerNameLabel.setText(t.getName() + " Tower");
          towerLevelLabel.setText("Level: " + t.getExperienceLevel());
@@ -141,6 +136,21 @@ public class ControlPanel extends JPanel {
             targetButton.setEnabled(true);
             targetButton.setText(c.toString());
          }
+      }
+   }
+   
+   public void setCurrentInfoToSprite(Sprite s) {
+      if(s == null) {
+         blankCurrentTowerInfo();
+      } else {
+         towerNameLabel.setText("HP Left: " + Helper.format(s.getHPLeft(), 2));
+         towerLevelLabel.setText(" ");
+         killsLabel.setText(" ");
+         damageDealtLabel.setText("Speed: " + Helper.format(s.getSpeed() *
+               Game.CLOCK_TICKS_PER_SECOND, 0) + " pixels/s ");
+         sellButton.setEnabled(false);
+         targetLabel.setText(" ");
+         targetButton.setEnabled(false);
       }
    }
    
@@ -204,6 +214,17 @@ public class ControlPanel extends JPanel {
          towerTypes.put(b, towerTypes.get(b).constructNew(new Point(), null));
       }
       start.setEnabled(true);
+   }
+   
+   private void blankCurrentTowerInfo() {
+      // Don't use an empty string here so as not to collapse the label
+      towerNameLabel.setText(" ");
+      towerLevelLabel.setText(" ");
+      killsLabel.setText(" ");
+      damageDealtLabel.setText(" ");
+      sellButton.setEnabled(false);
+      targetLabel.setText(" ");
+      targetButton.setEnabled(false);
    }
    
    private void enableEndLevelUpgradeButtons(boolean enable) {

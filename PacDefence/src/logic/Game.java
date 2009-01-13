@@ -139,6 +139,8 @@ public class Game {
    private Tower rolloverTower;
    // The tower that is being hovered over on the map
    private Tower hoverOverTower;
+   private Sprite selectedSprite;
+   private Sprite hoverOverSprite;
    
    public Game(Container c, boolean debugTimes, boolean debugPath) {
       this.debugTimes = debugTimes;
@@ -176,6 +178,14 @@ public class Game {
       hoverOverTower = t;
    }
    
+   private void setSelectedSprite(Sprite s) {
+      selectedSprite = s;
+   }
+   
+   private void setHoverOverSprite(Sprite s) {
+      hoverOverSprite = s;
+   }
+   
    private Title createTitle() {
       return new Title(WIDTH, HEIGHT, new ActionListener() {
          public void actionPerformed(ActionEvent e) {
@@ -204,7 +214,7 @@ public class Game {
       gmp.addMouseMotionListener(new MouseMotionAdapter(){
          @Override
          public void mouseMoved(MouseEvent e) {
-            processMouseMoved(e);
+            updateHoverOverStuff(e.getPoint());
          }
       });
       return gmp;
@@ -329,9 +339,6 @@ public class Game {
    private void increaseMoney(long amount) {
       money += amount;
       updateMoney();
-      // If a tower is selected, more money earnt means it could've done more
-      // damage and this may have caused its stats to be upgraded
-      updateTowerStats();
    }
    
    private void decreaseMoney(long amount) {
@@ -340,13 +347,6 @@ public class Game {
    
    private void multiplyMoney(double factor) {
       money *= factor;
-   }
-   
-   private boolean decrementLives(int livesLost) {
-      livesLostOnThisLevel += livesLost;
-      lives -= livesLost;
-      updateLives();
-      return lives <= 0;
    }
    
    private void setStartingStats() {
@@ -409,6 +409,10 @@ public class Game {
    
    private void updateLives() {
       controlPanel.updateLives(lives);
+      if(lives < 0) {
+         clock.gameOver = true;
+         gameMap.signalGameOver();
+      }
    }
    
    private void updateLevelStats() {
@@ -439,14 +443,33 @@ public class Game {
          // This needs to be first as rollover tower takes precedence over selected
          t = rolloverTower != null ? rolloverTower : buildingTower;
          controlPanel.updateCurrentCost(t.getName(), getNextTowerCost(t.getClass()));
-         controlPanel.setCurrentTowerInfo(null);
+         controlPanel.setCurrentInfoToTower(null);
       } else if(selectedTower != null || hoverOverTower != null) {
          t = selectedTower != null ? selectedTower : hoverOverTower;
-         controlPanel.setCurrentTowerInfo(t);
+         controlPanel.setCurrentInfoToTower(t);
       } else {
-         controlPanel.setCurrentTowerInfo(null);
+         updateSpriteInfo();
       }
       controlPanel.setStats(t);
+   }
+   
+   private void updateSpriteInfo() {
+      Sprite s = null;
+      if(selectedSprite != null) {
+         if(selectedSprite.isAlive()) {
+            s = selectedSprite;
+         } else {
+            setSelectedSprite(null);
+         }
+      }
+      if(s == null && hoverOverSprite != null) {
+         if(hoverOverSprite.isAlive()) {
+            s = hoverOverSprite;
+         } else {
+            setHoverOverSprite(null);
+         }
+      }
+      controlPanel.setCurrentInfoToSprite(s);
    }
    
    private long sellValue(Tower t) {
@@ -455,6 +478,7 @@ public class Game {
    
    private void processMouseReleased(MouseEvent e) {
       setSelectedTower(null);
+      setSelectedSprite(null);
       if(e.getButton() == MouseEvent.BUTTON3) {
          // Stop everything if it's the right mouse button
          setBuildingTower(null);
@@ -463,7 +487,11 @@ public class Game {
       Point p = e.getPoint();
       Tower t = getTowerContaining(p);
       if(t == null) {
-         tryToBuildTower(p);
+         if(buildingTower == null) {
+            setSelectedSprite(getSpriteContaining(p));
+         } else {
+            tryToBuildTower(p);
+         }
       } else {
          // Select a tower if one is clicked on
          setSelectedTower(t);
@@ -472,10 +500,13 @@ public class Game {
       updateTowerStats();
    }
    
-   private void processMouseMoved(MouseEvent e) {
-      if(selectedTower == null && buildingTower == null) {
-         Tower t = getTowerContaining(e.getPoint());
+   private void updateHoverOverStuff(Point p) {
+      if(p != null && selectedTower == null && buildingTower == null) {
+         Tower t = getTowerContaining(p);
          setHoverOverTower(t);
+         if(hoverOverTower == null) {
+            setHoverOverSprite(getSpriteContaining(p));
+         }
       }
    }
    
@@ -491,6 +522,15 @@ public class Game {
       for(Tower t : towers) {
          if(t.contains(p)) {
             return t;
+         }
+      }
+      return null;
+   }
+   
+   private Sprite getSpriteContaining(Point p) {
+      for(Sprite s : sprites) {
+         if(s.getBounds().contains(p)) {
+            return s;
          }
       }
       return null;
@@ -624,25 +664,22 @@ public class Game {
             // Make sure any changes here or below are reflected in both bar
             // the timing bits
             long beginTime = System.nanoTime();
-            if(decrementLives(tickSprites())) {
-               gameOver = true;
-               gameMap.signalGameOver();
-            }
+            tickSprites();
             processSpritesTimes[timesLength] = calculateElapsedTime(beginTime);
             beginTime = System.nanoTime();
-            increaseMoney(tickBullets(unmodifiableSprites));
+            tickBullets(unmodifiableSprites);
             processBulletsTimes[timesLength] = calculateElapsedTime(beginTime);
             beginTime = System.nanoTime();
             tickTowers(unmodifiableSprites);
             processTowersTimes[timesLength] = calculateElapsedTime(beginTime);
          } else {
-            if(decrementLives(tickSprites())) {
-               gameOver = true;
-               gameMap.signalGameOver();
-            }
-            increaseMoney(tickBullets(unmodifiableSprites));
+            tickSprites();
+            tickBullets(unmodifiableSprites);
             tickTowers(unmodifiableSprites);
          }
+         // Catches any new sprites that may have moved under the cursor
+         updateHoverOverStuff(gameMap.getMousePosition());
+         updateTowerStats();
       }
       
       private long draw() {
@@ -687,21 +724,12 @@ public class Game {
          return sum / timesLength;
       }
       
-      private int tickSprites() {
-         int livesLost = 0;
+      private void tickSprites() {
          if(levelInProgress && sprites.isEmpty() && spritesToAdd <= 0) {
             endLevel();
          }
-         if(spritesToAdd > 0) {
-            if(addSpriteIn < 1) {
-               sprites.add(new Pacman(level, levelHP, clonePathPoints()));
-               // Adds a sprite in somewhere between 0 and twice the designated time
-               addSpriteIn = (int)(Math.random() * (ticksBetweenAddSprite * 2 + 1));
-               spritesToAdd--;
-            } else {
-               addSpriteIn--;
-            }
-         }
+         lookAfterAddingNewSprites();
+         int livesLost = 0;
          List<Integer> toRemove = new ArrayList<Integer>();
          for(int i = 0; i < sprites.size(); i++) {
             Sprite s = sprites.get(i);
@@ -716,7 +744,22 @@ public class Game {
          }
          Helper.removeAll(sprites, toRemove);
          controlPanel.updateNumberLeft(spritesToAdd + sprites.size());
-         return livesLost;
+         livesLostOnThisLevel += livesLost;
+         lives -= livesLost;
+         updateLives();
+      }
+      
+      private void lookAfterAddingNewSprites() {
+         if(spritesToAdd > 0) {
+            if(addSpriteIn < 1) {
+               sprites.add(new Pacman(level, levelHP, clonePathPoints()));
+               // Adds a sprite in somewhere between 0 and twice the designated time
+               addSpriteIn = (int)(Math.random() * (ticksBetweenAddSprite * 2 + 1));
+               spritesToAdd--;
+            } else {
+               addSpriteIn--;
+            }
+         }
       }
       
       private List<Point> clonePathPoints() {
@@ -755,11 +798,12 @@ public class Game {
          }
       }
       
-      private long tickBullets(List<Sprite> unmodifiableSprites) {
+      private void tickBullets(List<Sprite> unmodifiableSprites) {
          if(numThreads == 1 || bullets.size() <= 1) {
             // Use single thread version if only one processor or 1 or fewer bullets
             // as it will be faster.
-            return tickBulletsSingleThread(unmodifiableSprites);
+            tickBulletsSingleThread(unmodifiableSprites);
+            return;
          }
          isWaiting = true;
          int bulletsPerThread = bullets.size() / numThreads;
@@ -780,10 +824,9 @@ public class Game {
          Collections.sort(toRemove);
          Helper.removeAll(bullets, toRemove);
          toRemove.clear();
-         long toReturn = (long)moneyEarnt;
+         increaseMoney((long)moneyEarnt);
          // Fractional amounts of money are kept until the next tick
-         moneyEarnt -= toReturn;
-         return toReturn;
+         moneyEarnt -= (long)moneyEarnt;
       }
       
       private synchronized void informFinished(int threadNumber, double moneyEarnt,
@@ -800,7 +843,7 @@ public class Game {
          LockSupport.unpark(this);
       }
       
-      private long tickBulletsSingleThread(List<Sprite> unmodifiableSprites) {
+      private void tickBulletsSingleThread(List<Sprite> unmodifiableSprites) {
          List<Integer> toRemove = new ArrayList<Integer>();
          for(int i = 0; i < bullets.size(); i++) {
             double money = bullets.get(i).tick(unmodifiableSprites);
@@ -810,10 +853,9 @@ public class Game {
             }
          }
          Helper.removeAll(bullets, toRemove);
-         long toReturn = (long)moneyEarnt;
+         increaseMoney((long)moneyEarnt);
          // Fractional amounts of money are kept until the next tick
-         moneyEarnt -= toReturn;
-         return toReturn;
+         moneyEarnt -= (long)moneyEarnt;
       }
       
       private class BulletTickThread extends Thread {
