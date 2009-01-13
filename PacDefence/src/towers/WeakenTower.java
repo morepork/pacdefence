@@ -21,7 +21,7 @@ package towers;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
 import java.util.List;
 
 import logic.Game;
@@ -35,7 +35,7 @@ public class WeakenTower extends AbstractTower {
    private double upgradeIncreaseTicks = Game.CLOCK_TICKS_PER_SECOND / 10;
    private double increaseDamageFactor = 2;
    
-   public WeakenTower(Point p, Rectangle2D pathBounds) {
+   public WeakenTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Weaken", 40, 100, 5, 1, 50, 19, true);
    }
 
@@ -51,7 +51,7 @@ public class WeakenTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+         double damage, Point p, Sprite s, List<Shape> pathBounds) {
       return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds){
          @Override
          protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {

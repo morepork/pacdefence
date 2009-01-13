@@ -20,7 +20,8 @@
 package towers;
 
 import java.awt.Point;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
+import java.util.List;
 
 import logic.Game;
 import logic.Helper;
@@ -30,7 +31,7 @@ public class FreezeTower extends SlowTower {
    
    private final double upgradeIncreaseTicks = Game.CLOCK_TICKS_PER_SECOND / 10;
       
-   public FreezeTower(Point p, Rectangle2D pathBounds) {
+   public FreezeTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Freeze", 40, 100, 5, 1, 50, 22, true);
       slowTicks = Game.CLOCK_TICKS_PER_SECOND / 2.0;
       slowFactor = 0;

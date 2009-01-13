@@ -30,6 +30,7 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -90,8 +91,8 @@ public class Game {
    public static final int CLOCK_TICK = 30;
    public static final double CLOCK_TICKS_PER_SECOND = (double)1000 / CLOCK_TICK;
    
-   private final boolean debugTimes = true;
-   private final boolean debugPath = false;
+   private final boolean debugTimes;
+   private final boolean debugPath;
    
    private final List<Sprite> sprites = new ArrayList<Sprite>();
    private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
@@ -102,7 +103,7 @@ public class Game {
    private Clock clock;
    
    private List<Polygon> path;
-   private Rectangle2D pathBounds;
+   private List<Shape> pathBounds;
    private List<Point> pathPoints;
 
    private final Container outerContainer;
@@ -139,7 +140,9 @@ public class Game {
    // The tower that is being hovered over on the map
    private Tower hoverOverTower;
    
-   public Game(Container c) {
+   public Game(Container c, boolean debugTimes, boolean debugPath) {
+      this.debugTimes = debugTimes;
+      this.debugPath = debugPath;
       outerContainer = c;
       outerContainer.setLayout(new BorderLayout());
       outerContainer.add(title);
@@ -497,7 +500,7 @@ public class Game {
       if(buildingTower == null) {
          return;
       }
-      Tower toBuild = buildingTower.constructNew(p, (Rectangle2D) pathBounds.clone());
+      Tower toBuild = buildingTower.constructNew(p, pathBounds);
       for(Tower t : towers) {
          // Checks that the point doesn't clash with another tower
          if(t.doesTowerClashWith(toBuild)) {
@@ -617,28 +620,28 @@ public class Game {
          List<Sprite> sortedSprites = new ArrayList<Sprite>(sprites);
          Collections.sort(sortedSprites, new FirstComparator());
          List<Sprite> unmodifiableSprites = Collections.unmodifiableList(sortedSprites);
-         if(controlPanel != null) {
-            long beginTime;
-            if(debugTimes) {
-               beginTime = System.nanoTime();
-            }
+         if(debugTimes) {
+            // Make sure any changes here or below are reflected in both bar
+            // the timing bits
+            long beginTime = System.nanoTime();
             if(decrementLives(tickSprites())) {
                gameOver = true;
                gameMap.signalGameOver();
             }
-            if(debugTimes) {
-               processSpritesTimes[timesLength] = calculateElapsedTime(beginTime);
-               beginTime = System.nanoTime();
+            processSpritesTimes[timesLength] = calculateElapsedTime(beginTime);
+            beginTime = System.nanoTime();
+            increaseMoney(tickBullets(unmodifiableSprites));
+            processBulletsTimes[timesLength] = calculateElapsedTime(beginTime);
+            beginTime = System.nanoTime();
+            tickTowers(unmodifiableSprites);
+            processTowersTimes[timesLength] = calculateElapsedTime(beginTime);
+         } else {
+            if(decrementLives(tickSprites())) {
+               gameOver = true;
+               gameMap.signalGameOver();
             }
             increaseMoney(tickBullets(unmodifiableSprites));
-            if(debugTimes) {
-               processBulletsTimes[timesLength] = calculateElapsedTime(beginTime);
-               beginTime = System.nanoTime();
-            }
             tickTowers(unmodifiableSprites);
-            if(debugTimes) {
-               processTowersTimes[timesLength] = calculateElapsedTime(beginTime);
-            }
          }
       }
       
@@ -987,7 +990,7 @@ public class Game {
       
       public void processSellButtonChanged(JButton b) {
          if(selectedTower != null && !checkIfMovedOff(b)) {
-            controlPanel.updateCurrentCost("Sell " + selectedTower.getName() + " Tower",
+            controlPanel.updateCurrentCost("Sell " + selectedTower.getName(),
                   sellValue(selectedTower));
          }
       }
@@ -1032,10 +1035,16 @@ public class Game {
       public void continueOn(GameMap g) {
          pathPoints = g.getPathPoints();
          path = g.getPath();
-         pathBounds = path.get(0).getBounds2D();
-         for(int i = 1; i < path.size(); i++) {
-            pathBounds = pathBounds.createUnion(pathBounds);
+         pathBounds = g.getPathBounds();
+         if(pathBounds.isEmpty()) {
+            for(Polygon p : path) {
+               // The shapes in pathBounds should be very fast for contains
+               // Polygons can get slow if they have many points
+               pathBounds.add(p.getBounds2D());
+            }
          }
+         removeRedundantShapes(pathBounds);
+         pathBounds = Collections.unmodifiableList(pathBounds);
          gameMap = createGameMapPanel(g);
          controlPanel = createControlPanel();
          outerContainer.remove(selectionScreens);
@@ -1046,6 +1055,24 @@ public class Game {
          controlPanel.requestFocus();
          setStartingStats();
          clock = new Clock();
+      }
+      
+      private void removeRedundantShapes(List<Shape> list) {
+         for(int i = 0; i < list.size(); i++) {
+            if(containedInOtherShape(list.get(i), list)) {
+               list.remove(i--);
+            }
+         }
+      }
+      
+      private boolean containedInOtherShape(Shape s, List<Shape> list) {
+         Rectangle2D bounds = s.getBounds2D();
+         for(Shape other : list) {
+            if(other != s && other.contains(bounds)) {
+               return true;
+            }
+         }
+         return false;
       }
    }
 

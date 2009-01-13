@@ -20,7 +20,8 @@
 package towers;
 
 import java.awt.Point;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
+import java.util.List;
 
 import logic.Game;
 import logic.Helper;
@@ -28,7 +29,7 @@ import logic.Helper;
 
 public class SlowLengthTower extends SlowTower {
    
-   public SlowLengthTower(Point p, Rectangle2D pathBounds) {
+   public SlowLengthTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Slow Length", 40, 100, 5, 1, 50, 23, true);
    }
 

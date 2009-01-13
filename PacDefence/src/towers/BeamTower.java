@@ -31,7 +31,7 @@ import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,10 +49,10 @@ public class BeamTower extends AbstractTower {
    private double beamLastTicks = Game.CLOCK_TICKS_PER_SECOND / 2;
    private static final double upgradeBeamLastTicks = Game.CLOCK_TICKS_PER_SECOND / 20;
    
-   public BeamTower(Point p, Rectangle2D pathBounds) {
+   public BeamTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Beam", 40, 75, 25, 3.8, 50, 0, false);
       // This is a grossly overpowered version for testing performance.
-      /*super(p, pathBounds, "Beam", 0, 1000, 100, 0.1, 50, 0, "beam.png", "BeamTower.png", false);
+      /*super(p, pathBounds, "Beam", 0, 1000, 100, 0.1, 50, 0, false);
       for(int i = 0; i < 20; i++) {
          upgradeSpecial();
       }*/
@@ -89,7 +89,7 @@ public class BeamTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+         double damage, Point p, Sprite s, List<Shape> pathBounds) {
       double angle = ImageHelper.vectorAngle(dx, dy);
       return new Beam(this, p, angle, range, speed, damage, pathBounds, s, (int)beamLastTicks);
    }
@@ -106,7 +106,7 @@ public class BeamTower extends AbstractTower {
       private static final float minAlpha = 0.2F;
       private static final Stroke stroke = new BasicStroke(4);
       private final float deltaAlpha;
-      private final Rectangle2D pathBounds;
+      private final List<Shape> pathBounds;
       private final Tower launchedBy;
       // Tried using a HashSet and a TreeMap here but there was no noticeable performance
       // improvement even with a large number of sprites.
@@ -125,7 +125,7 @@ public class BeamTower extends AbstractTower {
       //private List<Point2D> points = Collections.emptyList();
       
       private Beam(Tower t, Point2D centre, double angle, int range, double speed, double damage,
-            Rectangle2D pathBounds, Sprite target, int numTicks) {
+            List<Shape> pathBounds, Sprite target, int numTicks) {
          deltaAlpha = (1 - minAlpha) / numTicks;
          this.centre = centre;
          this.pathBounds = pathBounds;

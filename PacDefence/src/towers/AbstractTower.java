@@ -29,11 +29,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,7 +105,7 @@ public abstract class AbstractTower implements Tower {
    private BufferedImage currentImage;
    private final BufferedImage buttonImage;
    
-   private final Rectangle2D pathBounds;
+   private final List<Shape> pathBounds;
 
    private boolean isSelected = false;
 
@@ -125,7 +122,7 @@ public abstract class AbstractTower implements Tower {
    
    private List<Bullet> bulletsToAdd = new ArrayList<Bullet>();
 
-   protected AbstractTower(Point p, Rectangle2D pathBounds, String name, int fireRate,
+   protected AbstractTower(Point p, List<Shape> pathBounds, String name, int fireRate,
          double range, double bulletSpeed, double damage, int width, int turretWidth,
          boolean hasOverlay) {
       centre = new Point(p);
@@ -361,10 +358,10 @@ public abstract class AbstractTower implements Tower {
    }
    
    @Override
-   public Tower constructNew(Point p, Rectangle2D pathBounds) {
+   public Tower constructNew(Point p, List<Shape> pathBounds) {
       try {
          Constructor<? extends Tower> c = this.getClass().getConstructor(Point.class,
-               Rectangle2D.class);
+               List.class);
          return c.newInstance(p, pathBounds);
       } catch(Exception e) {
          // No exception should be thrown if the superclass is reasonably behaved
@@ -393,7 +390,7 @@ public abstract class AbstractTower implements Tower {
          damageDealt += longDamage;
          fractionalDamageDealt -= longDamage;
       }
-      if(damageDealt >= nextUpgradeDamage) {
+      while(damageDealt >= nextUpgradeDamage) {
          damageDealtLevel++;
          nextUpgradeDamage = Formulae.nextUpgradeDamage(damageDealtLevel);
          upgradeAllStats();
@@ -407,7 +404,7 @@ public abstract class AbstractTower implements Tower {
          d.notifyOfKills(kills);
       }
       this.kills += kills;
-      if (this.kills >= nextUpgradeKills) {
+      while(this.kills >= nextUpgradeKills) {
          killsLevel++;
          nextUpgradeKills = Formulae.nextUpgradeKills(killsLevel);
          upgradeAllStats();
@@ -485,10 +482,10 @@ public abstract class AbstractTower implements Tower {
    protected abstract String getSpecialName();
    
    protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Sprite s, Rectangle2D pathBounds);
+            double speed, double damage, Point p, Sprite s, List<Shape> pathBounds);
    
    protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+            double speed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
       return Helper.makeListContaining(makeBullet(dx, dy, turretWidth, range, speed,
             damage, p, s, pathBounds));
    }
@@ -497,7 +494,7 @@ public abstract class AbstractTower implements Tower {
       for (Sprite s : sprites) {
          // Checking that the pathBounds contains the sprites position means a tower won't
          // shoot so that it's bullet almost immediately goes off screen and is wasted
-         if (pathBounds.contains(s.getPosition()) && checkDistance(s)) {
+         if (Helper.containedInAShape(s.getPosition(), pathBounds) && checkDistance(s)) {
             return fireBulletsAt(s, true);
          }
       }

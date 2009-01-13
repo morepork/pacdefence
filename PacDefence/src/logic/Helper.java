@@ -20,10 +20,10 @@
 package logic;
 
 import java.awt.Polygon;
+import java.awt.Shape;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +51,7 @@ public class Helper {
       return getPointsOnLine(p1, p2, null);
    }
    
-   public static List<Point2D> getPointsOnLine(Point2D p1, Point2D p2, Rectangle2D containedIn) {
+   public static List<Point2D> getPointsOnLine(Point2D p1, Point2D p2, List<Shape> containedIn) {
       double dx = p2.getX() - p1.getX();
       double dy = p2.getY() - p1.getY();
       // The maximum length in either the x or y directions to divide the line
@@ -62,20 +62,29 @@ public class Helper {
       double xStep = dx / length;
       double yStep = dy / length;
       List<Point2D> points = new ArrayList<Point2D>((int) length + 2);
-      if(containedIn == null || containedIn.contains(p1)) {
+      if(containedIn == null || containedInAShape(p1, containedIn)) {
          points.add((Point2D) p1.clone());
       }
       Point2D lastPoint = p1;
       for(int i = 1; i <= length; i++) {
          lastPoint = new Point2D.Double(lastPoint.getX() + xStep, lastPoint.getY() + yStep);
-         if(containedIn == null || containedIn.contains(lastPoint)) {
+         if(containedIn == null || containedInAShape(lastPoint, containedIn)) {
             points.add(lastPoint);
          }
       }
-      if(containedIn == null || containedIn.contains(p2)) {
+      if(containedIn == null || containedInAShape(p2, containedIn)) {
          points.add((Point2D) p2.clone());
       }
       return points;
+   }
+   
+   public static boolean containedInAShape(Point2D p, List<Shape> shapes) {
+      for(Shape s : shapes) {
+         if(s.contains(p)) {
+            return true;
+         }
+      }
+      return false;
    }
    
    public static <T> List<T> makeListContaining(T... ts) {
@@ -123,7 +132,7 @@ public class Helper {
       return getPointsOnArc(a, null);
    }
    
-   public static List<Point2D> getPointsOnArc(Arc2D a, Rectangle2D containedIn) {
+   public static List<Point2D> getPointsOnArc(Arc2D a, List<Shape> containedIn) {
       double radius = a.getStartPoint().distance(a.getCenterX(), a.getCenterY());
       /*double circumference = 2 * Math.PI * radius;
       double numPoints = circumference * a.getAngleExtent() / 360;
@@ -148,7 +157,7 @@ public class Helper {
          // These next few lines do the same as the above, just using a trig identity
          // for better performance as there are no more trig calls
          p = new Point2D.Double(x + sinAngle, y + cosAngle);
-         if(containedIn == null || containedIn.contains(p)) {
+         if(containedIn == null || containedInAShape(p, containedIn)) {
             points.add(p);
          }
          // Having these after means the first point is the first point on the arc
@@ -157,14 +166,14 @@ public class Helper {
          sinAngle = newSinAngle;
       }
       p = a.getEndPoint();
-      if(containedIn == null || containedIn.contains(p)) {
+      if(containedIn == null || containedInAShape(p, containedIn)) {
          points.add(p);
       }
       return points;
    }
    
    public static List<Point2D> getPointsOnArc(double x, double y, double radius,
-         double numPoints, double sinAngle, double cosAngle, Rectangle2D containingRect) {
+         double numPoints, double sinAngle, double cosAngle, List<Shape> containedIn) {
       // Copied from the one above with a lot of optimisations for wave and beam towers
       // as the arcs are the same except with different radii. Gave an ~20% improvement
       // in a simple test for beam tower.
@@ -176,7 +185,7 @@ public class Helper {
       List<Point2D> points = new ArrayList<Point2D>((int)numPoints + 3);
       for(int i = 0; i <= numPoints + 1; i++) {
          Point2D p = new Point2D.Double(x + sinAngle, y + cosAngle);
-         if(containingRect.contains(p)) {
+         if(containedInAShape(p, containedIn)) {
             points.add(p);
          }
          double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;

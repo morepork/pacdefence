@@ -31,6 +31,8 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -54,6 +56,7 @@ public class GameMapPanel extends JPanel {
    private final BufferedImage[] buffers = new BufferedImage[2];
    private final List<Polygon> path;
    private final List<Point> pathPoints;
+   private final List<Shape> pathBounds;
 
    private GameOver gameOver = null;
    private final TextDisplay textDisplay;
@@ -79,6 +82,7 @@ public class GameMapPanel extends JPanel {
       setPreferredSize(new Dimension(width, height));
       pathPoints = map.getPathPoints();
       path = map.getPath();
+      pathBounds = map.getPathBounds();
       textDisplay = new TextDisplay(width, height);
       if(debugPath) {
          printClickedCoords();
@@ -199,6 +203,7 @@ public class GameMapPanel extends JPanel {
       if(debugPath) {
          drawPath(g);
          drawPathOutline(g);
+         drawPathBounds(g);
       }
    }
    
@@ -228,8 +233,20 @@ public class GameMapPanel extends JPanel {
       for(Polygon p : path) {
          g.setColor(Color.RED);
          g.drawPolygon(p);
-         g.setColor(new Color(0, 0, 0, 50));
+         g.setColor(new Color(0, 0, 0, 90));
          g.fillPolygon(p);
+      }
+   }
+   
+   private void drawPathBounds(Graphics g) {
+      Graphics2D g2D = (Graphics2D) g;
+      g2D.setColor(new Color(0, 0, 255, 30));
+      for(Shape s : pathBounds) {
+         g2D.fill(s);
+      }
+      g2D.setColor(new Color(0, 0, 255, 100));
+      for(Shape s : pathBounds) {
+         g2D.draw(s);
       }
    }
    
@@ -251,13 +268,15 @@ public class GameMapPanel extends JPanel {
       private final String description;
       private final List<Point> pathPoints;
       private final List<Polygon> path;
+      private final List<Shape> pathBounds;
       private final BufferedImage image;
       
       public GameMap(String description, List<Point> pathPoints, List<Polygon> path,
-            BufferedImage image) {
+            List<Shape> pathBounds, BufferedImage image) {
          this.description = description;
          this.pathPoints = pathPoints;
          this.path = path;
+         this.pathBounds = pathBounds;
          this.image = image;
       }
       
@@ -271,6 +290,10 @@ public class GameMapPanel extends JPanel {
       
       public List<Polygon> getPath() {
          return path;
+      }
+      
+      public List<Shape> getPathBounds() {
+         return pathBounds;
       }
       
       public BufferedImage getImage() {

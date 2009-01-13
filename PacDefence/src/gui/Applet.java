@@ -30,7 +30,7 @@ public class Applet extends JApplet {
    
    @Override
    public void init() {
-      new Game(this);
+      new Game(this, false, false);
       setSize(new Dimension(Game.WIDTH, Game.HEIGHT));
       setVisible(true);
    }

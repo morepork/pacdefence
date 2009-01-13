@@ -20,7 +20,7 @@
 package towers;
 
 import java.awt.Point;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class MultiShotTower extends AbstractTower {
    private static final double speedDividend = 1.07;
    private int shots = 5;
    
-   public MultiShotTower(Point p, Rectangle2D pathBounds) {
+   public MultiShotTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Multi Shot", 40, 100, 7.5, 1.3, 50, 5, true);
    }
 
@@ -57,7 +57,7 @@ public class MultiShotTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+         double damage, Point p, Sprite s, List<Shape> pathBounds) {
       return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
 
@@ -68,7 +68,7 @@ public class MultiShotTower extends AbstractTower {
    
    @Override
    protected List<Bullet> makeBullets(double dx, double dy,  int turretWidth, int range,
-         double bulletSpeed, double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+         double bulletSpeed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
       List<Bullet> bullets = new ArrayList<Bullet>();
       for(int i = 0; i < shots; i++) {
          bullets.add(makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p, s, pathBounds));

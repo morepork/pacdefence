@@ -21,14 +21,15 @@ package towers;
 
 
 import java.awt.Point;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
+import java.util.List;
 
 import logic.Helper;
 
 // Should remove this later as it is poor compared to the freeze tower
 public class SlowFactorTower extends SlowTower {
    
-   public SlowFactorTower(Point p, Rectangle2D pathBounds) {
+   public SlowFactorTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Slow Factor", 40, 100, 5, 1, 50, 23, true);
    }
 

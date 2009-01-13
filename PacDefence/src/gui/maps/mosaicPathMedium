@@ -12,6 +12,9 @@ Medium
 203 305
 203 166
 0 166
+// Shapes containing the path
+UsePolygon 1
+//End
 //Path points (x y)
 0 135
 235 135

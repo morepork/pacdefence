@@ -8,6 +8,9 @@ Hard
 272 400
 272 260
 0 260
+// Shapes containing the path
+UsePolygon 1
+//End
 //Path points (x y)
 0 230
 300 230

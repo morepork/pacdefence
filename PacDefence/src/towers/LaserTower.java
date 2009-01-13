@@ -27,7 +27,7 @@ import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
 import java.util.List;
 
 import sprites.Sprite;
@@ -38,7 +38,7 @@ public class LaserTower extends AbstractTower {
    private double beamLength = 20;
    private final double beamLengthUpgrade = beamLength * (upgradeIncreaseFactor - 1);
 
-   public LaserTower(Point p, Rectangle2D pathBounds) {
+   public LaserTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Laser", 40, 100, 7.5, 1.5, 50, 24, true);
    }
 
@@ -63,7 +63,7 @@ public class LaserTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+         double damage, Point p, Sprite s, List<Shape> pathBounds) {
       double divisor = Math.sqrt(dx * dx + dy * dy);
       Point2D firstPoint = new Point2D.Double(p.getX() + turretWidth * dx / divisor,
             p.getY() + turretWidth * dy / divisor);
@@ -86,7 +86,7 @@ public class LaserTower extends AbstractTower {
       private final double xStep, yStep;
       private double moneyEarnt = 0;
       
-      public Laser(Rectangle2D pathBounds, Tower shotBy, Point2D firstPoint, Point2D lastPoint,
+      public Laser(List<Shape> pathBounds, Tower shotBy, Point2D firstPoint, Point2D lastPoint,
             double speed, double damage, int range, double length) {
          super(pathBounds, shotBy, damage, range, speed);
          this.lastPoint = lastPoint;

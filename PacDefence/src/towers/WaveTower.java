@@ -29,7 +29,7 @@ import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +43,7 @@ public class WaveTower extends AbstractTower {
    private int angle = 30;
    private final double upgradeIncreaseAngle = angle / 10;
    
-   public WaveTower(Point p, Rectangle2D pathBounds) {
+   public WaveTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Wave", 40, 100, 5, 5.5, 50, 6, true);
       // This is a grossly overpowered (but with really low damage) version for
       // performance testing purposes
@@ -75,7 +75,7 @@ public class WaveTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+         double damage, Point p, Sprite s, List<Shape> pathBounds) {
       return new WaveBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, angle);
    }
 
@@ -93,10 +93,10 @@ public class WaveTower extends AbstractTower {
       private final Collection<Sprite> hitSprites = new ArrayList<Sprite>();
       private double moneyEarnt = 0;
       private final int turretWidth;
-      private final Rectangle2D pathBounds;
+      private final List<Shape> pathBounds;
       
       public WaveBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Rectangle2D pathBounds, int angle) {
+            double speed, double damage, Point p, List<Shape> pathBounds, int angle) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          double midAngle = ImageHelper.vectorAngle(dx, dy);
          startAngle = Math.toDegrees(midAngle - Math.PI / 2) - angle / 2;

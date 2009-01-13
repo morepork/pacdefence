@@ -21,7 +21,7 @@ package towers;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,7 +33,7 @@ public class PiercerTower extends AbstractTower {
    
    private int pierces = 1;
 
-   public PiercerTower(Point p, Rectangle2D pathBounds) {
+   public PiercerTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Piercer", 40, 100, 5, 8, 50, 20, true);
    }
 
@@ -49,7 +49,7 @@ public class PiercerTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+         double damage, Point p, Sprite s, List<Shape> pathBounds) {
       return new PiercingBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
 
@@ -65,7 +65,7 @@ public class PiercerTower extends AbstractTower {
       private int moneyEarnt;
 
       public PiercingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Rectangle2D pathBounds) {
+            double speed, double damage, Point p, List<Shape> pathBounds) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
       }
       

@@ -29,6 +29,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -123,6 +125,17 @@ public class SelectionScreens extends JPanel {
          path.add(polygon);
       } while(currentToken.equalsIgnoreCase("//Next"));
       currentToken = skipComments(scan, currentToken);
+      List<Shape> pathBounds = new ArrayList<Shape>();
+      while(!currentToken.equalsIgnoreCase("//End")) {
+         if(currentToken.equalsIgnoreCase("UsePolygon")) {
+            pathBounds.add(path.get(Integer.valueOf(scan.next()) - 1));
+         } else if(currentToken.equalsIgnoreCase("Rectangle")) {
+            pathBounds.add(new Rectangle(Integer.valueOf(scan.next()), Integer.valueOf(scan.next()),
+                  Integer.valueOf(scan.next()), Integer.valueOf(scan.next())));
+         }
+         currentToken = scan.next();
+      }
+      currentToken = skipComments(scan, currentToken);
       List<Point> pathPoints = new ArrayList<Point>();
       while(!isComment(currentToken)) {
          pathPoints.add(new Point(Integer.valueOf(currentToken), Integer.valueOf(scan.next())));
@@ -132,7 +145,8 @@ public class SelectionScreens extends JPanel {
             break;
          }
       }
-      return new GameMap(description, pathPoints, path, ImageHelper.makeImage("maps", imageName));
+      return new GameMap(description, pathPoints, path, pathBounds, 
+            ImageHelper.makeImage("maps", imageName));
    }
 
    private String skipComments(Scanner scan, String currentToken) {

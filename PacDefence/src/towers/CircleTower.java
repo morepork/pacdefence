@@ -24,12 +24,13 @@ import images.ImageHelper;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import logic.Circle;
+import logic.Helper;
 
 import sprites.Sprite;
 
@@ -37,7 +38,7 @@ public class CircleTower extends AbstractTower {
 
    private int hits = 1;
 
-   public CircleTower(Point p, Rectangle2D pathBounds) {
+   public CircleTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Circle", 40, 100, 5, 12, 50, 0, true);
    }
 
@@ -53,7 +54,7 @@ public class CircleTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+         double damage, Point p, Sprite s, List<Shape> pathBounds) {
       return new CirclingBullet(this, dx, dy, turretWidth, range, speed, damage, p, s, pathBounds);
    }
 
@@ -74,7 +75,7 @@ public class CircleTower extends AbstractTower {
       private Collection<Sprite> hitSprites = new ArrayList<Sprite>();
 
       public CirclingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+            double speed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          double distance = p.distance(s.getPosition()) - s.getHalfWidth();
          double angleToSprite = ImageHelper.vectorAngle(dx, dy);
@@ -141,7 +142,7 @@ public class CircleTower extends AbstractTower {
          double delta = deltaTheta / arcLengthPerTick;
          for (double a = angle + delta; a <= angle + deltaTheta; a += delta) {
             Point2D p = route.getPointAt(a);
-            if(getPathBounds().contains(p)) {
+            if(Helper.containedInAShape(p, getPathBounds())) {
                points.add(p);
             }
          }

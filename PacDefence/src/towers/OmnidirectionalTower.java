@@ -22,7 +22,7 @@ package towers;
 import images.ImageHelper;
 
 import java.awt.Point;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class OmnidirectionalTower extends AbstractTower {
    
    private int numShots = 3;
    
-   public OmnidirectionalTower(Point p, Rectangle2D pathBounds) {
+   public OmnidirectionalTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Omnidirectional", 40, 100, 5, 5, 50, 0, true);
       // Testing tower with way too many bullets
       /*super(p, pathBounds, "Omnidirectional", 0, 1000, 5, 0.005, 50, 10, "omnidirectional.png",
@@ -55,13 +55,13 @@ public class OmnidirectionalTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+         double damage, Point p, Sprite s, List<Shape> pathBounds) {
       return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
    
    @Override
    protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
-         double speed, double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+         double speed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
       List<Bullet> bullets = new ArrayList<Bullet>();
       double angle = ImageHelper.vectorAngle(dx, dy);
       double dTheta = 2 * Math.PI / numShots;

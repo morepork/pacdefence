@@ -22,7 +22,7 @@ package towers;
 import images.ImageHelper;
 
 import java.awt.Point;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
 import java.util.List;
 
 import logic.Game;
@@ -36,7 +36,7 @@ public class HomingTower extends AbstractTower {
    private double maxRedirectAngle = 1;
    private static final double upgradeIncreaseAngle = 0.1;
 
-   public HomingTower(Point p, Rectangle2D pathBounds) {
+   public HomingTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Homing", 40, 100, 5, 12.5, 50, 18, true);
    }
    
@@ -53,7 +53,7 @@ public class HomingTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+         double damage, Point p, Sprite s, List<Shape> pathBounds) {
       return new HomingBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, s,
             maxRedirectAngle);
    }
@@ -70,7 +70,7 @@ public class HomingTower extends AbstractTower {
       private final double maxRedirectAngle;
       
       private HomingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Rectangle2D pathBounds, Sprite s,
+            double speed, double damage, Point p, List<Shape> pathBounds, Sprite s,
             double maxRedirectAngle) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          target = s;

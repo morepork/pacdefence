@@ -25,6 +25,10 @@ Easy
 450 500
 450 100
 //End
+// Shapes containing the path
+UsePolygon 1
+Rectangle 392 252 58 58
+//End
 //Path points (x y)
 0 130
 420 130

@@ -21,6 +21,8 @@ package gui;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JFrame;
 
@@ -30,11 +32,25 @@ import logic.Game;
 public class Application {
    
    public static void main(String... args) {
+      boolean debugTimes = true;
+      boolean debugPath = false;
+      if(args.length > 0) {
+         List<String> argsList = Arrays.asList(args);
+         if(argsList.contains("--debugTimes")) {
+            debugTimes = true;
+         }
+         if(argsList.contains("--debugPath")) {
+            debugPath = true;
+         }
+         if(argsList.contains("--debugAll")) {
+            debugTimes = true;
+            debugPath = true;
+         }
+      }
       JFrame frame = new JFrame("Pac Defence");
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       frame.setResizable(false);
-      //frame.add(new OuterPanel());
-      new Game(frame);
+      new Game(frame, debugTimes, debugPath);
       frame.pack();
       Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
       // Centres the frame on screen

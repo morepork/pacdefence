@@ -23,8 +23,8 @@ import images.ImageHelper;
 
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class BasicBullet implements Bullet {
    protected final Tower shotBy;
    private static final BufferedImage image = ImageHelper.makeImage(radius * 2, radius * 2,
          "other", "bullet.png");
-   private final Rectangle2D pathBounds;
+   private final List<Shape> pathBounds;
    
    /**
     * Creates a new BasicBuller with fields set, but tick and draw
@@ -61,7 +61,7 @@ public class BasicBullet implements Bullet {
     * @param range
     * @param speed
     */
-   protected BasicBullet(Rectangle2D pathBounds, Tower shotBy, double damage, int range,
+   protected BasicBullet(List<Shape> pathBounds, Tower shotBy, double damage, int range,
          double speed) {
       this.pathBounds = pathBounds;
       this.shotBy = shotBy;
@@ -73,7 +73,7 @@ public class BasicBullet implements Bullet {
    }
    
    public BasicBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-         double speed, double damage, Point p, Rectangle2D pathBounds) {
+         double speed, double damage, Point p, List<Shape> pathBounds) {
       this.shotBy = shotBy;
       int turretWidthPlusRadius = turretWidth + radius;
       this.range = range - turretWidthPlusRadius;
@@ -185,7 +185,7 @@ public class BasicBullet implements Bullet {
       }
    }
    
-   protected Rectangle2D getPathBounds() {
+   protected List<Shape> getPathBounds() {
       return pathBounds;
    }
 

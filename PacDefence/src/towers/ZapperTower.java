@@ -27,7 +27,7 @@ import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -42,7 +42,7 @@ public class ZapperTower extends AbstractTower {
    private int numZaps = 5;
    private static final int upgradeIncreaseZaps = 1;
    
-   public ZapperTower(Point p, Rectangle2D pathBounds) {
+   public ZapperTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Zapper", 40, 100, 1, 1, 50, 21, true);
    }
 
@@ -59,7 +59,7 @@ public class ZapperTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, Rectangle2D pathBounds) {
+         double damage, Point p, Sprite s, List<Shape> pathBounds) {
       return new ZapperBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, numZaps);
    }
 
@@ -78,7 +78,7 @@ public class ZapperTower extends AbstractTower {
       private final double zapRange;
    
       public ZapperBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Rectangle2D pathBounds, int numZaps) {
+            double speed, double damage, Point p, List<Shape> pathBounds, int numZaps) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          numZapsLeft = numZaps;
          zapRange = range / 4;
