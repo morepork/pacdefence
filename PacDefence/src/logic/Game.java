@@ -36,7 +36,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,6 +117,9 @@ public class Game {
          new EnumMap<Attribute, Integer>(Attribute.class);
 
    private List<Comparator<Sprite>> comparators = createComparators();
+   
+   // Inside GameMapPanel, should be null otherwise
+   private Point lastMousePosition;
    
    private int level;
    private boolean levelInProgress;
@@ -225,10 +228,14 @@ public class Game {
             processMouseReleased(e);
          }
       });
-      gmp.addMouseMotionListener(new MouseMotionAdapter(){
+      gmp.addMouseMotionListener(new MouseMotionListener() {
          @Override
          public void mouseMoved(MouseEvent e) {
-            updateHoverOverStuff(e.getPoint());
+            lastMousePosition = e.getPoint();
+         }
+         @Override
+         public void mouseDragged(MouseEvent e) {
+            lastMousePosition = e.getPoint();
          }
       });
       return gmp;
@@ -239,6 +246,16 @@ public class Game {
       ControlPanel cp = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
             ImageHelper.makeImage("control_panel", "blue_lava.jpg"), eventProcessor,
             createTowerImplementations());
+      cp.addMouseMotionListener(new MouseMotionListener() {
+         @Override
+         public void mouseMoved(MouseEvent e) {
+            lastMousePosition = null;
+         }
+         @Override
+         public void mouseDragged(MouseEvent e) {
+            lastMousePosition = null;
+         }
+      });
       for(int i = 1; i <= Attribute.values().length; i++) {
          final Attribute a = Attribute.values()[i - 1];
          Character c = Character.forDigit(i, 10);
@@ -515,9 +532,11 @@ public class Game {
    }
    
    private void updateHoverOverStuff(Point p) {
-      if(p != null && selectedTower == null && buildingTower == null) {
-         Tower t = getTowerContaining(p);
-         setHoverOverTower(t);
+      if(p == null) {
+         setHoverOverTower(null);
+         setHoverOverSprite(null);
+      } else if (selectedTower == null && buildingTower == null) {
+         setHoverOverTower(getTowerContaining(p));
          if(hoverOverTower == null) {
             setHoverOverSprite(getSpriteContaining(p));
          }
@@ -543,7 +562,7 @@ public class Game {
    
    private Sprite getSpriteContaining(Point p) {
       for(Sprite s : sprites) {
-         if(s.getBounds().contains(p)) {
+         if(s.intersects(p)) {
             return s;
          }
       }
@@ -692,7 +711,9 @@ public class Game {
             tickTowers(unmodifiableSprites);
          }
          // Catches any new sprites that may have moved under the cursor
-         updateHoverOverStuff(gameMap.getMousePosition());
+         // Save the mouse position from mouseMotionListeners rather than use
+         // getMousePosition as it is much faster
+         updateHoverOverStuff(lastMousePosition);
          updateTowerStats();
       }
       
