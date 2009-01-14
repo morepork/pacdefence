@@ -47,7 +47,7 @@ public class WaveTower extends AbstractTower {
       super(p, pathBounds, "Wave", 40, 100, 5, 5.5, 50, 6, true);
       // This is a grossly overpowered (but with really low damage) version for
       // performance testing purposes
-      /*super(p, pathBounds, "Wave", 1, 500, 25, 0.1, 50, 6, "wave.png", "WaveTower.png");
+      /*super(p, pathBounds, "Wave", 1, 500, 25, 0.1, 50, 6, true);
       for(int i = 0; i < 20; i++) {
          upgradeSpecial();
       }*/

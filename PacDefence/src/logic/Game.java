@@ -621,7 +621,7 @@ public class Game {
       private final int numThreads;
       private final BulletTickThread[] bulletTickThreads;
       private final boolean[] isThreadRunning;
-      private final List<Integer> toRemove = new ArrayList<Integer>();
+      private final List<Integer> bulletsToRemove = new ArrayList<Integer>();
       private double moneyEarnt = 0;
       
       private long processTime = 0;
@@ -838,11 +838,20 @@ public class Game {
             // Use single thread version if only one processor or 1 or fewer bullets
             // as it will be faster.
             tickBulletsSingleThread(unmodifiableSprites);
-            return;
+         } else {
+            tickBulletsMultiThread(unmodifiableSprites);
          }
+         Helper.removeAll(bullets, bulletsToRemove);
+         bulletsToRemove.clear();
+         increaseMoney((long)moneyEarnt);
+         // Fractional amounts of money are kept until the next tick
+         moneyEarnt -= (long)moneyEarnt;
+      }
+      
+      private void tickBulletsMultiThread(List<Sprite> unmodifiableSprites) {
          isWaiting = true;
          int bulletsPerThread = bullets.size() / numThreads;
-         int remainder = bullets.size() - bulletsPerThread * numThreads;
+         int remainder = bullets.size() % numThreads;
          Arrays.fill(isThreadRunning, true);
          int firstPos, lastPos = 0;
          for(int i = 0; i < numThreads; i++) {
@@ -856,18 +865,13 @@ public class Game {
          while(isWaiting) {
             LockSupport.park();
          }
-         Collections.sort(toRemove);
-         Helper.removeAll(bullets, toRemove);
-         toRemove.clear();
-         increaseMoney((long)moneyEarnt);
-         // Fractional amounts of money are kept until the next tick
-         moneyEarnt -= (long)moneyEarnt;
+         Collections.sort(bulletsToRemove);
       }
       
       private synchronized void informFinished(int threadNumber, double moneyEarnt,
             List<Integer> toRemove) {
          this.moneyEarnt += moneyEarnt;
-         this.toRemove.addAll(toRemove);
+         this.bulletsToRemove.addAll(toRemove);
          isThreadRunning[threadNumber] = false;
          for(boolean b : isThreadRunning) {
             if(b) {
@@ -879,18 +883,13 @@ public class Game {
       }
       
       private void tickBulletsSingleThread(List<Sprite> unmodifiableSprites) {
-         List<Integer> toRemove = new ArrayList<Integer>();
          for(int i = 0; i < bullets.size(); i++) {
             double money = bullets.get(i).tick(unmodifiableSprites);
             if(money >= 0) {
                moneyEarnt += money;
-               toRemove.add(i);
+               bulletsToRemove.add(i);
             }
          }
-         Helper.removeAll(bullets, toRemove);
-         increaseMoney((long)moneyEarnt);
-         // Fractional amounts of money are kept until the next tick
-         moneyEarnt -= (long)moneyEarnt;
       }
       
       private class BulletTickThread extends Thread {
