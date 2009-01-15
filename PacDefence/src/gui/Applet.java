@@ -32,15 +32,9 @@ public class Applet extends JApplet {
    
    @Override
    public void init() {
-      final JApplet ja = this;
-      // Start in its own thread so as not to slow the page loading down
-      new Thread() {
-         public void run() {
-            game = new Game(ja, false, false);
-            setSize(new Dimension(Game.WIDTH, Game.HEIGHT));
-            setVisible(true);
-         }
-      }.start();
+      game = new Game(this, false, false);
+      setSize(new Dimension(Game.WIDTH, Game.HEIGHT));
+      setVisible(true);
    }
    
    @Override
