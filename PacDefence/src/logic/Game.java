@@ -487,18 +487,10 @@ public class Game {
    private void updateSpriteInfo() {
       Sprite s = null;
       if(selectedSprite != null) {
-         if(selectedSprite.isAlive()) {
-            s = selectedSprite;
-         } else {
-            setSelectedSprite(null);
-         }
+         s = selectedSprite;
       }
       if(s == null && hoverOverSprite != null) {
-         if(hoverOverSprite.isAlive()) {
-            s = hoverOverSprite;
-         } else {
-            setHoverOverSprite(null);
-         }
+         s = hoverOverSprite;
       }
       controlPanel.setCurrentInfoToSprite(s);
    }
@@ -563,6 +555,8 @@ public class Game {
    private Sprite getSpriteContaining(Point p) {
       for(Sprite s : sprites) {
          if(s.intersects(p)) {
+            // Intersects returns false if the sprite is dead so don't have
+            // to check that
             return s;
          }
       }
@@ -768,12 +762,13 @@ public class Game {
          List<Integer> toRemove = new ArrayList<Integer>();
          for(int i = 0; i < sprites.size(); i++) {
             Sprite s = sprites.get(i);
-            if(s.tick()) {
+            if(s.tick()) { // Sprite has either been killed or finished
                toRemove.add(i);
-               if(s.isAlive()) {
-                  // If the sprite is being removed and is still alive, it went
-                  // off the edge of the screen
+               if(s.isAlive()) { // If the sprite is still alive, it means it finished
                   livesLost++;
+               }
+               if(selectedSprite == s) {
+                  setSelectedSprite(null);
                }
             }
          }
