@@ -17,11 +17,13 @@
 				<exclude name="**/*Test*" />
 				<exclude name="**/*.xcf.gz" />
 				<exclude name="**/*.svg" />
+				<exclude name="**/*.html" />
 				<exclude name="images/maps/rainbowColours.png" />
 				<exclude name="images/maps/rainbowColours.jpg" />
 				<exclude name="images/maps/*Map.png" />
 				<exclude name="images/other/theGreenPlace.png" />
-				<exclude name="images/control_panel/blue_lava.png" />
+				<exclude name="images/control_panel/blue_lava.*" />
+				<exclude name="images/control_panel/blue_lava_blurred.png" />
 				<exclude name="images/sprites/other/" />
 				<exclude name="images/towers/overlays/turrets/" />
 				<exclude name="images/towers/overlays/turretLengths" />

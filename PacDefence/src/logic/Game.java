@@ -244,7 +244,7 @@ public class Game {
    @SuppressWarnings("serial")
    private ControlPanel createControlPanel() {
       ControlPanel cp = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
-            ImageHelper.makeImage("control_panel", "blue_lava.jpg"), eventProcessor,
+            ImageHelper.makeImage("control_panel", "blue_lava_blurred.jpg"), eventProcessor,
             createTowerImplementations());
       cp.addMouseMotionListener(new MouseMotionListener() {
          @Override
