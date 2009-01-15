@@ -12,6 +12,7 @@
 		<delete file="${NoSrcJar}" />
 		<jar destfile="${NoSrcJar}">
 			<fileset dir="${SrcDir}" casesensitive="yes">
+				<exclude name="**/.*" />
 				<exclude name="**/*.jar" />
 				<exclude name="**/*.java" />
 				<exclude name="**/*Test*" />
@@ -38,6 +39,7 @@
 		<delete file="${SrcJar}" />
 		<jar destfile="${SrcJar}">
 			<fileset dir="${SrcDir}" casesensitive="yes">
+				<exclude name="**/.*" />
 				<exclude name="**/*.jar" />
 				<exclude name="java.policy.applet" />
 			</fileset>
