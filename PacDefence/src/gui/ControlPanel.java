@@ -124,7 +124,7 @@ public class ControlPanel extends JPanel {
       if(t == null) {
          blankCurrentTowerInfo();
       } else {
-         towerNameLabel.setText(t.getName() + " Tower");
+         towerNameLabel.setText(t.getName());
          towerLevelLabel.setText("Level: " + t.getExperienceLevel());
          killsLabel.setText("Kills: " + t.getKills() + " (" + t.getKillsForUpgrade() + ")");
          damageDealtLabel.setText("Dmg: " + t.getDamageDealt() + " (" +
