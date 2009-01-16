@@ -36,9 +36,10 @@ import sprites.Sprite.DamageReport;
 
 public class BomberTower extends AbstractTower {
    
-   private double blastRadius = 25;
+   private static final double startingBlastRadius = 30;
    // If the radius increases exponentially it just gets silly
-   private final double blastRadiusIncrease = 2.5;
+   private static final double blastRadiusIncrease = startingBlastRadius * .1;
+   private double blastRadius = startingBlastRadius;
    private static final double bombDamageDividend = 2;
 
    public BomberTower(Point p, List<Shape> pathBounds) {
@@ -47,7 +48,7 @@ public class BomberTower extends AbstractTower {
 
    @Override
    public String getSpecial() {
-      return Helper.format(blastRadius, 1);
+      return Helper.format(blastRadius, 0);
    }
 
    @Override

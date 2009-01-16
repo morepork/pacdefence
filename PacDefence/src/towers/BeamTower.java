@@ -46,11 +46,12 @@ import sprites.Sprite.DamageReport;
 public class BeamTower extends AbstractTower {
    
    // The number of ticks the beam lasts for
-   private double beamLastTicks = Game.CLOCK_TICKS_PER_SECOND / 2;
-   private static final double upgradeBeamLastTicks = Game.CLOCK_TICKS_PER_SECOND / 20;
+   private static final double startingBeamLastTicks = Game.CLOCK_TICKS_PER_SECOND / 2;
+   private static final double upgradeBeamLastTicks = (upgradeIncreaseFactor - 1) * startingBeamLastTicks;
+   private double beamLastTicks = startingBeamLastTicks;
    
    public BeamTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Beam", 40, 75, 25, 3.8, 50, 0, false);
+      super(p, pathBounds, "Beam", 40, 75, 20, 3.8, 50, 0, false);
       // This is a grossly overpowered version for testing performance.
       /*super(p, pathBounds, "Beam", 0, 1000, 100, 0.1, 50, 0, false);
       for(int i = 0; i < 20; i++) {
@@ -79,7 +80,7 @@ public class BeamTower extends AbstractTower {
 
    @Override
    protected String getSpecial() {
-      return Helper.format(beamLastTicks / Game.CLOCK_TICKS_PER_SECOND, 2) + "s";
+      return Helper.format(beamLastTicks / Game.CLOCK_TICKS_PER_SECOND, 3) + "s";
    }
 
    @Override
