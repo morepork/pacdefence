@@ -95,9 +95,12 @@ public class BomberTower extends AbstractTower {
                   expanding = false;
                }
             } else {
-               blast.setRadius(radius - blastSizeIncrement * 2);
-               if (blast.getRadius() < 0) {
+               // Shrinks twice as fast as it expands
+               double newRadius = radius - blastSizeIncrement * 2;
+               if (newRadius < 0) {
                   return moneyEarnt;
+               } else {
+                  blast.setRadius(newRadius);
                }
             }
             checkIfSpriteIsHitByBlast(sprites);
