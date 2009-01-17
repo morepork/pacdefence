@@ -33,12 +33,11 @@ import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 
-// Not fully implemented
-
 public class Circle implements Shape {
    
    private final Point2D centre;
    private double radius;
+   private double radiusSq;
    private Ellipse2D bounds;
    
    public Circle() {
@@ -46,11 +45,8 @@ public class Circle implements Shape {
    }
    
    public Circle(Point2D centre, double radius){
-      this.centre = new Point2D.Double(centre.getX(), centre.getY());
-      if(radius < 0) {
-         throw new IllegalArgumentException("Radius cannot be less than zero.");
-      }
-      this.radius = radius;
+      this.centre = (Point2D) centre.clone();
+      setRadius(radius);
       setBounds();
    }
    
@@ -80,18 +76,14 @@ public class Circle implements Shape {
    public boolean contains(double x, double y) {
       double dx = x - centre.getX();
       double dy = y - centre.getY();
-      double distance = Math.sqrt(dx*dx + dy*dy);
-      return distance < radius;
+      return dx*dx + dy*dy < radiusSq;
    }
 
    @Override
    public boolean contains(double x, double y, double w, double h) {
-      Point2D topLeft = new Point2D.Double(x, y);
-      Point2D topRight = new Point2D.Double(x + w, y);
-      Point2D bottomLeft = new Point2D.Double(x, y + h);
-      Point2D bottomRight = new Point2D.Double(x + w, y + h);
-      return contains(topLeft) && contains(topRight) && contains (bottomLeft) &&
-            contains(bottomRight);
+      // The four corners of the rectangle
+      return contains(x, y) && contains(x + w, y) && contains (x, y + h) &&
+            contains(x + w, y + h);
    }
    
    public Point2D getCentre() {
@@ -100,6 +92,10 @@ public class Circle implements Shape {
    
    public double getRadius() {
       return radius;
+   }
+   
+   public double getRadiusSq() {
+      return radiusSq;
    }
 
    @Override
@@ -132,7 +128,11 @@ public class Circle implements Shape {
    }
    
    public void setRadius(double r) {
+      if(r < 0) {
+         throw new IllegalArgumentException("Radius cannot be negative");
+      }
       radius = r;
+      radiusSq = r * r;
       setBounds();
    }
 
@@ -160,11 +160,12 @@ public class Circle implements Shape {
    }
    
    public boolean intersects(Circle c) {
-      return centre.distance(c.getCentre()) < radius + c.getRadius();
+      double combinedRadii = radius + c.getRadius();
+      return centre.distanceSq(c.getCentre()) < combinedRadii * combinedRadii;
    }
    
    public boolean intersects(Line2D line) {
-      return line.ptSegDist(centre) < radius;
+      return line.ptSegDistSq(centre) < radiusSq;
    }
    
    public boolean intersects(Shape s) {
