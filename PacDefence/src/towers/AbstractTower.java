@@ -94,10 +94,10 @@ public abstract class AbstractTower implements Tower {
    private double damage;
 
    // The width/height of the image (as it's square)
-   private final int width;
-   private final int halfWidth;
+   protected final int width;
+   protected final int halfWidth;
    // The width of the turret from the centre of the tower
-   private final int turretWidth;
+   protected final int turretWidth;
 
    private final BufferedImage baseImage;
    private final BufferedImage rotatingImage;

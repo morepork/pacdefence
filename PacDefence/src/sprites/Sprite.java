@@ -33,7 +33,7 @@ import java.util.List;
  * @author Byrne
  * 
  */
-public interface Sprite {
+public interface Sprite extends Comparable<Sprite> {
    
    public void draw(Graphics g);
    /**

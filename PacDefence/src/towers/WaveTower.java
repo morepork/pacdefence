@@ -34,17 +34,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import logic.Game;
 import logic.Helper;
 import sprites.Sprite;
 
 
 public class WaveTower extends AbstractTower {
    
-   private int angle = 30;
+   private double angle = 25;
    private final double upgradeIncreaseAngle = angle / 10;
    
    public WaveTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Wave", 40, 100, 5, 5.5, 50, 6, true);
+      super(p, pathBounds, "Wave", 40, 90, 5, 5.5, 50, 6, true);
       // This is a grossly overpowered (but with really low damage) version for
       // performance testing purposes
       /*super(p, pathBounds, "Wave", 1, 500, 25, 0.1, 50, 6, true);
@@ -56,7 +57,7 @@ public class WaveTower extends AbstractTower {
    @Override
    public String getSpecial() {
       // \u00b0 is the degree symbol
-      return angle + "\u00b0";
+      return Helper.format(angle, 1) + "\u00b0";
    }
    
    @Override
@@ -90,13 +91,15 @@ public class WaveTower extends AbstractTower {
       private final Arc2D arc = new Arc2D.Double();
       private double lastRadius = 0, currentRadius = 0;
       private final Point2D start;
+      // Use an ArrayList here as the overhead of a more complicated set
+      // isn't really worth it as it'll never grow much larger than 50
       private final Collection<Sprite> hitSprites = new ArrayList<Sprite>();
       private double moneyEarnt = 0;
       private final int turretWidth;
       private final List<Shape> pathBounds;
       
       public WaveBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, List<Shape> pathBounds, int angle) {
+            double speed, double damage, Point p, List<Shape> pathBounds, double angle) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          double midAngle = ImageHelper.vectorAngle(dx, dy);
          startAngle = Math.toDegrees(midAngle - Math.PI / 2) - angle / 2;
@@ -141,6 +144,29 @@ public class WaveTower extends AbstractTower {
          if(sprites.isEmpty()) {
             return -1;
          }
+         List<Point2D> points = getCurrentPoints();
+         double d = 0;
+         for(Sprite s : sprites) {
+            if(!hitSprites.contains(s) && s.intersects(points) != null) {
+               hitSprites.add(s);
+               d += processDamageReport(s.hit(damage));
+            }
+         }
+         return d == 0 ? -1 : d;
+      }
+      
+      @Override
+      protected boolean checkIfBulletCanBeRemovedAsOffScreen() {
+         // Need to check that the arc isn't empty as it may not have been set yet
+         return !arc.isEmpty() && !arc.intersects(0, 0, Game.WIDTH, Game.HEIGHT);
+      }
+      
+      private void setArc(Arc2D a, double radius) {
+         a.setArcByCenter(start.getX(), start.getY(), radius, startAngle, extentAngle,
+               Arc2D.OPEN);
+      }
+      
+      private List<Point2D> getCurrentPoints() {
          List<Point2D> points = new ArrayList<Point2D>();
          //Arc2D a = new Arc2D.Double();
          double radAngleStart = Math.toRadians(startAngle + 90);
@@ -156,30 +182,7 @@ public class WaveTower extends AbstractTower {
             points.addAll(Helper.getPointsOnArc(start.getX(), start.getY(), d, d * numPointsMult,
                   sinAngle, cosAngle, pathBounds));
          }
-         double d = 0;
-         for(Sprite s : sprites) {
-            if(!hitSprites.contains(s) && s.intersects(points) != null) {
-               hitSprites.add(s);
-               d += processDamageReport(s.hit(damage));
-            }
-         }
-         return d == 0 ? -1 : d;
-      }
-      
-      @Override
-      protected boolean checkIfBulletCanBeRemovedAsOffScreen() {
-         for(Point2D p : Helper.getPointsOnArc(arc)) {
-            if(!checkIfPointIsOffScreen(p)) {
-               return false;
-            }
-         }
-         // Can only be removed if none of the points in the arc are onscreen
-         return true;
-      }
-      
-      private void setArc(Arc2D a, double radius) {
-         a.setArcByCenter(start.getX(), start.getY(), radius, startAngle, extentAngle,
-               Arc2D.OPEN);
+         return points;
       }
    }
 }

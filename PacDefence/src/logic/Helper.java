@@ -183,12 +183,13 @@ public class Helper {
       sinAngle *= radius;
       cosAngle *= radius;
       List<Point2D> points = new ArrayList<Point2D>((int)numPoints + 3);
+      double newSinAngle;
       for(int i = 0; i <= numPoints + 1; i++) {
          Point2D p = new Point2D.Double(x + sinAngle, y + cosAngle);
          if(containedInAShape(p, containedIn)) {
             points.add(p);
          }
-         double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
+         newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
          cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
          sinAngle = newSinAngle;
       }

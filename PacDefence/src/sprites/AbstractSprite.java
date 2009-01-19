@@ -42,7 +42,7 @@ import logic.Circle;
 import logic.Formulae;
 import logic.Helper;
 
-public abstract class AbstractSprite implements Sprite {
+public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    
    private static final double baseSpeed = 2;
    private static final double maxMult = 2;
@@ -273,6 +273,12 @@ public abstract class AbstractSprite implements Sprite {
             adjustedDamageTicksLeft = numTicks;
          }
       }
+   }
+   
+   @Override
+   public int compareTo(Sprite s) {
+      // The speed differences should never be so large that the int wraps
+      return (int)(10000 * (s.getSpeed() - this.getSpeed()));
    }
 
    private void move() {
