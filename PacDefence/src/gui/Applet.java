@@ -32,7 +32,9 @@ public class Applet extends JApplet {
    
    @Override
    public void init() {
-      game = new Game(this, false, false);
+      String debugTimesParam = getParameter("DebugTimes");
+      boolean debugTimes = debugTimesParam == null ? false : Boolean.parseBoolean(debugTimesParam);
+      game = new Game(this, debugTimes, false);
       setSize(new Dimension(Game.WIDTH, Game.HEIGHT));
       setVisible(true);
    }

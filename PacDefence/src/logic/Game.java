@@ -791,9 +791,6 @@ public class Game {
       }
       
       private void lookAfterAddingNewSprites() {
-         if(levelInProgress) {
-            sprites.add(new Pacman(level, levelHP, clonePathPoints()));
-         }
          if(spritesToAdd > 0) {
             if(addSpriteIn < 1) {
                sprites.add(new Pacman(level, levelHP, clonePathPoints()));
