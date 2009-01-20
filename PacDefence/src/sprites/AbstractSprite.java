@@ -26,6 +26,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -208,6 +209,11 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    @Override
    public Point2D intersects(Line2D line) {
       return intersects(Helper.getPointsOnLine(line));
+   }
+   
+   @Override
+   public boolean intersects(Arc2D a, List<Point2D> arcPoints) {
+      return bounds.intersects(a, arcPoints);
    }
 
    @Override

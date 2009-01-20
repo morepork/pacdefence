@@ -75,7 +75,7 @@ public interface Tower extends Cloneable {
    };
    
    public void draw(Graphics g);
-   public void drawShadowAt(Graphics g, Point p);
+   public void drawShadowAt(Graphics g, Point p, boolean validPlacement);
    /**
     * 
     * @param sprites

@@ -25,11 +25,13 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -168,6 +170,38 @@ public class Circle implements Shape {
       return line.ptSegDistSq(centre) < radiusSq;
    }
    
+   public boolean intersects(Arc2D a) {
+      return intersects(a, null);
+   }
+   
+   public boolean intersects(Arc2D a, List<Point2D> arcPoints) {
+      if(a.contains(centre)) {
+         return true;
+      }
+      List<Line2D> lines = new ArrayList<Line2D>();
+      if(a.getArcType() == Arc2D.PIE) {
+         Point2D arcCentre = new Point2D.Double(a.getCenterX(), a.getCenterY());
+         lines.add(new Line2D.Double(arcCentre, a.getStartPoint()));
+         lines.add(new Line2D.Double(arcCentre, a.getEndPoint()));
+      } else if(a.getArcType() == Arc2D.CHORD) {
+         lines.add(new Line2D.Double(a.getStartPoint(), a.getEndPoint()));
+      }
+      for(Line2D line : lines) {
+         if(intersects(line)) {
+            return true;
+         }
+      }
+      if(arcPoints == null) {
+         arcPoints = Helper.getPointsOnArc(a);
+      }
+      for(Point2D p : arcPoints) {
+         if(p.distanceSq(centre) < radiusSq) {
+            return true;
+         }
+      }
+      return false;
+   }
+   
    public boolean intersects(Shape s) {
       if(s instanceof Circle) {
          return intersects((Circle) s);
@@ -177,6 +211,8 @@ public class Circle implements Shape {
          return intersects((Polygon) s);
       } else if(s instanceof Line2D) {
          return intersects((Line2D) s);
+      } else if(s instanceof Arc2D) {
+         return intersects((Arc2D) s);
       } else {
          return intersects(s.getBounds2D());
       }

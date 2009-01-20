@@ -45,10 +45,10 @@ public class WaveTower extends AbstractTower {
    private final double upgradeIncreaseAngle = angle / 10;
    
    public WaveTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Wave", 40, 90, 5, 5.5, 50, 6, true);
+      super(p, pathBounds, "Wave", 40, 100, 5, 5.5, 50, 6, true);
       // This is a grossly overpowered (but with really low damage) version for
       // performance testing purposes
-      /*super(p, pathBounds, "Wave", 1, 500, 25, 0.1, 50, 6, true);
+      /*super(p, pathBounds, "Wave", 1, 500, 25, 0.05, 50, 6, true);
       for(int i = 0; i < 20; i++) {
          upgradeSpecial();
       }*/
@@ -88,25 +88,23 @@ public class WaveTower extends AbstractTower {
    private static class WaveBullet extends BasicBullet {
       
       private final double startAngle, extentAngle;
-      private final Arc2D arc = new Arc2D.Double();
-      private double lastRadius = 0, currentRadius = 0;
+      private final Arc2D arc = new Arc2D.Double(Arc2D.PIE);
+      private final Arc2D lastArc = new Arc2D.Double(Arc2D.PIE);
       private final Point2D start;
       // Use an ArrayList here as the overhead of a more complicated set
       // isn't really worth it as it'll never grow much larger than 50
       private final Collection<Sprite> hitSprites = new ArrayList<Sprite>();
       private double moneyEarnt = 0;
       private final int turretWidth;
-      private final List<Shape> pathBounds;
       
       public WaveBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, List<Shape> pathBounds, double angle) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          double midAngle = ImageHelper.vectorAngle(dx, dy);
-         startAngle = Math.toDegrees(midAngle - Math.PI / 2) - angle / 2;
+         startAngle = Math.toDegrees(midAngle) - 90 - angle / 2;
          extentAngle = angle;
          start = p;
          this.turretWidth = turretWidth;
-         this.pathBounds = pathBounds;
       }
       
       @Override
@@ -117,20 +115,12 @@ public class WaveTower extends AbstractTower {
          g2D.setStroke(new BasicStroke(4));
          g2D.draw(arc);
          g2D.setStroke(s);
-         // Debug code that draws squares on each point from getPointsFromArc
-         // to make sure they're in the right place
-         /*g2D.setColor(Color.RED);
-         for(Point2D p : Helper.getPointsOnArc(arc)) {
-            g2D.drawRect((int)p.getX(), (int)p.getY(), 1, 1);
-         }*/
       }
       
       @Override
       protected double doTick(List<Sprite> sprites) {
          double value = super.doTick(sprites);
-         lastRadius = currentRadius;
-         currentRadius = distanceTravelled + turretWidth;
-         setArc(arc, currentRadius);
+         setArc(arc, distanceTravelled + turretWidth);
          if(value > 0) {
             moneyEarnt += value;
          } else if(value == 0) {
@@ -144,10 +134,16 @@ public class WaveTower extends AbstractTower {
          if(sprites.isEmpty()) {
             return -1;
          }
-         List<Point2D> points = getCurrentPoints();
          double d = 0;
+         List<Point2D> arcPoints = Helper.getPointsOnArc(arc);
+         List<Point2D> lastArcPoints = Helper.getPointsOnArc(lastArc);
+         Arc2D closerArc = (Arc2D)lastArc.clone();
+         closerArc.setArcType(Arc2D.OPEN);
          for(Sprite s : sprites) {
-            if(!hitSprites.contains(s) && s.intersects(points) != null) {
+            // It has to intersect the current arc, but not the last arc unless
+            // it intersects the open arc with the same radius as the last arc
+            if(!hitSprites.contains(s) && s.intersects(arc, arcPoints) && (s.intersects(closerArc,
+                  lastArcPoints) || !s.intersects(lastArc, lastArcPoints))) {
                hitSprites.add(s);
                d += processDamageReport(s.hit(damage));
             }
@@ -162,27 +158,9 @@ public class WaveTower extends AbstractTower {
       }
       
       private void setArc(Arc2D a, double radius) {
+         lastArc.setArc(a);
          a.setArcByCenter(start.getX(), start.getY(), radius, startAngle, extentAngle,
                Arc2D.OPEN);
-      }
-      
-      private List<Point2D> getCurrentPoints() {
-         List<Point2D> points = new ArrayList<Point2D>();
-         //Arc2D a = new Arc2D.Double();
-         double radAngleStart = Math.toRadians(startAngle + 90);
-         double sinAngle = Math.sin(radAngleStart);
-         double cosAngle = Math.cos(radAngleStart);
-         double numPointsMult = Math.abs(2 * Math.PI * extentAngle / 360);
-         for(double d = lastRadius; d < currentRadius; d++) {
-            // I tried converting the Point2Ds to points and using a set to
-            // eliminate duplicates but it only reduced the number of points
-            // in the list by around 10% so didn't deem it worth the overhead
-            //setArc(a, d);
-            //points.addAll(Helper.getPointsOnArc(a, pathBounds);
-            points.addAll(Helper.getPointsOnArc(start.getX(), start.getY(), d, d * numPointsMult,
-                  sinAngle, cosAngle, pathBounds));
-         }
-         return points;
       }
    }
 }

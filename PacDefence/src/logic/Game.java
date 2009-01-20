@@ -567,31 +567,41 @@ public class Game {
       if(buildingTower == null) {
          return;
       }
+      if(isBuildingTowerPositionValid(p)) {
+         Tower toBuild = buildingTower.constructNew(p, pathBounds);
+         if(canBuildTower(toBuild.getClass())) {
+            buildTower(toBuild);
+            // Have to add after telling the control panel otherwise
+            // the price will be wrong
+            towersToAdd.add(toBuild);
+            if(toBuild instanceof AidTower) {
+               ((AidTower) toBuild).setTowers(Collections.unmodifiableList(towers));
+            } else if(toBuild instanceof Ghost) {
+               nextGhostCost *= 2;
+            }
+            if(!canBuildTower(buildingTower.getClass())) {
+               setBuildingTower(null);
+            }
+         }
+      }
+   }
+   
+   private boolean isBuildingTowerPositionValid(Point p) {
+      if(buildingTower == null || p == null) {
+         return false;
+      }
       Tower toBuild = buildingTower.constructNew(p, pathBounds);
+      // Checks that the point isn't on the path
+      if(!toBuild.canTowerBeBuilt(path)) {
+         return false;
+      }
       for(Tower t : towers) {
          // Checks that the point doesn't clash with another tower
          if(t.doesTowerClashWith(toBuild)) {
-            return;
+            return false;
          }
       }
-      // Checks that the point isn't on the path
-      if(!toBuild.canTowerBeBuilt(path)) {
-         return;
-      }
-      if(canBuildTower(toBuild.getClass())) {
-         buildTower(toBuild);
-         // Have to add after telling the control panel otherwise
-         // the price will be wrong
-         towersToAdd.add(toBuild);
-         if(toBuild instanceof AidTower) {
-            ((AidTower) toBuild).setTowers(Collections.unmodifiableList(towers));
-         } else if(toBuild instanceof Ghost) {
-            nextGhostCost *= 2;
-         }
-         if(!canBuildTower(buildingTower.getClass())) {
-            setBuildingTower(null);
-         }
-      }
+      return true;
    }
    
    private class Clock extends Thread {
@@ -723,6 +733,7 @@ public class Game {
                   towersToDraw.size() - 1);
          }
          drawingBeginTime -= gameMap.draw(towersToDraw, buildingTower,
+               isBuildingTowerPositionValid(lastMousePosition), lastMousePosition,
                Collections.unmodifiableList(sprites), Collections.unmodifiableList(bullets),
                processTime, processSpritesTime, processBulletsTime, processTowersTime,
                drawTime, bullets.size());

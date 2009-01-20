@@ -22,6 +22,7 @@ package towers;
 import images.ImageHelper;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics;
@@ -29,7 +30,9 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -198,7 +201,7 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public void drawShadowAt(Graphics g, Point p) {
+   public void drawShadowAt(Graphics g, Point p, boolean validPlacement) {
       Graphics2D g2D = (Graphics2D) g;
       drawRange(g2D, p);
       // Save the current composite to reset back to later
@@ -208,6 +211,18 @@ public abstract class AbstractTower implements Tower {
       g2D.drawImage(currentImage, (int) p.getX() - halfWidth, (int) p.getY() - halfWidth, width,
             width, null);
       g2D.setComposite(c);
+      if(!validPlacement) {
+         drawX(g2D, p, halfWidth);
+      }
+   }
+   
+   public static void drawX(Graphics2D g, Point p, int halfWidth) {
+      Stroke s = g.getStroke();
+      g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+      g.setColor(Color.RED);
+      g.drawLine(p.x - halfWidth, p.y - halfWidth, p.x + halfWidth, p.y + halfWidth);
+      g.drawLine(p.x - halfWidth, p.y + halfWidth, p.x + halfWidth, p.y - halfWidth);
+      g.setStroke(s);
    }
 
    @Override

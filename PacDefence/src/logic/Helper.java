@@ -135,11 +135,11 @@ public class Helper {
    public static List<Point2D> getPointsOnArc(Arc2D a, List<Shape> containedIn) {
       double radius = a.getStartPoint().distance(a.getCenterX(), a.getCenterY());
       /*double circumference = 2 * Math.PI * radius;
-      double numPoints = circumference * a.getAngleExtent() / 360;
+      double numPoints = circumference * Math.abs(a.getAngleExtent()) / 360;
       double deltaAngle = Math.toRadians(a.getAngleExtent() / numPoints);*/
       // Left the above code in as it's easier to understand, though the two
       // lines below should be faster and do the same thing.
-      double numPoints = 2 * Math.PI * radius * a.getAngleExtent() / 360;
+      double numPoints = 2 * Math.PI * radius * Math.abs(a.getAngleExtent()) / 360;
       double deltaAngle = 1 / radius;
       double angle = Math.toRadians(a.getAngleStart() + 90);
       List<Point2D> points = new ArrayList<Point2D>((int) numPoints + 3);

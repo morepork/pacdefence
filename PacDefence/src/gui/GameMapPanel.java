@@ -114,17 +114,19 @@ public class GameMapPanel extends JPanel {
       }
    }
    
-   public long draw(List<Tower> towers, Tower buildingTower, List<Sprite> sprites,
-         List<Bullet> bullets, long processTime, long processSpritesTime,
-         long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
+   public long draw(List<Tower> towers, Tower buildingTower, boolean isValidPlacement, 
+         Point buildingTowerPos, List<Sprite> sprites, List<Bullet> bullets, long processTime,
+         long processSpritesTime, long processBulletsTime, long processTowersTime, long drawTime,
+         int numBullets) {
       if(gameOver == null) {
          // Each time draw on a different buffer so that the a half drawn buffer
          // isn't drawn on the component. I tried recreating the buffer each time
          // but that was significantly slower than this implementation.
          int nextBufferIndex = (bufferIndex + 1) % buffers.length;
          Graphics2D g = buffers[nextBufferIndex].createGraphics();
-         drawUpdate(g, towers, buildingTower, sprites, bullets, processTime,
-               processSpritesTime, processBulletsTime, processTowersTime, drawTime, numBullets);
+         drawUpdate(g, towers, buildingTower, isValidPlacement, buildingTowerPos, sprites,
+               bullets, processTime, processSpritesTime, processBulletsTime, processTowersTime,
+               drawTime, numBullets);
          textDisplay.draw(g);
          bufferIndex = nextBufferIndex;
          g.dispose();
@@ -163,8 +165,9 @@ public class GameMapPanel extends JPanel {
    }*/
    
    private void drawUpdate(Graphics g, List<Tower> towers, Tower buildingTower,
-         List<Sprite> sprites, List<Bullet> bullets, long processTime, long processSpritesTime,
-         long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
+         boolean isValidPlacement, Point buildingTowerPos, List<Sprite> sprites,
+         List<Bullet> bullets, long processTime, long processSpritesTime, long processBulletsTime,
+         long processTowersTime, long drawTime, int numBullets) {
       // This should completely cover the old image in the buffer
       g.drawImage(backgroundImage, 0, 0, null);
       for(Sprite s : sprites) {
@@ -180,11 +183,8 @@ public class GameMapPanel extends JPanel {
       }
       drawDebug(g, processTime, processSpritesTime, processBulletsTime, processTowersTime,
             drawTime, numBullets);
-      if(buildingTower != null) {
-         Point p = getMousePosition();
-         if (p != null) {
-            buildingTower.drawShadowAt(g, p);
-         }
+      if(buildingTower != null && buildingTowerPos != null) {
+         buildingTower.drawShadowAt(g, buildingTowerPos, isValidPlacement);
       }
    }
    

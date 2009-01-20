@@ -29,12 +29,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import logic.Game;
@@ -47,13 +47,13 @@ public class BeamTower extends AbstractTower {
    
    // The number of ticks the beam lasts for
    private static final double startingBeamLastTicks = Game.CLOCK_TICKS_PER_SECOND / 2;
-   private static final double upgradeBeamLastTicks = (upgradeIncreaseFactor - 1) * startingBeamLastTicks;
+   private static final double upgradeBeamLastTicks = startingBeamLastTicks / 10;
    private double beamLastTicks = startingBeamLastTicks;
    
    public BeamTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Beam", 40, 75, 20, 3.8, 50, 0, false);
+      super(p, pathBounds, "Beam", 40, 100, 40, 3.9, 50, 0, false);
       // This is a grossly overpowered version for testing performance.
-      /*super(p, pathBounds, "Beam", 0, 1000, 100, 0.1, 50, 0, false);
+      /*super(p, pathBounds, "Beam", 0, 1000, 100, 0.05, 50, 0, false);
       for(int i = 0; i < 20; i++) {
          upgradeSpecial();
       }*/
@@ -107,37 +107,28 @@ public class BeamTower extends AbstractTower {
       private static final float minAlpha = 0.2F;
       private static final Stroke stroke = new BasicStroke(4);
       private final float deltaAlpha;
-      private final List<Shape> pathBounds;
       private final Tower launchedBy;
       // Tried using a HashSet and a TreeMap here but there was no noticeable performance
       // improvement even with a large number of sprites.
       private final Collection<Sprite> hitSprites = new ArrayList<Sprite>();
-      private final Line2D beam = new Line2D.Double();
+      //private final Line2D beam = new Line2D.Double();
       private final Point2D centre;
-      private double sinAngle;
-      private double cosAngle;
-      private final double sinDeltaAngle;
-      private final double cosDeltaAngle;
+      private final Arc2D arc = new Arc2D.Double(Arc2D.PIE);
+      // arcAngle and extentAngle are specific to the arc
+      private double arcAngle;
+      private final double deltaAngle;
       private final int range;
-      private final double numPointsMult;
       private int ticksLeft;
       private final double damage;
       private double moneyEarnt = 0;
-      //private List<Point2D> points = Collections.emptyList();
       
       private Beam(Tower t, Point2D centre, double angle, int range, double speed, double damage,
             List<Shape> pathBounds, Sprite target, int numTicks) {
          deltaAlpha = (1 - minAlpha) / numTicks;
          this.centre = centre;
-         this.pathBounds = pathBounds;
          this.launchedBy = t;
-         sinAngle = Math.sin(angle);
-         cosAngle = Math.cos(angle);
-         double deltaAngle = Math.toRadians(speed / Game.CLOCK_TICKS_PER_SECOND) *
-               getDirectionModifier(target);
-         sinDeltaAngle = Math.sin(deltaAngle);
-         cosDeltaAngle = Math.cos(deltaAngle);
-         numPointsMult = Math.abs(deltaAngle);
+         this.arcAngle = Math.toDegrees(angle) - 90;
+         this.deltaAngle = speed / Game.CLOCK_TICKS_PER_SECOND * getDirectionModifier(target);
          this.range = range;
          ticksLeft = numTicks;
          setBeam();
@@ -154,16 +145,14 @@ public class BeamTower extends AbstractTower {
          Stroke s = g2D.getStroke();
          g2D.setStroke(stroke);
          
-         g2D.draw(beam);
+         g2D.draw(new Line2D.Double(centre, arc.getStartPoint()));
          
          g2D.setComposite(c);
          g2D.setStroke(s);
          
-         // Debugging code to make sure the points are in the right place
+         // Debugging code to make sure the arc is in the right place
          /*g2D.setColor(Color.RED);
-         for(Point2D p : points) {
-            g2D.drawRect((int)p.getX(), (int)p.getY(), 1, 1);
-         }*/
+         g2D.draw(arc);*/
       }
 
       @Override
@@ -173,23 +162,16 @@ public class BeamTower extends AbstractTower {
          }
          ticksLeft--;
          currentAlpha -= deltaAlpha;
-         List<Sprite> hittableSprites = new ArrayList<Sprite>(sprites);
-         hittableSprites.removeAll(hitSprites);
-         if(!hittableSprites.isEmpty()) {
-            hitSprites(hittableSprites, makePoints());
-         }
-         // Use trig identities here as they should be faster than calling sin and cos.
-         // sinAngle and cosAngle become sin and cos of (previous angle + deltaAngle).
-         double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
-         cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
-         sinAngle = newSinAngle;
+         hitSprites(sprites);
+         arcAngle += deltaAngle;
          setBeam();
          return -1;
       }
       
       private void setBeam() {
-         beam.setLine(centre, new Point2D.Double(centre.getX() + range * sinAngle,
-               centre.getY() + range * cosAngle));
+         // Negate deltaAngle here as the arc extends behind the beam
+         arc.setArcByCenter(centre.getX(), centre.getY(), range, arcAngle, -deltaAngle,
+               Arc2D.PIE);
       }
       
       private int getDirectionModifier(Sprite s) {
@@ -204,20 +186,10 @@ public class BeamTower extends AbstractTower {
          return (nextAngleBetween > angleBetween) ? -1 : 1;
       }
       
-      private List<Point2D> makePoints() {
-         List<Point2D> points = new ArrayList<Point2D>();
-         for(int i = 1; i <= range; i++) {
-            points.addAll(Helper.getPointsOnArc(centre.getX(), centre.getY(), i,
-                  i * numPointsMult, sinAngle, cosAngle, pathBounds));
-         }
-         //this.points = points;
-         return points;
-      }
-      
-      private void hitSprites(List<Sprite> sprites, List<Point2D> points) {
-         // TODO Optimise this somehow? This is the biggest bottleneck
+      private void hitSprites(List<Sprite> sprites) {
+         List<Point2D> arcPoints = Helper.getPointsOnArc(arc);
          for(Sprite s : sprites) {
-            if(s.intersects(points) != null) {
+            if(!hitSprites.contains(s) && s.intersects(arc, arcPoints)) {
                DamageReport d = s.hit(damage);
                if(d != null) {
                   moneyEarnt += BasicBullet.processDamageReport(d, launchedBy);

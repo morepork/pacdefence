@@ -112,7 +112,7 @@ public class Ghost implements Tower {
    }
 
    @Override
-   public void drawShadowAt(Graphics g, Point p) {
+   public void drawShadowAt(Graphics g, Point p, boolean validPlacement) {
       Graphics2D g2D = (Graphics2D) g;
       // Save the current composite to reset back to later
       Composite c = g2D.getComposite();
@@ -121,6 +121,9 @@ public class Ghost implements Tower {
             AbstractTower.shadowAmount));  
       g2D.drawImage(image, (int) p.getX() - halfWidth, (int) p.getY() - halfWidth, null);
       g2D.setComposite(c);
+      if(!validPlacement) {
+         AbstractTower.drawX(g2D, p, halfWidth);
+      }
    }
    
    @Override
