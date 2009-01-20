@@ -19,12 +19,12 @@
 
 package towers;
 
-import images.ImageHelper;
-
 import java.awt.Point;
 import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
+
+import logic.Helper;
 
 import sprites.Sprite;
 
@@ -62,7 +62,7 @@ public class OmnidirectionalTower extends AbstractTower {
    protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
          double speed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
       List<Bullet> bullets = new ArrayList<Bullet>();
-      double angle = ImageHelper.vectorAngle(dx, dy);
+      double angle = Helper.vectorAngle(dx, dy);
       double dTheta = 2 * Math.PI / numShots;
       for(int i = 0; i < numShots; i++) {
          dx = Math.sin(angle);

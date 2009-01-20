@@ -212,8 +212,8 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    }
    
    @Override
-   public boolean intersects(Arc2D a, List<Point2D> arcPoints) {
-      return bounds.intersects(a, arcPoints);
+   public boolean intersects(Arc2D a) {
+      return bounds.intersects(a);
    }
 
    @Override
@@ -331,7 +331,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          steps = 0;
          // Invert yStep here as y coord goes down as it increases, rather than
          // up as in a conventional coordinate system.
-         rotateImages(ImageHelper.vectorAngle(xStep, -yStep));
+         rotateImages(Helper.vectorAngle(xStep, -yStep));
       } else {
          // There are no more points to head towards
          if (nextPoint == null) {

@@ -32,6 +32,8 @@ import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
+import logic.Helper;
+
 public class ImageHelper {
    
    public static String createPath(String... foldersAndFileName) {
@@ -99,23 +101,7 @@ public class ImageHelper {
    }
 
    public static BufferedImage rotateImage(BufferedImage image, double dx, double dy) {
-      return rotateImage(image, vectorAngle(dx, dy));
-   }
-   
-   public static double vectorAngle(double dx, double dy) {
-      if (dx > 0) {
-         if (dy > 0) {
-            return Math.atan(dx / dy);
-         } else {
-            return Math.atan(-dy / dx) + Math.PI / 2;
-         }
-      } else {
-         if (dy > 0) {
-            return 2 * Math.PI - Math.atan(-dx / dy);
-         } else {
-            return Math.atan(dx / dy) + Math.PI;
-         }
-      }
+      return rotateImage(image, Helper.vectorAngle(dx, dy));
    }
    
    public static BufferedImage cloneImage(BufferedImage image) {

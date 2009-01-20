@@ -19,8 +19,6 @@
 
 package towers;
 
-import images.ImageHelper;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -100,7 +98,7 @@ public class WaveTower extends AbstractTower {
       public WaveBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, List<Shape> pathBounds, double angle) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
-         double midAngle = ImageHelper.vectorAngle(dx, dy);
+         double midAngle = Helper.vectorAngle(dx, dy);
          startAngle = Math.toDegrees(midAngle) - 90 - angle / 2;
          extentAngle = angle;
          start = p;
@@ -112,7 +110,7 @@ public class WaveTower extends AbstractTower {
          Graphics2D g2D = (Graphics2D) g;
          g2D.setColor(Color.PINK);
          Stroke s = g2D.getStroke();
-         g2D.setStroke(new BasicStroke(4));
+         g2D.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
          g2D.draw(arc);
          g2D.setStroke(s);
       }
@@ -135,15 +133,13 @@ public class WaveTower extends AbstractTower {
             return -1;
          }
          double d = 0;
-         List<Point2D> arcPoints = Helper.getPointsOnArc(arc);
-         List<Point2D> lastArcPoints = Helper.getPointsOnArc(lastArc);
          Arc2D closerArc = (Arc2D)lastArc.clone();
          closerArc.setArcType(Arc2D.OPEN);
          for(Sprite s : sprites) {
             // It has to intersect the current arc, but not the last arc unless
             // it intersects the open arc with the same radius as the last arc
-            if(!hitSprites.contains(s) && s.intersects(arc, arcPoints) && (s.intersects(closerArc,
-                  lastArcPoints) || !s.intersects(lastArc, lastArcPoints))) {
+            if(!hitSprites.contains(s) && s.intersects(arc) &&
+                  (s.intersects(closerArc) || !s.intersects(lastArc))) {
                hitSprites.add(s);
                d += processDamageReport(s.hit(damage));
             }

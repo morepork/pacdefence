@@ -39,8 +39,24 @@ public class Helper {
    
    private static final double twoPi = 2 * Math.PI;
    
-   public static double distanceSq(Point2D p1, Point2D p2) {
-      return Point2D.distanceSq(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+   public static double vectorAngle(double dx, double dy) {
+      if (dx > 0) {
+         if (dy > 0) {
+            return Math.atan(dx / dy);
+         } else {
+            return Math.atan(-dy / dx) + Math.PI / 2;
+         }
+      } else {
+         if (dy > 0) {
+            return 2 * Math.PI - Math.atan(-dx / dy);
+         } else {
+            return Math.atan(dx / dy) + Math.PI;
+         }
+      }
+   }
+   
+   public static double vectorAngleBetween(Point2D p1, Point2D p2) {
+      return vectorAngle(p1.getX() - p2.getX(), p1.getY() - p2.getY());
    }
    
    public static List<Point2D> getPointsOnLine(Line2D line) {

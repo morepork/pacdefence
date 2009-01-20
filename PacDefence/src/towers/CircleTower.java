@@ -19,8 +19,6 @@
 
 package towers;
 
-import images.ImageHelper;
-
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -78,7 +76,7 @@ public class CircleTower extends AbstractTower {
             double speed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          double distance = p.distance(s.getPosition()) - s.getHalfWidth();
-         double angleToSprite = ImageHelper.vectorAngle(dx, dy);
+         double angleToSprite = Helper.vectorAngle(dx, dy);
          double theta = angleToSprite - Math.acos(distance / getRange());
          double halfRange = getRange() / 2.0;
          double deltaX = halfRange * Math.sin(theta);

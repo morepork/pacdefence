@@ -30,7 +30,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.image.BufferedImage;
@@ -544,7 +543,7 @@ public abstract class AbstractTower implements Tower {
       double dx = s.getPosition().getX() - p.getX();
       double dy = s.getPosition().getY() - p.getY();
       if(imageRotates && rotateTurret) {
-         currentImage = drawCurrentImage(rotateImage(ImageHelper.vectorAngle(dx, -dy)));
+         currentImage = drawCurrentImage(rotateImage(Helper.vectorAngle(dx, -dy)));
       }
       return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, s, pathBounds);
    }

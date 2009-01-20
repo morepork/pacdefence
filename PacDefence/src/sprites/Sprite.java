@@ -59,7 +59,7 @@ public interface Sprite extends Comparable<Sprite> {
    public boolean intersects(Point2D p);
    public Point2D intersects(List<Point2D> points);
    public Point2D intersects(Line2D line);
-   public boolean intersects(Arc2D a, List<Point2D> arcPoints);
+   public boolean intersects(Arc2D a);
    
    /**
     * Returns a double representing initial baseHP / totalHP

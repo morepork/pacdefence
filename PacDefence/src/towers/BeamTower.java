@@ -19,8 +19,6 @@
 
 package towers;
 
-import images.ImageHelper;
-
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -80,7 +78,7 @@ public class BeamTower extends AbstractTower {
 
    @Override
    protected String getSpecial() {
-      return Helper.format(beamLastTicks / Game.CLOCK_TICKS_PER_SECOND, 3) + "s";
+      return Helper.format(beamLastTicks / Game.CLOCK_TICKS_PER_SECOND, 2) + "s";
    }
 
    @Override
@@ -91,7 +89,7 @@ public class BeamTower extends AbstractTower {
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
          double damage, Point p, Sprite s, List<Shape> pathBounds) {
-      double angle = ImageHelper.vectorAngle(dx, dy);
+      double angle = Helper.vectorAngle(dx, dy);
       return new Beam(this, p, angle, range, speed, damage, pathBounds, s, (int)beamLastTicks);
    }
    
@@ -176,20 +174,19 @@ public class BeamTower extends AbstractTower {
       
       private int getDirectionModifier(Sprite s) {
          Point2D p = s.getPosition();
-         double angleBetween = ImageHelper.vectorAngle(p.getX() - centre.getX(),
+         double angleBetween = Helper.vectorAngle(p.getX() - centre.getX(),
                p.getY() - centre.getY());
          // Two points just ahead of where the sprite is now
          double nextX = p.getX() + Math.sin(s.getCurrentAngle());
          double nextY = p.getY() - Math.cos(s.getCurrentAngle());
-         double nextAngleBetween = ImageHelper.vectorAngle(nextX - centre.getX(),
+         double nextAngleBetween = Helper.vectorAngle(nextX - centre.getX(),
                nextY - centre.getY());
          return (nextAngleBetween > angleBetween) ? -1 : 1;
       }
       
       private void hitSprites(List<Sprite> sprites) {
-         List<Point2D> arcPoints = Helper.getPointsOnArc(arc);
          for(Sprite s : sprites) {
-            if(!hitSprites.contains(s) && s.intersects(arc, arcPoints)) {
+            if(!hitSprites.contains(s) && s.intersects(arc)) {
                DamageReport d = s.hit(damage);
                if(d != null) {
                   moneyEarnt += BasicBullet.processDamageReport(d, launchedBy);

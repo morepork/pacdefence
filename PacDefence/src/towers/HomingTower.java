@@ -19,8 +19,6 @@
 
 package towers;
 
-import images.ImageHelper;
-
 import java.awt.Point;
 import java.awt.Shape;
 import java.util.List;
@@ -81,8 +79,8 @@ public class HomingTower extends AbstractTower {
       protected double doTick(List<Sprite> sprites) {
          double value = super.doTick(sprites);
          if(target.isAlive()) {
-            double currentAngle = ImageHelper.vectorAngle(dir[0], dir[1]);
-            double angleToTarget = ImageHelper.vectorAngle(
+            double currentAngle = Helper.vectorAngle(dir[0], dir[1]);
+            double angleToTarget = Helper.vectorAngle(
                   target.getPosition().getX() - position.getX(),
                   target.getPosition().getY() - position.getY());
             // Normalise the angle to between -pi and pi so that deltaAngle

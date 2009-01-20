@@ -440,7 +440,7 @@ public class Game {
    
    private void updateLives() {
       controlPanel.updateLives(lives);
-      if(lives < 0) {
+      if(lives <= 0) {
          clock.gameOver = true;
          gameMap.signalGameOver();
       }
@@ -791,6 +791,9 @@ public class Game {
       }
       
       private void lookAfterAddingNewSprites() {
+         if(levelInProgress) {
+            sprites.add(new Pacman(level, levelHP, clonePathPoints()));
+         }
          if(spritesToAdd > 0) {
             if(addSpriteIn < 1) {
                sprites.add(new Pacman(level, levelHP, clonePathPoints()));

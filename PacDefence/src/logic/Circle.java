@@ -171,16 +171,17 @@ public class Circle implements Shape {
    }
    
    public boolean intersects(Arc2D a) {
-      return intersects(a, null);
-   }
-   
-   public boolean intersects(Arc2D a, List<Point2D> arcPoints) {
-      if(a.contains(centre)) {
+      if(a.getHeight() != a.getWidth()) {
+         throw new IllegalArgumentException("This only works with arcs that have a square " +
+               "framing rectangle.");
+      }
+      // These are the easy but necessary checks (latter two for open arcs)
+      if(a.contains(centre) || contains(a.getStartPoint()) || contains(a.getEndPoint())) {
          return true;
       }
       List<Line2D> lines = new ArrayList<Line2D>();
+      Point2D arcCentre = new Point2D.Double(a.getCenterX(), a.getCenterY());
       if(a.getArcType() == Arc2D.PIE) {
-         Point2D arcCentre = new Point2D.Double(a.getCenterX(), a.getCenterY());
          lines.add(new Line2D.Double(arcCentre, a.getStartPoint()));
          lines.add(new Line2D.Double(arcCentre, a.getEndPoint()));
       } else if(a.getArcType() == Arc2D.CHORD) {
@@ -191,11 +192,21 @@ public class Circle implements Shape {
             return true;
          }
       }
-      if(arcPoints == null) {
-         arcPoints = Helper.getPointsOnArc(a);
-      }
-      for(Point2D p : arcPoints) {
-         if(p.distanceSq(centre) < radiusSq) {
+      double distance = centre.distance(arcCentre);
+      // Need to halve the height to get the radius of the arc
+      double arcRadius = a.getHeight() / 2;
+      if(distance < arcRadius + radius && distance > arcRadius - radius) {
+         // The distance from the centre is less than the radius of the arc
+         // plus the radius of the circle
+         double angleBetween = Helper.vectorAngleBetween(arcCentre, centre);
+         double angleToStart = Helper.vectorAngleBetween(arcCentre, a.getStartPoint());
+         double extentAngle = Math.toRadians(a.getAngleExtent());
+         if(extentAngle > 0 ?
+               angleBetween > angleToStart && angleBetween < angleToStart + extentAngle :
+               angleBetween < angleToStart && angleBetween < angleToStart + extentAngle) {
+            // The centre is between the lines from arcCentre to the start/end
+            // of the arc, stretched to infinity so the circle intersects the
+            // end of the arc
             return true;
          }
       }
