@@ -31,6 +31,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -124,6 +125,12 @@ public class GameMapPanel extends JPanel {
          // but that was significantly slower than this implementation.
          int nextBufferIndex = (bufferIndex + 1) % buffers.length;
          Graphics2D g = buffers[nextBufferIndex].createGraphics();
+         // The default value for alpha interpolation causes significant lag
+         g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
+               RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+         //System.out.println(g.getRenderingHint(RenderingHints.KEY_ANTIALIASING) ==
+         //      RenderingHints.VALUE_ANTIALIAS_ON);
+         //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
          drawUpdate(g, towers, buildingTower, isValidPlacement, buildingTowerPos, sprites,
                bullets, processTime, processSpritesTime, processBulletsTime, processTowersTime,
                drawTime, numBullets);

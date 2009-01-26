@@ -382,6 +382,9 @@ public class Game {
    
    private void setStartingStats() {
       level = 0;
+      towers.clear();
+      bullets.clear();
+      sprites.clear();
       upgradesSoFar.clear();
       selectedTower = null;
       buildingTower = null;
@@ -500,6 +503,9 @@ public class Game {
    }
    
    private void processMouseReleased(MouseEvent e) {
+      if(clock.gameOver) {
+         return;
+      }
       setSelectedTower(null);
       setSelectedSprite(null);
       if(e.getButton() == MouseEvent.BUTTON3) {
