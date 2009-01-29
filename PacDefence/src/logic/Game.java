@@ -994,8 +994,9 @@ public class Game {
       
       public void processUpgradeButtonPressed(ActionEvent e, Attribute a) {
          int numTimes = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 5 : 1;
+         Tower toAffect = towerToAffect();
          for(int i = 0; i < numTimes; i++) {
-            if(selectedTower == null) {
+            if(toAffect == null) {
                long cost = costToUpgradeTowers(a, towers);
                if(cost <= money) {
                   decreaseMoney(cost);
@@ -1004,10 +1005,10 @@ public class Game {
                   }
                }
             } else {
-               long cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
+               long cost = Formulae.upgradeCost(toAffect.getAttributeLevel(a));
                if(cost <= money) {
                   decreaseMoney(cost);
-                  selectedTower.raiseAttributeLevel(a, true);
+                  toAffect.raiseAttributeLevel(a, true);
                }
             }
          }
@@ -1017,12 +1018,13 @@ public class Game {
       public void processUpgradeButtonChanged(JButton b, Attribute a) {
          if(checkIfRolledOver(b)) {
             String description = a.toString() + " Upgrade";
+            Tower toAffect = towerToAffect();
             long cost = 0;
-            if(selectedTower == null) {
+            if(toAffect == null) {
                description += " (all)";
                cost = costToUpgradeAllTowers(a);
             } else {
-               cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
+               cost = Formulae.upgradeCost(toAffect.getAttributeLevel(a));
             }
             controlPanel.updateCurrentCost(description, cost);
          } else {
@@ -1095,18 +1097,20 @@ public class Game {
       }
       
       public void processSellButtonPressed(JButton b) {
-         if(selectedTower != null) {
-            increaseMoney(sellValue(selectedTower));
-            selectedTower.sell();
-            towersToRemove.add(selectedTower);
+         Tower toAffect = towerToAffect();
+         if(toAffect != null) {
+            increaseMoney(sellValue(toAffect));
+            toAffect.sell();
+            towersToRemove.add(toAffect);
             setSelectedTower(null);
          }
       }
       
       public void processSellButtonChanged(JButton b) {
-         if(selectedTower != null && checkIfRolledOver(b)) {
-            controlPanel.updateCurrentCost("Sell " + selectedTower.getName(),
-                  sellValue(selectedTower));
+         Tower toAffect = towerToAffect();
+         if(toAffect != null && checkIfRolledOver(b)) {
+            controlPanel.updateCurrentCost("Sell " + toAffect.getName(),
+                  sellValue(toAffect));
          } else {
             controlPanel.clearCurrentCost();
          }
@@ -1147,6 +1151,11 @@ public class Game {
       
       private boolean checkIfRolledOver(JButton b) {
          return b.getModel().isRollover();
+      }
+      
+      private Tower towerToAffect() {
+         return selectedTower != null ? selectedTower :
+               hoverOverTower != null ? hoverOverTower : null;
       }
    }
    
