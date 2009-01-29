@@ -34,6 +34,7 @@ import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -48,6 +49,8 @@ import java.util.Map;
 import java.util.concurrent.locks.LockSupport;
 
 import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
@@ -116,7 +119,7 @@ public class Game {
    private final Map<Attribute, Integer> upgradesSoFar =
          new EnumMap<Attribute, Integer>(Attribute.class);
 
-   private List<Comparator<Sprite>> comparators = createComparators();
+   private static final List<Comparator<Sprite>> comparators = createComparators();
    
    // Inside GameMapPanel, should be null otherwise
    private Point lastMousePosition;
@@ -241,7 +244,6 @@ public class Game {
       return gmp;
    }
    
-   @SuppressWarnings("serial")
    private ControlPanel createControlPanel() {
       ControlPanel cp = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
             ImageHelper.makeImage("control_panel", "blue_lava_blurred.jpg"), eventProcessor,
@@ -256,17 +258,41 @@ public class Game {
             lastMousePosition = null;
          }
       });
+      addKeyboardShortcuts(cp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW), cp.getActionMap());
+      return cp;
+   }
+   
+   @SuppressWarnings("serial")
+   private void addKeyboardShortcuts(InputMap inputMap, ActionMap actionMap) {
+      // Sets 1+ as the keyboard shortcuts for the tower upgrades
       for(int i = 1; i <= Attribute.values().length; i++) {
          final Attribute a = Attribute.values()[i - 1];
          Character c = Character.forDigit(i, 10);
-         cp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(c), a);
-         cp.getActionMap().put(a, new AbstractAction() {
+         inputMap.put(KeyStroke.getKeyStroke(c), a);
+         actionMap.put(a, new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-               eventProcessor.processUpgradeButtonPressed(e, a);            
+               controlPanel.clickTowerUpgradeButton(a);
             }         
          });
       }
-      return cp;
+      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0), "Change target up");
+      actionMap.put("Change target up", new AbstractAction() {
+         public void actionPerformed(ActionEvent e) {
+            controlPanel.clickTargetButton(true);
+         }
+      });
+      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0), "Change target down");
+      actionMap.put("Change target down", new AbstractAction() {
+         public void actionPerformed(ActionEvent e) {
+            controlPanel.clickTargetButton(false);
+         }
+      });      
+      inputMap.put(KeyStroke.getKeyStroke('s'), "Sell");
+      actionMap.put("Sell", new AbstractAction() {
+         public void actionPerformed(ActionEvent e) {
+            controlPanel.clickSellButton();
+         }
+      });
    }
    
    private List<Tower> createTowerImplementations() {
@@ -292,7 +318,7 @@ public class Game {
       return towerTypes;
    }
    
-   private List<Comparator<Sprite>> createComparators() {
+   private static List<Comparator<Sprite>> createComparators() {
       List<Comparator<Sprite>> list = new ArrayList<Comparator<Sprite>>();
       list.add(new Sprite.FirstComparator());
       list.add(new Sprite.LastComparator());
@@ -300,6 +326,7 @@ public class Game {
       list.add(new Sprite.SlowestComparator());
       list.add(new Sprite.MostHPComparator());
       list.add(new Sprite.LeastHPComparator());
+      list.add(new Sprite.RandomComparator());
       return list;
    }
    
@@ -988,9 +1015,7 @@ public class Game {
       }
       
       public void processUpgradeButtonChanged(JButton b, Attribute a) {
-         if(checkIfMovedOff(b)) {
-            controlPanel.clearCurrentCost();
-         } else {
+         if(checkIfRolledOver(b)) {
             String description = a.toString() + " Upgrade";
             long cost = 0;
             if(selectedTower == null) {
@@ -1000,6 +1025,8 @@ public class Game {
                cost = Formulae.upgradeCost(selectedTower.getAttributeLevel(a));
             }
             controlPanel.updateCurrentCost(description, cost);
+         } else {
+            controlPanel.clearCurrentCost();
          }
       }
       
@@ -1012,7 +1039,7 @@ public class Game {
       }
       
       public void processTowerButtonChangeEvent(JButton b, Tower t) {
-         if(checkIfMovedOff(b)) {
+         if(!checkIfRolledOver(b)) {
             t = null;
             if(buildingTower == null) {
                controlPanel.clearCurrentCost();
@@ -1049,9 +1076,7 @@ public class Game {
       
       public void processEndLevelUpgradeButtonChanged(JButton b, boolean livesUpgrade,
             boolean interestUpgrade, boolean moneyUpgrade, Attribute a) {
-         if(checkIfMovedOff(b)) {
-            controlPanel.clearCurrentCost();
-         } else {
+         if(checkIfRolledOver(b)) {
             String description = new String();
             String cost = "Free";
             if(a != null) {
@@ -1064,6 +1089,8 @@ public class Game {
                description = upgradeMoney + " bonus money";
             }
             controlPanel.updateCurrentCost(description, cost);
+         } else {
+            controlPanel.clearCurrentCost();
          }
       }
       
@@ -1077,17 +1104,22 @@ public class Game {
       }
       
       public void processSellButtonChanged(JButton b) {
-         if(selectedTower != null && !checkIfMovedOff(b)) {
+         if(selectedTower != null && checkIfRolledOver(b)) {
             controlPanel.updateCurrentCost("Sell " + selectedTower.getName(),
                   sellValue(selectedTower));
+         } else {
+            controlPanel.clearCurrentCost();
          }
       }
       
-      public void processTargetButtonPressed(JButton b) {
+      public void processTargetButtonPressed(JButton b, boolean direction) {
          String s = b.getText();
          for(int i = 0; i < comparators.size(); i++) {
             if(comparators.get(i).toString().equals(s)) {
-               int nextIndex = (i + 1) % comparators.size();
+               int nextIndex = (i + (direction ? 1 : -1)) % comparators.size();
+               if(nextIndex < 0) {
+                  nextIndex += comparators.size();
+               }
                Comparator<Sprite> c = comparators.get(nextIndex);
                b.setText(c.toString());
                selectedTower.setSpriteComparator(c);
@@ -1113,9 +1145,8 @@ public class Game {
          clock = new Clock();
       }
       
-      private boolean checkIfMovedOff(JButton b) {
-         // null means the cursor isn't over the button, so the mouse was moved off it
-         return b.getMousePosition() == null;
+      private boolean checkIfRolledOver(JButton b) {
+         return b.getModel().isRollover();
       }
    }
    

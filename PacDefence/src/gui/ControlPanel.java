@@ -30,11 +30,15 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,27 +65,35 @@ import towers.Tower.Attribute;
 @SuppressWarnings("serial")
 public class ControlPanel extends JPanel {
    
+   private static final Color defaultTextColour = Color.YELLOW;
+   private static final Color costLabelsColour = Color.GREEN;
+   private static final float defaultTextSize = 12F;
+   
    private final BufferedImage backgroundImage;
+   
    // These labels are in the top stats box
    private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel, upgradesLabel;
    private final Map<OverlayButton, Tower> towerTypes = new HashMap<OverlayButton, Tower>();
    private OverlayButton damageUpgrade, rangeUpgrade, rateUpgrade, speedUpgrade,
          specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade;
+   
    // These labels and the sell button below are in the tower info box
    private MyJLabel towerNameLabel, towerLevelLabel, damageDealtLabel, killsLabel;
    private MyJLabel targetLabel;
    private JButton targetButton = createTargetButton();
    private final JButton sellButton = createSellButton();
+   
    // These are in the current tower stats box
    private final List<TowerStat> towerStats = new ArrayList<TowerStat>();
    private final Map<JButton, Attribute> buttonAttributeMap = new HashMap<JButton, Attribute>();
+   private final Map<Attribute, JButton> attributeButtonMap =
+         new EnumMap<Attribute, JButton>(Attribute.class);
+   
    // These labels are in the level stats box
    private MyJLabel numSpritesLabel, timeBetweenSpritesLabel, hpLabel;
    private MyJLabel currentCostStringLabel, currentCostLabel;
+   
    private final ImageButton start = new ImageButton("start", ".png", true);
-   private static final Color defaultTextColour = Color.YELLOW;
-   private static final Color costLabelsColour = Color.GREEN;
-   private static final float defaultTextSize = 12F;
 
    private final ControlEventProcessor eventProcessor;
 
@@ -214,6 +226,22 @@ public class ControlPanel extends JPanel {
          towerTypes.put(b, towerTypes.get(b).constructNew(new Point(), null));
       }
       start.setEnabled(true);
+   }
+   
+   public void clickSellButton() {
+      sellButton.doClick();
+   }
+   
+   public void clickTowerUpgradeButton(Attribute a) {
+      attributeButtonMap.get(a).doClick();
+   }
+   
+   public void clickTargetButton(boolean normalClick) {
+      if(normalClick) {
+         targetButton.doClick();
+      } else {
+         processTargetButtonRightClicked(targetButton);
+      }
    }
    
    private void blankCurrentTowerInfo() {
@@ -449,9 +477,13 @@ public class ControlPanel extends JPanel {
       Box box = Box.createVerticalBox();
       box.add(SwingHelper.createWrapperPanel(towerNameLabel));
       Box centralRow = Box.createHorizontalBox();
+      centralRow.add(Box.createHorizontalGlue());
       centralRow.add(towerLevelLabel);
+      centralRow.add(Box.createHorizontalGlue());
       centralRow.add(sellButton);
+      centralRow.add(Box.createHorizontalGlue());
       centralRow.add(killsLabel);
+      centralRow.add(Box.createHorizontalGlue());
       box.add(centralRow);
       box.add(SwingHelper.createWrapperPanel(damageDealtLabel));
       targetLabel.setFontSize(textSize);
@@ -485,10 +517,23 @@ public class ControlPanel extends JPanel {
             BorderFactory.createEmptyBorder(-10, -5, -10, -5)));
       b.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
-            eventProcessor.processTargetButtonPressed((JButton)e.getSource());
+            boolean ctrl = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK;
+            eventProcessor.processTargetButtonPressed((JButton)e.getSource(), !ctrl);
+         }
+      });
+      // Go back on a right click
+      b.addMouseListener(new MouseAdapter() {
+         public void mouseClicked(MouseEvent e) {
+            if(e.getButton() == MouseEvent.BUTTON3) {
+               processTargetButtonRightClicked((JButton) e.getSource());
+            }
          }
       });
       return b;
+   }
+   
+   private void processTargetButtonRightClicked(JButton b) {
+      eventProcessor.processTargetButtonPressed(b, false);
    }
    
    private void setUpLevelStats() {
@@ -574,6 +619,8 @@ public class ControlPanel extends JPanel {
       private TowerStat(JButton b, JLabel l, Attribute a) {
          if(buttonAttributeMap.put(b, a) != null) {
             throw new IllegalArgumentException("This button has already been used.");
+         } else if(attributeButtonMap.put(a, b) != null) {
+            throw new IllegalArgumentException("This attribute has already been used.");
          }
          button = b;
          label = l;

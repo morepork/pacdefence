@@ -26,6 +26,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
 
 /**
@@ -149,6 +150,19 @@ public interface Sprite extends Comparable<Sprite> {
       @Override
       public String toString() {
          return "Least HP";
+      }
+   }
+   
+   public class RandomComparator extends AbstractSpriteComparator {
+      private static final Random rand = new Random();
+      @Override
+      public int compare(Sprite s1, Sprite s2) {
+         return rand.nextInt();
+      }
+      
+      @Override
+      public String toString() {
+         return "Random";
       }
    }
    
