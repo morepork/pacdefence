@@ -33,7 +33,7 @@ import sprites.Sprite;
 public class PoisonTower extends AbstractTower {
    
    // Half the damage is by poison, and half normal damage at the start
-   private static final double baseDamage = 8;
+   private static final double baseDamage = 10;
    private double damagePerTick = baseDamage / Game.CLOCK_TICKS_PER_SECOND;
    private double poisonTicks = Game.CLOCK_TICKS_PER_SECOND;
    private final double poisonTicksUpgrade = Game.CLOCK_TICKS_PER_SECOND / 10;

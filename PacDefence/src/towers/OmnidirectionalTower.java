@@ -34,7 +34,7 @@ public class OmnidirectionalTower extends AbstractTower {
    private int numShots = 3;
    
    public OmnidirectionalTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Omnidirectional", 40, 100, 5, 4.9, 50, 0, true);
+      super(p, pathBounds, "Omnidirectional", 40, 100, 5, 5, 50, 0, true);
       // Testing tower with way too many bullets
       /*super(p, pathBounds, "Omnidirectional", 0, 1000, 5, 0.005, 50, 0, true);
       for(int i = 0; i < 200; i++) {

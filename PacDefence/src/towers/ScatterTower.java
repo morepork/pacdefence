@@ -32,7 +32,7 @@ public class ScatterTower extends AbstractTower {
    private int shots = 2;
    
    public ScatterTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Scatter", 40, 100, 5, 4.5, 50, 0, true);
+      super(p, pathBounds, "Scatter", 40, 100, 5, 5, 50, 0, true);
    }
 
    @Override

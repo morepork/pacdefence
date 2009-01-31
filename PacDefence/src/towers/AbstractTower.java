@@ -609,12 +609,15 @@ public abstract class AbstractTower implements Tower {
       int topLeftRangeY = (int)(p.getY() - range);
       Graphics2D g2D = (Graphics2D) g;
       Composite c = g2D.getComposite();
-      g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5F));  
+      g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5F)); 
       g2D.setColor(Color.WHITE);
       g2D.fillOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
       g2D.setComposite(c);
-      g2D.setColor(Color.BLACK);
+      Stroke s = g2D.getStroke();
+      g2D.setStroke(new BasicStroke(2));
+      g2D.setColor(Color.DARK_GRAY);
       g2D.drawOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
+      g2D.setStroke(s);
    }
 
    private void setTopLeft() {

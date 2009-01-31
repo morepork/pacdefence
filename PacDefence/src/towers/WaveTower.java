@@ -43,7 +43,7 @@ public class WaveTower extends AbstractTower {
    private final double upgradeIncreaseAngle = angle / 10;
    
    public WaveTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Wave", 40, 100, 5, 5.5, 50, 6, true);
+      super(p, pathBounds, "Wave", 40, 100, 5, 5, 50, 6, true);
       // This is a grossly overpowered (but with really low damage) version for
       // performance testing purposes
       /*super(p, pathBounds, "Wave", 1, 500, 25, 0.05, 50, 6, true);

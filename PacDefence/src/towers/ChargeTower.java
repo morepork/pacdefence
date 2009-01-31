@@ -35,7 +35,7 @@ public class ChargeTower extends AbstractTower {
    private static final int ticksToCharge = (int)(2 * Game.CLOCK_TICKS_PER_SECOND);
 
    public ChargeTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Charge", 40, 100, 5, 10, 50, 16, true);
+      super(p, pathBounds, "Charge", 40, 100, 5, 15, 50, 16, true);
    }
    
    @Override

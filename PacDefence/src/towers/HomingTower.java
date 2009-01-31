@@ -35,7 +35,7 @@ public class HomingTower extends AbstractTower {
    private static final double upgradeIncreaseAngle = 0.1;
 
    public HomingTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Homing", 40, 100, 5, 12.5, 50, 18, true);
+      super(p, pathBounds, "Homing", 40, 100, 5, 20, 50, 18, true);
    }
    
    @Override
