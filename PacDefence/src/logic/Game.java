@@ -121,7 +121,7 @@ public class Game {
 
    private static final List<Comparator<Sprite>> comparators = createComparators();
    
-   // Inside GameMapPanel, should be null otherwise
+   // Last position inside GameMapPanel, should be null otherwise
    private Point lastMousePosition;
    
    private int level;
@@ -134,7 +134,7 @@ public class Game {
    private int endLevelUpgradesLeft;
    private static final int upgradeLives = 5;
    private static final int upgradeMoney = 1000;
-   private static final double upgradeInterest = 0.005;
+   private static final double upgradeInterest = 0.01;
    // These should only be set during a level using their set methods. Only one should
    // be non null at any particular time
    // The currently selected tower
@@ -491,7 +491,7 @@ public class Game {
    }
    
    private void updateInterestLabel() {
-      controlPanel.updateInterest(Helper.format(((interestRate - 1) * 100), 2) + "%");
+      controlPanel.updateInterest(Helper.format(((interestRate - 1) * 100), 0) + "%");
    }
    
    private void updateEndLevelUpgradesLabel() {
@@ -1086,7 +1086,7 @@ public class Game {
             } else if(livesUpgrade) {
                description = upgradeLives + " bonus lives";
             } else if(interestUpgrade) {
-               description = "+" + upgradeInterest * 100 + "% interest rate";
+               description = "+" + Helper.format(upgradeInterest * 100, 0) + "% interest rate";
             } else if(moneyUpgrade) {
                description = upgradeMoney + " bonus money";
             }

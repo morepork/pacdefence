@@ -106,7 +106,7 @@ public class ControlPanel extends JPanel {
       setUpJLabels();
       // Creates each of the sub panels of this panel      
       setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-      setUpTopStatsBox();
+      setUpTopStats();
       setUpNewTowers(towerImplementations);
       setUpEndLevelUpgrades();
       setUpCurrentTowerInfo();
@@ -285,7 +285,7 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   private void setUpTopStatsBox() {
+   private void setUpTopStats() {
       float textSize = defaultTextSize + 1;
       Box box = Box.createVerticalBox();
       box.setBorder(BorderFactory.createEmptyBorder(2, 20, 0, 20));
