@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Helper script to make a thumbnail of a screenshot
+
+if [ -z "$1" ]
+then
+	echo "Image name required as an argument."
+	exit 7
+fi
+
+until [ -z "$1" ]
+do
+	img="$1"
+	extension=${img##*.}
+	# Converts the image name ##.$$ -> ##thumb.$$
+	thumb="${img%.*}thumb.$extension"
+
+	cp "$img" "$thumb"
+
+	mogrify -resize 300 "$thumb"
+
+	if [ "$extension" = png ]
+	then
+		optipng "$thumb" >/dev/null
+		advpng -z4 "$thumb" >/dev/null
+		mogrify -quality 95 -format jpg "$thumb"
+	fi
+	shift
+done
+
+exit

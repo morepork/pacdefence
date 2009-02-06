@@ -1,0 +1,22 @@
+A:link {
+	color: lightgreen;
+	text-decoration: none;
+}
+
+A:visited {
+	color: orange;
+	text-decoration: none;
+}
+
+body {
+	background-color: #0f5e93;
+	color: yellow;
+	padding-left: 17em;
+}
+
+ul.navbar {
+	position: absolute;
+	top: 5em;
+	left: 0em;
+	width: 15em;
+}

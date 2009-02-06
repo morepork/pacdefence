@@ -12,13 +12,18 @@
 		<delete file="${NoSrcJar}" />
 		<jar destfile="${NoSrcJar}">
 			<fileset dir="${SrcDir}" casesensitive="yes">
+				<!-- Hidden files -->
 				<exclude name="**/.*" />
+				<!-- Backup files -->
+				<exclude name="**/*.*~" />
 				<exclude name="**/*.jar" />
 				<exclude name="**/*.java" />
 				<exclude name="**/*Test*" />
 				<exclude name="**/*.xcf.gz" />
 				<exclude name="**/*.svg" />
 				<exclude name="**/*.html" />
+				<exclude name="**/*.js" />
+				<exclude name="**/*.css" />
 				<exclude name="images/maps/rainbowColours.png" />
 				<exclude name="images/maps/rainbowColours.jpg" />
 				<exclude name="images/maps/*Map.png" />
@@ -29,6 +34,7 @@
 				<exclude name="images/towers/overlays/turrets/" />
 				<exclude name="images/towers/overlays/turretLengths" />
 				<exclude name="images/towers/overlays/makeTowerOverlays" />
+				<exclude name="img/**" />
 				<exclude name="java.policy.applet" />
 				<exclude name="build.xml" />
 			</fileset>
@@ -36,10 +42,12 @@
 				<attribute name="Main-Class" value="${MainClass}" />
 			</manifest>
 		</jar>
+		
 		<delete file="${SrcJar}" />
 		<jar destfile="${SrcJar}">
 			<fileset dir="${SrcDir}" casesensitive="yes">
 				<exclude name="**/.*" />
+				<exclude name="**/*.*~" />
 				<exclude name="**/*.jar" />
 				<exclude name="java.policy.applet" />
 			</fileset>
@@ -48,10 +56,6 @@
 			</manifest>
 		</jar>
 		
-		<!-- advzip compresses the jar files a little further -->
-		<exec executable="advzip" os="Linux">
-			<arg line="-z -4 ${NoSrcJar} ${SrcJar}"/>
-		</exec>
 	</target>
 
 </project>
