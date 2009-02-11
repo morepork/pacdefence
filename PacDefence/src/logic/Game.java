@@ -639,6 +639,9 @@ public class Game {
    
    private class Clock extends Thread {
       
+      private final int[] fastModes = new int[]{1, 2, 5};
+      private int currentMode = 0;
+      
       private int spritesToAdd;
       private long levelHP;
       
@@ -694,13 +697,17 @@ public class Game {
          while(keepRunning) {
             // Used nanoTime as many OS, notably windows, don't record ms times less than 10ms
             long beginTime = System.nanoTime();
-            if(!gameOver) {
-               tick();
-               if(debugTimes) {
-                  calculateTimesTaken();
-                  processTimes[timesLength] = calculateElapsedTime(beginTime);
+            int ticksToDo = fastModes[currentMode];
+            for(int i = 0; i < ticksToDo; i++) {
+               if(!gameOver) {
+                  tick();
+                  if(debugTimes) {
+                     calculateTimesTaken();
+                     processTimes[timesLength] = calculateElapsedTime(beginTime);
+                  }
                }
             }
+            // Note the draw time gets messed up at speeds >1
             long drawingBeginTime = draw();
             gameMap.repaint();
             if(debugTimes) {
@@ -721,6 +728,12 @@ public class Game {
       
       public void end() {
          keepRunning = false;
+      }
+      
+      private void switchFastMode(boolean b) {
+         // Can't just subtract one as the % operator would leave it negative
+         currentMode += b ? 1 : fastModes.length - 1;
+         currentMode %= fastModes.length;
       }
       
       private void tick() {
@@ -1130,6 +1143,10 @@ public class Game {
                return;
             }
          }
+      }
+      
+      public void processFastButtonPressed() {
+         clock.switchFastMode(true);
       }
       
       public void processTitleButtonPressed() {

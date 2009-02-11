@@ -40,7 +40,7 @@ public class Helper {
    private static final double twoPi = 2 * Math.PI;
    
    public static double vectorAngle(double dx, double dy) {
-      if (dx > 0) {
+      if (dx >= 0) {
          if (dy > 0) {
             return Math.atan(dx / dy);
          } else {
@@ -48,7 +48,7 @@ public class Helper {
          }
       } else {
          if (dy > 0) {
-            return 2 * Math.PI - Math.atan(-dx / dy);
+            return Math.atan(dx / dy) + twoPi;
          } else {
             return Math.atan(dx / dy) + Math.PI;
          }
@@ -236,14 +236,8 @@ public class Helper {
    }
    
    public static void main(String[] args) {
-      for(int a = 0; a < 5; a++) {
-         long beginTime = System.nanoTime();
-         Arc2D arc = new Arc2D.Double();
-         for(int i = 0; i < 200; i++) {
-            arc.setArc(0.0, 0.0, i * i, i * i, 10.0, 10.0, Arc2D.OPEN);
-            getPointsOnArc(arc);
-         }
-         System.out.println(System.nanoTime() - beginTime);
-      }
+      
    }
+   
+
 }

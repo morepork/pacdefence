@@ -71,7 +71,8 @@ public class ControlPanel extends JPanel {
    
    private final BufferedImage backgroundImage;
    
-   // These labels are in the top stats box
+   // These are in the top stats box
+   private OverlayToggleButton fastButton = createFastButton();
    private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel, upgradesLabel;
    private final Map<OverlayButton, Tower> towerTypes = new HashMap<OverlayButton, Tower>();
    private OverlayButton damageUpgrade, rangeUpgrade, rateUpgrade, speedUpgrade,
@@ -226,6 +227,7 @@ public class ControlPanel extends JPanel {
          towerTypes.put(b, towerTypes.get(b).constructNew(new Point(), null));
       }
       start.setEnabled(true);
+      fastButton.setToDefault();
    }
    
    public void clickSellButton() {
@@ -287,15 +289,39 @@ public class ControlPanel extends JPanel {
    
    private void setUpTopStats() {
       float textSize = defaultTextSize + 1;
-      Box box = Box.createVerticalBox();
-      box.setBorder(BorderFactory.createEmptyBorder(2, 20, 0, 20));
-      box.setOpaque(false);
-      box.add(createLevelLabel(defaultTextColour));
-      box.add(createLeftRightPanel("Money", textSize, defaultTextColour, moneyLabel));
-      box.add(createLeftRightPanel("Lives", textSize, defaultTextColour, livesLabel));
-      box.add(createLeftRightPanel("Interest", textSize, defaultTextColour, interestLabel));
-      box.add(createLeftRightPanel("Bonuses", textSize, defaultTextColour, upgradesLabel));
-      add(box);
+      Box hBox = Box.createHorizontalBox();
+      hBox.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
+      hBox.setOpaque(false);
+      hBox.add(Box.createHorizontalStrut(4));      
+      Box buttonBox = Box.createVerticalBox();
+      buttonBox.add(Box.createVerticalStrut(4));
+      buttonBox.add(fastButton);
+      buttonBox.add(Box.createVerticalGlue());      
+      hBox.add(buttonBox);     
+      Box vBox = Box.createVerticalBox();
+      vBox.setOpaque(false);
+      vBox.add(createLevelLabel(defaultTextColour));
+      vBox.add(createLeftRightPanel("Money", textSize, defaultTextColour, moneyLabel));
+      vBox.add(createLeftRightPanel("Lives", textSize, defaultTextColour, livesLabel));
+      vBox.add(createLeftRightPanel("Interest", textSize, defaultTextColour, interestLabel));
+      vBox.add(createLeftRightPanel("Bonuses", textSize, defaultTextColour, upgradesLabel));      
+      hBox.add(vBox);
+      hBox.add(Box.createHorizontalStrut(24));
+      add(hBox);
+   }
+   
+   private OverlayToggleButton createFastButton() {
+      BufferedImage[] images = new BufferedImage[3];
+      for(int i = 1; i <= images.length; i++) {
+         images[i - 1] = ImageHelper.makeImage("buttons", "fast" + i + ".png");
+      }
+      OverlayToggleButton b = new OverlayToggleButton(images);
+      b.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            eventProcessor.processFastButtonPressed();
+         }
+      });
+      return b;
    }
 
    private JPanel createLevelLabel(Color textColour) {

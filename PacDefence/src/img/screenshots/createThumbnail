@@ -21,11 +21,16 @@ do
 
 	if [ "$extension" = png ]
 	then
-		optipng "$thumb" >/dev/null
-		advpng -z4 "$thumb" >/dev/null
+		# Make a jpg version which is usually much smaller for minimal quality loss
 		mogrify -quality 95 -format jpg "$thumb"
+		
+		# Shrink the png file with various methods
+		optipng "$thumb" >/dev/null
+		pngcrush "$thumb" "$thumb"x >/dev/null
+		mv "$thumb"x "$thumb"
+		advpng -z4 "$thumb" >/dev/null
 	fi
 	shift
 done
 
-exit
+exit 0

@@ -29,11 +29,12 @@ import logic.Helper;
 
 public class FreezeTower extends SlowTower {
    
+   private static final double baseSlowTicks = Game.CLOCK_TICKS_PER_SECOND / 2.0;
    private final double upgradeIncreaseTicks = Game.CLOCK_TICKS_PER_SECOND / 10;
       
    public FreezeTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Freeze", 40, 100, 5, 1, 50, 22, true);
-      slowTicks = Game.CLOCK_TICKS_PER_SECOND / 2.0;
+      slowTicks = baseSlowTicks;
       slowFactor = 0;
    }
 
