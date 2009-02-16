@@ -30,7 +30,7 @@ import logic.Helper;
 public class SlowLengthTower extends SlowTower {
    
    public SlowLengthTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Slow Length", 40, 100, 5, 1, 50, 23, true);
+      super(p, pathBounds, "Slow", 40, 100, 5, 1, 50, 23, true);
    }
 
    @Override

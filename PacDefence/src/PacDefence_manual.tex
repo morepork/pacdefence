@@ -1,0 +1,93 @@
+% I permit others to modify and redistribute this manual, as long as they keep
+% this notice attached, and make the LaTeX file available.
+%
+% (C) Liam Byrne 2009
+
+\documentclass[a4paper,10pt]{report}
+\usepackage{fullpage, graphicx, amsmath, wrapfig, sidecap}
+\setlength{\parindent}{0mm}
+
+
+% Title Page
+\title{Pac Defence Manual}
+\date{}
+
+% Draws the image of a tower, include a fourth parameter if you don't want an overlay
+\newcommand{\tower}[4]{
+\vbox{
+\begin{wrapfigure}[6]{l}{0pt}
+\includegraphics[width=\towersize, height=\towersize]{./images/towers/#2}\if #4\empty \hspace{-\towersize}\includegraphics[width=\towersize, height=\towersize]{./images/towers/overlays/#2Overlay}
+\fi
+\end{wrapfigure}
+\quad \\[1mm]
+\textbf{#1}\\[2mm]
+#3 \\
+}
+}
+
+% The width of the tower pictures
+\newcommand{\towersize}{12mm}
+
+
+\begin{document}
+\maketitle
+
+\section*{Basic Game Play}
+
+\section*{Towers}
+
+\tower{Aid Tower}{aid}{
+Aids other towers whose centres are within its range. It gains 10\% of the damage and kills inflicted by the towers it aids.}{x}
+
+\tower{Beam Tower}{beam}{
+Fires a straight beam from the centre of the tower to the centre of the sprite it is targetting and then travels in a circle in the opposite direction to the motion of the targetted sprite. Each sprite is hit a maximum of one time by the beam.}{x}
+
+\tower{Bomber Tower}{bomber}{
+Fires an exploding bullet that does full damage to the sprite it hits and half to each sprite caught in the blast.}
+
+\tower{Charge Tower}{charge}{
+When able to shoot but having no target in range to shoot, the charge tower will charge up - increase the damage of the next bullet it will fire. It takes two seconds to fully charge.}
+
+\tower{Circle Tower}{circle}{
+The circle towers bullets follow a circular trajectory and can pass through multiple sprites doing full damage to each it hits.}
+
+\tower{Freeze Tower}{freeze}{
+This tower does very little damage, however when a sprite is hit by this tower it will freeze for a short amount of time. If an already frozen sprite is frozen it will stay frozen for the longer of the time it is currently frozen for, or the time the new hit would freeze it for.}
+
+\tower{Homing Tower}{homing}{
+This towers bullets will home in on their targets. If the target dies before the bullet can hit, it will continue travelling in a straight line.}
+
+\tower{Jumper Tower}{jumper}{
+When each bullet hits, it can jump to retarget on another sprite. There must be another sprite withing half the range of the tower for this to happen and a sprite can be targetted a maximum of one time by this.}
+
+\tower{Laser Tower}{laser}{
+Fires a laser instead of a bullet, doing damage based on the time the beam is over a sprite. The laser will also travel through sprites.}
+
+\tower{Multi Shot Tower}{multiShot}{
+Fires multiple shots at once.}
+
+\tower{Omnidirectional Tower}{omnidirectional}{
+Fires bullets in all directions at once, the trajectory of each bullet is regularly spaced.}
+
+\tower{Poison Tower}{poison}{
+Poisons the sprites it hits, meaning they take poison damage for a short while after they are hit. Each poison hit is separate, so a sprite can be simultaneously poisoned by multiple hits from one tower, or a number of poison towers.}
+
+\tower{Scatter Tower}{scatter}{
+Scatters bullets at multiple sprites at once.}
+
+\tower{Slow Tower}{slowLength}{
+Similar to the freeze tower, except instead of freezing the sprite it will reduce its speed by half (not cumulative).}
+
+\tower{Wave Tower}{wave}{
+Fires a wave or arc that both hits multiple targets and passes through them.}
+
+\tower{Weaken Tower}{weaken}{
+Does little damage, but after it is hit by this tower a sprite will take double damage for a short period of time. Like the freeze and slow towers, if an already weakened sprite is hit it will be weakened for whichever is longer, the old hit or the new.}
+
+\tower{Zapper Tower}{zapper}{
+Fires a main bullet that inflicts no damage on its own, but will zap sprites within range. The range of the zaps is one quarter the range of the tower itself.}
+
+\tower{Ghost}{ghost}{
+Not really a tower as such, but a ghost is placed on the path and will kill 5 sprites before vanishing. Ghosts also vanish at the end of a level.}{x}
+
+\end{document}          

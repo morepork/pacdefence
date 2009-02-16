@@ -28,7 +28,8 @@ import java.util.List;
 
 import sprites.Sprite;
 
-
+// The laser tower is very similar to this so it is unneeded really
+@Deprecated
 public class PiercerTower extends AbstractTower {
    
    private int pierces = 1;

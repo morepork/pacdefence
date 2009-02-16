@@ -154,7 +154,7 @@ public abstract class AbstractTower implements Tower {
       imageRotates = (hasOverlay && turretWidth != 0);
       if(hasOverlay) {
          rotatingImage = loadImage(rotatingImages, width, "towers", "overlays",
-            className + "Overlay.png");
+            nameLowerCase + "Overlay.png");
       } else {
          rotatingImage = null;
       }

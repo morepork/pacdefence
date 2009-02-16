@@ -27,6 +27,7 @@ import java.util.List;
 import logic.Helper;
 
 // Should remove this later as it is poor compared to the freeze tower
+@Deprecated
 public class SlowFactorTower extends SlowTower {
    
    public SlowFactorTower(Point p, List<Shape> pathBounds) {

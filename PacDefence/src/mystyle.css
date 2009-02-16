@@ -1,10 +1,10 @@
-A:link {
-	color: lightgreen;
+A {
+	color: #82FF3A;
 	text-decoration: none;
 }
 
-A:visited {
-	color: orange;
+A:hover {
+	color: #6BD12F;
 	text-decoration: none;
 }
 
