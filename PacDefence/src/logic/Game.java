@@ -697,30 +697,34 @@ public class Game {
          while(keepRunning) {
             // Used nanoTime as many OS, notably windows, don't record ms times less than 10ms
             long beginTime = System.nanoTime();
-            int ticksToDo = fastModes[currentMode];
-            for(int i = 0; i < ticksToDo; i++) {
-               if(!gameOver) {
-                  tick();
-                  if(debugTimes) {
-                     calculateTimesTaken();
-                     processTimes[timesLength] = calculateElapsedTime(beginTime);
-                  }
+            if(!gameOver) {
+               int ticksToDo = fastModes[currentMode];
+               for(int i = 0; i < ticksToDo; i++) {
+                     tick();
+               }
+               // Catches any new sprites that may have moved under the cursor
+               // Save the mouse position from mouseMotionListeners rather than
+               // use getMousePosition as it is much faster
+               updateHoverOverStuff(lastMousePosition);
+               updateTowerStats();
+               if(debugTimes) {
+                  processTimes[timesLength] = calculateElapsedTime(beginTime);
                }
             }
-            // Note the draw time gets messed up at speeds >1
+            draw();
             long drawingBeginTime = draw();
             gameMap.repaint();
             if(debugTimes) {
                drawTimes[timesLength] = calculateElapsedTime(drawingBeginTime);
+               calculateTimesTaken();
             }
             long elapsedTime = calculateElapsedTime(beginTime);
             if(elapsedTime < CLOCK_TICK) {
                try {
-                  //System.out.println(CLOCK_TICK - elapsedTime);
                   Thread.sleep(CLOCK_TICK - elapsedTime);
                } catch(InterruptedException e) {
-                  e.printStackTrace();
                   // The sleep should never be interrupted
+                  e.printStackTrace();
                }
             }
          }
@@ -748,23 +752,19 @@ public class Game {
             // the timing bits
             long beginTime = System.nanoTime();
             tickSprites();
-            processSpritesTimes[timesLength] = calculateElapsedTime(beginTime);
+            // Use += so the sum of all of these in the tick is calculated
+            processSpritesTimes[timesLength] += calculateElapsedTime(beginTime);
             beginTime = System.nanoTime();
             tickBullets(unmodifiableSprites);
-            processBulletsTimes[timesLength] = calculateElapsedTime(beginTime);
+            processBulletsTimes[timesLength] += calculateElapsedTime(beginTime);
             beginTime = System.nanoTime();
             tickTowers(unmodifiableSprites);
-            processTowersTimes[timesLength] = calculateElapsedTime(beginTime);
+            processTowersTimes[timesLength] += calculateElapsedTime(beginTime);
          } else {
             tickSprites();
             tickBullets(unmodifiableSprites);
             tickTowers(unmodifiableSprites);
          }
-         // Catches any new sprites that may have moved under the cursor
-         // Save the mouse position from mouseMotionListeners rather than use
-         // getMousePosition as it is much faster
-         updateHoverOverStuff(lastMousePosition);
-         updateTowerStats();
       }
       
       private long draw() {
