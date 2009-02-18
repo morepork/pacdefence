@@ -3,10 +3,22 @@
 %
 % (C) Liam Byrne 2009
 
-\documentclass[a4paper,10pt]{report}
-\usepackage{fullpage, graphicx, amsmath, wrapfig, sidecap}
+\documentclass[a4paper,11pt]{report}
+\usepackage{fullpage, graphicx, amsmath, wrapfig, color}
 \setlength{\parindent}{0mm}
 
+% This is for when I draw the boxes around the buttons later
+\setlength{\unitlength}{1mm}
+
+% This is the same as the background colour of the website as defined in the css file
+\definecolor{murkyblue}{rgb}{0.06, 0.37, 0.58}
+\pagecolor{murkyblue}
+
+\definecolor{yellow}{rgb}{1, 1, 0}
+\color{yellow}
+
+% This is the same as baseColour in OverlayButton
+\definecolor{darkblue}{rgb}{0.05, 0, 0.63}
 
 % Title Page
 \title{Pac Defence Manual}
@@ -16,23 +28,35 @@
 \newcommand{\tower}[4]{
 \vbox{
 \begin{wrapfigure}[6]{l}{0pt}
-\includegraphics[width=\towersize, height=\towersize]{./images/towers/#2}\if #4\empty \hspace{-\towersize}\includegraphics[width=\towersize, height=\towersize]{./images/towers/overlays/#2Overlay}
-\fi
+\includegraphics[width=\towersize, height=\towersize]{./images/towers/#2}\if #4\empty \hspace{-\towersize}\includegraphics[width=\towersize, height=\towersize]{./images/towers/overlays/#2Overlay}\fi
+\hspace{2mm}
+% The button image
+\includegraphics[width=\towerbuttonsize mm, height=\towerbuttonsize mm]{./images/buttons/towers/#2Button}\hspace{-\towerbuttonsize mm}\color{darkblue}\begin{picture}(\towerbuttonsize, \towerbuttonsize)
+ % Draws a box around the button picture as they are seen in game
+ \linethickness{0.4mm}
+ \put(0,0){\line(1,0){\towerbuttonsize}}
+ \put(0,0){\line(0,1){\towerbuttonsize}}
+ \put(7,7){\line(-1,0){\towerbuttonsize}}
+ \put(7,7){\line(0,-1){\towerbuttonsize}}
+\end{picture}\color{yellow}
 \end{wrapfigure}
-\quad \\[1mm]
+\quad \\
 \textbf{#1}\\[2mm]
-#3 \\
+#3 \\[3mm]
 }
 }
 
 % The width of the tower pictures
 \newcommand{\towersize}{12mm}
 
+% The width of the tower button pictures, should be ~3/5 \towersize
+\newcommand{\towerbuttonsize}{7.2}
+
 
 \begin{document}
 \maketitle
 
-\section*{Basic Game Play}
+%\section*{Basic Game Play}
 
 \section*{Towers}
 
@@ -89,5 +113,9 @@ Fires a main bullet that inflicts no damage on its own, but will zap sprites wit
 
 \tower{Ghost}{ghost}{
 Not really a tower as such, but a ghost is placed on the path and will kill 5 sprites before vanishing. Ghosts also vanish at the end of a level.}{x}
+
+
+
+
 
 \end{document}          

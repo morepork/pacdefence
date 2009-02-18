@@ -160,7 +160,7 @@ public abstract class AbstractTower implements Tower {
       }
       currentImage = drawCurrentImage(rotatingImage);
       buttonImage = loadImage(towerButtonImages, 0, "buttons", "towers",
-            className + "Tower.png");
+            nameLowerCase + "Button.png");
    }
    
    private String makeFirstCharacterLowerCase(String s) {

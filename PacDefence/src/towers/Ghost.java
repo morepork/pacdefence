@@ -47,7 +47,7 @@ public class Ghost implements Tower {
    private static final int width = 40;
    private static final int halfWidth = width / 2;
    private static final BufferedImage buttonImage = ImageHelper.makeImage("buttons", "towers",
-         "Ghost.png");
+         "ghostButton.png");
    private static final BufferedImage image = ImageHelper.makeImage(width, width, "towers",
          "ghost.png");
    
