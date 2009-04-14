@@ -19,6 +19,8 @@
 
 package towers;
 
+import gui.Drawable;
+
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Polygon;
@@ -30,7 +32,7 @@ import java.util.List;
 import sprites.Sprite;
 
 
-public interface Tower extends Cloneable {
+public interface Tower extends Drawable, Cloneable {
    
    public enum Attribute{
       

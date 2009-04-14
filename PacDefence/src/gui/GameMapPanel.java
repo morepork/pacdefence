@@ -119,10 +119,8 @@ public class GameMapPanel extends JPanel {
       }
    }
    
-   public long draw(List<Tower> towers, Tower buildingTower, boolean isValidPlacement, 
-         Point buildingTowerPos, List<Sprite> sprites, List<Bullet> bullets, long processTime,
-         long processSpritesTime, long processBulletsTime, long processTowersTime, long drawTime,
-         int numBullets) {
+   public long draw(Iterable<Drawable> drawables, long processTime, long processSpritesTime,
+         long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
       if(gameOver == null) {
          Graphics2D g = back.createGraphics();
          // The default value for alpha interpolation causes significant lag
@@ -131,8 +129,7 @@ public class GameMapPanel extends JPanel {
          //System.out.println(g.getRenderingHint(RenderingHints.KEY_ANTIALIASING) ==
          //      RenderingHints.VALUE_ANTIALIAS_ON);
          //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-         drawUpdate(g, towers, buildingTower, isValidPlacement, buildingTowerPos, sprites,
-               bullets, processTime, processSpritesTime, processBulletsTime, processTowersTime,
+         drawUpdate(g, drawables, processTime, processSpritesTime, processBulletsTime, processTowersTime,
                drawTime, numBullets);
          textDisplay.draw(g);
          flip();
@@ -180,25 +177,13 @@ public class GameMapPanel extends JPanel {
       front = temp;
    }
    
-   private void drawUpdate(Graphics g, List<Tower> towers, Tower buildingTower,
-         boolean isValidPlacement, Point buildingTowerPos, List<Sprite> sprites,
-         List<Bullet> bullets, long processTime, long processSpritesTime, long processBulletsTime,
-         long processTowersTime, long drawTime, int numBullets) {
+   private void drawUpdate(Graphics g, Iterable<Drawable> drawables, long processTime,
+         long processSpritesTime, long processBulletsTime, long processTowersTime, long drawTime,
+         int numBullets) {
       // This should completely cover the old image in the buffer
       g.drawImage(backgroundImage, 0, 0, null);
-      for(Sprite s : sprites) {
-         s.draw(g);
-      }
-      // Draw towers after sprites so the sprites aren't drawn on the range of the
-      // selected tower
-      for(Tower t : towers) {
-         t.draw(g);
-      }
-      for(Bullet b : bullets) {
-         b.draw(g);
-      }
-      if(buildingTower != null && buildingTowerPos != null) {
-         buildingTower.drawShadowAt(g, buildingTowerPos, isValidPlacement);
+      for(Drawable d : drawables) {
+         d.draw(g);
       }
       drawDebug(g, processTime, processSpritesTime, processBulletsTime, processTowersTime,
             drawTime, numBullets);

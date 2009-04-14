@@ -20,6 +20,7 @@
 package logic;
 
 import gui.ControlPanel;
+import gui.Drawable;
 import gui.GameMapPanel;
 import gui.SelectionScreens;
 import gui.Title;
@@ -28,6 +29,7 @@ import images.ImageHelper;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Shape;
@@ -600,7 +602,7 @@ public class Game {
       if(buildingTower == null) {
          return;
       }
-      if(isBuildingTowerPositionValid(p)) {
+      if(isValidTowerPos(p)) {
          Tower toBuild = buildingTower.constructNew(p, pathBounds);
          if(canBuildTower(toBuild.getClass())) {
             buildTower(toBuild);
@@ -619,7 +621,7 @@ public class Game {
       }
    }
    
-   private boolean isBuildingTowerPositionValid(Point p) {
+   private boolean isValidTowerPos(Point p) {
       if(buildingTower == null || p == null) {
          return false;
       }
@@ -769,21 +771,32 @@ public class Game {
       
       private long draw() {
          long drawingBeginTime = System.nanoTime();
-         // Copy the list of towers as they could be sold while this is running
-         List<Tower> towersToDraw = new ArrayList<Tower>(towers);
-         if(selectedTower != null) {
-            // Set the selected tower to be drawn last, so its range is drawn
-            // over all the other towers, rather than some drawn under it and
-            // some over it.
-            Collections.swap(towersToDraw, towersToDraw.indexOf(selectedTower),
-                  towersToDraw.size() - 1);
-         }
-         drawingBeginTime -= gameMap.draw(towersToDraw, buildingTower,
-               isBuildingTowerPositionValid(lastMousePosition), lastMousePosition,
-               Collections.unmodifiableList(sprites), Collections.unmodifiableList(bullets),
-               processTime, processSpritesTime, processBulletsTime, processTowersTime,
-               drawTime, bullets.size());
+         drawingBeginTime -= gameMap.draw(getDrawableIterable(), processTime, processSpritesTime,
+               processBulletsTime, processTowersTime, drawTime, bullets.size());
          return drawingBeginTime;
+      }
+      
+      private Iterable<Drawable> getDrawableIterable() {
+         List<Drawable> drawables = new ArrayList<Drawable>(sprites.size() + towers.size() +
+               bullets.size() + 1);
+         drawables.addAll(sprites);
+         drawables.addAll(towers);
+         // Set the selected tower to be drawn last, so its range is drawn over
+         // all the other towers, rather than some drawn under and some over
+         if(selectedTower != null) {
+            Collections.swap(drawables, drawables.indexOf(selectedTower), drawables.size() - 1);
+         }
+         drawables.addAll(bullets);
+         // Displays the tower on the cursor that could be built
+         drawables.add(new Drawable() {
+            public void draw(Graphics g) {
+               if(buildingTower != null && lastMousePosition != null) {
+                  buildingTower.drawShadowAt(g, lastMousePosition,
+                        isValidTowerPos(lastMousePosition));
+               }
+            }
+         });
+         return drawables;
       }
       
       private long calculateElapsedTime(long beginTime) {

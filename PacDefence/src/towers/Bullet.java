@@ -19,13 +19,15 @@
 
 package towers;
 
+import gui.Drawable;
+
 import java.awt.Graphics;
 import java.util.List;
 
 import sprites.Sprite;
 
 
-public interface Bullet {
+public interface Bullet extends Drawable {
    
    /**
     * 

@@ -19,6 +19,8 @@
 
 package sprites;
 
+import gui.Drawable;
+
 import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.geom.Arc2D;
@@ -35,7 +37,7 @@ import java.util.Random;
  * @author Byrne
  * 
  */
-public interface Sprite extends Comparable<Sprite> {
+public interface Sprite extends Comparable<Sprite>, Drawable {
    
    public void draw(Graphics g);
    /**
