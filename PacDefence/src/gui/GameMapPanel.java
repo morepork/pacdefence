@@ -33,6 +33,7 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.Transparency;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -52,8 +53,9 @@ public class GameMapPanel extends JPanel {
    private final boolean debugPath;
    
    private final BufferedImage backgroundImage;
-   private int bufferIndex = 0;
-   private final BufferedImage[] buffers = new BufferedImage[2];
+   //Have two precreated buffers as recreating them at each step is much slower
+   private BufferedImage front;
+   private BufferedImage back;
    private final List<Polygon> path;
    private final List<Point> pathPoints;
    private final List<Shape> pathBounds;
@@ -67,17 +69,18 @@ public class GameMapPanel extends JPanel {
          boolean debugTimes, boolean debugPath) {
       this.debugTimes = debugTimes;
       this.debugPath = debugPath;
-      backgroundImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+      GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().
+            getDefaultScreenDevice().getDefaultConfiguration();
+      backgroundImage = gc.createCompatibleImage(width, height, Transparency.OPAQUE);
+      front = gc.createCompatibleImage(width, height, Transparency.OPAQUE);
+      back = gc.createCompatibleImage(width, height, Transparency.OPAQUE);
       Graphics g = backgroundImage.getGraphics();
+      // Draws the background on if there is one
       if(background != null) {
          g.drawImage(background, 0, 0, width, height, null);
       }
+      // Draws the actual map (maze) on the background
       g.drawImage(map.getImage(), 0, 0, width, height, null);
-      GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().
-            getDefaultScreenDevice().getDefaultConfiguration();
-      for(int i = 0; i < buffers.length; i++) {
-         buffers[i] = gc.createCompatibleImage(width, height);
-      }
       setDoubleBuffered(false);
       setPreferredSize(new Dimension(width, height));
       pathPoints = map.getPathPoints();
@@ -87,12 +90,13 @@ public class GameMapPanel extends JPanel {
       if(debugPath) {
          printClickedCoords();
       }
+      setIgnoreRepaint(true);
    }
    
    @Override
-   public void paintComponent(Graphics g) {
+   public synchronized void paintComponent(Graphics g) {
       long beginTime = System.nanoTime();
-      g.drawImage(buffers[bufferIndex], 0, 0, null);
+      g.drawImage(front, 0, 0, null);
       lastPaintTime = System.nanoTime() - beginTime;
    }
    
@@ -120,11 +124,7 @@ public class GameMapPanel extends JPanel {
          long processSpritesTime, long processBulletsTime, long processTowersTime, long drawTime,
          int numBullets) {
       if(gameOver == null) {
-         // Each time draw on a different buffer so that the a half drawn buffer
-         // isn't drawn on the component. I tried recreating the buffer each time
-         // but that was significantly slower than this implementation.
-         int nextBufferIndex = (bufferIndex + 1) % buffers.length;
-         Graphics2D g = buffers[nextBufferIndex].createGraphics();
+         Graphics2D g = back.createGraphics();
          // The default value for alpha interpolation causes significant lag
          g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
                RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
@@ -135,11 +135,11 @@ public class GameMapPanel extends JPanel {
                bullets, processTime, processSpritesTime, processBulletsTime, processTowersTime,
                drawTime, numBullets);
          textDisplay.draw(g);
-         bufferIndex = nextBufferIndex;
+         flip();
          g.dispose();
       } else {
          // Game over needs to always draw on the same buffer for its sliding effect
-         gameOver.draw(buffers[bufferIndex].createGraphics());
+         gameOver.draw(front.createGraphics());
       }
       return lastPaintTime;
    }
@@ -171,6 +171,15 @@ public class GameMapPanel extends JPanel {
       return lastPaintTime;
    }*/
    
+   /**
+    * Flips the front and back buffers
+    */
+   private void flip() {
+      BufferedImage temp = back;
+      back = front;
+      front = temp;
+   }
+   
    private void drawUpdate(Graphics g, List<Tower> towers, Tower buildingTower,
          boolean isValidPlacement, Point buildingTowerPos, List<Sprite> sprites,
          List<Bullet> bullets, long processTime, long processSpritesTime, long processBulletsTime,
@@ -188,11 +197,11 @@ public class GameMapPanel extends JPanel {
       for(Bullet b : bullets) {
          b.draw(g);
       }
-      drawDebug(g, processTime, processSpritesTime, processBulletsTime, processTowersTime,
-            drawTime, numBullets);
       if(buildingTower != null && buildingTowerPos != null) {
          buildingTower.drawShadowAt(g, buildingTowerPos, isValidPlacement);
       }
+      drawDebug(g, processTime, processSpritesTime, processBulletsTime, processTowersTime,
+            drawTime, numBullets);
    }
    
    private void drawDebug(Graphics g, long processTime, long processSpritesTime,

@@ -1,107 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--  This file is part of Pac Defence.
-		
-		Pac Defence is free software: you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
-		the Free Software Foundation, either version 3 of the License, or
-		(at your option) any later version.
-		
-		Pac Defence is distributed in the hope that it will be useful,
-		but WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-		GNU General Public License for more details.
-		
-		You should have received a copy of the GNU General Public License
-		along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
-		
-		(C) Liam Byrne, 2008 - 09.
+      
+      Pac Defence is free software: you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+      
+      Pac Defence is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+      
+      You should have received a copy of the GNU General Public License
+      along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
+      
+      (C) Liam Byrne, 2008 - 09.
   -->
 
 
 <!--
-		Pac Defence Build File
-		
-		Builds two jar files:
-			PacDefence.jar			This is a minimal build containing only the
-										resources necessary to run PacDefence, the
-										licence, readme and credits.
-			PacDefenceSrc.jar		This contains all resources except the
-										screenshots, and will also run Pac Defence.
+      Pac Defence Build File
+      
+      Builds two jar files:
+         PacDefence.jar       This is a minimal build containing only the
+                              resources necessary to run PacDefence, the
+                              licence, readme and credits.
+         PacDefenceSrc.jar    This contains all resources except the
+                              screenshots, and will also run Pac Defence.
   -->
 
 <project name="PacDefence" basedir="." default="buildJars">
 
-	<property name="SrcDir" location="." />
-	<property name="JarLocation" location="." />
-	<property name="NoSrcJar" location="${JarLocation}/PacDefence.jar" />
-	<property name="SrcJar" location="${JarLocation}/PacDefenceSrc.jar" />
-	<property name="MainClass" value="gui.Application" />
-	<property name="ManualName" value="PacDefence_manual" />
+   <property name="SrcDir" location="." />
+   <property name="JarLocation" location="." />
+   <property name="NoSrcJar" location="${JarLocation}/PacDefence.jar" />
+   <property name="SrcJar" location="${JarLocation}/PacDefenceSrc.jar" />
+   <property name="MainClass" value="gui.Application" />
+   <property name="ManualName" value="PacDefence_manual" />
 
-	<target name="buildJars" depends="buildManual">
-		<delete file="${NoSrcJar}" />
-		<jar destfile="${NoSrcJar}">
-			<fileset dir="${SrcDir}" casesensitive="yes">
-				<!-- Hidden files -->
-				<exclude name="**/.*" />
-				<!-- Backup files -->
-				<exclude name="**/*.*~" />
-				<exclude name="**/*.jar" />
-				<exclude name="**/*.java" />
-				<exclude name="**/*Test*" />
-				<exclude name="**/*.xcf.gz" />
-				<exclude name="**/*.svg" />
-				<exclude name="**/*.html" />
-				<exclude name="**/*.js" />
-				<exclude name="**/*.css" />
-				<exclude name="**/*.tex" />
-				<exclude name="**/*.pdf" />
-				<exclude name="images/maps/rainbowColours.png" />
-				<exclude name="images/maps/rainbowColours.jpg" />
-				<exclude name="images/maps/*Map.png" />
-				<exclude name="images/other/theGreenPlace.png" />
-				<exclude name="images/control_panel/blue_lava.*" />
-				<exclude name="images/control_panel/blue_lava_blurred.png" />
-				<exclude name="images/sprites/other/" />
-				<exclude name="images/towers/overlays/turrets/" />
-				<exclude name="images/towers/overlays/turretLengths" />
-				<exclude name="images/towers/overlays/makeTowerOverlays" />
-				<exclude name="img/**" />
-				<exclude name="java.policy.applet" />
-				<exclude name="build.xml" />
-			</fileset>
-			<manifest>
-				<attribute name="Main-Class" value="${MainClass}" />
-			</manifest>
-		</jar>
-		
-		<delete file="${SrcJar}" />
-		<jar destfile="${SrcJar}">
-			<fileset dir="${SrcDir}" casesensitive="yes">
-				<exclude name="**/.*" />
-				<exclude name="**/*.*~" />
-				<exclude name="**/*.jar" />
-				<!-- The screenshots don't need to be in here as it just makes the
-					  jar much bigger without really giving anything extra -->
-				<exclude name="**/img/screenshots/screenshot*" />
-				<exclude name="java.policy.applet" />
-			</fileset>
-			<manifest>
-				<attribute name="Main-Class" value="${MainClass}" />
-			</manifest>
-		</jar>
-	</target>
-	
-	<target name="buildManual">
-		<exec executable="/bin/sh" os="Linux">
-			<!-- The pipes to tail and head make it so only one line that says
-				  whether it was successful or not is printed -->
-			<arg line='-c "pdflatex -halt-on-error ${ManualName}.tex | tail -n 2 | head -n 1"'/>
-		</exec>
-		<!-- Cleans up after the build -->
-		<delete  file="${ManualName}.aux" />
-		<delete  file="${ManualName}.log" />
-	</target>
+   <target name="buildJars" depends="buildManual">
+      <delete file="${NoSrcJar}" />
+      <jar destfile="${NoSrcJar}">
+         <fileset dir="${SrcDir}" casesensitive="yes">
+            <!-- Hidden files -->
+            <exclude name="**/.*" />
+            <!-- Backup files -->
+            <exclude name="**/*.*~" />
+            <exclude name="**/*.*backup" />
+            <exclude name="**/*.jar" />
+            <exclude name="**/*.java" />
+            <exclude name="**/*Test*" />
+            <exclude name="**/*.xcf.gz" />
+            <exclude name="**/*.svg" />
+            <exclude name="**/*.html" />
+            <exclude name="**/*.js" />
+            <exclude name="**/*.css" />
+            <exclude name="**/*.tex" />
+            <exclude name="**/*.pdf" />
+            <exclude name="images/maps/rainbowColours.png" />
+            <exclude name="images/maps/rainbowColours.jpg" />
+            <exclude name="images/maps/*Map.png" />
+            <exclude name="images/other/theGreenPlace.png" />
+            <exclude name="images/control_panel/blue_lava.*" />
+            <exclude name="images/control_panel/blue_lava_blurred.png" />
+            <exclude name="images/sprites/other/" />
+            <exclude name="images/towers/overlays/turrets/" />
+            <exclude name="images/towers/overlays/turretLengths" />
+            <exclude name="images/towers/overlays/makeTowerOverlays" />
+            <exclude name="img/**" />
+            <exclude name="java.policy.applet" />
+            <exclude name="build.xml" />
+         </fileset>
+         <manifest>
+            <attribute name="Main-Class" value="${MainClass}" />
+         </manifest>
+      </jar>
+      
+      <delete file="${SrcJar}" />
+      <jar destfile="${SrcJar}">
+         <fileset dir="${SrcDir}" casesensitive="yes">
+            <exclude name="**/.*" />
+            <exclude name="**/*.*~" />
+            <exclude name="**/*.*backup" />
+            <exclude name="**/*.jar" />
+            <!-- The screenshots don't need to be in here as it just makes the
+                 jar much bigger without really giving anything extra -->
+            <exclude name="**/img/screenshots/screenshot*" />
+            <exclude name="java.policy.applet" />
+         </fileset>
+         <manifest>
+            <attribute name="Main-Class" value="${MainClass}" />
+         </manifest>
+      </jar>
+   </target>
+   
+   <target name="buildManual">
+      <exec executable="/bin/sh" os="Linux">
+         <!-- The pipes to tail and head make it so only one line that says
+              whether it was successful or not is printed -->
+         <arg line='-c "pdflatex -halt-on-error ${ManualName}.tex | tail -n 2 | head -n 1"'/>
+      </exec>
+      <!-- Cleans up after the build -->
+      <delete  file="${ManualName}.aux" />
+      <delete  file="${ManualName}.log" />
+   </target>
 
 </project>
