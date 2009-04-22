@@ -41,10 +41,6 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import sprites.Sprite;
-import towers.Bullet;
-import towers.Tower;
-
 
 @SuppressWarnings("serial")
 public class GameMapPanel extends JPanel {
