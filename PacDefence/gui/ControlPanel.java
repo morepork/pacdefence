@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -105,7 +105,7 @@ public class ControlPanel extends JPanel {
       setPreferredSize(new Dimension(width, height));
       // Reflective method to set up the MyJLabels
       setUpJLabels();
-      // Creates each of the sub panels of this panel      
+      // Creates each of the sub panels of this panel
       setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
       setUpTopStats();
       setUpNewTowers(towerImplementations);
@@ -292,19 +292,19 @@ public class ControlPanel extends JPanel {
       Box hBox = Box.createHorizontalBox();
       hBox.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
       hBox.setOpaque(false);
-      hBox.add(Box.createHorizontalStrut(4));      
+      hBox.add(Box.createHorizontalStrut(4));
       Box buttonBox = Box.createVerticalBox();
       buttonBox.add(Box.createVerticalStrut(4));
       buttonBox.add(fastButton);
-      buttonBox.add(Box.createVerticalGlue());      
-      hBox.add(buttonBox);     
+      buttonBox.add(Box.createVerticalGlue());
+      hBox.add(buttonBox);
       Box vBox = Box.createVerticalBox();
       vBox.setOpaque(false);
       vBox.add(createLevelLabel(defaultTextColour));
       vBox.add(createLeftRightPanel("Money", textSize, defaultTextColour, moneyLabel));
       vBox.add(createLeftRightPanel("Lives", textSize, defaultTextColour, livesLabel));
       vBox.add(createLeftRightPanel("Interest", textSize, defaultTextColour, interestLabel));
-      vBox.add(createLeftRightPanel("Bonuses", textSize, defaultTextColour, upgradesLabel));      
+      vBox.add(createLeftRightPanel("Bonuses", textSize, defaultTextColour, upgradesLabel));
       hBox.add(vBox);
       hBox.add(Box.createHorizontalStrut(24));
       add(hBox);
@@ -337,6 +337,7 @@ public class ControlPanel extends JPanel {
       return createLeftRightPanel(leftText, textSize, textColour, label);
    }
    
+   @SuppressWarnings("unused")
    private MyJLabel createJLabel(String text) {
       return createJLabel(text, defaultTextSize, defaultTextColour);
    }
@@ -549,6 +550,7 @@ public class ControlPanel extends JPanel {
       });
       // Go back on a right click
       b.addMouseListener(new MouseAdapter() {
+         @Override
          public void mouseClicked(MouseEvent e) {
             if(e.getButton() == MouseEvent.BUTTON3) {
                processTargetButtonRightClicked((JButton) e.getSource());
@@ -570,7 +572,7 @@ public class ControlPanel extends JPanel {
       box.add(createLeftRightPanel("Number Left", textSize, defaultTextColour, numSpritesLabel));
       box.add(createLeftRightPanel("Between Sprites", textSize, defaultTextColour,
             timeBetweenSpritesLabel));
-      box.add(createLeftRightPanel("HP", textSize, defaultTextColour, hpLabel));      
+      box.add(createLeftRightPanel("HP", textSize, defaultTextColour, hpLabel));
       add(box);
    }
 

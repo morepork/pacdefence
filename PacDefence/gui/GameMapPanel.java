@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -219,7 +219,7 @@ public class GameMapPanel extends JPanel {
             g.drawLine(lastPoint.x, lastPoint.y, x, y);
          }
          lastPoint = p;
-      }      
+      }
    }
    
    /**
@@ -249,7 +249,6 @@ public class GameMapPanel extends JPanel {
    /**
     * Test method that prints the coords of a mouse click.
     */
-   @SuppressWarnings("unused")
    private void printClickedCoords() {
       addMouseListener(new MouseAdapter(){
          @Override

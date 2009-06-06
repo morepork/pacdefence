@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -82,7 +82,6 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private Point nextPoint;
    private int pointAfterIndex;
    
-   @SuppressWarnings("serial")
    private final Point2D centre = new Point2D.Double();
    // private double x, y;
    private double xStep, yStep;
@@ -101,7 +100,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private double speedFactor = 1;
    private int adjustedSpeedTicksLeft = 0;
    private double damageMultiplier = 1;
-   private int adjustedDamageTicksLeft = 0; 
+   private int adjustedDamageTicksLeft = 0;
 
    public AbstractSprite(List<BufferedImage> images, int currentLevel, long hp, List<Point> path){
       this.currentLevel = currentLevel;
@@ -430,10 +429,10 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       // A multiplier between one and maxMult
       double mult = ((maxMult - 1) * a + 1);
       if(a >= 0.5) {
-         this.hp = hp / mult; 
+         this.hp = hp / mult;
          return baseSpeed * mult;
       } else {
-         this.hp = hp * mult; 
+         this.hp = hp * mult;
          return baseSpeed / mult;
       }
    }
