@@ -96,10 +96,15 @@
    </target>
    
    <target name="buildManual">
-      <exec executable="/bin/sh" os="Linux">
-         <!-- The pipes to tail and head make it so only one line that says
-              whether it was successful or not is printed -->
-         <arg line='-c "pdflatex -halt-on-error ${ManualName}.tex | tail -n 2 | head -n 1"'/>
+      <!-- The pipes to tail and head make it so only one line that says
+           whether it was successful or not is printed -->
+      <exec executable="/bin/bash" os="Linux" >
+      	<arg line='-c "pdflatex -halt-on-error ${ManualName}.tex | tail -n 2 | head -n 1"' />
+      </exec>
+      <!-- LaTeX must be run twice to ensure labels and the contents link
+           properly. -->
+      <exec executable="/bin/bash" os="Linux" >
+         <arg line='-c "pdflatex -halt-on-error ${ManualName}.tex > /dev/null"'/>
       </exec>
       <!-- Cleans up after the build -->
       <delete  file="${ManualName}.aux" />

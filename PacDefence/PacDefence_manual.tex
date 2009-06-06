@@ -4,7 +4,7 @@
 % (C) Liam Byrne 2009
 
 \documentclass[a4paper,11pt]{article}
-\usepackage{fullpage, graphicx, amsmath, wrapfig, color, hyperref}
+\usepackage{fullpage, graphicx, wrapfig, color, hyperref}
 \setlength{\parindent}{0mm}
 
 % This is for when I draw the boxes around the buttons later
@@ -19,9 +19,6 @@
 
 % This is the same as baseColour in OverlayButton
 \definecolor{darkblue}{rgb}{0.05, 0, 0.63}
-
-% Title Page
-\title{Pac Defence Manual}
 
 % Draws the image of a tower, include a fourth parameter if you don't want an overlay
 \newcommand{\tower}[4]{
@@ -57,11 +54,13 @@
 % The width of the tower button pictures, should be ~3/5 \towersize
 \newcommand{\towerbuttonsize}{7.2}
 
+\title{Pac Defence Manual}
+
 
 \begin{document}
 
 \maketitle
-\pagebreak
+%\pagebreak
 
 \tableofcontents
 \pagebreak
@@ -127,9 +126,81 @@ Fires a slow main bullet that inflicts no damage on its own, but will zap sprite
 \tower{Ghost}{ghost}{
 Not really a tower as such, but a ghost is placed on the path and will kill instantly kill any sprite that touches it. It will vanish after it has killed 5 sprites, or at the end of a level. Ghosts can not be upgraded and have no stats like the other towers. The price of succesive sprites is double the cost of the last one used.}{x}
 
-\section{Specials}
+\section{Formulae Reference}
 
-\subsection{Different Tower Type Hit Bonus}
+\subsection{Number of Sprites}
+
+\[20 + 4 \times \left( \mathrm{level} - 1 \right)\]
+
+\subsection{Sprite HP}
+
+\[10 \times 1.5^{\mathrm{level} - 1}\]
+
+Note that the actually hp of a particular sprite will be between 0.5 and 2 times this amount, depending on its speed.
+
+\subsection{Level End Bonus}
+
+\[1000 + 100 \times \left( \mathrm{level} - 1 \right)\]
+
+The additional bonus for not letting any sprites through is:
+
+\[\mathrm{level} \times 100\]
+
+In both cases, the level is the one that was just completed.
+
+\subsection{Cost of Tower Upgrades}
+
+\[100 \times 1.25^{\mathrm{currentLevel} - 1}\]
+
+Where currentLevel is the level of the stat to be upgraded.
+
+\subsection{Money Earnt From Attacking Sprites}
+
+Each hit earns:
+
+\[\frac{\mathrm{damage}}{1.15^{\mathrm{level}}}\]
+
+A kill will additionally earn:
+
+\[\frac{\mathrm{hp}}{1.15^{\mathrm{level}}}\]
+
+Where damage is the damage caused by the hit, never more than the amount of hp the sprite has left, hp is the total hp of the sprite, and level is the current level. Both the damage and hp are adjusted so that killing a sprite on any given level will give the same amount of money, despite the fact that sprites have differing amounts of hp.
+
+\subsection{Tower Experience}
+
+The next milestone for a level up from number of kills is at:
+
+\[10 \times \mathrm{currentLevel}^2\]
+
+The next milestone for a level up from amount of damage is at:
+
+\[250 \times 2^{\mathrm{currentLevel} - 1}\]
+
+Where currentLevel is the current experience level for that experience type, starting at 1.
+
+\subsection{Tower Cost}
+
+The cost to build a new tower is:
+
+\[1000 \times 1.05^{\mathrm{numTowers}} \times 1.1^{\mathrm{numTowersOfThatType}}\]
+
+Where numTowers is the total number of towers currently built and numTowersOfThatType is the number of towers currently built of the type that is to be built.
+
+\subsection{Tower Sell Value}
+
+\[ 0.9 \times \left( \mathrm{towerCost + upgradeCost} \right) \times 1.1^{\mathrm{killsLevel + damageLevel} - 2}\]
+
+Where towerCost is the cost to rebuild a new tower of that type after it is deleted, upgradeCost is the sum of the cost of all upgrades bought for this tower, and killsLevel and damageLevel are the experience levels for kills and damage respectively (both of which start at 1).
+
+\subsection{Ticks Between New Sprites}
+
+This base value for this is initially 40, and for each succesive level, it is multiplied by 0.95 and rounded down to the nearest integer, always at least one. The actual time is a random number between 0 and twice this number.
+
+
+\section{Bonuses}
+One bonus point is awarded at the completion of each level, and can be used on any of the 8 bonuses. 5 of the bonuses mirror the 5 stats of each tower -- damage, range, fire rate, bullet speed and special. Using one of these gives the same effect as buying a single upgrade for all of your towers, but does not increase the cost of upgrades. When a new tower is built, it gets the effect of half of these upgrades (rounded down). The other three, give bonus lives, increase the interest rate and give bonus money.
+
+\section{Different Tower Type Hit Bonus}
 If the last bullet that hit a sprite was from a tower of a different type, it will receive a 10\% damage bonus for every hit that the sprite has received since it was last hit by a bullet from a tower of this type. Say a sprite is struck by bullets in the following order:
 
 \begin{enumerate}
@@ -145,7 +216,7 @@ If the last bullet that hit a sprite was from a tower of a different type, it wi
  This will receive no damage bonus.
 \end{enumerate}
 
-Notice that these bonuses are cumulative, and very large bonuses can be gained by having long sequences, for example, a sequence of 9 gives a bonus of approximately 95\% (\(1.1^{9} = 1.95\)).
+Notice that these bonuses are cumulative, and very large bonuses can be gained by having long sequences, for example, a sequence of 9 gives a damage bonus of approximately 95\% (\(1.1^{9} = 1.95\)).
 
 
 
