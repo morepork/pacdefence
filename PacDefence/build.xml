@@ -68,7 +68,7 @@
             <exclude name="images/towers/overlays/turrets/" />
             <exclude name="images/towers/overlays/turretLengths" />
             <exclude name="images/towers/overlays/makeTowerOverlays" />
-            <exclude name="img/**" />
+            <exclude name="website/**" />
             <exclude name="java.policy.applet" />
             <exclude name="build.xml" />
          </fileset>
@@ -86,7 +86,7 @@
             <exclude name="**/*.jar" />
             <!-- The screenshots don't need to be in here as it just makes the
                  jar much bigger without really giving anything extra -->
-            <exclude name="**/img/screenshots/screenshot*" />
+            <exclude name="website/screenshots/screenshot*" />
             <exclude name="java.policy.applet" />
          </fileset>
          <manifest>
