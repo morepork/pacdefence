@@ -198,20 +198,15 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    }
    
    @Override
-   public Point2D intersects(List<Point2D> points) {
-      if(alive) {
-         for(Point2D p : points) {
-            if(fastIntersects(p)) {
-               return p;
-            }
-         }
+   public Point2D intersects(Line2D line) {
+      if(alive && bounds.intersects(line)) {
+         for(Point2D p : Helper.getPointsOnLine(line)) {
+             if(fastIntersects(p)) {
+                return p;
+             }
+          }
       }
       return null;
-   }
-   
-   @Override
-   public Point2D intersects(Line2D line) {
-      return intersects(Helper.getPointsOnLine(line));
    }
    
    @Override
@@ -238,31 +233,6 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          double moneyEarnt = Formulae.damageDollars(damage, hpFactor, currentLevel);
          return new DamageReport(damage, moneyEarnt, false);
       }
-   }
-   
-   private double calculateMultiTowerBonus(Class<? extends Tower> towerClass) {
-      if(towerClass == null) {
-         return 1;
-      }
-      int index = hits.indexOf(towerClass);
-      int numOtherTowers;
-      if(index >= 0) {
-         // If the tower is in the list, the number of other towers is the
-         // number between the index and the end
-         numOtherTowers = hits.size() - index - 1;
-         hits.clear();
-      } else {
-         // If this tower isn't in the list, the number of other towers is the
-         // size of the list
-         numOtherTowers = hits.size();
-      }
-      hits.add(towerClass);
-      double mult = 1;
-      while(numOtherTowers > 0) {
-         mult *= multiTowerBonusPerTower;
-         numOtherTowers--;
-      }
-      return mult;
    }
 
    @Override
@@ -467,6 +437,11 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       }
    }
    
+   /**
+    * A faster version of the intersect method - doesn't check if Sprite is alive
+    * @param p
+    * @return
+    */
    private boolean fastIntersects(Point2D p) {
       // Checks the rectangular bounds instead of the bounds of the circle
       // as it's faster
@@ -492,6 +467,31 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
             damageMultiplier = 1;
          }
       }
+   }
+   
+   private double calculateMultiTowerBonus(Class<? extends Tower> towerClass) {
+      if(towerClass == null) {
+         return 1;
+      }
+      int index = hits.indexOf(towerClass);
+      int numOtherTowers;
+      if(index >= 0) {
+         // If the tower is in the list, the number of other towers is the
+         // number between the index and the end
+         numOtherTowers = hits.size() - index - 1;
+         hits.clear();
+      } else {
+         // If this tower isn't in the list, the number of other towers is the
+         // size of the list
+         numOtherTowers = hits.size();
+      }
+      hits.add(towerClass);
+      double mult = 1;
+      while(numOtherTowers > 0) {
+         mult *= multiTowerBonusPerTower;
+         numOtherTowers--;
+      }
+      return mult;
    }
    
    private class AbstractSpriteLooseFloat extends LooseFloat {

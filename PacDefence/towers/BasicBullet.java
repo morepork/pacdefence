@@ -24,12 +24,12 @@ import images.ImageHelper;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Shape;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
 import logic.Game;
-import logic.Helper;
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
 
@@ -121,21 +121,24 @@ public class BasicBullet implements Bullet {
    }
    
    protected double checkIfSpriteIsHit(Point2D p1, Point2D p2, List<Sprite> sprites) {
-      if(sprites.isEmpty()) {
-         return -1;
-      }
-      List<Point2D> points = Helper.getPointsOnLine(p1, p2, pathBounds);
-      if(!points.isEmpty()) {
-         // A sprite can only be hit if the bullet is on the path
-         // The path check is more for optimisation than anything
-         for(Sprite s : sprites) {
-            Point2D p = s.intersects(points);
-            if(p != null) {
-               DamageReport d = s.hit(damage, shotBy.getClass());
-               if(d != null) { // Sprite is not already dead
-                  specialOnHit(p, s, sprites);
-                  return processDamageReport(d);
-               }
+      // It turns out using the line is much faster than using a list of points, even though the
+      // list of points must be calculated if the lines intersects the shape.
+      // A number of reasons:
+      // The Helper.getPointsOnLine is relatively slow
+      // The majority of the time the line does not intersect any shapes so that method is never
+      //    called
+      // Calculating whether a line intersects a circle can be done in constant time
+      // The list only ever needs to be calculated once, as this returns as soon as there is a hit
+      //    (OK, d == null due to threading means sometimes more than once)
+      // Overall this is around 3x faster
+      Line2D line = new Line2D.Double(p1, p2);
+      for(Sprite s : sprites) {
+         Point2D p = s.intersects(line);
+         if(p != null) {
+            DamageReport d = s.hit(damage, shotBy.getClass());
+            if(d != null) { // Sprite is not already dead, may happen due to threading
+               specialOnHit(p, s, sprites);
+               return processDamageReport(d);
             }
          }
       }
