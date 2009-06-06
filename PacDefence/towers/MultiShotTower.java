@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -29,11 +29,11 @@ import sprites.Sprite;
 
 public class MultiShotTower extends AbstractTower {
    
-   private static final double speedDividend = 1.07;
+   private static final double speedIncreaseFactor = 1.1;
    private int shots = 5;
    
    public MultiShotTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Multi Shot", 40, 100, 7.5, 1.3, 50, 5, true);
+      super(p, pathBounds, "Multi Shot", 40, 100, 4, 1.3, 50, 5, true);
    }
 
    @Override
@@ -44,7 +44,7 @@ public class MultiShotTower extends AbstractTower {
    @Override
    public String getStatName(Attribute a) {
       if(a == Attribute.Speed) {
-         return "Max " + a.toString();
+         return "Min " + a.toString();
       } else {
          return super.getStatName(a);
       }
@@ -72,7 +72,7 @@ public class MultiShotTower extends AbstractTower {
       List<Bullet> bullets = new ArrayList<Bullet>();
       for(int i = 0; i < shots; i++) {
          bullets.add(makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p, s, pathBounds));
-         bulletSpeed /= speedDividend;
+         bulletSpeed *= speedIncreaseFactor;
       }
       return bullets;
    }
