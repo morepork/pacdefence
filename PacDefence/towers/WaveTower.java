@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -24,10 +24,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
-import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -141,7 +141,7 @@ public class WaveTower extends AbstractTower {
             if(!hitSprites.contains(s) && s.intersects(arc) &&
                   (s.intersects(closerArc) || !s.intersects(lastArc))) {
                hitSprites.add(s);
-               d += processDamageReport(s.hit(damage));
+               d += processDamageReport(s.hit(damage, shotBy.getClass()));
             }
          }
          return d == 0 ? -1 : d;

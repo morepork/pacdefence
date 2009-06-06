@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -29,6 +29,8 @@ import java.awt.geom.Point2D;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+
+import towers.Tower;
 
 
 /**
@@ -58,7 +60,7 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
     * @param b
     * @return null if the sprite is already dead
     */
-   public DamageReport hit(double damage);
+   public DamageReport hit(double damage, Class<? extends Tower> towerClass);
    public boolean intersects(Point2D p);
    public Point2D intersects(List<Point2D> points);
    public Point2D intersects(Line2D line);

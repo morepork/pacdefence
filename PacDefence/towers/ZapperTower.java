@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -24,10 +24,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -145,7 +145,7 @@ public class ZapperTower extends AbstractTower {
          }
          int index = rand.nextInt(hittableSprites.size());
          Sprite s = hittableSprites.get(index);
-         DamageReport d = s.hit(damage);
+         DamageReport d = s.hit(damage, shotBy.getClass());
          if(d != null) {
             moneyEarnt += processDamageReport(d);
             numZapsLeft--;

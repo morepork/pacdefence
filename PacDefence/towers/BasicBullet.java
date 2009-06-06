@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -54,7 +54,7 @@ public class BasicBullet implements Bullet {
    /**
     * Creates a new BasicBuller with fields set, but tick and draw
     * methods must be overrided.
-    *  
+    * 
     * @param path
     * @param shotBy
     * @param damage
@@ -131,7 +131,7 @@ public class BasicBullet implements Bullet {
          for(Sprite s : sprites) {
             Point2D p = s.intersects(points);
             if(p != null) {
-               DamageReport d = s.hit(damage);
+               DamageReport d = s.hit(damage, shotBy.getClass());
                if(d != null) { // Sprite is not already dead
                   specialOnHit(p, s, sprites);
                   return processDamageReport(d);

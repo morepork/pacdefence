@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -30,13 +30,14 @@ import sprites.Sprite;
 public interface Bullet extends Drawable {
    
    /**
+    * Tick this bullet
     * 
     * @param sprites
-    * @return How much money, if any, the bullet earnt. A negative return
-    *         value means the bullet is still going and 0 means the bullet
-    *         reached the edge of its range.
+    * @return
+    *        How much money, if any, the bullet earned. A negative return value
+    *        means the bullet is still going and 0 means the bullet reached the
+    *        edge of its range.
     */
-   
    public double tick(List<Sprite> sprites);
    
    public void draw(Graphics g);

@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -23,8 +23,8 @@ package towers;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.awt.Shape;
+import java.awt.geom.Point2D;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -140,7 +140,7 @@ public class BomberTower extends AbstractTower {
                // Sprites are only affected by the blast once
                if (blast.intersects(s.getBounds())) {
                   hitSprites.add(s);
-                  DamageReport d = s.hit(damage / bombDamageDividend);
+                  DamageReport d = s.hit(damage / bombDamageDividend, shotBy.getClass());
                   if (d != null) {
                      moneyEarnt += processDamageReport(d);
                   }

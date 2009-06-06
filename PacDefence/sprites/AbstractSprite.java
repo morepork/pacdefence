@@ -42,12 +42,14 @@ import java.util.TreeMap;
 import logic.Circle;
 import logic.Formulae;
 import logic.Helper;
+import towers.Tower;
 
 public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    
    private static final double baseSpeed = 2;
    private static final double maxMult = 2;
    private static final Random rand = new Random();
+   private static final double multiTowerBonusPerTower = 1.1;
 
    private final int width;
    private final int halfWidth;
@@ -101,6 +103,8 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private int adjustedSpeedTicksLeft = 0;
    private double damageMultiplier = 1;
    private int adjustedDamageTicksLeft = 0;
+   
+   private final List<Class<? extends Tower>> hits = new ArrayList<Class<? extends Tower>>();
 
    public AbstractSprite(List<BufferedImage> images, int currentLevel, long hp, List<Point> path){
       this.currentLevel = currentLevel;
@@ -216,13 +220,14 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    }
 
    @Override
-   public DamageReport hit(double damage) {
+   public DamageReport hit(double damage, Class<? extends Tower> towerClass) {
       if(!alive) {
          return null;
       }
       if(adjustedDamageTicksLeft > 0) {
          damage *= damageMultiplier;
       }
+      damage *= calculateMultiTowerBonus(towerClass);
       if (hp - damage <= 0) {
          alive = false;
          double moneyEarnt = Formulae.damageDollars(hp, hpFactor, currentLevel) +
@@ -233,6 +238,31 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          double moneyEarnt = Formulae.damageDollars(damage, hpFactor, currentLevel);
          return new DamageReport(damage, moneyEarnt, false);
       }
+   }
+   
+   private double calculateMultiTowerBonus(Class<? extends Tower> towerClass) {
+      if(towerClass == null) {
+         return 1;
+      }
+      int index = hits.indexOf(towerClass);
+      int numOtherTowers;
+      if(index >= 0) {
+         // If the tower is in the list, the number of other towers is the
+         // number between the index and the end
+         numOtherTowers = hits.size() - index - 1;
+         hits.clear();
+      } else {
+         // If this tower isn't in the list, the number of other towers is the
+         // size of the list
+         numOtherTowers = hits.size();
+      }
+      hits.add(towerClass);
+      double mult = 1;
+      while(numOtherTowers > 0) {
+         mult *= multiTowerBonusPerTower;
+         numOtherTowers--;
+      }
+      return mult;
    }
 
    @Override

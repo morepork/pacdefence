@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -21,8 +21,8 @@ package towers;
 
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.awt.Shape;
+import java.awt.geom.Point2D;
 import java.util.List;
 
 import logic.Game;
@@ -109,7 +109,8 @@ public class PoisonTower extends AbstractTower {
                return moneyEarnt;
             }
             poisonTicksLeft--;
-            moneyEarnt += processDamageReport(poisonedSprite.hit(damagePerTick));
+            // Don't count each poisoning as a new hit
+            moneyEarnt += processDamageReport(poisonedSprite.hit(damagePerTick, null));
             return -1;
          }
       }

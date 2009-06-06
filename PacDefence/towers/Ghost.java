@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -69,21 +69,20 @@ public class Ghost implements Tower {
       List<Bullet> toReturn = new ArrayList<Bullet>();
       for(Sprite s : sprites) {
          if(s.isAlive() && s.getPosition().distance(centre) < s.getHalfWidth() + halfWidth) {
-            Sprite.DamageReport d = s.hit(s.getHPLeft());
+            Sprite.DamageReport d = s.hit(s.getHPLeft(), null);
             if(d != null) {
                final double moneyEarnt = d.getMoneyEarnt();
                // Gives you the money for killing this sprite
                toReturn.add(new Bullet() {
                   @Override
                   public void draw(Graphics g) {
-                     // Does nothing
+                     // Does nothing as it isn't drawn
                   }
    
                   @Override
                   public double tick(List<Sprite> sprites) {
                      return moneyEarnt;
                   }
-                  
                });
                if(--hitsLeft <= 0) {
                   return toReturn;
@@ -118,7 +117,7 @@ public class Ghost implements Tower {
       Composite c = g2D.getComposite();
       // Makes it so what is drawn is partly transparent
       g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-            AbstractTower.shadowAmount));  
+            AbstractTower.shadowAmount));
       g2D.drawImage(image, (int) p.getX() - halfWidth, (int) p.getY() - halfWidth, null);
       g2D.setComposite(c);
       if(!validPlacement) {

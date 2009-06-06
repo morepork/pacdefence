@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -26,11 +26,11 @@ import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -187,7 +187,7 @@ public class BeamTower extends AbstractTower {
       private void hitSprites(List<Sprite> sprites) {
          for(Sprite s : sprites) {
             if(!hitSprites.contains(s) && s.intersects(arc)) {
-               DamageReport d = s.hit(damage);
+               DamageReport d = s.hit(damage, launchedBy.getClass());
                if(d != null) {
                   moneyEarnt += BasicBullet.processDamageReport(d, launchedBy);
                   hitSprites.add(s);

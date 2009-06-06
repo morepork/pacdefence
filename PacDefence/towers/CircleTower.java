@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -21,15 +21,14 @@ package towers;
 
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.awt.Shape;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import logic.Circle;
 import logic.Helper;
-
 import sprites.Sprite;
 
 public class CircleTower extends AbstractTower {
@@ -115,7 +114,7 @@ public class CircleTower extends AbstractTower {
                for (Point2D p : points) {
                   if (s.intersects(p)) {
                      specialOnHit(p, s, sprites);
-                     moneyEarnt += processDamageReport(s.hit(getDamage()));
+                     moneyEarnt += processDamageReport(s.hit(getDamage(), shotBy.getClass()));
                      hitSprites.add(s);
                      hitsLeft--;
                      if (hitsLeft <= 0) {
