@@ -119,13 +119,13 @@ Similar to the freeze tower, except instead of freezing the sprite it will reduc
 Fires a wave or arc that hits multiple targets and passes through them. The wave will damage as all the sprites it passes through, but each sprite will be only be damaged by any particular wave once. The tower's special stat is the angle between each end of the arc.}
 
 \tower{Weaken Tower}{weaken}{
-Does little damage, but the sprites hit by this tower will take double damage for a short period of time. Like the freeze and slow towers, if an already weakened sprite is hit it will be weakened for whichever is longer, the old hit or the new. The special stat of this tower is the length of time the weaken effect lasts for.}
+Does little damage, but after it is hit by this tower a sprite will take double damage for a short period of time. Like the freeze and slow towers, if an already weakened sprite is hit it will be weakened for whichever is longer, the old hit or the new.}
 
 \tower{Zapper Tower}{zapper}{
-Fires a slow main bullet that inflicts no damage on its own, but will zap sprites within range. The zaps will instantly hit their target, and will affect only that sprite. The range of the zaps is one quarter the range of the tower itself, and the target of each zap is randomly chosen from the possible targets. The special stat of this tower is the total number of zaps that the main bullet can do.}
+Fires a main bullet that inflicts no damage on its own, but will zap sprites within range. The range of the zaps is one quarter the range of the tower itself.}
 
 \tower{Ghost}{ghost}{
-Not really a tower as such, but a ghost is placed on the path and will kill instantly kill any sprite that touches it. It will vanish after it has killed 5 sprites, or at the end of a level. Ghosts can not be upgraded and have no stats like the other towers. The price of succesive sprites is double the cost of the last one used.}{x}
+Not really a tower as such, but a ghost is placed on the path and will kill 5 sprites before vanishing. Ghosts also vanish at the end of a level.}{x}
 
 \section{Specials}
 
