@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -101,7 +101,7 @@ public class Game {
    
    private final List<Sprite> sprites = new ArrayList<Sprite>();
    private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
-   private final List<Bullet> bullets = new ArrayList<Bullet>();   
+   private final List<Bullet> bullets = new ArrayList<Bullet>();
    private List<Tower> towersToAdd = new ArrayList<Tower>();
    private List<Tower> towersToRemove = new ArrayList<Tower>();
    
@@ -274,7 +274,7 @@ public class Game {
          actionMap.put(a, new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                controlPanel.clickTowerUpgradeButton(a);
-            }         
+            }
          });
       }
       inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0), "Change target up");
@@ -288,7 +288,7 @@ public class Game {
          public void actionPerformed(ActionEvent e) {
             controlPanel.clickTargetButton(false);
          }
-      });      
+      });
       inputMap.put(KeyStroke.getKeyStroke('s'), "Sell");
       actionMap.put("Sell", new AbstractAction() {
          public void actionPerformed(ActionEvent e) {
@@ -347,7 +347,7 @@ public class Game {
    private void endLevel() {
       levelInProgress = false;
       endLevelUpgradesLeft++;
-      long moneyBefore = money; 
+      long moneyBefore = money;
       multiplyMoney(interestRate);
       long interest = money - moneyBefore;
       int levelEndBonus = Formulae.levelEndBonus(level);
@@ -700,20 +700,11 @@ public class Game {
             // Used nanoTime as many OS, notably windows, don't record ms times less than 10ms
             long beginTime = System.nanoTime();
             if(!gameOver) {
-               int ticksToDo = fastModes[currentMode];
-               for(int i = 0; i < ticksToDo; i++) {
-                     tick();
-               }
-               // Catches any new sprites that may have moved under the cursor
-               // Save the mouse position from mouseMotionListeners rather than
-               // use getMousePosition as it is much faster
-               updateHoverOverStuff(lastMousePosition);
-               updateTowerStats();
+               doTicks();
                if(debugTimes) {
                   processTimes[timesLength] = calculateElapsedTime(beginTime);
                }
             }
-            draw();
             long drawingBeginTime = draw();
             gameMap.repaint();
             if(debugTimes) {
@@ -736,10 +727,22 @@ public class Game {
          keepRunning = false;
       }
       
-      private void switchFastMode(boolean b) {
+      public void switchFastMode(boolean b) {
          // Can't just subtract one as the % operator would leave it negative
          currentMode += b ? 1 : fastModes.length - 1;
          currentMode %= fastModes.length;
+      }
+      
+      private void doTicks() {
+         int ticksToDo = fastModes[currentMode];
+         for(int i = 0; i < ticksToDo; i++) {
+               tick();
+         }
+         // Catches any new sprites that may have moved under the cursor
+         // Save the mouse position from mouseMotionListeners rather than
+         // use getMousePosition as it is much faster
+         updateHoverOverStuff(lastMousePosition);
+         updateTowerStats();
       }
       
       private void tick() {
