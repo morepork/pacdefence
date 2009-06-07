@@ -24,7 +24,7 @@ import gui.Drawable;
 import gui.GameMapPanel;
 import gui.SelectionScreens;
 import gui.Title;
-import gui.GameMapPanel.GameMap;
+import gui.maps.MapParser.GameMap;
 import images.ImageHelper;
 
 import java.awt.BorderLayout;
@@ -1197,13 +1197,6 @@ public class Game {
          pathPoints = g.getPathPoints();
          path = g.getPath();
          pathBounds = g.getPathBounds();
-         if(pathBounds.isEmpty()) {
-            for(Polygon p : path) {
-               // The shapes in pathBounds should be very fast for contains
-               // Polygons can get slow if they have many points
-               pathBounds.add(p.getBounds2D());
-            }
-         }
          removeRedundantShapes(pathBounds);
          pathBounds = Collections.unmodifiableList(pathBounds);
          gameMap = createGameMapPanel(g);

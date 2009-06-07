@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--  This file is part of Pac Defence.
+      
+      Pac Defence is free software: you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+      
+      Pac Defence is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+      
+      You should have received a copy of the GNU General Public License
+      along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
+      
+      (C) Liam Byrne, 2008 - 09.
+  -->
+  
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+   <xs:element name="map">
+      <xs:complexType>
+         <xs:all>
+            <xs:element name="description" type="xs:string"/>
+            <xs:element name="image" type="xs:string"/>
+            <xs:element ref="pathPoints"/>
+            <xs:element ref="path"/>
+            <xs:element ref="pathBounds"/>
+         </xs:all>
+      </xs:complexType>
+   </xs:element>
+   
+   <xs:element name="pathPoints">
+      <xs:complexType>
+         <xs:sequence>
+            <!--  Must have at least a first and last point -->
+            <xs:element ref="point" maxOccurs="unbounded" minOccurs="2"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   
+   <!-- The polygons listed here should cover the path exactly, they are used
+        to figure out where towers and ghosts can be placed. -->
+   <xs:element name="path">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="polygon" maxOccurs="unbounded" minOccurs="1"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   
+   <!-- The shapes in here should cover the entire path, and should also be
+        kept as small as possible for performance. For the same reason, only
+        polygons that don't have too many points should be in here, otherwise
+        use a bounding rectangle, or the like. -->
+   <xs:element name="pathBounds">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:group ref="shape" maxOccurs="unbounded" minOccurs="1"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   
+   <xs:group name="shape">
+      <xs:choice>
+         <xs:element ref="polygon"/>
+         <xs:element ref="rectangle"/>
+      </xs:choice>
+   </xs:group>
+   
+   <xs:element name="polygon">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="point" maxOccurs="unbounded" minOccurs="3"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   
+   <xs:element name="rectangle">
+      <xs:complexType>
+         <xs:attribute name="x" type="xs:nonNegativeInteger"/>
+         <xs:attribute name="y" type="xs:nonNegativeInteger"/>
+         <xs:attribute name="width" type="xs:positiveInteger"/>
+         <xs:attribute name="height" type="xs:positiveInteger"/>
+      </xs:complexType>
+   </xs:element>
+   
+   <xs:element name="point">
+      <xs:complexType>
+         <xs:attribute name="x" type="xs:nonNegativeInteger"/>
+         <xs:attribute name="y" type="xs:nonNegativeInteger"/>
+      </xs:complexType>
+   </xs:element>
+    
+</xs:schema>

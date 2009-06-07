@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--  This file is part of Pac Defence.
+      
+      Pac Defence is free software: you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+      
+      Pac Defence is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+      
+      You should have received a copy of the GNU General Public License
+      along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
+      
+      (C) Liam Byrne, 2008 - 09.
+  -->
+  
+<map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="map.xsd">
+  <description>Hard</description>
+  <image>mosaicPathHard.jpg</image>
+  <pathPoints>
+    <point x="0" y="230"/>
+    <point x="300" y="230"/>
+    <point x="300" y="370"/>
+    <point x="600" y="370"/>
+  </pathPoints>  
+  <path>
+    <polygon>
+      <point x="0" y="200"/>
+      <point x="326" y="200"/>
+      <point x="326" y="340"/>
+      <point x="600" y="340"/>
+      <point x="600" y="400"/>
+      <point x="272" y="400"/>
+      <point x="272" y="260"/>
+      <point x="0" y="260"/>
+    </polygon>
+  </path>
+  <pathBounds>
+    <polygon>
+      <!-- Should be the same as the one above, don't know a nice way of reusing it -->
+      <point x="0" y="200"/>
+      <point x="326" y="200"/>
+      <point x="326" y="340"/>
+      <point x="600" y="340"/>
+      <point x="600" y="400"/>
+      <point x="272" y="400"/>
+      <point x="272" y="260"/>
+      <point x="0" y="260"/>
+    </polygon>
+  </pathBounds>
+</map>

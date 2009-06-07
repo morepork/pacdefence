@@ -13,13 +13,14 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
 package gui;
 
-import gui.GameMapPanel.GameMap;
+import gui.maps.MapParser;
+import gui.maps.MapParser.GameMap;
 import images.ImageHelper;
 
 import java.awt.BorderLayout;
@@ -27,16 +28,11 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
@@ -71,9 +67,9 @@ public class SelectionScreens extends JPanel {
    
    private List<GameMap> createGameMapList() {
       List<GameMap> list = new ArrayList<GameMap>();
-      list.add(loadMap("mosaicPathEasy", "mosaicPathEasy.jpg"));
-      list.add(loadMap("mosaicPathMedium", "mosaicPathMedium.jpg"));
-      list.add(loadMap("mosaicPathHard", "mosaicPathHard.jpg"));
+      list.add(MapParser.parse("mosaicPathEasy.xml"));
+      list.add(MapParser.parse("mosaicPathMedium.xml"));
+      list.add(MapParser.parse("mosaicPathHard.xml"));
       return list;
    }
    
@@ -104,64 +100,6 @@ public class SelectionScreens extends JPanel {
       verticalBox.add(Box.createRigidArea(new Dimension(0, 130)));
       verticalBox.add(SwingHelper.createWrapperPanel(box));
       return verticalBox;
-   }
-   
-   private GameMap loadMap(String textFileName, String imageName) {
-      Scanner scan = new Scanner(getClass().getResourceAsStream("maps/" + textFileName));
-      String description = scan.nextLine();
-      List<Polygon> path = new ArrayList<Polygon>();
-      String currentToken = scan.next();
-      do {
-         currentToken = skipComments(scan, currentToken);
-         List<Point> polygonPoints = new ArrayList<Point>();
-         while(!isComment(currentToken)) {
-            polygonPoints.add(new Point(Integer.valueOf(currentToken), Integer.valueOf(scan.next())));
-            currentToken = scan.next();
-         }
-         Polygon polygon = new Polygon();
-         for(Point p : polygonPoints) {
-            polygon.addPoint(p.x, p.y);
-         }
-         path.add(polygon);
-      } while(currentToken.equalsIgnoreCase("//Next"));
-      currentToken = skipComments(scan, currentToken);
-      List<Shape> pathBounds = new ArrayList<Shape>();
-      while(!currentToken.equalsIgnoreCase("//End")) {
-         if(currentToken.equalsIgnoreCase("UsePolygon")) {
-            pathBounds.add(path.get(Integer.valueOf(scan.next()) - 1));
-         } else if(currentToken.equalsIgnoreCase("Rectangle")) {
-            pathBounds.add(new Rectangle(Integer.valueOf(scan.next()), Integer.valueOf(scan.next()),
-                  Integer.valueOf(scan.next()), Integer.valueOf(scan.next())));
-         }
-         currentToken = scan.next();
-      }
-      currentToken = skipComments(scan, currentToken);
-      List<Point> pathPoints = new ArrayList<Point>();
-      while(!isComment(currentToken)) {
-         pathPoints.add(new Point(Integer.valueOf(currentToken), Integer.valueOf(scan.next())));
-         if(scan.hasNext()) {
-            currentToken = scan.next();
-         } else {
-            break;
-         }
-      }
-      return new GameMap(description, pathPoints, path, pathBounds, 
-            ImageHelper.makeImage("maps", imageName));
-   }
-
-   private String skipComments(Scanner scan, String currentToken) {
-      if(isComment(currentToken)) {
-         scan.nextLine();
-         return skipComments(scan, scan.next());
-      }
-      return currentToken;
-   }
-   
-   private boolean isComment(String s) {
-      if(s.length() < 2) {
-         return false;
-      }
-      return s.substring(0, 2).equals("//");
    }
    
 }

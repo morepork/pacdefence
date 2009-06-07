@@ -19,6 +19,7 @@
 
 package gui;
 
+import gui.maps.MapParser.GameMap;
 import images.ImageHelper;
 
 import java.awt.AlphaComposite;
@@ -256,44 +257,6 @@ public class GameMapPanel extends JPanel {
             System.out.println("Mouse clicked on map at (" + e.getX() + "," + e.getY() + ")");
          }
       });
-   }
-   
-   public static class GameMap {
-
-      private final String description;
-      private final List<Point> pathPoints;
-      private final List<Polygon> path;
-      private final List<Shape> pathBounds;
-      private final BufferedImage image;
-      
-      public GameMap(String description, List<Point> pathPoints, List<Polygon> path,
-            List<Shape> pathBounds, BufferedImage image) {
-         this.description = description;
-         this.pathPoints = pathPoints;
-         this.path = path;
-         this.pathBounds = pathBounds;
-         this.image = image;
-      }
-      
-      public String getDescription() {
-         return description;
-      }
-      
-      public List<Point> getPathPoints() {
-         return pathPoints;
-      }
-      
-      public List<Polygon> getPath() {
-         return path;
-      }
-      
-      public List<Shape> getPathBounds() {
-         return pathBounds;
-      }
-      
-      public BufferedImage getImage() {
-         return image;
-      }
    }
    
    /**
