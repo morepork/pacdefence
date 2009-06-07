@@ -1,6 +1,6 @@
 Easy
 //Path bounds (x y)
-//This is tricky as any inner par of a polygon's outline must be contained
+//This is tricky as any inner part of a polygon's outline must be contained
 //inside another polygon, otherwise creating a ghost fails.
 0 100
 450 100

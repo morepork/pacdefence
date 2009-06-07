@@ -132,17 +132,48 @@ public class BasicBullet implements Bullet {
       //    (OK, d == null due to threading means sometimes more than once)
       // Overall this is around 3x faster
       Line2D line = new Line2D.Double(p1, p2);
-      for(Sprite s : sprites) {
-         Point2D p = s.intersects(line);
-         if(p != null) {
-            DamageReport d = s.hit(damage, shotBy.getClass());
-            if(d != null) { // Sprite is not already dead, may happen due to threading
-               specialOnHit(p, s, sprites);
-               return processDamageReport(d);
+      if(intersectsPath(line)) { // If the line doesn't intersect the path a Sprite can't be hit
+         for(Sprite s : sprites) {
+            Point2D p = s.intersects(line);
+            if(p != null) {
+               DamageReport d = s.hit(damage, shotBy.getClass());
+               if(d != null) { // Sprite is not already dead, may happen due to threading
+                  specialOnHit(p, s, sprites);
+                  return processDamageReport(d);
+               }
             }
          }
       }
       return -1;
+   }
+   
+   private boolean intersectsPath(Line2D line) {
+      // Do this as line.getBounds2D() is not guaranteed to be the smallest bounding rectangle
+      double x1 = line.getX1();
+      double x2 = line.getX2();
+      double y1 = line.getY1();
+      double y2 = line.getY2();
+      double width, height;
+      if(x1 < x2) {
+         width = x2 - x1;
+      } else {
+         width = x1 - x2;
+         x1 = x2;
+      }
+      if(y1 < y2) {
+         height = y2 - y1;
+      } else {
+         height = y1 - y2;
+         y1 = y2;
+      }
+      assert width >= 0 && height >= 0 && x1 <= x2 && y1 <= y2 : "The above logic isn't working.";
+      for(Shape s : pathBounds) {
+         // The rectangle is strictly larger than the line
+         if(s.intersects(x1, y1, width, height)) {
+            return true;
+         }
+      }
+      return false;
    }
    
    /**
