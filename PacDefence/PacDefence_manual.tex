@@ -1,10 +1,9 @@
-% I permit others to modify and redistribute this manual, as long as they keep
-% this notice attached, and make the LaTeX file available.
-%
+% I permit others to modify and redistribute this manual, as long as they keep this notice attached, and make the LaTeX file available under the same conditions.
+
 % (C) Liam Byrne 2009
 
 \documentclass[a4paper,11pt]{article}
-\usepackage{fullpage, graphicx, wrapfig, color, hyperref}
+\usepackage{fullpage, graphicx, wrapfig, color, hyperref, multicol}
 \setlength{\parindent}{0mm}
 
 % This is for when I draw the boxes around the buttons later
@@ -62,11 +61,28 @@
 \maketitle
 %\pagebreak
 
+\begin{center}
+\begin{minipage}{12cm}
+\begin{small}
+\it
+Disclaimer: To the best of my knowledge, this manual is correct, but I make no guarantees as such. In particular, the game is being updated on a frequent basis, so parts of this manual may be out of date.
+\end{small}
+\end{minipage}
+\end{center}
+
 \tableofcontents
 \pagebreak
 
+% Note that this is after the table of contents, otherwise that becomes ridiculous
+\setlength{\parskip}{4mm plus 2mm minus 1 mm}
 
-%\section*{Basic Game Play}
+\section{Game Play}
+The aim of the game is to stop the sprites, the yellow pacman like things, from getting from one side of the screen to the other. There is one main way to achieve this, bulding towers. Towers will automatically shoot at any sprites that are within range, causing damage, and ultimate death to the evil sprites. Towers can be built anywhere on the map that is not the path that the sprites travel along. Towers can be upgraded in two ways, firstly you can buy upgrades for them, and secondly they will get upgrades for dealing damage, and killing sprites. You cannot just keep upgrading towers though, things cost money, and if you run out of money, you won't be able to build any new towers, nor be able to upgrade them (they will still receive upgrades for dealing damage and kills however).
+
+\section{Upgrades}
+Towers can be upgraded at a cost, these upgrades will typically improve the stat by 5\%, though it works differently for some towers, and the special stat generally increases differently. When a tower goes up an experience level for damage or kills (you can see the amount needed for the next upgrade in brackets) it receives the equivalent of one upgrade for each of its stats for free, and also without increasing the price of its upgrades.
+
+All currently built towers can be upgraded at once by pressing the upgrade button with no tower selected, and holding ctrl while pressing an upgrade will do the equivalent of pressing the button 5 times.
 
 \section{Towers}
 
@@ -196,6 +212,22 @@ Where towerCost is the cost to rebuild a new tower of that type after it is dele
 
 This base value for this is initially 40, and for each succesive level, it is multiplied by 0.95 and rounded down to the nearest integer, always at least one. The actual time is a random number between 0 and twice this number.
 
+\section{Targets}
+It is possible to tell a target to attack a particular sprite, however you can set where it will look for targets first. If a tower can attack multiple sprites, it will attack the one that meets its target. Currently, the following settings are possible:
+
+\begin{description}
+ \item[First]\quad\\ Targets the sprite that is in `first place' -- the one closest to finishing.
+ \item[Last]\quad\\ Targets the sprite that is in `last place' -- the one that has travelled the least distance.
+ \item[Fastest]\quad\\ Targets the fastest sprite.
+ \item[Slowest]\quad\\ Targets the slowest sprite.
+ \item[Most HP]\quad\\ Targets the sprite with the most HP.
+ \item[Least HP]\quad\\ Targets the sprite with the least HP.
+ \item[Random]\quad\\ Targets a random sprite.
+\end{description}
+
+
+\section{Fast Mode}
+Pressing the button in the top right corner will cycle between 3 modes, \(1 \times\), \(2 \times\) and \(5 \times\), which increase the speed of the game by that amount. There is no disadvantage to speeding it up other than having less time to respond, as all it does is do multiple clock ticks in the time it would do one at normal speed.
 
 \section{Bonuses}
 One bonus point is awarded at the completion of each level, and can be used on any of the 8 bonuses. 5 of the bonuses mirror the 5 stats of each tower -- damage, range, fire rate, bullet speed and special. Using one of these gives the same effect as buying a single upgrade for all of your towers, but does not increase the cost of upgrades. When a new tower is built, it gets the effect of half of these upgrades (rounded down). The other three, give bonus lives, increase the interest rate and give bonus money.
@@ -218,7 +250,36 @@ If the last bullet that hit a sprite was from a tower of a different type, it wi
 
 Notice that these bonuses are cumulative, and very large bonuses can be gained by having long sequences, for example, a sequence of 9 gives a damage bonus of approximately 95\% (\(1.1^{9} = 1.95\)).
 
+\section{Keyboard Shortcuts}
 
+\begin{multicols}{2}
+\begin{tabular}{l l}
+Alt+S & Start\\
+Alt+R & Restart\\
+Alt+T & Title\\
+Page up & Change target\\
+Page down & Change target (back)\\
+S & Sell tower\\
+\end{tabular}
+
+\begin{tabular}{l l}
+1 & Upgrade damage\\
+2 & Upgrade range\\
+3 & Upgrade fire rate\\
+4 & Upgrade bullet speed\\
+5 & Upgrade special\\
+Ctrl+ & Do up to 5 upgrades\\
+\end{tabular}
+\end{multicols}
+
+\section{Maps}
+The Maps are detailed in an XML format, the schema of which can be found in the archive including source. This specifies 5 details about each map, its description (shown on the map selection screen), the image file(s) that are used to draw it, a sequence of points that is the path the sprites follow, a sequence of polygons that contains the path (closely), and another sequence of shapes that contains the path.
+
+The reason for the two sequences of shapes is non--obvious. The first is used to decide where towers (and the ghost) can be placed, so must wrap the path very closely. However, this means the ensuing polygon will often have a large number of points. The second sequence is used to speed up the game -- if a bullet is not over one of the shapes, it is not necessary to check whether it has hit a sprite, but for this to give a good performance improvement, it must only take a minimal amount of time to check against the sequence of shapes. It does not need to be as accurate, just enclosing the entire path.
+
+Care must be taken when forming the first sequence of polygons, as if an area is included twice in the polygon, it is counted as excluded (think the rectangle where sprites travel fast in the easy mosaic map). Thus additional shapes must enclose these areas. But a shape of just that size is not enough, because a ghost that is placed on the border will count as intersecting the path, not fully contained in it, so cannot be placed. Therefore these shapes must have redundant space either side of the border.
+
+I wrote the PathAnalyser class to aid in the construction of these polygons, particularly for circular maps. Using an overlay that is just the path, it will run across the x axis, and for each x point it will increase y until it hits a non--transparent pixel -- the edge of the path, and print out this point as it needs to be formatted for the XML file. When it reaches the end, it will come back, giving y its maximum value, then decreasing it until it hits the path. It can also do the same for the y axis, increasing x. Lastly, to create the sprite's path it can average the values going up and down (left and right). The class is a little nasty at the moment, and you need to hack at the internals (mainly just fields and the main method) to get it to work right.
 
 
 \end{document}          
