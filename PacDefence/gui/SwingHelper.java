@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -23,6 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
@@ -32,7 +33,7 @@ public class SwingHelper {
    
    public static JPanel createJPanel() {
       JPanel panel = new JPanel();
-      panel.setOpaque(false);   
+      panel.setOpaque(false);
       return panel;
    }
 
@@ -79,6 +80,14 @@ public class SwingHelper {
       panel.setOpaque(false);
       panel.setBorder(createEmptyBorder(borderWidth));
       return panel;
+   }
+   
+   public static Box createHorizontalWrapperBoxWithGlue(JComponent c) {
+      Box b = Box.createHorizontalBox();
+      b.add(Box.createHorizontalGlue());
+      b.add(c);
+      b.add(Box.createHorizontalGlue());
+      return b;
    }
 
 }

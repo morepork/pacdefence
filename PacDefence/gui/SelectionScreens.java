@@ -25,9 +25,8 @@ import images.ImageHelper;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -35,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Box;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -54,10 +54,11 @@ public class SelectionScreens extends JPanel {
       title.setForeground(textColour);
       title.setFontSize(40F);
       title.setHorizontalAlignment(JLabel.CENTER);
+      title.setText("Map Selection");
       background = ImageHelper.makeImage("other", "hoops.png");
       this.continueOn = continueOn;
       add(title, BorderLayout.NORTH);
-      add(createMapSelections());
+      add(createMapSelections(), BorderLayout.CENTER);
    }
    
    @Override
@@ -70,36 +71,38 @@ public class SelectionScreens extends JPanel {
       list.add(MapParser.parse("mosaicPathEasy.xml"));
       list.add(MapParser.parse("mosaicPathMedium.xml"));
       list.add(MapParser.parse("mosaicPathHard.xml"));
+      list.add(MapParser.parse("curvyMedium.xml"));
       return list;
    }
    
-   private Component createMapSelections() {
-      title.setText("Map Selection");
-      Box box = Box.createHorizontalBox();
-      Component gap = null;
-      for(final GameMap g : gameMaps) {
-         JPanel b = SwingHelper.createBorderLayedOutJPanel();
-         OverlayButton button = new OverlayButton(g.getImage(), 250, 250);
+   private JComponent createMapSelections() {
+      int cols = 3;
+      JPanel panel = new JPanel(new GridLayout(0, cols));
+      panel.setOpaque(false);
+      for(int i = 0; i < gameMaps.size(); i++) {
+         final GameMap g = gameMaps.get(i);
+         Box b = Box.createVerticalBox();
+         // Improves the spacing above
+         b.add(Box.createVerticalStrut(5));
+         if(i < cols) {
+            // Only add glue to the top of the first row, otherwise you get glue twice in the centre
+            b.add(Box.createVerticalGlue());
+         }
+         OverlayButton button = new OverlayButton(g.getImage(), 225, 225);
          button.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
                continueOn.continueOn(g);
             }
          });
-         b.add(button, BorderLayout.NORTH);
+         b.add(SwingHelper.createHorizontalWrapperBoxWithGlue(button));
          MyJLabel label = new MyJLabel(g.getDescription());
-         label.setFontSize(20F);
+         label.setFontSize(18F);
          label.setForeground(textColour);
-         label.setHorizontalAlignment(JLabel.CENTER);
-         b.add(label, BorderLayout.SOUTH);
-         box.add(b);
-         gap = Box.createRigidArea(new Dimension(15, 0));
-         box.add(gap);
+         b.add(SwingHelper.createHorizontalWrapperBoxWithGlue(label));
+         b.add(Box.createVerticalGlue());
+         panel.add(b);
       }
-      box.remove(gap);
-      Box verticalBox = Box.createVerticalBox();
-      verticalBox.add(Box.createRigidArea(new Dimension(0, 130)));
-      verticalBox.add(SwingHelper.createWrapperPanel(box));
-      return verticalBox;
+      return panel;
    }
    
 }

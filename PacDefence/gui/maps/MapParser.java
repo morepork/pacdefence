@@ -38,6 +38,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
+import logic.Game;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -98,11 +100,11 @@ public class MapParser {
    
    private static BufferedImage parseImages(Node n) {
       NodeList children = n.getChildNodes();
-      // The first image will always be there
-      BufferedImage image = ImageHelper.makeImage("maps",
-            children.item(0).getFirstChild().getNodeValue());
+      // Make a blank image of this type so all colours can be shown
+      BufferedImage image = new BufferedImage(Game.MAP_WIDTH, Game.MAP_HEIGHT,
+            BufferedImage.TYPE_INT_ARGB_PRE);
       Graphics2D g = image.createGraphics();
-      for(int i = 1; i < children.getLength(); i++) {
+      for(int i = 0; i < children.getLength(); i++) {
          // Then draw each succesive image over the top
          g.drawImage(ImageHelper.makeImage("maps", children.item(i).getFirstChild().getNodeValue()),
                0, 0, null);

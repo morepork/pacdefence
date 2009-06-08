@@ -254,7 +254,7 @@ public class GameMapPanel extends JPanel {
       addMouseListener(new MouseAdapter(){
          @Override
          public void mouseClicked(MouseEvent e) {
-            System.out.println("Mouse clicked on map at (" + e.getX() + "," + e.getY() + ")");
+            System.out.println("<point x=\"" + e.getX() + "\" y=\"" + e.getY() + "\" />");
          }
       });
    }
