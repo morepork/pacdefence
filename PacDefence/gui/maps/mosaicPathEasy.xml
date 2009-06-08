@@ -20,7 +20,9 @@
   
 <map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="map.xsd">
   <description>Easy</description>
-  <image>mosaicPathEasy.jpg</image>
+  <images>
+    <image>mosaicPathEasy.jpg</image>
+  </images>
   <pathPoints>
     <point x="0" y="130"/>
     <point x="420" y="130"/>

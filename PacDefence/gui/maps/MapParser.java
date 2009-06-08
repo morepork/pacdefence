@@ -21,6 +21,7 @@ package gui.maps;
 
 import images.ImageHelper;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
@@ -78,8 +79,8 @@ public class MapParser {
          String name = n.getNodeName();
          if(name.equals("description")) {
             description = parseDescription(n);
-         } else if(name.equals("image")) {
-            image = parseImage(n);
+         } else if(name.equals("images")) {
+            image = parseImages(n);
          } else if(name.equals("pathPoints")) {
             pathPoints = parsePathPoints(n);
          } else if(name.equals("path")) {
@@ -95,8 +96,18 @@ public class MapParser {
       return n.getChildNodes().item(0).getNodeValue();
    }
    
-   private static BufferedImage parseImage(Node n) {
-      return ImageHelper.makeImage("maps", n.getChildNodes().item(0).getNodeValue());
+   private static BufferedImage parseImages(Node n) {
+      NodeList children = n.getChildNodes();
+      // The first image will always be there
+      BufferedImage image = ImageHelper.makeImage("maps",
+            children.item(0).getFirstChild().getNodeValue());
+      Graphics2D g = image.createGraphics();
+      for(int i = 1; i < children.getLength(); i++) {
+         // Then draw each succesive image over the top
+         g.drawImage(ImageHelper.makeImage("maps", children.item(i).getFirstChild().getNodeValue()),
+               0, 0, null);
+      }
+      return image;
    }
    
    private static List<Point> parsePathPoints(Node n) {

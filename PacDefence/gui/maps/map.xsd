@@ -24,13 +24,23 @@
       <xs:complexType>
          <xs:all>
             <xs:element name="description" type="xs:string"/>
-            <xs:element name="image" type="xs:string"/>
+            <xs:element ref="images"/>
             <xs:element ref="pathPoints"/>
             <xs:element ref="path"/>
             <xs:element ref="pathBounds"/>
          </xs:all>
       </xs:complexType>
    </xs:element>
+   
+   <!-- A sequence of images for this map.
+        Each successive image is drawn over the previous one. -->
+   <xs:element name="images">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="image" type="xs:string" maxOccurs="unbounded" minOccurs="1"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>         
    
    <xs:element name="pathPoints">
       <xs:complexType>
