@@ -22,6 +22,7 @@ function writeNavBar() {
 	writeNavBarLine("index.html", "Main");
 	writeNavBarLine("pacdefence.html", "Pac Defence");
 	writeNavBarLine("debug.html", "Pac Defence (debug)");
+	writeNavBarLine("COPYING", "Licence");
 	writeNavBarLine("changelog.html", "Change Log");
 	writeNavBarLine("screenshots.html", "Screenshots");
 	document.write('<li><a href="PacDefence.jar">Download</a>');
