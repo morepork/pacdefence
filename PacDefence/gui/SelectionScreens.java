@@ -71,7 +71,9 @@ public class SelectionScreens extends JPanel {
       list.add(MapParser.parse("mosaicPathEasy.xml"));
       list.add(MapParser.parse("mosaicPathMedium.xml"));
       list.add(MapParser.parse("mosaicPathHard.xml"));
+      list.add(MapParser.parse("curvyEasy.xml"));
       list.add(MapParser.parse("curvyMedium.xml"));
+      list.add(MapParser.parse("curvyHard.xml"));
       return list;
    }
    

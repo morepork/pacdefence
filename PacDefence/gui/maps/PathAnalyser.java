@@ -19,6 +19,7 @@ package gui.maps;
 
 import images.ImageHelper;
 
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 /**
@@ -29,71 +30,124 @@ import java.awt.image.BufferedImage;
  */
 public class PathAnalyser {
 
-   private static final int step = 25;
+   private static final int step = 10;
+   // True will make it do runs up/down, false left/right
+   private static final boolean upDown = true;
 
    public static void main(String[] args) {
-      BufferedImage image = ImageHelper.makeImage("maps", "curvyMedium.png");
-      if(1 == 0) {
+      BufferedImage image = ImageHelper.makeImage("maps", "curvyEasy.png");
+      if(1 == 1) {
          doPathBounds(image);
       } else {
-         doPath(image);
+         doPathPoints(image);
       }
    }
    
-   private static void doPath(BufferedImage image) {
-      int x;
-      for(x = 0; x < image.getWidth(); x += step) {
-         // Prints the point half way between the top and bottom of the edges of the path
-         printAverageY(image, x);
-      }
-      // Make sure the far right point is done
-      if(x != image.getWidth() - 1) {
-         printAverageY(image, image.getWidth() - 1);
-      }
-   }
-   
-   private static void printAverageY(BufferedImage image, int x) {
-      printPoint(x, (runUp(image, x) + runDown(image, x)) / 2);
-   }
-   
+   /**
+    * Runs down from the edges until it hits a non-transparent pixel, and prints the co-ordinates
+    * of that, the edge of the path.
+    * 
+    * @param image
+    */
    private static void doPathBounds(BufferedImage image) {
-      // For each x coordinate, run down until a non-alpha pixel is hit
-      int x;
-      for(x = 0; x < image.getWidth(); x += step) {
-         printPoint(x, runDown(image, x));
+      int lastPos = getLastPos(image);
+      // For each coordinate, run down until a non-alpha pixel is hit
+      int i;
+      for(i = 0; i < lastPos; i += step) {
+         printPoint(runIncreasing(image, i));
       }
       // Make sure the far right point is done
-      if(x != image.getWidth() - 1) {
-         printPoint(x, runDown(image, image.getWidth() - 1));
+      if(i != lastPos - 1) {
+         printPoint(runIncreasing(image, lastPos - 1));
       }
       // Do the same in reverse
-      for(x = image.getWidth() - 1; x >= 0; x -= step) {
-         printPoint(x, runUp(image, x));
+      for(i = lastPos - 1; i >= 0; i -= step) {
+         printPoint(runDecreasing(image, i));
       }
       // Make sure the far left point is done
-      if(x != 0) {
-         printPoint(x, runUp(image, 0));
+      if(i != 0) {
+         printPoint(runDecreasing(image, 0));
+      }
+   }
+   
+   /**
+    * Averages runs from opposite edges to get the centre.
+    * 
+    * @param image
+    */
+   private static void doPathPoints(BufferedImage image) {
+      int lastPos = getLastPos(image);
+      int i;
+      for(i = 0; i < lastPos; i += step) {
+         // Prints the point half way between the top and bottom of the edges of the path
+         printAverage(image, i);
+      }
+      // Make sure the far point is done
+      if(i != lastPos - 1) {
+         printAverage(image, lastPos - 1);
+      }
+   }
+   
+   private static void printAverage(BufferedImage image, int i) {
+      Point p1 = runIncreasing(image, i);
+      Point p2 = runDecreasing(image, i);
+      printPoint(new Point((p1.x + p2.x)/2, (p1.y + p2.y)/2));
+   }
+   
+   private static int getLastPos(BufferedImage image) {
+      return upDown ? image.getWidth() : image.getHeight();
+   }
+   
+   private static Point runIncreasing(BufferedImage image, int i) {
+      if(upDown) {
+         return runDown(image, i);
+      } else {
+         return runRight(image, i);
+      }
+   }
+   
+   private static Point runDecreasing(BufferedImage image, int i) {
+      if(upDown) {
+         return runUp(image, i);
+      } else {
+         return runLeft(image, i);
       }
    }
 
-   private static int runDown(BufferedImage image, int x) {
+   private static Point runDown(BufferedImage image, int x) {
       int y = 0;
-      while(image.getRGB(x, y) == 0 && y <= image.getHeight()) {
+      while(y < image.getHeight() && image.getRGB(x, y) == 0) {
          y++;
       }
-      return y;
+      return new Point(x, y);
    }
 
-   private static int runUp(BufferedImage image, int x) {
+   private static Point runUp(BufferedImage image, int x) {
       int y = image.getHeight() - 1;
-      while(image.getRGB(x, y) == 0 && y >= 0) {
+      while(y > 0 && image.getRGB(x, y) == 0) {
          y--;
       }
-      return y;
+      return new Point(x, y);
+   }
+   
+   private static Point runRight(BufferedImage image, int y) {
+      int x = 0;
+      while(x < image.getWidth() && image.getRGB(x, y) == 0) {
+         x++;
+      }
+      return new Point(x, y);
+   }
+   
+   private static Point runLeft(BufferedImage image, int y) {
+      int x = image.getWidth() - 1;
+      while(x > 0 && image.getRGB(x, y) == 0) {
+         x--;
+      }
+      return new Point(x, y);
    }
 
-   private static void printPoint(int x, int y) {
-      System.out.println("<point x=\"" + x + "\" y=\"" + y + "\" />");
+   private static void printPoint(Point p) {
+      System.out.println("<point x=\"" + p.x + "\" y=\"" + p.y + "\" />");
    }
 
 }
