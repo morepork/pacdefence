@@ -28,6 +28,7 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +58,9 @@ public class MapParser {
    
    public static GameMap parse(String fileName) {
       try {
-         Document document = domBuilder.parse(MapParser.class.getResourceAsStream(fileName));
+         InputStream stream = MapParser.class.getResourceAsStream(fileName);
+         Document document = domBuilder.parse(stream);
+         stream.close();
          removeWhitespaceNodes(document);
          // The map should be the only node in the document
          return parseMap(document.getChildNodes().item(0));
