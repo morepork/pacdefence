@@ -1,0 +1,4 @@
+To go from the curvy xcf.gz files to the jpg:
+Gaussian blur, 1 pixel
+Paste in nebula.png as background
+Save at a quality of 85
