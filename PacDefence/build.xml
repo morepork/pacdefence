@@ -45,6 +45,8 @@
          <fileset dir="${SrcDir}" casesensitive="yes">
             <!-- Hidden files -->
             <exclude name="**/.*" />
+         	<!-- Anything in a hidden directory -->
+            <exclude name="**/.*/*" />
             <!-- Backup files -->
             <exclude name="**/*.*~" />
             <exclude name="**/*.*backup" />
@@ -58,8 +60,10 @@
             <exclude name="**/*.css" />
             <exclude name="**/*.tex" />
             <exclude name="**/*.pdf" />
+         	<exclude name="gui/maps/PathAnalyser.class" />
             <exclude name="images/maps/rainbowColours.png" />
             <exclude name="images/maps/rainbowColours.jpg" />
+         	<exclude name="images/maps/nebula.png" />
             <exclude name="images/maps/*Map.png" />
             <exclude name="images/other/theGreenPlace.png" />
             <exclude name="images/control_panel/blue_lava.*" />
@@ -81,6 +85,7 @@
       <jar destfile="${SrcJar}">
          <fileset dir="${SrcDir}" casesensitive="yes">
             <exclude name="**/.*" />
+            <exclude name="**/.*/*" />
             <exclude name="**/*.*~" />
             <exclude name="**/*.*backup" />
             <exclude name="**/*.jar" />
@@ -109,6 +114,8 @@
       <!-- Cleans up after the build -->
       <delete  file="${ManualName}.aux" />
       <delete  file="${ManualName}.log" />
+   	<delete  file="${ManualName}.toc" />
+   	<delete  file="${ManualName}.out" />
    </target>
 
 </project>
