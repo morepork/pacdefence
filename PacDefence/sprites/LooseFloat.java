@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -22,29 +22,52 @@ package sprites;
 
 public abstract class LooseFloat implements Comparable<LooseFloat> {
    
-   private final Float f;
+   private final Double value;
    
    public LooseFloat(float f) {
-      this.f = f;
+      value = Math.floor(f / getPrecision());
    }
    
    public LooseFloat(double d) {
-      this.f = (float)d;
+      this((float)d);
    }
    
    @Override
    public boolean equals(Object obj) {
       if(obj instanceof LooseFloat) {
-         return Math.abs(this.f - ((LooseFloat)obj).f) < getPrecision();
-      } else {
-         return false;
+         return value.equals(((LooseFloat) obj).value);
       }
+      return false;
    }
-
+   
+   @Override
+   public int hashCode() {
+      return value.hashCode();
+   }
+   
    @Override
    public int compareTo(LooseFloat lf) {
-      return (int)((this.f - lf.f) / getPrecision());
+      return (int)(value - lf.value);
    }
+   
+//   @Override
+//   public boolean equals(Object obj) {
+//      if(obj instanceof LooseFloat) {
+//         return Math.abs(this.f - ((LooseFloat)obj).f) < getPrecision();
+//      } else {
+//         return false;
+//      }
+//   }
+//
+//   @Override
+//   public int hashCode() {
+//      return Float.valueOf(f / getPrecision() - f % getPrecision()).hashCode();
+//   }
+//
+//   @Override
+//   public int compareTo(LooseFloat lf) {
+//      return (int)((this.f - lf.f) / getPrecision());
+//   }
    
    protected abstract float getPrecision();
    

@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -42,7 +42,6 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import logic.Circle;
 import logic.Formulae;
@@ -206,7 +205,7 @@ public abstract class AbstractTower implements Tower {
       // Save the current composite to reset back to later
       Composite c = g2D.getComposite();
       // Makes it so what is drawn is partly transparent
-      g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, shadowAmount));  
+      g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, shadowAmount));
       g2D.drawImage(currentImage, (int) p.getX() - halfWidth, (int) p.getY() - halfWidth, width,
             width, null);
       g2D.setComposite(c);
@@ -609,7 +608,7 @@ public abstract class AbstractTower implements Tower {
       int topLeftRangeY = (int)(p.getY() - range);
       Graphics2D g2D = (Graphics2D) g;
       Composite c = g2D.getComposite();
-      g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5F)); 
+      g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5F));
       g2D.setColor(Color.WHITE);
       g2D.fillOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
       g2D.setComposite(c);
@@ -661,15 +660,18 @@ public abstract class AbstractTower implements Tower {
    private BufferedImage rotateImage(double angle) {
       if(!rotatedImages.containsKey(getClass())) {
          // I use a TreeMap as otherwise I'd need to implement hashCode in LooseFloat
-         rotatedImages.put(getClass(), new TreeMap<LooseFloat, BufferedImage>());
+         rotatedImages.put(getClass(), new HashMap<LooseFloat, BufferedImage>());
       }
       Map<LooseFloat, BufferedImage> m = rotatedImages.get(getClass());
       // Use LooseFloat to reduce precision so rotated images are less likely
       // to be duplicated
       LooseFloat f = new LooseFloat(angle) {
+         @Override
          public float getPrecision() {
-            return 0.012F;
-         }         
+            // Watch out with decreasing this, while it may improve the quality, because images are
+            // cached it can increase the memory use significantly
+            return 0.08F;
+         }
       };
       if(!m.containsKey(f)) {
          m.put(f, ImageHelper.rotateImage(rotatingImage, angle));

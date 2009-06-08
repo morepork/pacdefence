@@ -62,8 +62,7 @@ public class GameMapPanel extends JPanel {
    
    private long lastPaintTime = 0;
 
-   public GameMapPanel(int width, int height, BufferedImage background, GameMap map,
-         boolean debugTimes, boolean debugPath) {
+   public GameMapPanel(int width, int height, GameMap map, boolean debugTimes, boolean debugPath) {
       this.debugTimes = debugTimes;
       this.debugPath = debugPath;
       GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().
@@ -72,11 +71,7 @@ public class GameMapPanel extends JPanel {
       front = gc.createCompatibleImage(width, height, Transparency.OPAQUE);
       back = gc.createCompatibleImage(width, height, Transparency.OPAQUE);
       Graphics g = backgroundImage.getGraphics();
-      // Draws the background on if there is one
-      if(background != null) {
-         g.drawImage(background, 0, 0, width, height, null);
-      }
-      // Draws the actual map (maze) on the background
+      // Draws the actual map (maze)
       g.drawImage(map.getImage(), 0, 0, width, height, null);
       setDoubleBuffered(false);
       setPreferredSize(new Dimension(width, height));

@@ -113,7 +113,7 @@ public class Game {
 
    private final Container outerContainer;
    private final Title title = createTitle();
-   private final SelectionScreens selectionScreens = createSelectionScreens();
+   private SelectionScreens selectionScreens;
    private ControlPanel controlPanel;
    private GameMapPanel gameMap;
    private ControlEventProcessor eventProcessor = new ControlEventProcessor();
@@ -212,6 +212,7 @@ public class Game {
       return new Title(WIDTH, HEIGHT, new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             outerContainer.remove(title);
+            selectionScreens = createSelectionScreens();
             outerContainer.add(selectionScreens);
             outerContainer.validate();
             outerContainer.repaint();
@@ -226,7 +227,7 @@ public class Game {
    private GameMapPanel createGameMapPanel(GameMap g) {
       // Give null here for the background image as for jar file size
       // concerns I'm just using the one image now.
-      GameMapPanel gmp = new GameMapPanel(MAP_WIDTH, MAP_HEIGHT, null, g, debugTimes, debugPath);
+      GameMapPanel gmp = new GameMapPanel(MAP_WIDTH, MAP_HEIGHT, g, debugTimes, debugPath);
       gmp.addMouseListener(new MouseAdapter(){
          @Override
          public void mouseReleased(MouseEvent e) {
@@ -1202,6 +1203,8 @@ public class Game {
          gameMap = createGameMapPanel(g);
          controlPanel = createControlPanel();
          outerContainer.remove(selectionScreens);
+         // Releases memory used by the images in the GameMaps (I hope)
+         selectionScreens = null;
          outerContainer.add(gameMap, BorderLayout.WEST);
          outerContainer.add(controlPanel, BorderLayout.EAST);
          outerContainer.validate();

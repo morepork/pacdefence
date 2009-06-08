@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
 
 import logic.Circle;
 import logic.Formulae;
@@ -62,8 +61,8 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          List<BufferedImage>>> rotatedImages = new HashMap<Class<? extends AbstractSprite>,
          Map<LooseFloat, List<BufferedImage>>>();
    
-   // Keep track of the images for when a sprite dies, filed under class, the imageIndex
-   // amd the angle the sprite died on
+   // Keep track of the images for when a sprite dies, filed under class, the imageIndex (ie which
+   // image of the animation) and the angle the sprite died on
    private static final Map<Class<? extends AbstractSprite>, Map<Integer, Map<LooseFloat,
          List<BufferedImage>>>> dyingImages = new HashMap<Class<? extends AbstractSprite>,
          Map<Integer, Map<LooseFloat, List<BufferedImage>>>>();
@@ -98,7 +97,8 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private boolean onScreen = true;
    // How many times the image has been shrunk after it died
    private int shrinkCounter = 0;
-   private static final int dieFrames = 15;
+   // Don't set this too high as it increases memory usage a lot
+   private static final int dieFrames = 5;
    private double speedFactor = 1;
    private int adjustedSpeedTicksLeft = 0;
    private double damageMultiplier = 1;
@@ -350,7 +350,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private void rotateImages(double angle) {
       currentAngle = angle;
       if(!rotatedImages.containsKey(getClass())) {
-         rotatedImages.put(getClass(), new TreeMap<LooseFloat, List<BufferedImage>>());
+         rotatedImages.put(getClass(), new HashMap<LooseFloat, List<BufferedImage>>());
       }
       Map<LooseFloat, List<BufferedImage>> m = rotatedImages.get(getClass());
       // Use LooseFloat to reduce precision so rotated images are less likely to be duplicated
@@ -386,7 +386,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       }
       Map<Integer, Map<LooseFloat, List<BufferedImage>>> indexMap = dyingImages.get(getClass());
       if(!indexMap.containsKey(currentImageIndex)) {
-         indexMap.put(currentImageIndex, new TreeMap<LooseFloat, List<BufferedImage>>());
+         indexMap.put(currentImageIndex, new HashMap<LooseFloat, List<BufferedImage>>());
       }
       Map<LooseFloat, List<BufferedImage>> imageLists = indexMap.get(currentImageIndex);
       LooseFloat f = new AbstractSpriteLooseFloat(currentAngle);
@@ -401,9 +401,9 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       double newWidth = width;
       for(int i = 0; i < dieFrames; i++) {
          // Shrinks the current image to this size
-         newWidth *= 0.85;
+         newWidth *= 0.7;
          int pos = (int)((width - newWidth)/2);
-         BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB);
+         BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
          Graphics2D g = image.createGraphics();
          g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                RenderingHints.VALUE_INTERPOLATION_BICUBIC);
@@ -506,7 +506,9 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
 
       @Override
       protected float getPrecision() {
-         return 0.012F;
+         // Watch out with decreasing this, while it may improve the quality, because images are
+         // cached it can increase the memory use significantly
+         return 0.08F;
       }
    }
 
