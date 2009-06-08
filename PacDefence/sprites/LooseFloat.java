@@ -50,25 +50,6 @@ public abstract class LooseFloat implements Comparable<LooseFloat> {
       return (int)(value - lf.value);
    }
    
-//   @Override
-//   public boolean equals(Object obj) {
-//      if(obj instanceof LooseFloat) {
-//         return Math.abs(this.f - ((LooseFloat)obj).f) < getPrecision();
-//      } else {
-//         return false;
-//      }
-//   }
-//
-//   @Override
-//   public int hashCode() {
-//      return Float.valueOf(f / getPrecision() - f % getPrecision()).hashCode();
-//   }
-//
-//   @Override
-//   public int compareTo(LooseFloat lf) {
-//      return (int)((this.f - lf.f) / getPrecision());
-//   }
-   
    protected abstract float getPrecision();
    
 }
