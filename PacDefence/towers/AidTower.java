@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -38,6 +38,7 @@ public class AidTower extends AbstractTower {
    private static final int baseValue = 5;
    private static final int upgradeAidAmount = 1;
    private final Map<Attribute, Integer> aidAmounts = makeAidAmounts();
+   // Give each AidTower a unique ID
    private static int nextID = 0;
    private final int id = nextID++;
    // This set keeps references to towers that are sold keeping them alive
@@ -70,12 +71,15 @@ public class AidTower extends AbstractTower {
    }
 
    @Override
-   public List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress) {
+   public synchronized List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress) {
       if(!isSold) {
          for(Tower t : towers) {
             if(!(t instanceof AidTower) && !aidingTowers.contains(t)) {
                if(super.getCentre().distance(t.getCentre()) < getRange()) {
-                  aidingTowers.add(t);
+                  // Synchronized as aidAll() iterates over aidingTowers
+                  synchronized(this) {
+                     aidingTowers.add(t);
+                  }
                   aid(t);
                   t.addDamageNotifier(damageNotifier);
                }
@@ -100,6 +104,7 @@ public class AidTower extends AbstractTower {
       isSold = true;
       for(Tower t : aidingTowers) {
          for(Attribute a : aidAmounts.keySet()) {
+            // Set the amount this tower is aiding to 1x, i.e. nothing
             t.aidAttribute(a, 1, id);
          }
       }
@@ -144,6 +149,7 @@ public class AidTower extends AbstractTower {
    @Override
    protected void upgradeSpecial() {
       super.upgradeRange();
+      // Aid any towers that are now in range
       aidAll();
    }
    
@@ -162,7 +168,8 @@ public class AidTower extends AbstractTower {
       aidAll();
    }
    
-   private void aidAll() {
+   // Synchronized as tick can add towers to aidingTowers
+   private synchronized void aidAll() {
       for(Tower t : aidingTowers) {
          aid(t);
       }
