@@ -27,7 +27,7 @@ function writeNavBar() {
 	writeNavBarLine("screenshots.html", "Screenshots");
 	document.write('<li><a href="PacDefence.jar">Download</a>');
 	document.write('<li><a href="PacDefenceSrc.jar">Download (with source)</a>');
-	document.write('<li><a href="PacDefence_manual.pdf">Manual (unfinished)</a>');
+	document.write('<li><a href="PacDefence_manual.pdf">Manual</a>');
 	document.write("</ul>");
 	
 	// Writes one link to the nav bar checking if it is the current page, and if so making it bold
