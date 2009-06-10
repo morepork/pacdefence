@@ -22,9 +22,7 @@ package sprites;
 import images.ImageHelper;
 
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
@@ -49,23 +47,24 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private static final double maxMult = 2;
    private static final Random rand = new Random();
    private static final double multiTowerBonusPerTower = 1.1;
+   
+   // The amount the image of the sprite shrinks by per tick after it has been killed
+   private static final int dieImageHalfWidthShrinkAmount = 2;
+   private static final int dieImageWidthShrinkAmount = dieImageHalfWidthShrinkAmount * 2;
 
-   private final int width;
-   private final int halfWidth;
+   private int width;
+   private int halfWidth;
+   
    private final Circle bounds = new Circle();
    private final Rectangle2D rectangularBounds = new Rectangle2D.Double();
 
-   // Keep track of rotated images so every time a sprite rounds a corner
-   // the original images do not need to be re-rotated
+   // Cache the rotated images so every time a sprite rounds a corner the original images do not
+   // need to be re-rotated, but can be retrieved from here.
+   // The list of images if filed under the specific class of AbstractSprite and a LooseFloat which
+   // is the angle the sprite is facing.
    private static final Map<Class<? extends AbstractSprite>, Map<LooseFloat,
          List<BufferedImage>>> rotatedImages = new HashMap<Class<? extends AbstractSprite>,
          Map<LooseFloat, List<BufferedImage>>>();
-   
-   // Keep track of the images for when a sprite dies, filed under class, the imageIndex (ie which
-   // image of the animation) and the angle the sprite died on
-   private static final Map<Class<? extends AbstractSprite>, Map<Integer, Map<LooseFloat,
-         List<BufferedImage>>>> dyingImages = new HashMap<Class<? extends AbstractSprite>,
-         Map<Integer, Map<LooseFloat, List<BufferedImage>>>>();
    
    private final List<BufferedImage> originalImages;
    private List<BufferedImage> currentImages;
@@ -89,18 +88,14 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private double totalDistanceTravelled = 0;
    // The distance in pixels to the next point from the previous one
    private double distance;
-   // The steps taken so far
+   // The steps taken so far (in pixels)
    private double steps;
    // Whether the sprite is still alive
    private boolean alive = true;
-   // Whether the sprite is still on the screen
-   private boolean onScreen = true;
-   // How many times the image has been shrunk after it died
-   private int shrinkCounter = 0;
-   // Don't set this too high as it increases memory usage a lot
-   private static final int dieFrames = 5;
+   
    private double speedFactor = 1;
    private int adjustedSpeedTicksLeft = 0;
+   
    private double damageMultiplier = 1;
    private int adjustedDamageTicksLeft = 0;
    
@@ -128,25 +123,28 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
 
    @Override
    public void draw(Graphics g) {
-      if (onScreen) {
-         g.drawImage(currentImage, (int) centre.getX() - halfWidth,
-               (int) centre.getY() - halfWidth, null);
-      }
+      g.drawImage(currentImage, (int) centre.getX() - halfWidth, (int) centre.getY() - halfWidth,
+               width, width, null);
    }
 
    @Override
    public boolean tick() {
-      if (!onScreen) {
-         return true;
-      } else {
+      if(alive) {
+         // Set the currentImage to the next one in the list, wrapping at the end
          currentImageIndex++;
          currentImageIndex %= currentImages.size();
          currentImage = currentImages.get(currentImageIndex);
-         if(alive) {
-            move();
-            decreaseAdjustedTicksLeft();
-         } else {
-            die();
+         if(!move()) { // If this returns false; the sprite has finished
+            return true;
+         }
+         decreaseAdjustedTicksLeft();
+      } else {
+         // If the sprite is dead, reduce the size it is drawn at
+         halfWidth -= dieImageHalfWidthShrinkAmount;
+         width -= dieImageWidthShrinkAmount;
+         // When it gets too small, stop showing it - the sprite is gone from the game now
+         if(halfWidth < 0) {
+            return true;
          }
       }
       return false;
@@ -285,16 +283,22 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       // The speed differences should never be so large that the int wraps
       return (int)(10000 * (s.getSpeed() - this.getSpeed()));
    }
-
-   private void move() {
-      centre.setLocation(centre.getX() + xStep * speedFactor,
-            centre.getY() + yStep * speedFactor);
+   
+   /**
+    * Moves the sprite.
+    * 
+    * @return
+    *        true if it is still on screen, false if it has finished and has gone off screen
+    */
+   private boolean move() {
+      centre.setLocation(centre.getX() + xStep * speedFactor, centre.getY() + yStep * speedFactor);
       setBounds();
       totalDistanceTravelled += (Math.abs(xStep) + Math.abs(yStep)) * speedFactor;
       steps += speedFactor;
       if (steps + 1 > distance) {
-         calculateNextMove();
+         return calculateNextMove();
       }
+      return true;
    }
    
    private void setBounds() {
@@ -314,7 +318,13 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       return new Point(x, y);
    }
 
-   private void calculateNextMove() {
+   /**
+    * Calculates and sets the next point on this sprite's path
+    * 
+    * @return
+    *        true if it is still on screen, false if it has finished and has gone off screen
+    */
+   private boolean calculateNextMove() {
       if (pointAfterIndex < path.size()) {
          // There is still another point to head to
          lastPoint.setLocation(nextPoint);
@@ -333,18 +343,19 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          rotateImages(Helper.vectorAngle(xStep, -yStep));
       } else {
          // There are no more points to head towards
-         if (nextPoint == null) {
-            // Sprite is finished
-            onScreen = false;
+         if (nextPoint == null) { // Sprite is finished
+            return false;
          } else {
-            // This flags that the final path has been extended
+            // This flags that the final path has been extended, so this else branch will not be
+            // re-entered
             nextPoint = null;
             double distancePerStep = Math.sqrt(xStep * xStep + yStep * yStep);
-            // This is enough steps to get the sprite off the screen, add one just
-            // to make sure
+            // Add enough distance so the sprite will go off the screen
+            // One is added to halfWidth just to be sure
             distance += (halfWidth + 1) / distancePerStep;
          }
       }
+      return true;
    }
    
    private void rotateImages(double angle) {
@@ -364,53 +375,6 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       }
       // Need to copy this as when the sprite dies the images are changed
       currentImages = new ArrayList<BufferedImage>(m.get(f));
-   }
-
-   private void die() {
-      if (shrinkCounter >= dieFrames) {
-         onScreen = false;
-         return;
-      } else {
-         if(shrinkCounter == 0) {
-            currentImages = getDyingImages();
-            currentImageIndex = 0;
-            currentImage = currentImages.get(currentImageIndex);
-         }
-         shrinkCounter++;
-      }
-   }
-   
-   private List<BufferedImage> getDyingImages() {
-      if(!dyingImages.containsKey(getClass())) {
-         dyingImages.put(getClass(), new HashMap<Integer, Map<LooseFloat, List<BufferedImage>>>());
-      }
-      Map<Integer, Map<LooseFloat, List<BufferedImage>>> indexMap = dyingImages.get(getClass());
-      if(!indexMap.containsKey(currentImageIndex)) {
-         indexMap.put(currentImageIndex, new HashMap<LooseFloat, List<BufferedImage>>());
-      }
-      Map<LooseFloat, List<BufferedImage>> imageLists = indexMap.get(currentImageIndex);
-      LooseFloat f = new AbstractSpriteLooseFloat(currentAngle);
-      if(!imageLists.containsKey(f)) {
-         imageLists.put(f, makeDyingImages());
-      }
-      return imageLists.get(f);
-   }
-   
-   private List<BufferedImage> makeDyingImages() {
-      List<BufferedImage> images = new ArrayList<BufferedImage>(dieFrames);
-      double newWidth = width;
-      for(int i = 0; i < dieFrames; i++) {
-         // Shrinks the current image to this size
-         newWidth *= 0.7;
-         int pos = (int)((width - newWidth)/2);
-         BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
-         Graphics2D g = image.createGraphics();
-         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-               RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-         g.drawImage(currentImage, pos, pos, (int)newWidth, (int)newWidth, null);
-         images.add(image);
-      }
-      return images;
    }
    
    /**

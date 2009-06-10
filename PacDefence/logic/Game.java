@@ -833,11 +833,12 @@ public class Game {
          }
          lookAfterAddingNewSprites();
          int livesLost = 0;
-         List<Integer> toRemove = new ArrayList<Integer>();
-         for(int i = 0; i < sprites.size(); i++) {
+         // Count down as sprites are being removed
+         for(int i = sprites.size() - 1; i >= 0; i--) {
             Sprite s = sprites.get(i);
-            if(s.tick()) { // Sprite has either been killed or finished
-               toRemove.add(i);
+            if(s.tick()) {
+               // True if sprite has either been killed and is gone from screen or has finished
+               sprites.remove(i);
                if(s.isAlive()) { // If the sprite is still alive, it means it finished
                   livesLost++;
                }
@@ -846,7 +847,6 @@ public class Game {
                }
             }
          }
-         Helper.removeAll(sprites, toRemove);
          controlPanel.updateNumberLeft(spritesToAdd + sprites.size());
          livesLostOnThisLevel += livesLost;
          lives -= livesLost;
