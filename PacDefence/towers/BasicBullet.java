@@ -166,6 +166,14 @@ public class BasicBullet implements Bullet {
          height = y1 - y2;
          y1 = y2;
       }
+      // Make sure these are non-zero as otherwise a vertical/horizontal line will have a box with
+      // no area, so won't count as intersecting the shape
+      if(width == 0) {
+         width = 0.1;
+      }
+      if(height == 0) {
+         height = 0.1;
+      }
       assert width >= 0 && height >= 0 && x1 <= x2 && y1 <= y2 : "The above logic isn't working.";
       for(Shape s : pathBounds) {
          // The rectangle is strictly larger than the line
