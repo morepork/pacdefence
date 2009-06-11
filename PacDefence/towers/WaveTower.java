@@ -148,7 +148,7 @@ public class WaveTower extends AbstractTower {
       }
       
       @Override
-      protected boolean checkIfBulletCanBeRemovedAsOffScreen() {
+      protected boolean canBulletBeRemovedAsOffScreen() {
          // Need to check that the arc isn't empty as it may not have been set yet
          return !arc.isEmpty() && !arc.intersects(0, 0, Game.WIDTH, Game.HEIGHT);
       }

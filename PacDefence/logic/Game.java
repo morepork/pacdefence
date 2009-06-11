@@ -909,9 +909,11 @@ public class Game {
             tickBulletsSingleThread(unmodifiableSprites);
          } else {
             tickBulletsMultiThread(unmodifiableSprites);
+            // bulletsToRemove must be sorted smallest to largest
+            Collections.sort(bulletsToRemove);
+            Helper.removeAll(bullets, bulletsToRemove);
+            bulletsToRemove.clear();
          }
-         Helper.removeAll(bullets, bulletsToRemove);
-         bulletsToRemove.clear();
          increaseMoney((long)moneyEarnt);
          // Fractional amounts of money are kept until the next tick
          moneyEarnt -= (long)moneyEarnt;
@@ -925,16 +927,15 @@ public class Game {
          int firstPos, lastPos = 0;
          for(int i = 0; i < numThreads; i++) {
             firstPos = lastPos;
+            // Add one to threads 1, ... , remainder
             lastPos = firstPos + bulletsPerThread + (i < remainder ? 1 : 0);
-            // Copying the list should reduce the lag of each thread trying to access
-            // the same list
+            // Copying the list should reduce the lag of each thread trying to access the same list
             bulletTickThreads[i].tickBullets(firstPos, lastPos, bullets,
                   new ArrayList<Sprite>(unmodifiableSprites));
          }
          while(isWaiting) {
             LockSupport.park();
          }
-         Collections.sort(bulletsToRemove);
       }
       
       private synchronized void informFinished(int threadNumber, double moneyEarnt,
@@ -947,16 +948,18 @@ public class Game {
                return;
             }
          }
+         // If there are no threads running, unpark the main thread
          isWaiting = false;
          LockSupport.unpark(this);
       }
       
       private void tickBulletsSingleThread(List<Sprite> unmodifiableSprites) {
-         for(int i = 0; i < bullets.size(); i++) {
+         // Run through from last to first as bullets are being removed
+         for(int i = bullets.size() - 1; i >= 0 ; i--) {
             double money = bullets.get(i).tick(unmodifiableSprites);
             if(money >= 0) {
                moneyEarnt += money;
-               bulletsToRemove.add(i);
+               bullets.remove(i);
             }
          }
       }
@@ -967,6 +970,7 @@ public class Game {
          private int firstPos, lastPos;
          private List<Bullet> bulletsToTick;
          private List<Sprite> sprites;
+         private final List<Integer> toRemove = new ArrayList<Integer>();
          private boolean doTick;
          
          public BulletTickThread(int number) {
@@ -989,7 +993,6 @@ public class Game {
             while(keepRunning) {
                if(doTick) {
                   double moneyEarnt = 0;
-                  List<Integer> toRemove = new ArrayList<Integer>();
                   for(int i = firstPos; i < lastPos; i++) {
                      double money = bulletsToTick.get(i).tick(sprites);
                      if(money >= 0) {
@@ -999,6 +1002,7 @@ public class Game {
                   }
                   doTick = false;
                   informFinished(threadNumber, moneyEarnt, toRemove);
+                  toRemove.clear();
                }
                LockSupport.park();
             }

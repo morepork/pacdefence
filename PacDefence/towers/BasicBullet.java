@@ -130,7 +130,7 @@ public class BasicBullet implements Bullet {
       // Calculating whether a line intersects a circle can be done in constant time
       // The list only ever needs to be calculated once, as this returns as soon as there is a hit
       //    (OK, d == null due to threading means sometimes more than once)
-      // Overall this is around 3x faster
+      // Overall this is around 3x faster than the above
       Line2D line = new Line2D.Double(p1, p2);
       if(intersectsPath(line)) { // If the line doesn't intersect the path a Sprite can't be hit
          for(Sprite s : sprites) {
@@ -149,10 +149,7 @@ public class BasicBullet implements Bullet {
    
    private boolean intersectsPath(Line2D line) {
       // Do this as line.getBounds2D() is not guaranteed to be the smallest bounding rectangle
-      double x1 = line.getX1();
-      double x2 = line.getX2();
-      double y1 = line.getY1();
-      double y2 = line.getY2();
+      double x1 = line.getX1(), x2 = line.getX2(), y1 = line.getY1(), y2 = line.getY2();
       double width, height;
       if(x1 < x2) {
          width = x2 - x1;
@@ -174,9 +171,11 @@ public class BasicBullet implements Bullet {
       if(height == 0) {
          height = 0.1;
       }
-      assert width >= 0 && height >= 0 && x1 <= x2 && y1 <= y2 : "The above logic isn't working.";
+      assert width > 0 && height > 0 && x1 <= x2 && y1 <= y2 : "The above logic isn't working.";
       for(Shape s : pathBounds) {
-         // The rectangle is strictly larger than the line
+         // The rectangle is actually larger than the line, so even though the rectangle intersects
+         // pathBounds, the line may not, but there is no Shape.intersect(Line2D) method, and it is
+         // good enough
          if(s.intersects(x1, y1, width, height)) {
             return true;
          }
@@ -195,21 +194,26 @@ public class BasicBullet implements Bullet {
       return processDamageReport(d, shotBy);
    }
    
-   protected boolean checkIfBulletCanBeRemovedAsOffScreen() {
+   /**
+    * To be overriden by subclasses whose bullets aren't to be removed when merely off screen
+    * 
+    * @return
+    */
+   protected boolean canBulletBeRemovedAsOffScreen() {
       return checkIfBulletIsOffScreen();
    }
    
    protected boolean checkIfBulletIsOffScreen() {
-      return checkIfPointIsOffScreen(position);
+      return checkIfBulletIsOffScreen(position);
    }
    
-   protected boolean checkIfPointIsOffScreen(Point2D p) {
+   protected boolean checkIfBulletIsOffScreen(Point2D p) {
       return p.getX() < -radius || p.getY() < -radius || p.getX() > Game.MAP_WIDTH + radius ||
             p.getY() > Game.MAP_HEIGHT + radius;
    }
    
    protected double doTick(List<Sprite> sprites) {
-      if(distanceTravelled >= range || checkIfBulletCanBeRemovedAsOffScreen()) {
+      if(distanceTravelled >= range || canBulletBeRemovedAsOffScreen()) {
          return 0;
       }
       distanceTravelled += speed;

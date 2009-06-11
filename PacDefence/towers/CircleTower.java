@@ -129,7 +129,7 @@ public class CircleTower extends AbstractTower {
       }
       
       @Override
-      protected boolean checkIfBulletCanBeRemovedAsOffScreen() {
+      protected boolean canBulletBeRemovedAsOffScreen() {
          // Circle bullets always come back so shouldn't be removed
          return false;
       }

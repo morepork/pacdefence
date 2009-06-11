@@ -120,7 +120,7 @@ public class ZapperTower extends AbstractTower {
       }
       
       @Override
-      protected boolean checkIfBulletCanBeRemovedAsOffScreen() {
+      protected boolean canBulletBeRemovedAsOffScreen() {
          // Bullet shouldn't be removed if it can still zap sprites
          return position.getX() < -zapRange || position.getY() < -zapRange ||
                position.getX() > Game.MAP_WIDTH + zapRange ||
