@@ -59,7 +59,11 @@ public class MapParser {
    public static GameMap parse(String fileName) {
       try {
          InputStream stream = MapParser.class.getResourceAsStream(fileName);
-         Document document = domBuilder.parse(stream);
+         Document document;
+         // DocumentBuilder.parse isn't thread-safe, so synchronise it
+         synchronized(MapParser.class) {
+            document = domBuilder.parse(stream);
+         }
          stream.close();
          removeWhitespaceNodes(document);
          // The map should be the only node in the document

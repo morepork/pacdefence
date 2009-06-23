@@ -42,13 +42,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -650,6 +651,7 @@ public class Game {
       
       private int ticksBetweenAddSprite;
       private int addSpriteIn = 0;
+      
       private final int timesLength = (int)(CLOCK_TICKS_PER_SECOND / 2);
       private int timesPos = 0;
       // In each of these the last position is used to store the last time
@@ -659,39 +661,32 @@ public class Game {
       private final long[] processBulletsTimes = new long[timesLength + 1];
       private final long[] processTowersTimes = new long[timesLength + 1];
       private final long[] drawTimes = new long[timesLength + 1];
-      private boolean keepRunning = true;
-      private boolean isWaiting;
-      private final int numThreads;
-      private final BulletTickThread[] bulletTickThreads;
-      private final boolean[] isThreadRunning;
-      private final List<Integer> bulletsToRemove = new ArrayList<Integer>();
-      private double moneyEarnt = 0;
-      
+      // These are used to store the calculated average value
       private long processTime = 0;
       private long processSpritesTime = 0;
       private long processBulletsTime = 0;
       private long processTowersTime = 0;
       private long drawTime = 0;
       
+      private boolean keepRunning = true;
+      
+      private final int numCallables;
+      
+      private double moneyEarnt = 0;
+      
       private boolean gameOver = false;
+      
+      // For performance testing, goes with the code in tickBullets
+//      private long time = 0;
+//      private int ticks = 0;
       
       public Clock() {
          super("Pac Defence Clock");
-         numThreads = Runtime.getRuntime().availableProcessors();
-         System.out.println(numThreads + " processor(s) detected.");
-         if(numThreads > 1) {
-            bulletTickThreads = new BulletTickThread[numThreads];
-            isThreadRunning = new boolean[numThreads];
-            for(int i = 0; i < numThreads; i++) {
-               bulletTickThreads[i] = new BulletTickThread(i);
-               bulletTickThreads[i].start();
-               isThreadRunning[i] = false;
-            }
-         } else {
-            // If there is only one core, use the original single threaded version.
-            bulletTickThreads = null;
-            isThreadRunning = null;
-         }
+         // I tried 1x, 2x, 8x, 10x, 16x, and 20x and 16x was the best (then 10x, then 8x) on my
+         // dual core machine - think some callables will be more work, even though they have the
+         // same number of bullets
+         numCallables = MyExecutor.NUM_PROCESSORS * 16;
+//         System.out.println("Using " + numCallables + " callables.");
          start();
       }
             
@@ -809,15 +804,15 @@ public class Game {
       }
       
       private void calculateTimesTaken() {
-         processTime = insertAndReturnSum(processTimes);
-         processSpritesTime = insertAndReturnSum(processSpritesTimes);
-         processBulletsTime = insertAndReturnSum(processBulletsTimes);
-         processTowersTime = insertAndReturnSum(processTowersTimes);
-         drawTime = insertAndReturnSum(drawTimes);
+         processTime = insertAndReturnAverage(processTimes);
+         processSpritesTime = insertAndReturnAverage(processSpritesTimes);
+         processBulletsTime = insertAndReturnAverage(processBulletsTimes);
+         processTowersTime = insertAndReturnAverage(processTowersTimes);
+         drawTime = insertAndReturnAverage(drawTimes);
          timesPos = (timesPos + 1) % timesLength;
       }
       
-      private long insertAndReturnSum(long[] array) {
+      private long insertAndReturnAverage(long[] array) {
          array[timesPos] = array[timesLength];
          array[timesLength] = 0;
          long sum = 0;
@@ -903,54 +898,71 @@ public class Game {
       }
       
       private void tickBullets(List<Sprite> unmodifiableSprites) {
-         if(numThreads == 1 || bullets.size() <= 1) {
+         // This and the bit at the end is performance testing - times the first x ticks
+//         if(bullets.size() > 0) {
+//            ticks++;
+//            time -= System.nanoTime();
+//         }
+         if(numCallables == 1 || bullets.size() <= 1) {
             // Use single thread version if only one processor or 1 or fewer bullets
             // as it will be faster.
             tickBulletsSingleThread(unmodifiableSprites);
          } else {
             tickBulletsMultiThread(unmodifiableSprites);
-            // bulletsToRemove must be sorted smallest to largest
-            Collections.sort(bulletsToRemove);
-            Helper.removeAll(bullets, bulletsToRemove);
-            bulletsToRemove.clear();
          }
          increaseMoney((long)moneyEarnt);
          // Fractional amounts of money are kept until the next tick
          moneyEarnt -= (long)moneyEarnt;
+//         if(bullets.size() > 0) {
+//            time += System.nanoTime();
+//            if(ticks == 300) {
+//               System.out.println(time / 1000000.0);
+//            }
+//         }
       }
       
       private void tickBulletsMultiThread(List<Sprite> unmodifiableSprites) {
-         isWaiting = true;
-         int bulletsPerThread = bullets.size() / numThreads;
-         int remainder = bullets.size() % numThreads;
-         Arrays.fill(isThreadRunning, true);
+         int bulletsPerThread = bullets.size() / numCallables;
+         int remainder = bullets.size() % numCallables;
          int firstPos, lastPos = 0;
-         for(int i = 0; i < numThreads; i++) {
+         List<Callable<Wrapper<Double, List<Integer>>>> callables =
+               new ArrayList<Callable<Wrapper<Double, List<Integer>>>>();
+         // No point in making more callables than there are bullets
+         int n = Math.min(numCallables, bullets.size());
+         for(int i = 0; i < n; i++) {
             firstPos = lastPos;
-            // Add one to threads 1, ... , remainder
+            // Add one to callables 1, 2, ... , (remainder - 1), remainder
             lastPos = firstPos + bulletsPerThread + (i < remainder ? 1 : 0);
             // Copying the list should reduce the lag of each thread trying to access the same list
-            bulletTickThreads[i].tickBullets(firstPos, lastPos, bullets,
-                  new ArrayList<Sprite>(unmodifiableSprites));
+            callables.add(new BulletTickCallable(firstPos, lastPos, bullets,
+                  new ArrayList<Sprite>(sprites)));
          }
-         while(isWaiting) {
-            LockSupport.park();
-         }
+         processTickFutures(MyExecutor.invokeAll(callables));
       }
       
-      private synchronized void informFinished(int threadNumber, double moneyEarnt,
-            List<Integer> toRemove) {
-         this.moneyEarnt += moneyEarnt;
-         this.bulletsToRemove.addAll(toRemove);
-         isThreadRunning[threadNumber] = false;
-         for(boolean b : isThreadRunning) {
-            if(b) {
-               return;
+      private void processTickFutures(List<Future<Wrapper<Double, List<Integer>>>> futures) {
+         List<Integer> bulletsToRemove = null;
+         for(Future<Wrapper<Double, List<Integer>>> f : futures) {
+            Wrapper<Double, List<Integer>> wrapper;
+            try {
+               wrapper = f.get();
+               if(bulletsToRemove == null) {
+                  bulletsToRemove = wrapper.getB();
+               } else {
+                  bulletsToRemove.addAll(wrapper.getB());
+               }
+            } catch(InterruptedException e) {
+               // Should never happen
+               throw new RuntimeException(e);
+            } catch(ExecutionException e) {
+               // Should never happen
+               throw new RuntimeException(e);
             }
          }
-         // If there are no threads running, unpark the main thread
-         isWaiting = false;
-         LockSupport.unpark(this);
+         // bulletsToRemove must be sorted smallest to largest
+         Collections.sort(bulletsToRemove);
+         Helper.removeAll(bullets, bulletsToRemove);
+         bulletsToRemove.clear();
       }
       
       private void tickBulletsSingleThread(List<Sprite> unmodifiableSprites) {
@@ -964,49 +976,34 @@ public class Game {
          }
       }
       
-      private class BulletTickThread extends Thread {
+      private class BulletTickCallable implements Callable<Wrapper<Double, List<Integer>>> {
          
-         private final int threadNumber;
-         private int firstPos, lastPos;
-         private List<Bullet> bulletsToTick;
-         private List<Sprite> sprites;
-         private final List<Integer> toRemove = new ArrayList<Integer>();
-         private boolean doTick;
+         private final int firstPos, lastPos;
+         private final List<Bullet> bullets;
+         private final List<Sprite> sprites;
          
-         public BulletTickThread(int number) {
-            super("Bullet Tick Thread #" + number);
-            this.threadNumber = number;
-         }
-         
-         public void tickBullets(int firstPos, int lastPos, List<Bullet> bulletsToTick,
+         public BulletTickCallable(int firstPos, int lastPos, List<Bullet> bullets,
                List<Sprite> sprites) {
             this.firstPos = firstPos;
             this.lastPos = lastPos;
-            this.bulletsToTick = bulletsToTick;
+            this.bullets = bullets;
             this.sprites = sprites;
-            doTick = true;
-            LockSupport.unpark(this);
+         }
+
+         @Override
+         public Wrapper<Double, List<Integer>> call() throws Exception {
+            double moneyEarnt = 0;
+            List<Integer> toRemove = new ArrayList<Integer>();
+            for(int i = firstPos; i < lastPos; i++) {
+               double money = bullets.get(i).tick(sprites);
+               if(money >= 0) {
+                  moneyEarnt += money;
+                  toRemove.add(i);
+               }
+            }
+            return new Wrapper<Double, List<Integer>>(moneyEarnt, toRemove);
          }
          
-         @Override
-         public void run() {
-            while(keepRunning) {
-               if(doTick) {
-                  double moneyEarnt = 0;
-                  for(int i = firstPos; i < lastPos; i++) {
-                     double money = bulletsToTick.get(i).tick(sprites);
-                     if(money >= 0) {
-                        moneyEarnt += money;
-                        toRemove.add(i);
-                     }
-                  }
-                  doTick = false;
-                  informFinished(threadNumber, moneyEarnt, toRemove);
-                  toRemove.clear();
-               }
-               LockSupport.park();
-            }
-         }
       }
    }
    

@@ -32,6 +32,9 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.swing.Box;
 import javax.swing.JComponent;
@@ -39,6 +42,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import logic.Game;
+import logic.MyExecutor;
 
 @SuppressWarnings("serial")
 public class SelectionScreens extends JPanel {
@@ -67,14 +71,41 @@ public class SelectionScreens extends JPanel {
    }
    
    private List<GameMap> createGameMapList() {
-      List<GameMap> list = new ArrayList<GameMap>();
-      list.add(MapParser.parse("mosaicPathEasy.xml"));
-      list.add(MapParser.parse("mosaicPathMedium.xml"));
-      list.add(MapParser.parse("mosaicPathHard.xml"));
-      list.add(MapParser.parse("curvyEasy.xml"));
-      list.add(MapParser.parse("curvyMedium.xml"));
-      list.add(MapParser.parse("curvyHard.xml"));
-      return list;
+      // For measuring the time this method takes
+//      long time = System.nanoTime();
+      final String[] maps = new String[]{"mosaicPathEasy.xml", "mosaicPathMedium.xml",
+            "mosaicPathHard.xml", "curvyEasy.xml", "curvyMedium.xml", "curvyHard.xml"};
+      final List<GameMap> gameMaps = new ArrayList<GameMap>(maps.length);
+      // Using multiple threads here makes it around 25% faster on my dual core, which is decent
+      // seeing there is noticeable lag (when 'Continue' is pressed, before the maps show)
+      if(MyExecutor.NUM_PROCESSORS == 1) {
+         for(String s: maps) {
+            gameMaps.add(MapParser.parse(s));
+         }
+      } else {
+         List<Callable<GameMap>> callables = new ArrayList<Callable<GameMap>>(maps.length);
+         for(final String s : maps) {
+            callables.add(new Callable<GameMap>() {
+               @Override
+               public GameMap call() {
+                  return MapParser.parse(s);
+               }
+            });
+         }
+         try {
+            for(Future<GameMap> f : MyExecutor.invokeAll(callables)) {
+               gameMaps.add(f.get());
+            }
+         } catch(InterruptedException e) {
+            // Should never happen
+            throw new RuntimeException(e);
+         } catch(ExecutionException e) {
+            // Should never happen
+            throw new RuntimeException(e);
+         }
+      }
+//      System.out.println((System.nanoTime() - time) / 1000000.0);
+      return gameMaps;
    }
    
    private JComponent createMapSelections() {
@@ -105,6 +136,15 @@ public class SelectionScreens extends JPanel {
          panel.add(b);
       }
       return panel;
+   }
+   
+   public static void main(String[] args) {
+      // Do this beforehand as MyExecutor has to be initialised at some point, so it's unfair just
+      // having this in the multi threaded execution method
+      MyExecutor.invokeAll(new ArrayList<Callable<Double>>());
+      // I made this for comparing the speeds of using threads in createGameMapList()
+      new SelectionScreens(Game.MAP_WIDTH, Game.MAP_HEIGHT, null);
+      System.exit(0);
    }
    
 }
