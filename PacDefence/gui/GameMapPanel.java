@@ -102,6 +102,7 @@ public class GameMapPanel extends JPanel {
    
    public void restart() {
       gameOver = null;
+      removeText();
       repaint();
    }
    
@@ -308,24 +309,34 @@ public class GameMapPanel extends JPanel {
       private int currentPosition;
       private int heightToDisplay;
       private static final int rounding = 40;
-      private static final int aboveTextMargin = 5;
-      private static final int sideMargin = 12;
-      private static final int offset = 5;
+      private static final int aboveTextMargin = 7;
+      private static final int belowTextMargin = 10;
+      // The margin on the side from the left of the TextDisplay (not the screen)
+      private static final int sideMargin = 7;
+      // The offset from the side of the screen for the TextDisplay
+      private static final int offset = 3;
       private final int width;
-      private final int height;
+      // The height of the screen
+      private final int screenHeight;
       private final BufferedImage display;
-      private final Graphics displayGraphics;
+      private final Graphics2D displayGraphics;
       private boolean isOnDisplay = false;
       private boolean clearingFlag = false;
       private boolean drawingFlag = false;
       
+      /**
+       * Creates a new TextDisplay for a screen with the specified width and height
+       * 
+       * @param width
+       * @param height
+       */
       public TextDisplay(int width, int height) {
          startPosition = height;
          currentPosition = startPosition;
          this.width = width - offset * 2;
-         this.height = height;
+         this.screenHeight = height;
          display  = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
-         displayGraphics = display.getGraphics();
+         displayGraphics = display.createGraphics();
       }
       
       public void draw(Graphics g) {
@@ -373,13 +384,13 @@ public class GameMapPanel extends JPanel {
             heightToDisplay += lineHeight;
             displayGraphics.drawString(s, sideMargin, heightToDisplay);
          }
-         heightToDisplay += aboveTextMargin * 2;
+         heightToDisplay += belowTextMargin;
       }
       
       private void clearImage() {
          ImageHelper.clearImage(display);
          displayGraphics.setColor(backgroundColour);
-         displayGraphics.fillRoundRect(0, 0, width, height, rounding, rounding);
+         displayGraphics.fillRoundRect(0, 0, width, screenHeight, rounding, rounding);
       }
       
    }
