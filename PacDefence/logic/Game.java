@@ -672,9 +672,11 @@ public class Game {
       
       private final int numCallables;
       
-      private double moneyEarnt = 0;
-      
       private boolean gameOver = false;
+      
+      // I know I shouldn't really use a double, but it should be fine
+      // This is a field so fractional amounts can be saved between ticks
+      private double moneyEarnt = 0;
       
       // For performance testing, goes with the code in tickBullets
 //      private long time = 0;
@@ -870,10 +872,9 @@ public class Game {
       }
       
       private void tickTowers(List<Sprite> unmodifiableSprites) {
-         // Use these rather than addAll/removeAll and then clear as there's a chance
-         // a tower could be added to one of the lists before they are cleared but
-         // after the addAll/removeAll methods are finished, meaning it'd do nothing
-         // but still take/give you money.
+         // Use these rather than addAll/removeAll and then clear as there's a chance a tower could
+         // be added to one of the lists before they are cleared but after the addAll/removeAll
+         // methods are finished, meaning it'd do nothing but still take/give you money.
          if(!towersToRemove.isEmpty()) {
             List<Tower> toRemove = towersToRemove;
             towersToRemove = new ArrayList<Tower>();
@@ -925,8 +926,8 @@ public class Game {
          int bulletsPerThread = bullets.size() / numCallables;
          int remainder = bullets.size() % numCallables;
          int firstPos, lastPos = 0;
-         List<Callable<Wrapper<Double, List<Integer>>>> callables =
-               new ArrayList<Callable<Wrapper<Double, List<Integer>>>>();
+         List<Future<Wrapper<Double, List<Integer>>>> futures =
+               new ArrayList<Future<Wrapper<Double, List<Integer>>>>();
          // No point in making more callables than there are bullets
          int n = Math.min(numCallables, bullets.size());
          for(int i = 0; i < n; i++) {
@@ -934,18 +935,18 @@ public class Game {
             // Add one to callables 1, 2, ... , (remainder - 1), remainder
             lastPos = firstPos + bulletsPerThread + (i < remainder ? 1 : 0);
             // Copying the list should reduce the lag of each thread trying to access the same list
-            callables.add(new BulletTickCallable(firstPos, lastPos, bullets,
-                  new ArrayList<Sprite>(sprites)));
+            futures.add(MyExecutor.submit(new BulletTickCallable(firstPos, lastPos, bullets,
+                  new ArrayList<Sprite>(sprites))));
          }
-         processTickFutures(MyExecutor.invokeAll(callables));
+         processTickFutures(futures);
       }
       
       private void processTickFutures(List<Future<Wrapper<Double, List<Integer>>>> futures) {
          List<Integer> bulletsToRemove = null;
          for(Future<Wrapper<Double, List<Integer>>> f : futures) {
-            Wrapper<Double, List<Integer>> wrapper;
             try {
-               wrapper = f.get();
+               Wrapper<Double, List<Integer>> wrapper = f.get();
+               moneyEarnt += wrapper.getA();
                if(bulletsToRemove == null) {
                   bulletsToRemove = wrapper.getB();
                } else {
@@ -959,10 +960,12 @@ public class Game {
                throw new RuntimeException(e);
             }
          }
-         // bulletsToRemove must be sorted smallest to largest
-         Collections.sort(bulletsToRemove);
+         // bulletsToRemove will be sorted smallest to largest as each List returned by a
+         // BulletTickCallable is ordered, and the ordering is kept in the list of Futures, so no
+         // need to sort it here
+         
+         // Remove all the completed bullets from the main list
          Helper.removeAll(bullets, bulletsToRemove);
-         bulletsToRemove.clear();
       }
       
       private void tickBulletsSingleThread(List<Sprite> unmodifiableSprites) {
