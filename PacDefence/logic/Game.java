@@ -40,7 +40,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -222,7 +221,7 @@ public class Game {
    }
    
    private SelectionScreens createSelectionScreens() {
-      return new SelectionScreens(WIDTH, HEIGHT, new ContinueOn());
+      return new SelectionScreens(WIDTH, HEIGHT, new GameStarter());
    }
    
    private GameMapPanel createGameMapPanel(GameMap g) {
@@ -1197,17 +1196,17 @@ public class Game {
       }
    }
    
-   public class ContinueOn {
-      public void continueOn(GameMap g) {
+   public class GameStarter {
+      
+      public void startGame(GameMap g) {
          pathPoints = g.getPathPoints();
          path = g.getPath();
          pathBounds = g.getPathBounds();
-         removeRedundantShapes(pathBounds);
          pathBounds = Collections.unmodifiableList(pathBounds);
          gameMap = createGameMapPanel(g);
          controlPanel = createControlPanel();
          outerContainer.remove(selectionScreens);
-         // Releases memory used by the images in the GameMaps (I hope)
+         // Releases memory used by the images in the GameMaps, ~20 MB when last checked
          selectionScreens = null;
          outerContainer.add(gameMap, BorderLayout.WEST);
          outerContainer.add(controlPanel, BorderLayout.EAST);
@@ -1218,23 +1217,6 @@ public class Game {
          clock = new Clock();
       }
       
-      private void removeRedundantShapes(List<Shape> list) {
-         for(int i = 0; i < list.size(); i++) {
-            if(containedInOtherShape(list.get(i), list)) {
-               list.remove(i--);
-            }
-         }
-      }
-      
-      private boolean containedInOtherShape(Shape s, List<Shape> list) {
-         Rectangle2D bounds = s.getBounds2D();
-         for(Shape other : list) {
-            if(other != s && other.contains(bounds)) {
-               return true;
-            }
-         }
-         return false;
-      }
    }
 
 }

@@ -51,9 +51,9 @@ public class SelectionScreens extends JPanel {
    private final MyJLabel title = new MyJLabel();
    private final BufferedImage background;
    private final List<GameMap> gameMaps = createGameMapList();
-   private final Game.ContinueOn continueOn;
+   private final Game.GameStarter continueOn;
 
-   public SelectionScreens(int width, int height, Game.ContinueOn continueOn) {
+   public SelectionScreens(int width, int height, Game.GameStarter continueOn) {
       super(new BorderLayout());
       title.setForeground(textColour);
       title.setFontSize(40F);
@@ -124,7 +124,7 @@ public class SelectionScreens extends JPanel {
          OverlayButton button = new OverlayButton(g.getImage(), 225, 225);
          button.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
-               continueOn.continueOn(g);
+               continueOn.startGame(g);
             }
          });
          b.add(SwingHelper.createHorizontalWrapperBoxWithGlue(button));
