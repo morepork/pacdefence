@@ -303,11 +303,14 @@ public class GameMapPanel extends JPanel {
 
    private static class TextDisplay {
       
-      private static final Color backgroundColour = new Color(255, 255, 255, 120);
+      private static final Color backgroundColour = Color.WHITE;
       private static final Color textColour = Color.BLACK;
+      private static final Composite composite =
+            AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5F);
       private final int startPosition;
       private int currentPosition;
       private int heightToDisplay;
+      // The amount of rounding on the corners
       private static final int rounding = 40;
       private static final int aboveTextMargin = 7;
       private static final int belowTextMargin = 10;
@@ -315,14 +318,11 @@ public class GameMapPanel extends JPanel {
       private static final int sideMargin = 7;
       // The offset from the side of the screen for the TextDisplay
       private static final int offset = 3;
-      private final int width;
       // The height of the screen
       private final int screenHeight;
-      private final BufferedImage display;
-      private final Graphics2D displayGraphics;
+      private final BufferedImage image;
       private boolean isOnDisplay = false;
-      private boolean clearingFlag = false;
-      private boolean drawingFlag = false;
+      private boolean goingUp;
       
       /**
        * Creates a new TextDisplay for a screen with the specified width and height
@@ -331,32 +331,27 @@ public class GameMapPanel extends JPanel {
        * @param height
        */
       public TextDisplay(int width, int height) {
+         // It starts at the bottom of the screen
          startPosition = height;
          currentPosition = startPosition;
-         this.width = width - offset * 2;
          this.screenHeight = height;
-         display  = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
-         displayGraphics = display.createGraphics();
+         image = new BufferedImage(width - offset * 2, height, BufferedImage.TYPE_INT_ARGB_PRE);
       }
       
       public void draw(Graphics g) {
-         if (drawingFlag) {
-            currentPosition--;
-            if(currentPosition <= startPosition - heightToDisplay) {
-               drawingFlag = false;
-               isOnDisplay = true;
-            }
-         } else if (clearingFlag) {
-            currentPosition++;
-            if(currentPosition >= startPosition) {
-               clearingFlag = false;
-               currentPosition = startPosition;
-               return;
-            }
-         } else if (!isOnDisplay) {
+         if(!isOnDisplay) {
             return;
          }
-         g.drawImage(display, offset, currentPosition, null);
+         adjustImagePosition();
+         // Only draw if it's still on display
+         if(isOnDisplay) {
+            Graphics2D g2D = (Graphics2D) g;
+            // Use a composite to make it translucent, save the previous composite to restore later
+            Composite c = g2D.getComposite();
+            g2D.setComposite(composite);
+            g2D.drawImage(image, offset, currentPosition, null);
+            g2D.setComposite(c);
+         }
       }
       
       public void displayText(String... lines) {
@@ -364,33 +359,51 @@ public class GameMapPanel extends JPanel {
             throw new RuntimeException("There is already text on display.");
          }
          drawImage(lines);
-         drawingFlag = true;
-         clearingFlag = false;
-         isOnDisplay = false;
+         goingUp = true;
+         isOnDisplay = true;
       }
       
       public void clear() {
          heightToDisplay = 0;
-         clearingFlag = true;
-         drawingFlag = false;
-         isOnDisplay = false;
+         goingUp = false;
+      }
+      
+      private void adjustImagePosition() {
+         // Adjust the position of the display
+         if(goingUp) {
+            // Decrement the current position until it reaches the full height on display
+            if(currentPosition > startPosition - heightToDisplay) {
+               currentPosition--;
+            }
+         } else {
+            currentPosition++;
+            // When it has gone off screen, reset currentPosition and set it so it's not on display
+            if(currentPosition >= startPosition) {
+               currentPosition = startPosition;
+               isOnDisplay = false;
+            }
+         }
       }
       
       private void drawImage(String[] lines) {
-         clearImage();
-         int lineHeight = displayGraphics.getFontMetrics().getHeight() + aboveTextMargin;
-         displayGraphics.setColor(textColour);
+         ImageHelper.clearImage(image);
+         Graphics2D g = image.createGraphics();
+         
+         // Draw the background
+         g.setColor(backgroundColour);
+         g.fillRoundRect(0, 0, image.getWidth(), screenHeight, rounding, rounding);
+         
+         // Draw the text on top
+         int lineHeight = g.getFontMetrics().getHeight() + aboveTextMargin;
+         g.setColor(textColour);
+         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+               RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
          for(String s : lines) {
             heightToDisplay += lineHeight;
-            displayGraphics.drawString(s, sideMargin, heightToDisplay);
+            g.drawString(s, sideMargin, heightToDisplay);
          }
+         
          heightToDisplay += belowTextMargin;
-      }
-      
-      private void clearImage() {
-         ImageHelper.clearImage(display);
-         displayGraphics.setColor(backgroundColour);
-         displayGraphics.fillRoundRect(0, 0, width, screenHeight, rounding, rounding);
       }
       
    }
