@@ -30,6 +30,10 @@ public class MyExecutor {
 
    private static final ExecutorService executorService =
          Executors.newFixedThreadPool(NUM_PROCESSORS);
+   
+   public static <T> Future<T> submit(Callable<T> task) {
+      return executorService.submit(task);
+   }
 
    public static <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) {
       try {

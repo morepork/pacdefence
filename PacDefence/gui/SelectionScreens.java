@@ -83,17 +83,17 @@ public class SelectionScreens extends JPanel {
             gameMaps.add(MapParser.parse(s));
          }
       } else {
-         List<Callable<GameMap>> callables = new ArrayList<Callable<GameMap>>(maps.length);
+         List<Future<GameMap>> futures = new ArrayList<Future<GameMap>>(maps.length);
          for(final String s : maps) {
-            callables.add(new Callable<GameMap>() {
+            futures.add(MyExecutor.submit(new Callable<GameMap>() {
                @Override
                public GameMap call() {
                   return MapParser.parse(s);
                }
-            });
+            }));
          }
          try {
-            for(Future<GameMap> f : MyExecutor.invokeAll(callables)) {
+            for(Future<GameMap> f : futures) {
                gameMaps.add(f.get());
             }
          } catch(InterruptedException e) {
