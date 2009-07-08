@@ -291,6 +291,19 @@ public class Game {
             controlPanel.clickTargetButton(false);
          }
       });
+      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, 0), "Speed Up");
+      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0), "Speed Up");
+      actionMap.put("Speed Up", new AbstractAction() {
+         public void actionPerformed(ActionEvent e) {
+            controlPanel.clickFastButton(true);
+         }
+      });
+      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0), "Slow Down");
+      actionMap.put("Slow Down", new AbstractAction() {
+         public void actionPerformed(ActionEvent e) {
+            controlPanel.clickFastButton(false);
+         }
+      });
       inputMap.put(KeyStroke.getKeyStroke('s'), "Sell");
       actionMap.put("Sell", new AbstractAction() {
          public void actionPerformed(ActionEvent e) {

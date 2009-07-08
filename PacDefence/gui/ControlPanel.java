@@ -246,6 +246,11 @@ public class ControlPanel extends JPanel {
       }
    }
    
+   public void clickFastButton(boolean normalClick) {
+      eventProcessor.processFastButtonPressed(normalClick);
+      fastButton.toggleIcons(normalClick);
+   }
+   
    private void blankCurrentTowerInfo() {
       // Don't use an empty string here so as not to collapse the label
       towerNameLabel.setText(" ");
@@ -318,7 +323,7 @@ public class ControlPanel extends JPanel {
       OverlayToggleButton b = new OverlayToggleButton(images);
       b.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
-            eventProcessor.processFastButtonPressed(true);
+            clickFastButton(true);
          }
       });
       // Go back on a right click
@@ -328,8 +333,7 @@ public class ControlPanel extends JPanel {
             // Don't consolidate left click in here as there are ways to press a button besides a
             // mouse click (selected, then enter for instance)
             if(e.getButton() == MouseEvent.BUTTON3) {
-               eventProcessor.processFastButtonPressed(false);
-               fastButton.toggleIcons(false);
+               clickFastButton(false);
             }
          }
       });

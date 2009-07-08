@@ -21,12 +21,11 @@ package gui;
 
 import images.ImageHelper;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
 
+// You need to manually tell this to toggle icons
 @SuppressWarnings("serial")
 public class OverlayToggleButton extends OverlayButton {
    
@@ -46,11 +45,6 @@ public class OverlayToggleButton extends OverlayButton {
          icons[i][2] = drawOverlay(ImageHelper.resize(images[i], width, height), pressedColour);
          icons[i][3] = drawOverlay(ImageHelper.resize(images[i], width, height), disabledColour);
       }
-      addActionListener(new ActionListener(){
-         public void actionPerformed(ActionEvent e) {
-            toggleIcons(true);
-         }
-      });
    }
    
    public void setToDefault() {
