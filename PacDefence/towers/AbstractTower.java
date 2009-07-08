@@ -49,6 +49,7 @@ import logic.Game;
 import logic.Helper;
 import sprites.LooseFloat;
 import sprites.Sprite;
+import sprites.Sprite.DistanceComparator;
 
 public abstract class AbstractTower implements Tower {
 
@@ -457,7 +458,12 @@ public abstract class AbstractTower implements Tower {
    
    @Override
    public void setSpriteComparator(Comparator<Sprite> c) {
-      spriteComparator = c;
+      if(c instanceof DistanceComparator) {
+         spriteComparator = new DistanceComparator(centre,
+               ((DistanceComparator) c).isClosestFirst());
+      } else {
+         spriteComparator = c;
+      }
    }
    
    @Override

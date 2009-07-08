@@ -22,6 +22,7 @@ package sprites;
 import gui.Drawable;
 
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
@@ -166,6 +167,35 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
       public String toString() {
          return "Random";
       }
+   }
+   
+   // Note, as the compare method is slow, this could cause some lag when there are lots of sprites
+   public class DistanceComparator extends AbstractSpriteComparator {
+      
+      private final Point p;
+      private final boolean closestFirst;
+      
+      public DistanceComparator(Point p, boolean closestFirst) {
+         this.p = p;
+         this.closestFirst = closestFirst;
+      }
+
+      @Override
+      public int compare(Sprite s1, Sprite s2) {
+         // This distance should never be greater than an int
+         int distanceSq = (int)(s1.getPosition().distanceSq(p) - s2.getPosition().distanceSq(p));
+         return closestFirst ? distanceSq : -distanceSq;
+      }
+      
+      @Override
+      public String toString() {
+         return closestFirst ? "Closest" : "Farthest";
+      }
+      
+      public boolean isClosestFirst() {
+         return closestFirst;
+      }
+      
    }
    
    public class DamageReport {

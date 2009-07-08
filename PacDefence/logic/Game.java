@@ -330,6 +330,8 @@ public class Game {
       list.add(new Sprite.SlowestComparator());
       list.add(new Sprite.MostHPComparator());
       list.add(new Sprite.LeastHPComparator());
+      list.add(new Sprite.DistanceComparator(null, true));
+      list.add(new Sprite.DistanceComparator(null, false));
       list.add(new Sprite.RandomComparator());
       return list;
    }
