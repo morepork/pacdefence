@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -48,8 +48,7 @@ public class OverlayToggleButton extends OverlayButton {
       }
       addActionListener(new ActionListener(){
          public void actionPerformed(ActionEvent e) {
-            currentIndex = (currentIndex + 1) % icons.length;
-            setIcons();
+            toggleIcons(true);
          }
       });
    }
@@ -59,11 +58,21 @@ public class OverlayToggleButton extends OverlayButton {
       setIcons();
    }
    
+   public void toggleIcons(boolean toNext) {
+      if(toNext) {
+         currentIndex++;
+      } else { // Don't subtract one as if on 0 it will be left negative, which ain't good
+         currentIndex += icons.length - 1;
+      }
+      currentIndex %= icons.length;
+      setIcons();
+   }
+   
    private void setIcons() {
       setIcon(icons[currentIndex][0]);
       setRolloverIcon(icons[currentIndex][1]);
       setPressedIcon(icons[currentIndex][2]);
-      setDisabledIcon(icons[currentIndex][3]);      
+      setDisabledIcon(icons[currentIndex][3]);
    }
 
 }

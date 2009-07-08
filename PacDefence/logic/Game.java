@@ -1154,8 +1154,8 @@ public class Game {
          }
       }
       
-      public void processFastButtonPressed() {
-         clock.switchFastMode(true);
+      public void processFastButtonPressed(boolean wasLeftClick) {
+         clock.switchFastMode(wasLeftClick);
       }
       
       public void processTitleButtonPressed() {

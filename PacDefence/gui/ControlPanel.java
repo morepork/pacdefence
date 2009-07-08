@@ -318,7 +318,19 @@ public class ControlPanel extends JPanel {
       OverlayToggleButton b = new OverlayToggleButton(images);
       b.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
-            eventProcessor.processFastButtonPressed();
+            eventProcessor.processFastButtonPressed(true);
+         }
+      });
+      // Go back on a right click
+      b.addMouseListener(new MouseAdapter() {
+         @Override
+         public void mouseClicked(MouseEvent e) {
+            // Don't consolidate left click in here as there are ways to press a button besides a
+            // mouse click (selected, then enter for instance)
+            if(e.getButton() == MouseEvent.BUTTON3) {
+               eventProcessor.processFastButtonPressed(false);
+               fastButton.toggleIcons(false);
+            }
          }
       });
       return b;
