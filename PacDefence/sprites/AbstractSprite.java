@@ -21,7 +21,11 @@ package sprites;
 
 import images.ImageHelper;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Arc2D;
@@ -31,10 +35,13 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import logic.Circle;
 import logic.Formulae;
@@ -99,6 +106,13 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private double damageMultiplier = 1;
    private int adjustedDamageTicksLeft = 0;
    
+   private int poisonTicksLeft = 0;
+   
+   private final Set<SpriteEffect> currentEffects = EnumSet.noneOf(SpriteEffect.class);
+   private static final Map<SpriteEffect, Color> effectsColours = createEffectsColours();
+   private static final Composite effectsComposite =
+         AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25F);
+   
    private final List<Class<? extends Tower>> hits = new ArrayList<Class<? extends Tower>>();
 
    public AbstractSprite(List<BufferedImage> images, int currentLevel, long hp, List<Point> path){
@@ -125,6 +139,18 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    public void draw(Graphics g) {
       g.drawImage(currentImage, (int) centre.getX() - halfWidth, (int) centre.getY() - halfWidth,
                width, width, null);
+      if(!currentEffects.isEmpty()) {
+         Graphics2D g2D = (Graphics2D) g;
+         Composite c = g2D.getComposite();
+         g2D.setComposite(effectsComposite);
+         // If the sprite is dying, only have the circle as big as its current size
+         Circle fillArea = alive ? bounds : new Circle(centre, halfWidth);
+         for(SpriteEffect se : currentEffects) {
+            g2D.setColor(effectsColours.get(se));
+            fillArea.fill(g);
+         }
+         g2D.setComposite(c);
+      }
    }
 
    @Override
@@ -137,7 +163,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          if(!move()) { // If this returns false; the sprite has finished
             return true;
          }
-         decreaseAdjustedTicksLeft();
+         decreaseEffectsTicksLeft();
       } else {
          // If the sprite is dead, reduce the size it is drawn at
          halfWidth -= dieImageHalfWidthShrinkAmount;
@@ -248,6 +274,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       if(factor >= 1) {
          throw new IllegalArgumentException("Factor must be less than 1 in order to slow.");
       }
+      currentEffects.add(SpriteEffect.SLOW);
       if(factor < speedFactor) {
          // New speed is slower, so it is better, even if only for a short
          // time. Or so I think.
@@ -267,6 +294,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    @Override
    public void setDamageMultiplier(double multiplier, int numTicks) {
       assert multiplier > 1 : "Multiplier must be greater than 1";
+      currentEffects.add(SpriteEffect.WEAK);
       if(multiplier > damageMultiplier) {
          damageMultiplier = multiplier;
          adjustedDamageTicksLeft = numTicks;
@@ -275,6 +303,15 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
             damageMultiplier = multiplier;
             adjustedDamageTicksLeft = numTicks;
          }
+      }
+   }
+   
+   @Override
+   public void poison(int numTicks) {
+      assert numTicks > 0 : "Can't be poisoned for 0 or fewer ticks";
+      currentEffects.add(SpriteEffect.POISON);
+      if(numTicks > poisonTicksLeft) {
+         poisonTicksLeft = numTicks;
       }
    }
    
@@ -418,17 +455,25 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       return false;
    }
    
-   private void decreaseAdjustedTicksLeft() {
+   private void decreaseEffectsTicksLeft() {
       if(adjustedSpeedTicksLeft > 0) {
          adjustedSpeedTicksLeft--;
          if(adjustedSpeedTicksLeft <= 0) {
+            currentEffects.remove(SpriteEffect.SLOW);
             speedFactor = 1;
          }
       }
       if(adjustedDamageTicksLeft > 0) {
          adjustedDamageTicksLeft--;
          if(adjustedDamageTicksLeft <= 0) {
+            currentEffects.remove(SpriteEffect.WEAK);
             damageMultiplier = 1;
+         }
+      }
+      if(poisonTicksLeft > 0) {
+         poisonTicksLeft--;
+         if(poisonTicksLeft <= 0) {
+            currentEffects.remove(SpriteEffect.POISON);
          }
       }
    }
@@ -456,6 +501,14 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          numOtherTowers--;
       }
       return mult;
+   }
+   
+   private static Map<SpriteEffect, Color> createEffectsColours() {
+      Map<SpriteEffect, Color> map = new EnumMap<SpriteEffect, Color>(SpriteEffect.class);
+      map.put(SpriteEffect.SLOW, Color.BLUE);
+      map.put(SpriteEffect.WEAK, Color.MAGENTA);
+      map.put(SpriteEffect.POISON, Color.GREEN);
+      return Collections.unmodifiableMap(map);
    }
    
    private class AbstractSpriteLooseFloat extends LooseFloat {

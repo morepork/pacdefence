@@ -71,6 +71,13 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
    public double getHPFactor();
    public void slow(double factor, int numTicks);
    public void setDamageMultiplier(double multiplier, int numTicks);
+   public void poison(int numTicks);
+   
+   public enum SpriteEffect {
+      SLOW,
+      WEAK,
+      POISON;
+   }
    
    public abstract class AbstractSpriteComparator implements Comparator<Sprite> {
       @Override

@@ -117,6 +117,7 @@ public class PoisonTower extends AbstractTower {
       
       @Override
       protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
+         s.poison(poisonTicksLeft);
          poisonedSprite = s;
       }
       
