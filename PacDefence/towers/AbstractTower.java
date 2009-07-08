@@ -33,7 +33,6 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.image.BufferedImage;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,9 +58,9 @@ public abstract class AbstractTower implements Tower {
    // Keep track of the loaded images so they are only loaded once
    private static final Map<String, BufferedImage> towerImages =
          new HashMap<String, BufferedImage>();
-   private static final Map<String, BufferedImage> rotatingImages =
+   private static final Map<String, BufferedImage> overlayImages =
          new HashMap<String, BufferedImage>();
-   private static final Map<String, BufferedImage> towerButtonImages =
+   private static final Map<String, BufferedImage> buttonImages =
          new HashMap<String, BufferedImage>();
    
    private static final Map<Class<? extends AbstractTower>, Map<LooseFloat, BufferedImage>>
@@ -102,7 +101,7 @@ public abstract class AbstractTower implements Tower {
    protected final int turretWidth;
 
    private final BufferedImage baseImage;
-   private final BufferedImage rotatingImage;
+   private final BufferedImage overlayImage;
    private final boolean imageRotates;
    private BufferedImage currentImage;
    private final BufferedImage buttonImage;
@@ -112,14 +111,16 @@ public abstract class AbstractTower implements Tower {
    private boolean isSelected = false;
 
    private List<DamageNotifier> damageNotifiers = new ArrayList<DamageNotifier>();
-   private long damageDealt = 0;
-   private double fractionalDamageDealt = 0;
+   
    private int kills = 0;
    private int killsLevel = 1;
+   private long damageDealt = 0;
+   private double fractionalDamageDealt = 0;
    private int damageDealtLevel = 1;
    private long nextUpgradeDamage = Formulae.nextUpgradeDamage(killsLevel);
    private int nextUpgradeKills = Formulae.nextUpgradeKills(damageDealtLevel);
    
+   // Defaults to FirstComparator
    private Comparator<Sprite> spriteComparator = new Sprite.FirstComparator();
    
    private List<Bullet> bulletsToAdd = new ArrayList<Bullet>();
@@ -127,73 +128,65 @@ public abstract class AbstractTower implements Tower {
    protected AbstractTower(Point p, List<Shape> pathBounds, String name, int fireRate,
          double range, double bulletSpeed, double damage, int width, int turretWidth,
          boolean hasOverlay) {
+      this.width = width;
+      halfWidth = width / 2;
       centre = new Point(p);
+      topLeft = new Point((int) centre.getX() - halfWidth, (int) centre.getY() - halfWidth);
+      bounds = new Circle(centre, halfWidth);
+      setBounds(); // Sets the bounding rectangle
       this.pathBounds = pathBounds;
-      // Only temporary, it gets actually set later
-      topLeft = new Point(0, 0);
       this.name = name;
       this.fireRate = fireRate;
       this.range = range;
-      rangeUpgrade = range * (upgradeIncreaseFactor - 1);
       twiceRange = (int)(range * 2);
+      rangeUpgrade = range * (upgradeIncreaseFactor - 1);
       this.bulletSpeed = bulletSpeed;
       bulletSpeedUpgrade = bulletSpeed * (upgradeIncreaseFactor - 1);
       this.damage = damage;
-      this.width = width;
-      halfWidth = width / 2;
       this.turretWidth = turretWidth;
-      bounds = new Circle(centre, halfWidth);
-      setTopLeft();
-      setBounds();
-      // Use the class name as the actual name could be anything (spaces, etc.)
+      // Use the class name as the actual name could be anything
       String className = getClass().getSimpleName();
       // Need to remove the 'Tower' off the end
-      className = className.substring(0, className.length() - 5);
-      String nameLowerCase = makeFirstCharacterLowerCase(className);
-      baseImage = loadImage(towerImages, width, "towers", nameLowerCase + ".png");
+      className = makeFirstCharacterLowerCase(className.substring(0, className.length() - 5));
+      baseImage = loadImage(towerImages, width, "towers", className + ".png");
       imageRotates = (hasOverlay && turretWidth != 0);
-      if(hasOverlay) {
-         rotatingImage = loadImage(rotatingImages, width, "towers", "overlays",
-            nameLowerCase + "Overlay.png");
-      } else {
-         rotatingImage = null;
-      }
-      currentImage = drawCurrentImage(rotatingImage);
-      buttonImage = loadImage(towerButtonImages, 0, "buttons", "towers",
-            nameLowerCase + "Button.png");
+      overlayImage = hasOverlay ?
+            loadImage(overlayImages, width, "towers", "overlays", className + "Overlay.png") : null;
+      currentImage = drawCurrentImage(overlayImage);
+      buttonImage = loadImage(buttonImages, 0, "buttons", "towers", className + "Button.png");
    }
    
    private String makeFirstCharacterLowerCase(String s) {
       StringBuilder sb = new StringBuilder(s);
-      sb.insert(0, Character.toLowerCase(sb.charAt(0)));
-      sb.deleteCharAt(1);
+      sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
       return sb.toString();
    }
 
    @Override
    public List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress) {
-      sprites = new ArrayList<Sprite>(sprites);
-      Collections.sort(sprites, spriteComparator);
       // Decrements here so it's on every tick, not just when it is able to shoot
       timeToNextShot--;
-      List<Bullet> fired = Collections.emptyList();
+      List<Bullet> fired = null;
       if(imageRotates || timeToNextShot <= 0) {
-         // If the image rotates, this needs to be done to find out the direction
-         // to rotate to
+         // Make a copy so it can be sorted
+         sprites = new ArrayList<Sprite>(sprites);
+         Collections.sort(sprites, spriteComparator);
+         // If the image rotates, this needs to be done to find out the direction to rotate to
          fired = fireBullets(sprites);
       }
-      if (timeToNextShot <= 0 && fired.size() > 0) {
+      if (timeToNextShot <= 0 && fired != null && fired.size() > 0) {
          timeToNextShot = fireRate;
+         // Use bulletsToAdd as some towers launch bullets between ticks
          bulletsToAdd.addAll(fired);
       }
-      List<Bullet> bullets = bulletsToAdd;
-      bulletsToAdd = new ArrayList<Bullet>(bulletsToAdd.size());
-      return bullets;
+      List<Bullet> bulletsToReturn = bulletsToAdd;
+      bulletsToAdd = new ArrayList<Bullet>();
+      return bulletsToReturn;
    }
 
    @Override
    public void draw(Graphics g) {
-      if (isSelected) {
+      if(isSelected) {
          drawRange(g);
       }
       g.drawImage(currentImage, (int) topLeft.getX(), (int) topLeft.getY(), null);
@@ -207,8 +200,7 @@ public abstract class AbstractTower implements Tower {
       Composite c = g2D.getComposite();
       // Makes it so what is drawn is partly transparent
       g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, shadowAmount));
-      g2D.drawImage(currentImage, (int) p.getX() - halfWidth, (int) p.getY() - halfWidth, width,
-            width, null);
+      g2D.drawImage(currentImage, p.x - halfWidth, p.y - halfWidth, width, width, null);
       g2D.setComposite(c);
       if(!validPlacement) {
          drawX(g2D, p, halfWidth);
@@ -216,6 +208,7 @@ public abstract class AbstractTower implements Tower {
    }
    
    public static void drawX(Graphics2D g, Point p, int halfWidth) {
+      // Save the stroke to reset back to later
       Stroke s = g.getStroke();
       g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
       g.setColor(Color.RED);
@@ -229,8 +222,8 @@ public abstract class AbstractTower implements Tower {
       Shape s = t.getBounds();
       if (s instanceof Circle) {
          Circle c = (Circle) s;
-         double distance = Point.distance(centre.getX(), centre.getY(), t.getCentre().getX(), t
-               .getCentre().getY());
+         double distance = Point.distance(centre.getX(), centre.getY(), c.getCentre().getX(),
+               c.getCentre().getY());
          return distance < bounds.getRadius() + c.getRadius();
       } else {
          return bounds.intersects(s.getBounds2D());
@@ -317,13 +310,12 @@ public abstract class AbstractTower implements Tower {
                factor = d;
             }
          }
-         // and if it isn't the current factor, make it so, as the current factor
-         // would've been removed.
+         // If it isn't the current factor, make it so, as the current factor would've been removed
          if(factor != currentFactor) {
             multiplyAttribute(a, factor / currentFactor);
             currentFactors.put(a, factor);
          }
-      } else {
+      } else { // Either a new aid tower has built, or an old one upgraded
          if(!aidFactors.containsKey(towerID)) {
             aidFactors.put(towerID, new EnumMap<Attribute, Double>(Attribute.class));
          }
@@ -374,9 +366,7 @@ public abstract class AbstractTower implements Tower {
    @Override
    public Tower constructNew(Point p, List<Shape> pathBounds) {
       try {
-         Constructor<? extends Tower> c = this.getClass().getConstructor(Point.class,
-               List.class);
-         return c.newInstance(p, pathBounds);
+         return this.getClass().getConstructor(Point.class, List.class).newInstance(p, pathBounds);
       } catch(Exception e) {
          // No exception should be thrown if the superclass is reasonably behaved
          throw new RuntimeException("\nSuperclass of AbstractTower is not well behaved.\n" + e +
@@ -395,15 +385,11 @@ public abstract class AbstractTower implements Tower {
       for(DamageNotifier d : damageNotifiers) {
          d.notifyOfDamage(damage);
       }
+      damage += fractionalDamageDealt; // Add leftover fractional damage from the last hit
       long longDamage = (long)damage;
       damageDealt += longDamage;
       // Handling of fractional amounts
-      fractionalDamageDealt += damage - longDamage;
-      if(fractionalDamageDealt > 1) {
-         longDamage = (long)fractionalDamageDealt;
-         damageDealt += longDamage;
-         fractionalDamageDealt -= longDamage;
-      }
+      fractionalDamageDealt = damage - longDamage;
       while(damageDealt >= nextUpgradeDamage) {
          damageDealtLevel++;
          nextUpgradeDamage = Formulae.nextUpgradeDamage(damageDealtLevel);
@@ -452,7 +438,7 @@ public abstract class AbstractTower implements Tower {
    
    @Override
    public int getExperienceLevel() {
-      // -1 so it starts at level 1
+      // -1 so it starts at level 1 (rather than level 2, which is odd)
       return killsLevel + damageDealtLevel - 1;
    }
    
@@ -505,15 +491,15 @@ public abstract class AbstractTower implements Tower {
    
    protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
-      return Helper.makeListContaining(makeBullet(dx, dy, turretWidth, range, speed,
-            damage, p, s, pathBounds));
+      return Helper.makeListContaining(makeBullet(dx, dy, turretWidth, range, speed, damage, p, s,
+            pathBounds));
    }
    
    protected List<Bullet> fireBullets(List<Sprite> sprites) {
-      for (Sprite s : sprites) {
-         // Checking that the pathBounds contains the sprites position means a tower won't
-         // shoot so that it's bullet almost immediately goes off screen and is wasted
-         if (Helper.containedInAShape(s.getPosition(), pathBounds) && checkDistance(s)) {
+      for(Sprite s : sprites) {
+         // Checking that the pathBounds contains the sprites position means a tower won't shoot so
+         // that it's bullet almost immediately goes off screen and is wasted
+         if(Helper.containedInAShape(s.getPosition(), pathBounds) && checkDistance(s)) {
             return fireBulletsAt(s, true);
          }
       }
@@ -576,11 +562,10 @@ public abstract class AbstractTower implements Tower {
       bulletsToAdd.addAll(Arrays.asList(bullets));
    }
    
-   private BufferedImage loadImage(Map<String, BufferedImage> map, int width,
-         String... imagePath) {
+   private BufferedImage loadImage(Map<String, BufferedImage> map, int width, String... imagePath) {
       String imageName = imagePath[imagePath.length - 1];
       if(!map.containsKey(imageName)) {
-         if(width == 0) {
+         if(width <= 0) {
             map.put(imageName, ImageHelper.makeImage(imagePath));
          } else {
             map.put(imageName, ImageHelper.makeImage(width, width, imagePath));
@@ -589,11 +574,11 @@ public abstract class AbstractTower implements Tower {
       return map.get(imageName);
    }
    
-   private BufferedImage drawCurrentImage(BufferedImage rotatingOverlay) {
+   private BufferedImage drawCurrentImage(BufferedImage overlay) {
       BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
       Graphics2D g = image.createGraphics();
       g.drawImage(baseImage, 0, 0, null);
-      g.drawImage(rotatingOverlay, 0, 0, null);
+      g.drawImage(overlay, 0, 0, null);
       return image;
    }
    
@@ -623,10 +608,6 @@ public abstract class AbstractTower implements Tower {
       g2D.setColor(Color.DARK_GRAY);
       g2D.drawOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
       g2D.setStroke(s);
-   }
-
-   private void setTopLeft() {
-      topLeft.setLocation((int) centre.getX() - halfWidth, (int) centre.getY() - halfWidth);
    }
 
    private void setBounds() {
@@ -665,12 +646,10 @@ public abstract class AbstractTower implements Tower {
    
    private BufferedImage rotateImage(double angle) {
       if(!rotatedImages.containsKey(getClass())) {
-         // I use a TreeMap as otherwise I'd need to implement hashCode in LooseFloat
          rotatedImages.put(getClass(), new HashMap<LooseFloat, BufferedImage>());
       }
       Map<LooseFloat, BufferedImage> m = rotatedImages.get(getClass());
-      // Use LooseFloat to reduce precision so rotated images are less likely
-      // to be duplicated
+      // Use LooseFloat to reduce precision so rotated images are less likely to be duplicated
       LooseFloat f = new LooseFloat(angle) {
          @Override
          public float getPrecision() {
@@ -680,7 +659,7 @@ public abstract class AbstractTower implements Tower {
          }
       };
       if(!m.containsKey(f)) {
-         m.put(f, ImageHelper.rotateImage(rotatingImage, angle));
+         m.put(f, ImageHelper.rotateImage(overlayImage, angle));
       }
       return m.get(f);
    }
