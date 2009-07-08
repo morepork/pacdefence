@@ -27,8 +27,9 @@ import java.util.concurrent.Future;
 public class MyExecutor {
 
    public static final int NUM_PROCESSORS = Runtime.getRuntime().availableProcessors();
-
-   private static final ExecutorService executorService =
+   
+   // Only make the ExecutorService if there is more than 1 processor, otherwise it won't be used
+   private static final ExecutorService executorService = NUM_PROCESSORS == 1 ? null :
          Executors.newFixedThreadPool(NUM_PROCESSORS);
    
    public static <T> Future<T> submit(Callable<T> task) {

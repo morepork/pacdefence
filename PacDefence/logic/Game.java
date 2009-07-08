@@ -59,7 +59,6 @@ import javax.swing.KeyStroke;
 
 import sprites.Pacman;
 import sprites.Sprite;
-import sprites.Sprite.FirstComparator;
 import towers.AidTower;
 import towers.BeamTower;
 import towers.BomberTower;
@@ -137,8 +136,9 @@ public class Game {
    private static final int upgradeLives = 5;
    private static final int upgradeMoney = 1000;
    private static final double upgradeInterest = 0.01;
-   // These should only be set during a level using their set methods. Only one should
-   // be non null at any particular time
+   
+   // These should only be set during a level using their set methods. Only one should be non null
+   // at any particular time
    // The currently selected tower
    private Tower selectedTower;
    // The tower that is being built
@@ -147,6 +147,7 @@ public class Game {
    private Tower rolloverTower;
    // The tower that is being hovered over on the map
    private Tower hoverOverTower;
+   
    private Sprite selectedSprite;
    private Sprite hoverOverSprite;
    
@@ -591,8 +592,7 @@ public class Game {
    private Sprite getSpriteContaining(Point p) {
       for(Sprite s : sprites) {
          if(s.intersects(p)) {
-            // Intersects returns false if the sprite is dead so don't have
-            // to check that
+            // intersects returns false if the sprite is dead so don't have to check that
             return s;
          }
       }
@@ -607,14 +607,14 @@ public class Game {
          Tower toBuild = buildingTower.constructNew(p, pathBounds);
          if(canBuildTower(toBuild.getClass())) {
             buildTower(toBuild);
-            // Have to add after telling the control panel otherwise
-            // the price will be wrong
+            // Have to add after telling the control panel otherwise the price will be wrong
             towersToAdd.add(toBuild);
             if(toBuild instanceof AidTower) {
                ((AidTower) toBuild).setTowers(Collections.unmodifiableList(towers));
             } else if(toBuild instanceof Ghost) {
                nextGhostCost *= 2;
             }
+            // If another tower can't be built, set the building tower to null
             if(!canBuildTower(buildingTower.getClass())) {
                setBuildingTower(null);
             }
@@ -655,11 +655,11 @@ public class Game {
       private int timesPos = 0;
       // In each of these the last position is used to store the last time
       // and is not used for calculating the average
-      private final long[] processTimes = new long[timesLength + 1];
+      private final long[] processTimes        = new long[timesLength + 1];
       private final long[] processSpritesTimes = new long[timesLength + 1];
       private final long[] processBulletsTimes = new long[timesLength + 1];
-      private final long[] processTowersTimes = new long[timesLength + 1];
-      private final long[] drawTimes = new long[timesLength + 1];
+      private final long[] processTowersTimes  = new long[timesLength + 1];
+      private final long[] drawTimes           = new long[timesLength + 1];
       // These are used to store the calculated average value
       private long processTime = 0;
       private long processSpritesTime = 0;
@@ -668,14 +668,20 @@ public class Game {
       private long drawTime = 0;
       
       private boolean keepRunning = true;
-      
-      private final int numCallables;
+
+      // I tried 1x, 2x, 8x, 10x, 16x, and 20x and 16x was the best (then 10x, then 8x) on my dual
+      // core machine - think some callables will be more work, even though they have the same
+      // number of bullets
+      // Set it to zero if only one processor to signal that single threaded versions should be used
+      private final int numCallables = MyExecutor.NUM_PROCESSORS == 1 ? 0 :
+         MyExecutor.NUM_PROCESSORS * 16;
       
       private boolean gameOver = false;
       
       // I know I shouldn't really use a double, but it should be fine
-      // This is a field so fractional amounts can be saved between ticks
-      private double moneyEarnt = 0;
+      // This is a field so fractional amounts can be saved between ticks and so that the
+      // BulletTickCallables can access it directly, rather than having to pass the amount back
+      private volatile double moneyEarnt = 0;
       
       // For performance testing, goes with the code in tickBullets
 //      private long time = 0;
@@ -683,10 +689,6 @@ public class Game {
       
       public Clock() {
          super("Pac Defence Clock");
-         // I tried 1x, 2x, 8x, 10x, 16x, and 20x and 16x was the best (then 10x, then 8x) on my
-         // dual core machine - think some callables will be more work, even though they have the
-         // same number of bullets
-         numCallables = MyExecutor.NUM_PROCESSORS * 16;
 //         System.out.println("Using " + numCallables + " callables.");
          start();
       }
@@ -699,16 +701,16 @@ public class Game {
             if(!gameOver) {
                doTicks();
                if(debugTimes) {
-                  processTimes[timesLength] = calculateElapsedTime(beginTime);
+                  processTimes[timesLength] = calculateElapsedTimeMillis(beginTime);
                }
             }
             long drawingBeginTime = draw();
             gameMap.repaint();
             if(debugTimes) {
-               drawTimes[timesLength] = calculateElapsedTime(drawingBeginTime);
+               drawTimes[timesLength] = calculateElapsedTimeMillis(drawingBeginTime);
                calculateTimesTaken();
             }
-            long elapsedTime = calculateElapsedTime(beginTime);
+            long elapsedTime = calculateElapsedTimeMillis(beginTime);
             if(elapsedTime < CLOCK_TICK) {
                try {
                   Thread.sleep(CLOCK_TICK - elapsedTime);
@@ -736,32 +738,26 @@ public class Game {
                tick();
          }
          // Catches any new sprites that may have moved under the cursor
-         // Save the mouse position from mouseMotionListeners rather than
-         // use getMousePosition as it is much faster
+         // Save the mouse position from mouseMotionListeners rather than use getMousePosition as it
+         // is much faster
          updateHoverOverStuff(lastMousePosition);
          updateTowerStats();
       }
       
       private void tick() {
-         // I don't want to sort the actual list of sprites as that would affect
-         // the order they're drawn which looks weird, and the order can change
-         // tick by tick so it's easiest to sort them once each time.
-         List<Sprite> sortedSprites = new ArrayList<Sprite>(sprites);
-         Collections.sort(sortedSprites, new FirstComparator());
-         List<Sprite> unmodifiableSprites = Collections.unmodifiableList(sortedSprites);
+         List<Sprite> unmodifiableSprites = Collections.unmodifiableList(sprites);
          if(debugTimes) {
-            // Make sure any changes here or below are reflected in both bar
-            // the timing bits
+            // Make sure any changes here or below are reflected in both, bar the timing bits
             long beginTime = System.nanoTime();
             tickSprites();
             // Use += so the sum of all of these in the tick is calculated
-            processSpritesTimes[timesLength] += calculateElapsedTime(beginTime);
+            processSpritesTimes[timesLength] += calculateElapsedTimeMillis(beginTime);
             beginTime = System.nanoTime();
             tickBullets(unmodifiableSprites);
-            processBulletsTimes[timesLength] += calculateElapsedTime(beginTime);
+            processBulletsTimes[timesLength] += calculateElapsedTimeMillis(beginTime);
             beginTime = System.nanoTime();
             tickTowers(unmodifiableSprites);
-            processTowersTimes[timesLength] += calculateElapsedTime(beginTime);
+            processTowersTimes[timesLength] += calculateElapsedTimeMillis(beginTime);
          } else {
             tickSprites();
             tickBullets(unmodifiableSprites);
@@ -779,6 +775,8 @@ public class Game {
       private Iterable<Drawable> getDrawableIterable() {
          List<Drawable> drawables = new ArrayList<Drawable>(sprites.size() + towers.size() +
                bullets.size() + 1);
+         // Watch the order that things are added to the list. Things added later will be drawn 'on
+         // top' of things added earlier
          drawables.addAll(sprites);
          drawables.addAll(towers);
          // Set the selected tower to be drawn last, so its range is drawn over
@@ -799,17 +797,17 @@ public class Game {
          return drawables;
       }
       
-      private long calculateElapsedTime(long beginTime) {
-         // Returns in ms, though the beginTime is in ns
+      private long calculateElapsedTimeMillis(long beginTime) {
+         // Convert to ms, as beginTime is in ns
          return (System.nanoTime() - beginTime) / 1000000;
       }
       
       private void calculateTimesTaken() {
-         processTime = insertAndReturnAverage(processTimes);
+         processTime        = insertAndReturnAverage(processTimes);
          processSpritesTime = insertAndReturnAverage(processSpritesTimes);
          processBulletsTime = insertAndReturnAverage(processBulletsTimes);
-         processTowersTime = insertAndReturnAverage(processTowersTimes);
-         drawTime = insertAndReturnAverage(drawTimes);
+         processTowersTime  = insertAndReturnAverage(processTowersTimes);
+         drawTime           = insertAndReturnAverage(drawTimes);
          timesPos = (timesPos + 1) % timesLength;
       }
       
@@ -838,7 +836,7 @@ public class Game {
                if(s.isAlive()) { // If the sprite is still alive, it means it finished
                   livesLost++;
                }
-               if(selectedSprite == s) {
+               if(selectedSprite == s) { // Deselect this sprite as it is dead/finished
                   setSelectedSprite(null);
                }
             }
@@ -851,23 +849,15 @@ public class Game {
       
       private void lookAfterAddingNewSprites() {
          if(spritesToAdd > 0) {
-            if(addSpriteIn < 1) {
-               sprites.add(new Pacman(level, levelHP, clonePathPoints()));
+            if(addSpriteIn < 1) { // If the time has got to zero, add a sprite
+               sprites.add(new Pacman(level, levelHP, new ArrayList<Point>(pathPoints)));
                // Adds a sprite in somewhere between 0 and twice the designated time
                addSpriteIn = (int)(Math.random() * (ticksBetweenAddSprite * 2 + 1));
                spritesToAdd--;
-            } else {
+            } else { // Otherwise decrement the time until the next sprite will be added
                addSpriteIn--;
             }
          }
-      }
-      
-      private List<Point> clonePathPoints() {
-         List<Point> clone = new ArrayList<Point>(pathPoints.size());
-         for(Point p : pathPoints) {
-            clone.add(new Point(p));
-         }
-         return clone;
       }
       
       private void tickTowers(List<Sprite> unmodifiableSprites) {
@@ -884,6 +874,7 @@ public class Game {
             towersToAdd = new ArrayList<Tower>();
             towers.addAll(toAdd);
          }
+         // I tried multi-threading this but it made it slower in my limited testing
          for(Tower t : towers) {
             if(!towersToRemove.contains(t)) {
                List<Bullet> toAdd = t.tick(unmodifiableSprites, levelInProgress);
@@ -903,9 +894,8 @@ public class Game {
 //            ticks++;
 //            time -= System.nanoTime();
 //         }
-         if(numCallables == 1 || bullets.size() <= 1) {
-            // Use single thread version if only one processor or 1 or fewer bullets
-            // as it will be faster.
+         if(numCallables < 2 || bullets.size() <= 1) {
+            // If only one processor or 1 or fewer bullets this will be faster.
             tickBulletsSingleThread(unmodifiableSprites);
          } else {
             tickBulletsMultiThread(unmodifiableSprites);
@@ -925,13 +915,13 @@ public class Game {
          int bulletsPerThread = bullets.size() / numCallables;
          int remainder = bullets.size() % numCallables;
          int firstPos, lastPos = 0;
-         List<Future<Wrapper<Double, List<Integer>>>> futures =
-               new ArrayList<Future<Wrapper<Double, List<Integer>>>>();
+         // Each Callable returns a List of Integer positions of Bullets to be removed
+         List<Future<List<Integer>>> futures = new ArrayList<Future<List<Integer>>>();
          // No point in making more callables than there are bullets
          int n = Math.min(numCallables, bullets.size());
          for(int i = 0; i < n; i++) {
             firstPos = lastPos;
-            // Add one to callables 1, 2, ... , (remainder - 1), remainder
+            // Add 1 to callables 1, 2, ... , (remainder - 1), remainder
             lastPos = firstPos + bulletsPerThread + (i < remainder ? 1 : 0);
             // Copying the list should reduce the lag of each thread trying to access the same list
             futures.add(MyExecutor.submit(new BulletTickCallable(firstPos, lastPos, bullets,
@@ -940,16 +930,14 @@ public class Game {
          processTickFutures(futures);
       }
       
-      private void processTickFutures(List<Future<Wrapper<Double, List<Integer>>>> futures) {
+      private void processTickFutures(List<Future<List<Integer>>> futures) {
          List<Integer> bulletsToRemove = null;
-         for(Future<Wrapper<Double, List<Integer>>> f : futures) {
+         for(Future<List<Integer>> f : futures) {
             try {
-               Wrapper<Double, List<Integer>> wrapper = f.get();
-               moneyEarnt += wrapper.getA();
                if(bulletsToRemove == null) {
-                  bulletsToRemove = wrapper.getB();
+                  bulletsToRemove = f.get();
                } else {
-                  bulletsToRemove.addAll(wrapper.getB());
+                  bulletsToRemove.addAll(f.get());
                }
             } catch(InterruptedException e) {
                // Should never happen
@@ -978,7 +966,7 @@ public class Game {
          }
       }
       
-      private class BulletTickCallable implements Callable<Wrapper<Double, List<Integer>>> {
+      private class BulletTickCallable implements Callable<List<Integer>> {
          
          private final int firstPos, lastPos;
          private final List<Bullet> bullets;
@@ -993,8 +981,7 @@ public class Game {
          }
 
          @Override
-         public Wrapper<Double, List<Integer>> call() throws Exception {
-            double moneyEarnt = 0;
+         public List<Integer> call() {
             List<Integer> toRemove = new ArrayList<Integer>();
             for(int i = firstPos; i < lastPos; i++) {
                double money = bullets.get(i).tick(sprites);
@@ -1003,7 +990,7 @@ public class Game {
                   toRemove.add(i);
                }
             }
-            return new Wrapper<Double, List<Integer>>(moneyEarnt, toRemove);
+            return toRemove;
          }
          
       }
@@ -1179,7 +1166,7 @@ public class Game {
       }
       
       public void processRestartPressed() {
-         stopRunning();
+         stopRunning(); // This ends the clock
          gameMap.restart();
          controlPanel.restart();
          setStartingStats();
