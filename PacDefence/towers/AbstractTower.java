@@ -49,11 +49,14 @@ import logic.Helper;
 import sprites.LooseFloat;
 import sprites.Sprite;
 import sprites.Sprite.DistanceComparator;
+import sprites.Sprite.FirstComparator;
 
 public abstract class AbstractTower implements Tower {
 
    public static final float shadowAmount = 0.75F;
    protected static final float upgradeIncreaseFactor = 1.05F;
+   
+   public static final Comparator<Sprite> DEFAULT_SPRITE_COMPARATOR = new FirstComparator();
    
    // Keep track of the loaded images so they are only loaded once
    private static final Map<String, BufferedImage> towerImages =
@@ -121,7 +124,7 @@ public abstract class AbstractTower implements Tower {
    private int nextUpgradeKills = Formulae.nextUpgradeKills(damageDealtLevel);
    
    // Defaults to FirstComparator
-   private Comparator<Sprite> spriteComparator = new Sprite.FirstComparator();
+   private Comparator<Sprite> spriteComparator = DEFAULT_SPRITE_COMPARATOR;
    
    private List<Bullet> bulletsToAdd = new ArrayList<Bullet>();
 
@@ -149,16 +152,16 @@ public abstract class AbstractTower implements Tower {
       // Need to remove the 'Tower' off the end
       className = makeFirstCharacterLowerCase(className.substring(0, className.length() - 5));
       baseImage = loadImage(towerImages, width, "towers", className + ".png");
-      imageRotates = (hasOverlay && turretWidth != 0);
+      imageRotates = hasOverlay && (turretWidth != 0);
       overlayImage = hasOverlay ?
             loadImage(overlayImages, width, "towers", "overlays", className + "Overlay.png") : null;
-      currentImage = drawCurrentImage(overlayImage);
+      currentImage = overlayImage == null ? baseImage : getRotatedImage(0.0);
       buttonImage = loadImage(buttonImages, 0, "buttons", "towers", className + "Button.png");
    }
    
    private String makeFirstCharacterLowerCase(String s) {
       StringBuilder sb = new StringBuilder(s);
-      sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
+      sb.setCharAt(0, Character.toLowerCase(s.charAt(0)));
       return sb.toString();
    }
 
@@ -168,9 +171,13 @@ public abstract class AbstractTower implements Tower {
       timeToNextShot--;
       List<Bullet> fired = null;
       if(imageRotates || timeToNextShot <= 0) {
-         // Make a copy so it can be sorted
-         sprites = new ArrayList<Sprite>(sprites);
-         Collections.sort(sprites, spriteComparator);
+         // The sprites are sorted by the default sprite comparator in Clock, so that they don't
+         // have to be resorted for any tower left on the default (which is often most of them)
+         if(!spriteComparator.getClass().equals(DEFAULT_SPRITE_COMPARATOR.getClass())) {
+            // Make a copy so it can be sorted
+            sprites = new ArrayList<Sprite>(sprites);
+            Collections.sort(sprites, spriteComparator);
+         }
          // If the image rotates, this needs to be done to find out the direction to rotate to
          fired = fireBullets(sprites);
       }
@@ -497,9 +504,7 @@ public abstract class AbstractTower implements Tower {
    
    protected List<Bullet> fireBullets(List<Sprite> sprites) {
       for(Sprite s : sprites) {
-         // Checking that the pathBounds contains the sprites position means a tower won't shoot so
-         // that it's bullet almost immediately goes off screen and is wasted
-         if(Helper.containedInAShape(s.getPosition(), pathBounds) && checkDistance(s)) {
+         if(checkDistance(s)) {
             return fireBulletsAt(s, true);
          }
       }
@@ -521,8 +526,7 @@ public abstract class AbstractTower implements Tower {
       if (!s.isAlive()) {
          return false;
       }
-      double distance = p.distance(s.getPosition());
-      return distance < range + s.getHalfWidth();
+      return p.distance(s.getPosition()) < range + s.getHalfWidth();
    }
    
    protected List<Bullet> fireBulletsAt(Sprite s, boolean rotateTurret) {
@@ -534,7 +538,7 @@ public abstract class AbstractTower implements Tower {
       double dx = s.getPosition().getX() - p.getX();
       double dy = s.getPosition().getY() - p.getY();
       if(imageRotates && rotateTurret) {
-         currentImage = drawCurrentImage(rotateImage(Helper.vectorAngle(dx, -dy)));
+         currentImage = getRotatedImage(Helper.vectorAngle(dx, -dy));
       }
       return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, s, pathBounds);
    }
@@ -574,7 +578,7 @@ public abstract class AbstractTower implements Tower {
       return map.get(imageName);
    }
    
-   private BufferedImage drawCurrentImage(BufferedImage overlay) {
+   private BufferedImage drawOverlayOnBaseImage(BufferedImage overlay) {
       BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
       Graphics2D g = image.createGraphics();
       g.drawImage(baseImage, 0, 0, null);
@@ -644,7 +648,7 @@ public abstract class AbstractTower implements Tower {
       return map;
    }
    
-   private BufferedImage rotateImage(double angle) {
+   private BufferedImage getRotatedImage(double angle) {
       if(!rotatedImages.containsKey(getClass())) {
          rotatedImages.put(getClass(), new HashMap<LooseFloat, BufferedImage>());
       }
@@ -659,7 +663,7 @@ public abstract class AbstractTower implements Tower {
          }
       };
       if(!m.containsKey(f)) {
-         m.put(f, ImageHelper.rotateImage(overlayImage, angle));
+         m.put(f, drawOverlayOnBaseImage(ImageHelper.rotateImage(overlayImage, angle)));
       }
       return m.get(f);
    }

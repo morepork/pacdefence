@@ -35,6 +35,13 @@ import sprites.Sprite.DamageReport;
 
 public class BasicBullet implements Bullet {
 
+   
+   // Determined by the image
+   public static final int radius = 3;
+   // Extra distance a bullet can be off screen before it is removed. Should be greater than the
+   // radius of the largest sprite and the radius of the bullet
+   private static final int offScreenFudgeDistance = 50 + radius;
+   
    // The direction of the bullet, first is dx, second is dy. Should be normalised
    // then multiplied by the speed.
    protected final double[] dir = new double[2];
@@ -43,7 +50,6 @@ public class BasicBullet implements Bullet {
    protected final Point2D lastPosition;
    protected final Point2D position;
    protected final int range;
-   public static final int radius = 3;
    protected final double damage;
    private boolean draw = true;
    protected final Tower shotBy;
@@ -132,15 +138,15 @@ public class BasicBullet implements Bullet {
       //    (OK, d == null due to threading means sometimes more than once)
       // Overall this is around 3x faster than the above
       Line2D line = new Line2D.Double(p1, p2);
-      if(intersectsPath(line)) { // If the line doesn't intersect the path a Sprite can't be hit
-         for(Sprite s : sprites) {
-            Point2D p = s.intersects(line);
-            if(p != null) {
-               DamageReport d = s.hit(damage, shotBy.getClass());
-               if(d != null) { // Sprite is not already dead, may happen due to threading
-                  specialOnHit(p, s, sprites);
-                  return processDamageReport(d);
-               }
+      // I used to do intersectsPath here first, but that doesn't work for a bullet that's just off
+      // screen hitting a just started/nearly finished sprite
+      for(Sprite s : sprites) {
+         Point2D p = s.intersects(line);
+         if(p != null) {
+            DamageReport d = s.hit(damage, shotBy.getClass());
+            if(d != null) { // Sprite is not already dead, may happen due to threading
+               specialOnHit(p, s, sprites);
+               return processDamageReport(d);
             }
          }
       }
@@ -208,8 +214,10 @@ public class BasicBullet implements Bullet {
    }
    
    protected boolean checkIfBulletIsOffScreen(Point2D p) {
-      return p.getX() < -radius || p.getY() < -radius || p.getX() > Game.MAP_WIDTH + radius ||
-            p.getY() > Game.MAP_HEIGHT + radius;
+      return p.getX() < -offScreenFudgeDistance ||
+            p.getY() < -offScreenFudgeDistance ||
+            p.getX() > Game.MAP_WIDTH + offScreenFudgeDistance ||
+            p.getY() > Game.MAP_HEIGHT + offScreenFudgeDistance;
    }
    
    protected double doTick(List<Sprite> sprites) {

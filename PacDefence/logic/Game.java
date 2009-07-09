@@ -59,6 +59,7 @@ import javax.swing.KeyStroke;
 
 import sprites.Pacman;
 import sprites.Sprite;
+import towers.AbstractTower;
 import towers.AidTower;
 import towers.BeamTower;
 import towers.BomberTower;
@@ -760,7 +761,13 @@ public class Game {
       }
       
       private void tick() {
-         List<Sprite> unmodifiableSprites = Collections.unmodifiableList(sprites);
+         List<Sprite> spritesCopy = new ArrayList<Sprite>(sprites);
+         // Sort with the default comparator here (should be FirstComparator) for two reasons:
+         // Firstly, most towers should use the default comparator so don't need to resort this.
+         // Secondly, bullets will hit sprites closest to the end first when they could hit two
+         // which is a slight aid.
+         Collections.sort(spritesCopy, AbstractTower.DEFAULT_SPRITE_COMPARATOR);
+         List<Sprite> unmodifiableSprites = Collections.unmodifiableList(spritesCopy);
          if(debugTimes) {
             // Make sure any changes here or below are reflected in both, bar the timing bits
             long beginTime = System.nanoTime();
