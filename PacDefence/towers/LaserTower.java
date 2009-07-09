@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -24,10 +24,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.Shape;
 import java.util.List;
 
 import sprites.Sprite;
@@ -69,7 +69,8 @@ public class LaserTower extends AbstractTower {
             p.getY() + turretWidth * dy / divisor);
       Point2D lastPoint = new Point2D.Double(p.getX() + range * dx / divisor,
             p.getY() + range * dy / divisor);
-      return new Laser(pathBounds, this, firstPoint, lastPoint, speed, damage, range - turretWidth, beamLength);
+      return new Laser(pathBounds, this, firstPoint, lastPoint, speed, damage, range - turretWidth,
+            beamLength);
    }
 
    @Override
@@ -77,12 +78,13 @@ public class LaserTower extends AbstractTower {
       beamLength += beamLengthUpgrade;
    }
    
-   private class Laser extends BasicBullet {
+   private static class Laser extends BasicBullet {
       
+      private static final Stroke beamStroke = new BasicStroke(AbstractTower.turretThickness);
+      private static final Color beamColour = new Color(210, 255, 0);
       private final Point2D lastPoint;
       private final Line2D laser;
       private final double length;
-      private final Color beamColour = new Color(210, 255, 0);
       private final double xStep, yStep;
       private double moneyEarnt = 0;
       
@@ -106,7 +108,7 @@ public class LaserTower extends AbstractTower {
          Graphics2D g2D = (Graphics2D) g;
          g2D.setColor(beamColour);
          Stroke old = g2D.getStroke();
-         g2D.setStroke(new BasicStroke(AbstractTower.turretThickness));
+         g2D.setStroke(beamStroke);
          g2D.draw(laser);
          g2D.setStroke(old);
       }
@@ -118,6 +120,7 @@ public class LaserTower extends AbstractTower {
                laser.getY2() + yStep);
          distanceTravelled += speed;
          if(distanceTravelled >= range) {
+            // Only actually finish when the point at the back of the laser crosses the range
             if(distanceTravelled >= range + length) {
                return moneyEarnt;
             } else {
