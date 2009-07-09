@@ -86,18 +86,18 @@ public class BomberTower extends AbstractTower {
 
       @Override
       public double doTick(List<Sprite> sprites) {
-         if (exploding) {
+         if(exploding) {
             double radius = blast.getRadius();
-            if (expanding) {
+            if(expanding) {
                blast.setRadius(radius + blastSizeIncrement);
-               if (blast.getRadius() >= blastRadius) {
+               if(blast.getRadius() >= blastRadius) {
                   blast.setRadius(blastRadius);
                   expanding = false;
                }
             } else {
                // Shrinks twice as fast as it expands
                double newRadius = radius - blastSizeIncrement * 2;
-               if (newRadius < 0) {
+               if(newRadius < 0) {
                   return moneyEarnt;
                } else {
                   blast.setRadius(newRadius);
@@ -105,11 +105,14 @@ public class BomberTower extends AbstractTower {
             }
             checkIfSpriteIsHitByBlast(sprites);
             return -1;
-         } else {
+         } else { // If it's not exploding, the bullet is still travelling
             double earnings = super.doTick(sprites);
-            if (earnings <= 0) {
+            if(earnings <= 0) {
+               // <= 0 means it has either it is still going, or it got to the edge of its range
                return earnings;
             } else {
+               // If it does hit something, record the money earnt, and then return -1, the bullet
+               // should not be removed just yet
                moneyEarnt = earnings;
                return -1;
             }
@@ -118,7 +121,7 @@ public class BomberTower extends AbstractTower {
 
       @Override
       public void draw(Graphics g) {
-         if (exploding) {
+         if(exploding) {
             g.setColor(blastColour);
             blast.fill(g);
          } else {
@@ -135,15 +138,13 @@ public class BomberTower extends AbstractTower {
       }
 
       private void checkIfSpriteIsHitByBlast(List<Sprite> sprites) {
-         for (Sprite s : sprites) {
-            if (!hitSprites.contains(s)) {
-               // Sprites are only affected by the blast once
-               if (blast.intersects(s.getBounds())) {
-                  hitSprites.add(s);
-                  DamageReport d = s.hit(damage / bombDamageDividend, shotBy.getClass());
-                  if (d != null) {
-                     moneyEarnt += processDamageReport(d);
-                  }
+         for(Sprite s : sprites) {
+            // Sprites are only affected by the blast once
+            if(!hitSprites.contains(s) && blast.intersects(s.getBounds())) {
+               hitSprites.add(s);
+               DamageReport d = s.hit(damage / bombDamageDividend, shotBy.getClass());
+               if(d != null) {
+                  moneyEarnt += processDamageReport(d);
                }
             }
          }
