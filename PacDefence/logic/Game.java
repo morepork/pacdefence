@@ -374,7 +374,7 @@ public class Game {
       text.append(level);
       text.append(" finished. ");
       text.append(interest);
-      text.append(" interest earnt. ");
+      text.append(" interest earned. ");
       text.append(levelEndBonus);
       text.append(" for finishing the level.");
       if(livesLostOnThisLevel == 0) {
