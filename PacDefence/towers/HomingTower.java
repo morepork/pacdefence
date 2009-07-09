@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -31,7 +31,7 @@ import sprites.Sprite;
 public class HomingTower extends AbstractTower {
    
    // Max angle the bullet redirects each tick in degrees
-   private double maxRedirectAngle = 1;
+   private double maxRedirectAngle = 2;
    private static final double upgradeIncreaseAngle = 0.1;
 
    public HomingTower(Point p, List<Shape> pathBounds) {
