@@ -43,6 +43,8 @@
       <delete file="${NoSrcJar}" />
       <jar destfile="${NoSrcJar}">
          <fileset dir="${SrcDir}" casesensitive="yes">
+         	<!-- Exclude anything that doesn't need to be there -->
+         	
             <!-- Hidden files -->
             <exclude name="**/.*" />
          	<!-- Anything in a hidden directory -->
@@ -50,6 +52,7 @@
             <!-- Backup files -->
             <exclude name="**/*.*~" />
             <exclude name="**/*.*backup" />
+         	
             <exclude name="**/*.jar" />
             <exclude name="**/*.java" />
             <exclude name="**/*Test*" />
@@ -61,6 +64,15 @@
             <exclude name="**/*.tex" />
             <exclude name="**/*.pdf" />
          	<exclude name="gui/maps/PathAnalyser.class" />
+         	<!-- Tower's that aren't actually used -->
+         	<exclude name="towers/BasicTower.class" />
+         	<exclude name="images/**/basic*" />
+         	<exclude name="towers/PiercerTower*.class" />
+         	<exclude name="images/**/piercer*" />
+         	<exclude name="towers/SlowFactorTower.class" />
+         	<exclude name="images/**/slowFactor*" />
+         	
+         	<exclude name="images/maps/curvyMaps" />
             <exclude name="images/maps/rainbowColours.png" />
             <exclude name="images/maps/rainbowColours.jpg" />
          	<exclude name="images/maps/nebula.png" />
@@ -92,6 +104,10 @@
             <!-- The screenshots don't need to be in here as it just makes the
                  jar much bigger without really giving anything extra -->
             <exclude name="website/screenshots/screenshot*" />
+         	<!-- The png version of these are in there so these are unnecessary -->
+         	<exclude name="images/maps/rainbowColours.jpg" />
+            <exclude name="images/control_panel/blue_lava.jpg" />
+         	
             <exclude name="java.policy.applet" />
          </fileset>
          <manifest>
