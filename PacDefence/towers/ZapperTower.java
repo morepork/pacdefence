@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import logic.Game;
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
 
@@ -60,7 +59,8 @@ public class ZapperTower extends AbstractTower {
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
          double damage, Point p, Sprite s, List<Shape> pathBounds) {
-      return new ZapperBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, numZaps);
+      return new ZapperBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds,
+            numZaps);
    }
 
    @Override
@@ -72,16 +72,20 @@ public class ZapperTower extends AbstractTower {
       
       private static final Random rand = new Random();
       private static final Color zapColour = new Color(255, 147, 147);
+      private static final Stroke zapStroke = new BasicStroke(3);
       private double moneyEarnt = 0;
       private int numZapsLeft;
       private Line2D zap;
       private final double zapRange;
+      private final int offScreenFudgeDistance;
    
       public ZapperBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, List<Shape> pathBounds, int numZaps) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          numZapsLeft = numZaps;
          zapRange = range / 4;
+         // Bullet shouldn't be removed if it can still zap sprites
+         offScreenFudgeDistance = super.getOffScreenFudgeDistance() + (int)zapRange;
       }
       
       @Override
@@ -93,10 +97,12 @@ public class ZapperTower extends AbstractTower {
             Graphics2D g2D = (Graphics2D) g;
             g2D.setColor(zapColour);
             Stroke s = g2D.getStroke();
-            g2D.setStroke(new BasicStroke(3));
+            g2D.setStroke(zapStroke);
             g2D.draw(zap);
             g2D.setStroke(s);
          }
+         // Draw the actual bullet over the zap, so the zap appears to come from the edge of the
+         // bullet
          super.draw(g);
       }
       
@@ -120,11 +126,8 @@ public class ZapperTower extends AbstractTower {
       }
       
       @Override
-      protected boolean canBulletBeRemovedAsOffScreen() {
-         // Bullet shouldn't be removed if it can still zap sprites
-         return position.getX() < -zapRange || position.getY() < -zapRange ||
-               position.getX() > Game.MAP_WIDTH + zapRange ||
-               position.getY() > Game.MAP_HEIGHT + zapRange;
+      protected int getOffScreenFudgeDistance() {
+         return offScreenFudgeDistance;
       }
       
       private void tryToFireZap(List<Sprite> sprites) {

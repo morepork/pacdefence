@@ -214,10 +214,14 @@ public class BasicBullet implements Bullet {
    }
    
    protected boolean checkIfBulletIsOffScreen(Point2D p) {
-      return p.getX() < -offScreenFudgeDistance ||
-            p.getY() < -offScreenFudgeDistance ||
-            p.getX() > Game.MAP_WIDTH + offScreenFudgeDistance ||
-            p.getY() > Game.MAP_HEIGHT + offScreenFudgeDistance;
+      return p.getX() < -getOffScreenFudgeDistance() ||
+            p.getY() < -getOffScreenFudgeDistance() ||
+            p.getX() > Game.MAP_WIDTH + getOffScreenFudgeDistance() ||
+            p.getY() > Game.MAP_HEIGHT + getOffScreenFudgeDistance();
+   }
+   
+   protected int getOffScreenFudgeDistance() {
+      return offScreenFudgeDistance;
    }
    
    protected double doTick(List<Sprite> sprites) {
