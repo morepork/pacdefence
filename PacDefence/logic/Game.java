@@ -113,6 +113,7 @@ public class Game {
 
    private final Container outerContainer;
    private final Title title = createTitle();
+   private Thread selectionScreenLoader;
    private SelectionScreens selectionScreens;
    private ControlPanel controlPanel;
    private GameMapPanel gameMap;
@@ -158,6 +159,7 @@ public class Game {
       outerContainer = c;
       outerContainer.setLayout(new BorderLayout());
       outerContainer.add(title);
+      loadSelectionScreens();
    }
    
    public void end() {
@@ -213,8 +215,13 @@ public class Game {
    private Title createTitle() {
       return new Title(WIDTH, HEIGHT, new ActionListener() {
          public void actionPerformed(ActionEvent e) {
+            try {
+               selectionScreenLoader.join();
+            } catch(InterruptedException ex) {
+               // Should never happen
+               throw new RuntimeException(ex);
+            }
             outerContainer.remove(title);
-            selectionScreens = createSelectionScreens();
             outerContainer.add(selectionScreens);
             outerContainer.validate();
             outerContainer.repaint();
@@ -222,8 +229,21 @@ public class Game {
       });
    }
    
-   private SelectionScreens createSelectionScreens() {
-      return new SelectionScreens(WIDTH, HEIGHT, new GameStarter());
+   /**
+    * Loads the selection screens asynchronously.
+    * 
+    * It's worth doing this as previously it would pause for around a second while it was loaded,
+    * but it may as well be loaded in the background because nothing is happening while you're at
+    * the title screen.
+    */
+   private void loadSelectionScreens() {
+      selectionScreenLoader = new Thread() {
+         @Override
+         public void run() {
+            selectionScreens = new SelectionScreens(WIDTH, HEIGHT, new GameStarter());
+         }
+      };
+      selectionScreenLoader.start();
    }
    
    private GameMapPanel createGameMapPanel(GameMap g) {
@@ -1185,6 +1205,7 @@ public class Game {
          outerContainer.add(title);
          outerContainer.validate();
          outerContainer.repaint();
+         loadSelectionScreens();
       }
       
       public void processRestartPressed() {
