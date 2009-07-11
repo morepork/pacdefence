@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -22,6 +22,7 @@ package gui;
 import images.ImageHelper;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -29,11 +30,17 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 public class Title extends JPanel {
    
+   private static boolean firstRun = true;
+   private static Skin selectedSkin;
+   private final JComboBox skinComboBox;
    private final BufferedImage background;
    
    public Title(int width, int height, ActionListener continueListener) {
@@ -44,6 +51,15 @@ public class Title extends JPanel {
       g.drawImage(ImageHelper.makeImage(width, height, "other", "title.png"), 0, 0, null);
       JButton continueButton = new OverlayButton("buttons", "continue.png");
       continueButton.addActionListener(continueListener);
+      if(firstRun) {
+         firstRun = false;
+         skinComboBox = new JComboBox(Skin.getSkins().toArray());
+         // Only show the skin chooser on the first run, as otherwise every loaded, cached, etc.
+         // image would be reloaded, which I think is way too much work
+         add(createSkinSelector(), BorderLayout.NORTH);
+      } else {
+         skinComboBox = null;
+      }
       add(SwingHelper.createBorderLayedOutWrapperPanel(
             SwingHelper.createWrapperPanel(
                   continueButton, 10), BorderLayout.EAST), BorderLayout.SOUTH);
@@ -53,6 +69,26 @@ public class Title extends JPanel {
    @Override
    public void paintComponent(Graphics g) {
       g.drawImage(background, 0, 0, null);
+   }
+   
+   public Skin getSelectedSkin() {
+      if(skinComboBox != null) {
+         selectedSkin = (Skin) skinComboBox.getSelectedItem();
+      }
+      return selectedSkin;
+   }
+   
+   private JComponent createSkinSelector() {
+      JLabel label = new JLabel("Skin:");
+      label.setForeground(Color.YELLOW);
+
+      JPanel panel = new JPanel();
+      panel.setOpaque(false);
+      
+      panel.add(label);
+      panel.add(skinComboBox);
+      
+      return SwingHelper.createBorderLayedOutWrapperPanel(panel, BorderLayout.WEST);
    }
 
 }

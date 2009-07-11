@@ -19,6 +19,8 @@
 
 package images;
 
+import gui.Skin;
+
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
@@ -38,12 +40,9 @@ public class ImageHelper {
    
    private static String skin;
    
-   static{ // FIXME Temporary, until I implement the ability to select it
-      setSkin("new");
-   }
-   
-   public static void setSkin(String newSkin) {
-      skin = "skins/" + newSkin + "/";
+   public static void setSkin(Skin newSkin) {
+      String skinDir = newSkin.getDirectory();
+      skin = (skinDir == null) ? null : "skins/" + skinDir + "/";
    }
    
    public static String createPath(boolean useSkin, String... foldersAndFileName) {

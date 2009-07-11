@@ -221,6 +221,7 @@ public class Game {
                // Should never happen
                throw new RuntimeException(ex);
             }
+            ImageHelper.setSkin(title.getSelectedSkin());
             outerContainer.remove(title);
             outerContainer.add(selectionScreens);
             outerContainer.validate();
