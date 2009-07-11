@@ -112,8 +112,8 @@ public class Game {
    private List<Point> pathPoints;
 
    private final Container outerContainer;
-   private final Title title = createTitle();
-   private Thread selectionScreenLoader;
+   private Title title = createTitle();
+   private Thread asynchronousLoader;
    private SelectionScreens selectionScreens;
    private ControlPanel controlPanel;
    private GameMapPanel gameMap;
@@ -216,7 +216,7 @@ public class Game {
       return new Title(WIDTH, HEIGHT, new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             try {
-               selectionScreenLoader.join();
+               asynchronousLoader.join();
             } catch(InterruptedException ex) {
                // Should never happen
                throw new RuntimeException(ex);
@@ -225,6 +225,9 @@ public class Game {
             outerContainer.add(selectionScreens);
             outerContainer.validate();
             outerContainer.repaint();
+            // Free up memory used by title (around 2-3 MB)
+            title = null;
+            loadControlPanel();
          }
       });
    }
@@ -237,13 +240,13 @@ public class Game {
     * the title screen.
     */
    private void loadSelectionScreens() {
-      selectionScreenLoader = new Thread() {
+      asynchronousLoader = new Thread() {
          @Override
          public void run() {
             selectionScreens = new SelectionScreens(WIDTH, HEIGHT, new GameStarter());
          }
       };
-      selectionScreenLoader.start();
+      asynchronousLoader.start();
    }
    
    private GameMapPanel createGameMapPanel(GameMap g) {
@@ -269,22 +272,34 @@ public class Game {
       return gmp;
    }
    
-   private ControlPanel createControlPanel() {
-      ControlPanel cp = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
-            ImageHelper.makeImage("control_panel", "blue_lava_blurred.jpg"), eventProcessor,
-            createTowerImplementations());
-      cp.addMouseMotionListener(new MouseMotionListener() {
+   /**
+    * Load the control panel asynchronously.
+    * 
+    * This is fine as like on the title screen, while the selection screens are shown nothing is
+    * really happening.
+    */
+   private void loadControlPanel() {
+      asynchronousLoader = new Thread() {
          @Override
-         public void mouseMoved(MouseEvent e) {
-            lastMousePosition = null;
+         public void run() {
+            controlPanel = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
+                  ImageHelper.makeImage("control_panel", "blue_lava_blurred.jpg"), eventProcessor,
+                  createTowerImplementations());
+            controlPanel.addMouseMotionListener(new MouseMotionListener() {
+               @Override
+               public void mouseMoved(MouseEvent e) {
+                  lastMousePosition = null;
+               }
+               @Override
+               public void mouseDragged(MouseEvent e) {
+                  lastMousePosition = null;
+               }
+            });
+            addKeyboardShortcuts(controlPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW),
+                  controlPanel.getActionMap());
          }
-         @Override
-         public void mouseDragged(MouseEvent e) {
-            lastMousePosition = null;
-         }
-      });
-      addKeyboardShortcuts(cp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW), cp.getActionMap());
-      return cp;
+      };
+      asynchronousLoader.start();
    }
    
    @SuppressWarnings("serial")
@@ -1200,6 +1215,7 @@ public class Game {
       
       public void processTitleButtonPressed() {
          stopRunning();
+         title = createTitle();
          outerContainer.remove(gameMap);
          outerContainer.remove(controlPanel);
          outerContainer.add(title);
@@ -1234,7 +1250,12 @@ public class Game {
          pathBounds = g.getPathBounds();
          pathBounds = Collections.unmodifiableList(pathBounds);
          gameMap = createGameMapPanel(g);
-         controlPanel = createControlPanel();
+         try {
+            asynchronousLoader.join();
+         } catch(InterruptedException e) {
+            // Should never happen
+            throw new RuntimeException(e);
+         }
          outerContainer.remove(selectionScreens);
          // Releases memory used by the images in the GameMaps, ~20 MB when last checked
          selectionScreens = null;
