@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -36,8 +36,19 @@ import logic.Helper;
 
 public class ImageHelper {
    
-   public static String createPath(String... foldersAndFileName) {
-      String path = "";
+   private static String skin;
+   
+   static{ // FIXME Temporary, until I implement the ability to select it
+      setSkin("new");
+   }
+   
+   public static void setSkin(String newSkin) {
+      skin = "skins/" + newSkin + "/";
+   }
+   
+   public static String createPath(boolean useSkin, String... foldersAndFileName) {
+      // skin == null means to use the default skin
+      String path = useSkin && (skin != null) ? skin : "";
       for (String s : foldersAndFileName) {
          path += s + "/";
       }
@@ -46,13 +57,19 @@ public class ImageHelper {
    }
    
    public static URL createImageURL(String... foldersAndFileName) {
-      return ImageHelper.class.getResource(createPath(foldersAndFileName));
+      // Look in the skin first
+      URL withSkin = ImageHelper.class.getResource(createPath(true, foldersAndFileName));
+      if(withSkin == null) { // If the image isn't found, load the default image
+         return ImageHelper.class.getResource(createPath(false, foldersAndFileName));
+      } else {
+         return withSkin;
+      }
    }
 
    public static BufferedImage makeImage(String... foldersAndFileName) {
       URL imageURL = createImageURL(foldersAndFileName);
       if (imageURL == null) {
-         throw new IllegalArgumentException("Image: '" + createPath(foldersAndFileName) +
+         throw new IllegalArgumentException("Image: '" + Arrays.asList(foldersAndFileName) +
                "' not found.");
       }
       try {
