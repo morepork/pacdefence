@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="description" content="Pac Defence, an open source tower defence game">
-<meta name="keywords" content="Pac Defence, pacdefence, Tower Defence, Game, Open Source, GPL" />
+<meta name="keywords" content="Pac Defence, pacdefence, Tower Defence, Game, Open Source, GPL">
 
 <link rel="stylesheet" href="mystyle.css">
 
@@ -38,20 +38,20 @@ Pac Defence - Screenshots
 	var num = 3;
 	for(var i = 1; i <= num; i++) {
 		if(i%cols == 1) {
-			document.write("<tr>");
+			document.write('<tr>');
 		}
 		// Reverse order so later pictures come at the top
 		var img = num - i + 1;
-		document.write("<td><a href=\"./screenshots/screenshot" + img + ".png\">\
-				<img width=\"300\" height=\"225\" src=\"./screenshots/screenshot" + img + "thumb.jpg\">\
-				</a></td>");
+		document.write('<td><a href="./screenshots/screenshot" + img + ".png">' +
+				'<img width="300" height="225" src="./screenshots/screenshot' + img + 'thumb.jpg">' +
+				'</a></td>');
 		if(i%cols == 0) {
-			document.write("</tr>");
+			document.write('</tr>');
 		}
 	}
-	// Need to make sure the final closing tr is written, it doesn't seem to matter if some tds are missing
+	// Make sure the final closing tr is written, it doesn't seem to matter if some tds are missing
 	if(i%cols != 0) {
-		document.write("</tr>");
+		document.write('</tr>');
 	}
 	document.write('</table>');
 </script>

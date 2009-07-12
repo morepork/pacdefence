@@ -41,7 +41,7 @@ import java.util.Scanner;
  */
 public class WebPageCreator {
    
-   // This assumes the webpages have nothing besides the head and the body
+   // This assumes the webpages have nothing that needs to be there besides the head and the body
    
    public static void main(String... args) {
       try {

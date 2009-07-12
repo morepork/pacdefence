@@ -11,7 +11,9 @@ A:hover {
 body {
 	background-color: #0f5e93;
 	color: yellow;
+	padding-top: 1em;
 	padding-left: 17em;
+	padding-right: 2em;
 }
 
 ul.navbar {
