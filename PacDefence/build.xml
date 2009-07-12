@@ -32,6 +32,7 @@
 
 <project name="PacDefence" basedir="." default="buildJars">
 
+	<property name="ClassPath" location="." />
    <property name="SrcDir" location="." />
    <property name="JarLocation" location="." />
    <property name="NoSrcJar" location="${JarLocation}/PacDefence.jar" />
@@ -39,7 +40,7 @@
    <property name="MainClass" value="gui.Application" />
    <property name="ManualName" value="PacDefence_manual" />
 
-   <target name="buildJars" depends="buildManual">
+   <target name="buildJars" depends="buildManual,makeWebPages">
       <delete file="${NoSrcJar}" />
       <jar destfile="${NoSrcJar}">
          <fileset dir="${SrcDir}" casesensitive="yes">
@@ -132,6 +133,10 @@
       <delete  file="${ManualName}.log" />
    	<delete  file="${ManualName}.toc" />
    	<delete  file="${ManualName}.out" />
+   </target>
+	
+	<target name="makeWebPages">
+		<java classname="website.WebPageCreator" classpath="${ClassPath}" />
    </target>
 
 </project>
