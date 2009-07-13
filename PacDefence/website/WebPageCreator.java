@@ -62,6 +62,9 @@ public class WebPageCreator {
                part.close();
                
                String newFileName = s.replace(".part.", ".");
+               
+               boldNavbarLinkToCurrentPage(newFileName, partBody);
+               
                PrintStream ps = new PrintStream(new File(dir, newFileName));
                writeHTML(ps, partHead, partBody);
                ps.close();
@@ -72,6 +75,22 @@ public class WebPageCreator {
          throw new RuntimeException(e);
       } catch(FileNotFoundException e) {
          throw new RuntimeException(e);
+      }
+   }
+   
+   private static void boldNavbarLinkToCurrentPage(String fileName, List<String> body) {
+      for(int i = 0; i < body.size(); i++) {
+         String line = body.get(i);
+         if(line.contains("<li><a href=\"" + fileName + "\">")) {
+            // Put the opening <b> tag after the end of the link
+            line = line.replace(".html\">", ".html\"><b>");
+            // and put the closing </b> tag just before the end of the link
+            line = line.replace("</a>", "</b></a>");
+            // Then remove the old line, and add the new one in its place
+            body.remove(i);
+            body.add(i, line);
+            return;
+         }
       }
    }
    
