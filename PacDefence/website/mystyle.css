@@ -4,7 +4,7 @@ A {
 }
 
 A:hover {
-	color: #6BD12F;
+	color: #6BD12F; /* Basically just a darker version of the ordinary link colour */
 	text-decoration: none;
 }
 
@@ -14,11 +14,13 @@ body {
 	padding-top: 1em;
 	padding-left: 17em;
 	padding-right: 2em;
+	line-height: 1.1em;
 }
 
-ul.navbar {
+ul.navbar { /* This is the bar of links to other parts of the site on the right */
 	position: absolute;
 	top: 5em;
 	left: 0em;
 	width: 15em;
+	line-height: 1em; /* Having a larger line-height for the navbar looks odd */
 }
