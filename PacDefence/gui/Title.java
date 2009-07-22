@@ -26,14 +26,22 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.Scanner;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+import logic.Game;
 
 @SuppressWarnings("serial")
 public class Title extends JPanel {
@@ -49,20 +57,20 @@ public class Title extends JPanel {
       Graphics2D g = background.createGraphics();
       g.drawImage(ImageHelper.makeImage(width, height, "other", "hoops.png"), 0, 0, null);
       g.drawImage(ImageHelper.makeImage(width, height, "other", "title.png"), 0, 0, null);
-      JButton continueButton = new OverlayButton("buttons", "continue.png");
-      continueButton.addActionListener(continueListener);
+      addContinueButton(continueListener);
+      JPanel topRow = new JPanel(new BorderLayout());
+      topRow.setOpaque(false);
       if(firstRun) {
          firstRun = false;
          skinComboBox = new JComboBox(Skin.getSkins().toArray());
          // Only show the skin chooser on the first run, as otherwise every loaded, cached, etc.
          // image would be reloaded, which I think is way too much work
-         add(createSkinSelector(), BorderLayout.NORTH);
+         topRow.add(createSkinSelector(), BorderLayout.WEST);
       } else {
          skinComboBox = null;
       }
-      add(SwingHelper.createBorderLayedOutWrapperPanel(
-            SwingHelper.createWrapperPanel(
-                  continueButton, 10), BorderLayout.EAST), BorderLayout.SOUTH);
+      topRow.add(createLicenseInfo(), BorderLayout.EAST);
+      add(topRow, BorderLayout.NORTH);
       setPreferredSize(new Dimension(width, height));
    }
    
@@ -78,6 +86,14 @@ public class Title extends JPanel {
       return selectedSkin;
    }
    
+   private void addContinueButton(ActionListener continueListener) {
+      JButton continueButton = new OverlayButton("buttons", "continue.png");
+      continueButton.addActionListener(continueListener);
+      add(SwingHelper.createBorderLayedOutWrapperPanel(
+            SwingHelper.createWrapperPanel(
+                  continueButton, 10), BorderLayout.EAST), BorderLayout.SOUTH);
+   }
+   
    private JComponent createSkinSelector() {
       JLabel label = new JLabel("Skin:");
       label.setForeground(Color.YELLOW);
@@ -88,7 +104,64 @@ public class Title extends JPanel {
       panel.add(label);
       panel.add(skinComboBox);
       
-      return SwingHelper.createBorderLayedOutWrapperPanel(panel, BorderLayout.WEST);
+      return panel;
+   }
+   
+   private JComponent createLicenseInfo() {
+      JPanel panel = new JPanel();
+      panel.setOpaque(false);
+      
+      MyJLabel noWarranty = new MyJLabel("This is free software with ABSOLUTELY NO WARRANTY.");
+      noWarranty.setForeground(Color.YELLOW);
+      noWarranty.setFontSize(16);
+      
+      JButton detailsButton = new OverlayButton("buttons", "details.png");
+      
+      detailsButton.addActionListener(createLicencePopUpDialogOnAction());
+      
+      panel.add(noWarranty);
+      panel.add(detailsButton);
+      return panel;
+   }
+   
+   private ActionListener createLicencePopUpDialogOnAction() {
+      final JPanel title = this;
+      return new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            JTextArea licence = new JTextArea(parseLicence()) {
+               // Set the preferred viewport size so it works nicely
+               @Override
+               public Dimension getPreferredScrollableViewportSize() {
+                  return new Dimension((int)getPreferredSize().getWidth(), Game.HEIGHT - 100);
+               }
+            };
+            int sideBorder = 5;
+            licence.setBorder(BorderFactory.createEmptyBorder(1, sideBorder, 1, sideBorder));
+            
+            JDialog licenceDialog = new JDialog();
+            licenceDialog.setTitle("Licence");
+            licenceDialog.add(new JScrollPane(licence));
+            
+            licenceDialog.pack();
+            // Centre the dialog in the title
+            licenceDialog.setLocation(title.getX() + title.getWidth() / 2 - getWidth() / 2,
+                  title.getY() + title.getHeight() / 2 - getHeight() / 2);
+            licenceDialog.setLocationRelativeTo(title);
+
+            licenceDialog.setVisible(true);
+         }
+      };
+   }
+   
+   private String parseLicence() {
+      Scanner scan = new Scanner(getClass().getResourceAsStream("../COPYING"));
+      StringBuilder licence = new StringBuilder();
+      while(scan.hasNextLine()) {
+         licence.append(scan.nextLine());
+         licence.append("\n");
+      }
+      return licence.toString();
    }
 
 }

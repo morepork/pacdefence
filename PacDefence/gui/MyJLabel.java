@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -37,6 +37,10 @@ public class MyJLabel extends JLabel {
       setFont(getFont().deriveFont(size));
    }
    
+   public void setFontStyle(int style) {
+      setFont(getFont().deriveFont(style));
+   }
+   
    public void setText(int i) {
       setText(String.valueOf(i));
    }
@@ -47,5 +51,5 @@ public class MyJLabel extends JLabel {
    
    public void setText(double d){
       setText(String.valueOf(d));
-   }      
+   }
 }
