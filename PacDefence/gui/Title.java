@@ -127,29 +127,47 @@ public class Title extends JPanel {
    private ActionListener createLicencePopUpDialogOnAction() {
       final JPanel title = this;
       return new ActionListener() {
+         private JDialog licenceDialog;
+         private boolean isShowing = false;
          @Override
          public void actionPerformed(ActionEvent e) {
+            if(isShowing) {
+               isShowing = false;
+               licenceDialog.setVisible(false);
+            } else {
+               isShowing = true;
+               if(licenceDialog == null) {
+                  licenceDialog = createLicenceDialog();
+               }
+               
+               licenceDialog.pack();
+               // Centre the dialog in the title
+               licenceDialog.setLocation(title.getX() + (title.getWidth() - getWidth()) / 2,
+                     title.getY() + (title.getHeight() - getHeight()) / 2);
+               licenceDialog.setLocationRelativeTo(title);
+               
+               licenceDialog.setVisible(true);
+            }
+         }
+         
+         private JDialog createLicenceDialog() {
             JTextArea licence = new JTextArea(parseLicence()) {
-               // Set the preferred viewport size so it works nicely
+               // Set the preferred viewport size so it fits nicely
                @Override
                public Dimension getPreferredScrollableViewportSize() {
-                  return new Dimension((int)getPreferredSize().getWidth(), Game.HEIGHT - 100);
+                  Dimension d = getPreferredSize();
+                  d.setSize(d.getWidth(), Game.HEIGHT - 100.0);
+                  return d;
                }
             };
             int sideBorder = 5;
             licence.setBorder(BorderFactory.createEmptyBorder(1, sideBorder, 1, sideBorder));
             
-            JDialog licenceDialog = new JDialog();
+            licenceDialog = new JDialog();
             licenceDialog.setTitle("Licence");
             licenceDialog.add(new JScrollPane(licence));
             
-            licenceDialog.pack();
-            // Centre the dialog in the title
-            licenceDialog.setLocation(title.getX() + title.getWidth() / 2 - getWidth() / 2,
-                  title.getY() + title.getHeight() / 2 - getHeight() / 2);
-            licenceDialog.setLocationRelativeTo(title);
-
-            licenceDialog.setVisible(true);
+            return licenceDialog;
          }
       };
    }
