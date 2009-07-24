@@ -1223,6 +1223,7 @@ public class Game {
          outerContainer.validate();
          outerContainer.repaint();
          loadSelectionScreens();
+         AbstractTower.flushImageCache();
       }
       
       public void processRestartPressed() {
@@ -1231,6 +1232,9 @@ public class Game {
          controlPanel.restart();
          setStartingStats();
          clock = new Clock();
+         // Flush the cache here, so only the directions that towers actually use are put into it
+         // and the extra time for rotating images is fine at the beginning of the level
+         AbstractTower.flushImageCache();
       }
       
       private boolean checkIfRolledOver(JButton b) {

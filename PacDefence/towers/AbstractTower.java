@@ -167,6 +167,15 @@ public abstract class AbstractTower implements Tower {
       sb.setCharAt(0, Character.toLowerCase(s.charAt(0)));
       return sb.toString();
    }
+   
+   /**
+    * Flush the cache of rotated images.
+    */
+   public static void flushImageCache() {
+      // Only clear this as normally it will be at least an order of magnitude greater than the
+      // other maps used for caching images.
+      rotatedImages.clear();
+   }
 
    @Override
    public List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress) {
@@ -668,7 +677,9 @@ public abstract class AbstractTower implements Tower {
          public float getPrecision() {
             // Watch out with decreasing this, while it may improve the quality, because images are
             // cached it can increase the memory use significantly
-            return 0.08F;
+            // I'd prefer to have it a bit lower, but the reduced range of angle is almost
+            // unnoticeable at this setting.
+            return 0.09F;
          }
       };
       if(!m.containsKey(f)) {
