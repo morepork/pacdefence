@@ -24,7 +24,9 @@ import gui.Skin;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
@@ -95,7 +97,7 @@ public class ImageHelper {
     * @return A scaled version of image.
     */
    public static BufferedImage resize(BufferedImage image, int width, int height) {
-      BufferedImage temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
+      BufferedImage temp = new BufferedImage(width, height, getImageType(image));
       Graphics2D g = temp.createGraphics();
       g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
             RenderingHints.VALUE_INTERPOLATION_BICUBIC);
@@ -105,14 +107,11 @@ public class ImageHelper {
 
    public static BufferedImage rotateImage(BufferedImage image, double angle) {
       BufferedImage temp = new BufferedImage(image.getWidth(), image.getHeight(),
-            BufferedImage.TYPE_INT_ARGB_PRE);
+            getImageType(image));
       AffineTransform at = AffineTransform.getRotateInstance(angle, image.getWidth() / 2,
             image.getHeight() / 2);
-      Graphics2D g = (Graphics2D) temp.getGraphics();
-      g.setTransform(at);
-      g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-            RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-      g.drawImage(image, 0, 0, null);
+      BufferedImageOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
+      temp.createGraphics().drawImage(image, op, 0, 0);
       return temp;
    }
 
@@ -121,17 +120,15 @@ public class ImageHelper {
    }
    
    public static BufferedImage cloneImage(BufferedImage image) {
-      int type = image.getType();
-      if(type == BufferedImage.TYPE_CUSTOM) {
-         type = BufferedImage.TYPE_INT_ARGB_PRE;
-      }
-      BufferedImage clone = new BufferedImage(image.getWidth(), image.getHeight(), type);
+      BufferedImage clone = new BufferedImage(image.getWidth(), image.getHeight(),
+            getImageType(image));
       clone.getGraphics().drawImage(image, 0, 0, null);
       return clone;
    }
    
    public static void clearImage(BufferedImage image) {
       WritableRaster r = image.getRaster();
+      // This object represents a completely transparent pixel
       Object o = image.getColorModel().getDataElements(0, null);
       for(int x = 0; x < image.getWidth(); x++) {
          for(int y = 0; y < image.getHeight(); y++) {
@@ -155,5 +152,14 @@ public class ImageHelper {
       } catch (IOException e) {
          throw new RuntimeException(e);
       }
+   }
+   
+   private static int getImageType(BufferedImage image) {
+      int type = image.getType();
+      if(type == BufferedImage.TYPE_CUSTOM) {
+         // For a custom type use a generic type that should handle most images
+         type = BufferedImage.TYPE_INT_ARGB;
+      }
+      return type;
    }
 }
