@@ -23,6 +23,7 @@ import gui.Skin;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -37,6 +38,12 @@ import java.util.Arrays;
 import javax.imageio.ImageIO;
 
 import logic.Helper;
+
+
+// All new BufferedImages returned by this class that are not directly loaded from a file are of
+// type BufferedImage.TYPE_INT_RGB or BufferedImage.TYPE_INT_ARGB_PRE so they can be used to do
+// whatever, rather than restricted by the number of colours in the original image (indexed) etc.
+
 
 public class ImageHelper {
    
@@ -155,11 +162,12 @@ public class ImageHelper {
    }
    
    private static int getImageType(BufferedImage image) {
-      int type = image.getType();
-      if(type == BufferedImage.TYPE_CUSTOM) {
-         // For a custom type use a generic type that should handle most images
-         type = BufferedImage.TYPE_INT_ARGB;
+      // Don't just use the ARGB type as memory can be saved by having no alpha layer when it isn't
+      // needed.
+      if(image.getTransparency() == Transparency.OPAQUE) {
+         return BufferedImage.TYPE_INT_RGB;
+      } else {
+         return BufferedImage.TYPE_INT_ARGB_PRE;
       }
-      return type;
    }
 }
