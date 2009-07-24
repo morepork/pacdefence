@@ -32,7 +32,10 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -578,11 +581,17 @@ public abstract class AbstractTower implements Tower {
       return map.get(imageName);
    }
    
-   private BufferedImage drawOverlayOnBaseImage(BufferedImage overlay) {
+   private BufferedImage drawOverlayOnBaseImage(double angle) {
       BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
+      
       Graphics2D g = image.createGraphics();
+
+      AffineTransform at = AffineTransform.getRotateInstance(angle, image.getWidth() / 2,
+            image.getHeight() / 2);
+      BufferedImageOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
+      
       g.drawImage(baseImage, 0, 0, null);
-      g.drawImage(overlay, 0, 0, null);
+      g.drawImage(overlayImage, op, 0, 0);
       return image;
    }
    
@@ -663,7 +672,7 @@ public abstract class AbstractTower implements Tower {
          }
       };
       if(!m.containsKey(f)) {
-         m.put(f, drawOverlayOnBaseImage(ImageHelper.rotateImage(overlayImage, angle)));
+         m.put(f, drawOverlayOnBaseImage(angle));
       }
       return m.get(f);
    }
