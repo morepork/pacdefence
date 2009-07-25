@@ -486,13 +486,24 @@ public class Game {
       if(towerType.equals(Ghost.class)) {
          return nextGhostCost;
       } else {
-         int numGhosts = 0;
+         int numTowers = 0;
          for(Tower t : towers) {
-            if(t instanceof Ghost) {
-               numGhosts++;
+            if(!(t instanceof Ghost)) {
+               numTowers++;
             }
          }
-         return Formulae.towerCost(towers.size() - numGhosts, numTowersOfType(towerType));
+         // Include the towers that are to be added (will be added next tick)
+         for(Tower t : towersToAdd) {
+            if(!(t instanceof Ghost)) {
+               numTowers++;
+            }
+         }
+         for(Tower t : towersToRemove) { // Likewise for those to be removed
+            if(!(t instanceof Ghost)) {
+               numTowers--;
+            }
+         }
+         return Formulae.towerCost(numTowers, numTowersOfType(towerType));
       }
    }
    
@@ -501,6 +512,16 @@ public class Game {
       for(Tower t : towers) {
          if(t.getClass() == towerType) {
             num++;
+         }
+      }
+      for(Tower t : towersToAdd) {
+         if(t.getClass() == towerType) {
+            num++;
+         }
+      }
+      for(Tower t : towersToRemove) {
+         if(t.getClass() == towerType) {
+            num--;
          }
       }
       return num;
