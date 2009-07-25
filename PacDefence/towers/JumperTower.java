@@ -13,15 +13,15 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
 package towers;
 
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.awt.Shape;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,7 +34,7 @@ public class JumperTower extends AbstractTower {
    private int jumps = 1;
    
    public JumperTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Jumper", 40, 100, 5, 5, 50, 20, true);
+      super(p, pathBounds, "Jumper", 40, 100, 5, 5.4, 50, 20, true);
    }
 
    @Override
@@ -63,7 +63,7 @@ public class JumperTower extends AbstractTower {
       private final Collection<Sprite> hitSprites = new ArrayList<Sprite>();
       private int hitsLeft;
       private final int jumpRange;
-      private static final double jumpRangeDividend = 2;
+      private static final double jumpRangeDividend = 1.5;
 
       public JumpingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, List<Shape> pathBounds, int jumps) {
