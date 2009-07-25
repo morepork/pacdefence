@@ -173,7 +173,7 @@ public class Title extends JPanel {
    }
    
    private String parseLicence() {
-      Scanner scan = new Scanner(getClass().getResourceAsStream("../COPYING"));
+      Scanner scan = new Scanner(ClassLoader.getSystemResourceAsStream("COPYING"));
       StringBuilder licence = new StringBuilder();
       while(scan.hasNextLine()) {
          licence.append(scan.nextLine());
