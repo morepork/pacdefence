@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import logic.Helper;
-
 import sprites.Sprite;
 
 
@@ -34,7 +33,7 @@ public class OmnidirectionalTower extends AbstractTower {
    private int numShots = 3;
    
    public OmnidirectionalTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Omnidirectional", 40, 100, 5, 5, 50, 0, true);
+      super(p, pathBounds, "Omnidirectional", 40, 100, 5, 5.5, 50, 0, true);
       // Testing tower with way too many bullets
       /*super(p, pathBounds, "Omnidirectional", 0, 1000, 5, 0.005, 50, 0, true);
       for(int i = 0; i < 200; i++) {
