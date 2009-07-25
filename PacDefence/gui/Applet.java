@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -28,15 +28,22 @@ import logic.Game;
 @SuppressWarnings("serial")
 public class Applet extends JApplet {
    
+   private boolean debugTimes;
    private Game game;
    
    @Override
    public void init() {
       String debugTimesParam = getParameter("DebugTimes");
-      boolean debugTimes = debugTimesParam == null ? false : Boolean.parseBoolean(debugTimesParam);
-      game = new Game(this, debugTimes, false);
-      setSize(new Dimension(Game.WIDTH, Game.HEIGHT));
-      setVisible(true);
+      debugTimes = debugTimesParam == null ? false : Boolean.parseBoolean(debugTimesParam);
+      
+      startGame();
+   }
+   
+   @Override
+   public void start() {
+      if(game == null) {
+         startGame();
+      }
    }
    
    @Override
@@ -44,6 +51,12 @@ public class Applet extends JApplet {
       removeAll();
       game.end();
       game = null;
+   }
+   
+   private void startGame() {
+      game = new Game(this, debugTimes, false);
+      setSize(new Dimension(Game.WIDTH, Game.HEIGHT));
+      setVisible(true);
    }
 
 }

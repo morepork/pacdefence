@@ -159,6 +159,7 @@ public class Game {
       outerContainer = c;
       outerContainer.setLayout(new BorderLayout());
       outerContainer.add(title);
+      MyExecutor.initialiseExecutor();
       loadSelectionScreens();
    }
    
@@ -166,14 +167,8 @@ public class Game {
       if(clock != null) {
          clock.end();
       }
-      title.setVisible(false);
-      selectionScreens.setVisible(false);
-      if(gameMap != null) {
-         gameMap.setVisible(false);
-      }
-      if(controlPanel != null) {
-         controlPanel.setVisible(false);
-      }
+      MyExecutor.terminateExecutor();
+      outerContainer.setVisible(false);
    }
    
    private void setSelectedTower(Tower t) {

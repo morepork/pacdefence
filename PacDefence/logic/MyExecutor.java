@@ -28,9 +28,25 @@ public class MyExecutor {
 
    public static final int NUM_PROCESSORS = Runtime.getRuntime().availableProcessors();
    
-   // Only make the ExecutorService if there is more than 1 processor, otherwise it won't be used
-   private static final ExecutorService executorService = NUM_PROCESSORS == 1 ? null :
-         Executors.newFixedThreadPool(NUM_PROCESSORS);
+   private static ExecutorService executorService;
+   
+   public static void initialiseExecutor() {
+      if(executorService != null) {
+         throw new IllegalStateException("The ExecutorService has already been initialised.");
+      } else if(NUM_PROCESSORS > 1) {
+         // Only make the ExecutorService if there is more than 1 processor
+         executorService = Executors.newFixedThreadPool(NUM_PROCESSORS);
+      }
+   }
+   
+   public static void terminateExecutor() {
+      if(executorService != null) {
+         // Don't use shutDownNow() as it throws a security exception when run from an applet
+         executorService.shutdown();
+         assert executorService.isShutdown() : "executorService isn't shutdown...";
+         executorService = null;
+      }
+   }
    
    public static <T> Future<T> submit(Callable<T> task) {
       return executorService.submit(task);
