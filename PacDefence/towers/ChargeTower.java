@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -35,7 +35,7 @@ public class ChargeTower extends AbstractTower {
    private static final int ticksToCharge = (int)(2 * Game.CLOCK_TICKS_PER_SECOND);
 
    public ChargeTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Charge", 40, 100, 5, 15, 50, 16, true);
+      super(p, pathBounds, "Charge", 40, 100, 5, 16, 50, 16, true);
    }
    
    @Override
@@ -75,7 +75,9 @@ public class ChargeTower extends AbstractTower {
 
    @Override
    protected void upgradeSpecial() {
-      maxDamageMultiplier *= upgradeIncreaseFactor;
+      // Upgrade this at twice the rate of normal things as it only affects the max damage, not the
+      // damage of every shot
+      maxDamageMultiplier *= (2 * upgradeIncreaseFactor - 1);
    }
    
    private double getNextDamage() {
