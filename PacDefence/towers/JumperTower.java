@@ -34,7 +34,7 @@ public class JumperTower extends AbstractTower {
    private int jumps = 1;
    
    public JumperTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Jumper", 40, 100, 5, 5.4, 50, 20, true);
+      super(p, pathBounds, "Jumper", 40, 100, 5, 5.5, 50, 20, true);
    }
 
    @Override
