@@ -57,7 +57,9 @@ import sprites.Sprite.FirstComparator;
 public abstract class AbstractTower implements Tower {
 
    public static final float shadowAmount = 0.75F;
-   protected static final float upgradeIncreaseFactor = 1.05F;
+   // Made this slightly greater than the intended value, 1.05, as sometimes things would round
+   // down or something when it's multiplied with them
+   protected static final double upgradeIncreaseFactor = 1.050001;
    
    public static final Comparator<Sprite> DEFAULT_SPRITE_COMPARATOR = new FirstComparator();
    
