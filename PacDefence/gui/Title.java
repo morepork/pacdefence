@@ -128,19 +128,16 @@ public class Title extends JPanel {
       final JPanel title = this;
       return new ActionListener() {
          private JDialog licenceDialog;
-         private boolean isShowing = false;
          @Override
          public void actionPerformed(ActionEvent e) {
-            if(isShowing) {
-               isShowing = false;
+            if(licenceDialog == null) {
+               licenceDialog = createLicenceDialog();
+            }
+            if(licenceDialog.isVisible()) {  // If it's already showing, hide it
                licenceDialog.setVisible(false);
             } else {
-               isShowing = true;
-               if(licenceDialog == null) {
-                  licenceDialog = createLicenceDialog();
-               }
-               
                licenceDialog.pack();
+               
                // Centre the dialog in the title
                licenceDialog.setLocation(title.getX() + (title.getWidth() - getWidth()) / 2,
                      title.getY() + (title.getHeight() - getHeight()) / 2);
