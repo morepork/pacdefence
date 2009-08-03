@@ -195,6 +195,11 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
       }
       
       @Override
+      public boolean equals(Object o) {
+         return getClass() == o.getClass() && closestFirst == ((DistanceComparator) o).closestFirst;
+      }
+      
+      @Override
       public String toString() {
          return closestFirst ? "Closest" : "Farthest";
       }

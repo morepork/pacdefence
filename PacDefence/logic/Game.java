@@ -1211,19 +1211,17 @@ public class Game {
       }
       
       public void processTargetButtonPressed(JButton b, boolean direction) {
-         String s = b.getText();
-         for(int i = 0; i < comparators.size(); i++) {
-            if(comparators.get(i).toString().equals(s)) {
-               int nextIndex = (i + (direction ? 1 : -1)) % comparators.size();
-               if(nextIndex < 0) {
-                  nextIndex += comparators.size();
-               }
-               Comparator<Sprite> c = comparators.get(nextIndex);
-               b.setText(c.toString());
-               selectedTower.setSpriteComparator(c);
-               return;
-            }
+         Tower currentTower = hoverOverTower != null ? hoverOverTower : selectedTower;
+         Comparator<Sprite> currentComparator = currentTower.getSpriteComparator();
+         int nextIndex = comparators.indexOf(currentComparator) + (direction ? 1 : -1);
+         if(nextIndex >= comparators.size()) {
+            nextIndex -= comparators.size();
+         } else if(nextIndex < 0) {
+            nextIndex += comparators.size();
          }
+         Comparator<Sprite> c = comparators.get(nextIndex);
+         b.setText(c.toString());
+         selectedTower.setSpriteComparator(c);
       }
       
       public void processFastButtonPressed(boolean wasLeftClick) {

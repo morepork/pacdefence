@@ -87,7 +87,7 @@ public class Title extends JPanel {
    }
    
    private void addContinueButton(ActionListener continueListener) {
-      JButton continueButton = new OverlayButton("buttons", "continue.png");
+      JButton continueButton = new OverlayButton("Continue", 50, 12, 12);
       continueButton.addActionListener(continueListener);
       add(SwingHelper.createBorderLayedOutWrapperPanel(
             SwingHelper.createWrapperPanel(
@@ -115,7 +115,7 @@ public class Title extends JPanel {
       noWarranty.setForeground(Color.YELLOW);
       noWarranty.setFontSize(16);
       
-      JButton detailsButton = new OverlayButton("buttons", "details.png");
+      JButton detailsButton = new OverlayButton("Details");
       
       detailsButton.addActionListener(createLicencePopUpDialogOnAction());
       

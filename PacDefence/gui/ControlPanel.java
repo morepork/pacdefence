@@ -52,7 +52,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.plaf.metal.MetalButtonUI;
 
 import logic.Game;
 import logic.Helper;
@@ -477,22 +476,9 @@ public class ControlPanel extends JPanel {
    }
    
    private JButton createTowerUpgradeButton(final Color textColour, float textSize) {
-      JButton b = new JButton();
-      // Hack to set the disabled text colour. If you change this UI do the same
-      // for the target button so they're consistent.
-      b.setUI(new MetalButtonUI(){
-         @Override
-         public Color getDisabledTextColor() {
-            return textColour;
-         }
-      });
-      b.setFont(b.getFont().deriveFont(textSize));
-      b.setForeground(textColour);
-      b.setOpaque(false);
-      b.setContentAreaFilled(false);
-      // Hack to make the buttons slightly smaller
-      b.setBorder(BorderFactory.createCompoundBorder(b.getBorder(),
-            BorderFactory.createEmptyBorder(-2, -5, -2, -5)));
+      // The text is actually set later
+      OverlayButton b = new OverlayButton(" ", 13);
+      
       b.addActionListener(new ActionListener(){
          public void actionPerformed(ActionEvent e) {
             JButton b = (JButton)e.getSource();
@@ -538,28 +524,20 @@ public class ControlPanel extends JPanel {
    }
    
    private JButton createTargetButton() {
-      JButton b = new JButton(){
+      // The text gets set later
+      OverlayButton b = new OverlayButton(" ", 12, 6, 5) {
          @Override
-         public void setEnabled(boolean b) {
-            super.setEnabled(b);
-            // If the border isn't painted and there is no text it's effectively invisible
-            setBorderPainted(b);
-            if(!b) {
-               setText(" ");
-            }
+         public void setText(String text) {
+            super.setText(text);
+            // So when disabled it is blank but keeps its size, and it stays each time the text is
+            // changed
+            setDisabledIcon(new ImageIcon());
          }
       };
-      // Changing this should result in changing the tower upgrade buttons for consistency
-      b.setUI(new MetalButtonUI());
-      b.setForeground(defaultTextColour);
-      b.setOpaque(false);
-      b.setContentAreaFilled(false);
-      b.setFocusPainted(false);
-      // Hack to make the button smaller
-      b.setBorder(BorderFactory.createCompoundBorder(b.getBorder(),
-            BorderFactory.createEmptyBorder(-10, -5, -10, -5)));
+      
       b.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
+            // Go back if ctrl is pressed at the same time
             boolean ctrl = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK;
             eventProcessor.processTargetButtonPressed((JButton)e.getSource(), !ctrl);
          }
@@ -616,7 +594,7 @@ public class ControlPanel extends JPanel {
    }
    
    private JButton createSellButton() {
-      JButton b = new OverlayButton("buttons", "sell.png");
+      JButton b = new OverlayButton("Sell", 13, Color.RED, 6, 5);
       // So when disabled it is blank but keeps its size
       b.setDisabledIcon(new ImageIcon());
       b.addActionListener(new ActionListener() {
@@ -634,14 +612,14 @@ public class ControlPanel extends JPanel {
    
    private void setUpBottomButtons() {
       JPanel panel = SwingHelper.createBorderLayedOutJPanel();
-      JButton title = new OverlayButton("buttons", "title.png");
+      JButton title = new OverlayButton("Title");
       title.setMnemonic(KeyEvent.VK_T);
       title.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             eventProcessor.processTitleButtonPressed();
          }
       });
-      JButton restart = new OverlayButton("buttons", "restart.png");
+      JButton restart = new OverlayButton("Restart");
       restart.setMnemonic(KeyEvent.VK_R);
       restart.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
