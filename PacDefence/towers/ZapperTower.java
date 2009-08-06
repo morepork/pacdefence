@@ -42,7 +42,7 @@ public class ZapperTower extends AbstractTower {
    private static final int upgradeIncreaseZaps = 1;
    
    public ZapperTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Zapper", 40, 100, 1, 1.1, 50, 21, true);
+      super(p, pathBounds, "Zapper", 40, 100, 1, 1.25, 50, 21, true);
    }
 
 

@@ -39,7 +39,7 @@ public class LaserTower extends AbstractTower {
    private final double beamLengthUpgrade = beamLength * 2 * (upgradeIncreaseFactor - 1);
 
    public LaserTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Laser", 40, 100, 7.5, 1.8, 50, 24, true);
+      super(p, pathBounds, "Laser", 40, 100, 7.5, 1.9, 50, 24, true);
    }
 
    @Override
