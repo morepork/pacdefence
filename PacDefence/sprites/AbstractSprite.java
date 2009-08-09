@@ -117,7 +117,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
 
    public AbstractSprite(List<BufferedImage> images, int currentLevel, long hp, List<Point> path){
       this.currentLevel = currentLevel;
-      this.width = images.get(1).getWidth();
+      width = images.get(0).getWidth();
       halfWidth = width / 2;
       centre.setLocation(path.get(0));
       bounds.setRadius(halfWidth);
@@ -213,7 +213,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
 
    @Override
    public boolean intersects(Point2D p) {
-      if (alive) {
+      if(alive) {
          return fastIntersects(p);
       } else {
          // If the sprite is dead or dying it can't be hit
@@ -248,6 +248,8 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       }
       damage *= calculateMultiTowerBonus(towerClass);
       if (hp - damage <= 0) {
+         // This hit killed the sprite, so the damage dealt is however many hp the sprite had left,
+         // not the raw damage of the hit
          alive = false;
          double moneyEarnt = Formulae.damageDollars(hp, hpFactor, currentLevel) +
                Formulae.killBonus(levelHP, currentLevel);
@@ -318,7 +320,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    @Override
    public int compareTo(Sprite s) {
       // The speed differences should never be so large that the int wraps
-      return (int)(10000 * (s.getSpeed() - this.getSpeed()));
+      return (int)(1e6 * (s.getSpeed() - this.getSpeed()));
    }
    
    /**
@@ -349,6 +351,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       int dx = (int) (p2.getX() - p1.getX());
       int dy = (int) (p2.getY() - p1.getY());
       double distance = Math.sqrt(dx * dx + dy * dy);
+      // Now make it so the sprite starts fully off screen, then comes on screen
       double mult = (halfWidth + 1) / distance;
       int x = (int) (p1.getX() - mult * dx);
       int y = (int) (p1.getY() - mult * dy);
@@ -420,16 +423,10 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
     * @return
     */
    private double calculateSpeed(long hp) {
-      double a = rand.nextDouble();
-      if(a >= 0.5) {
-         // Makes this a into a random number from zero to one
-         a = (a - 0.5) * 2;
-      } else {
-         a = a * 2;
-      }
-      // A multiplier between one and maxMult
-      double mult = ((maxMult - 1) * a + 1);
-      if(a >= 0.5) {
+      // A random multiplier between one and maxMult
+      double mult = (maxMult - 1) * rand.nextDouble() + 1;
+      // Now randomly pick whether to decrease hp/increase speed, or vice versa
+      if(rand.nextBoolean()) {
          this.hp = hp / mult;
          return baseSpeed * mult;
       } else {
@@ -444,8 +441,8 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
     * @return
     */
    private boolean fastIntersects(Point2D p) {
-      // Checks the rectangular bounds instead of the bounds of the circle
-      // as it's faster
+      // Checks the rectangular bounds instead of the bounds of the circle as it's faster
+      // Need to check this first otherwise the image check won't work
       if (rectangularBounds.contains(p)) {
          int x = (int) (p.getX() - centre.getX() + halfWidth);
          int y = (int) (p.getY() - centre.getY() + halfWidth);
