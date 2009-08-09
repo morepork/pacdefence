@@ -446,8 +446,8 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       if (rectangularBounds.contains(p)) {
          int x = (int) (p.getX() - centre.getX() + halfWidth);
          int y = (int) (p.getY() - centre.getY() + halfWidth);
-         // RGB of zero means a completely alpha i.e. transparent pixel
-         return currentImage.getRGB(x, y) != 0;
+         // If this is a completely transparent pixel, it's not a hit
+         return !ImageHelper.isCompletelyTransparent(currentImage, x, y);
       }
       return false;
    }

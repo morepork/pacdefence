@@ -263,11 +263,11 @@ public abstract class AbstractTower implements Tower {
 
    @Override
    public boolean contains(Point p) {
-      if (boundingRectangle.contains(p)) {
+      if(boundingRectangle.contains(p)) {
          int x = (int) (p.getX() - centre.getX() + halfWidth);
          int y = (int) (p.getY() - centre.getY() + halfWidth);
-         // RGB of zero means a completely alpha i.e. transparent pixel
-         return currentImage.getRGB(x, y) != 0;
+         // Only counts as a hit if the pixel has something in it, isn't completely transparent
+         return !ImageHelper.isCompletelyTransparent(currentImage, x, y);
       }
       return false;
    }

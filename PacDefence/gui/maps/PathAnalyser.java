@@ -116,7 +116,7 @@ public class PathAnalyser {
 
    private static Point runDown(BufferedImage image, int x) {
       int y = 0;
-      while(y < image.getHeight() && image.getRGB(x, y) == 0) {
+      while(y < image.getHeight() && !ImageHelper.isCompletelyTransparent(image, x, y)) {
          y++;
       }
       return new Point(x, y);
@@ -124,7 +124,7 @@ public class PathAnalyser {
 
    private static Point runUp(BufferedImage image, int x) {
       int y = image.getHeight() - 1;
-      while(y > 0 && image.getRGB(x, y) == 0) {
+      while(y > 0 && !ImageHelper.isCompletelyTransparent(image, x, y)) {
          y--;
       }
       return new Point(x, y);
@@ -132,7 +132,7 @@ public class PathAnalyser {
    
    private static Point runRight(BufferedImage image, int y) {
       int x = 0;
-      while(x < image.getWidth() && image.getRGB(x, y) == 0) {
+      while(x < image.getWidth() && !ImageHelper.isCompletelyTransparent(image, x, y)) {
          x++;
       }
       return new Point(x, y);
@@ -140,7 +140,7 @@ public class PathAnalyser {
    
    private static Point runLeft(BufferedImage image, int y) {
       int x = image.getWidth() - 1;
-      while(x > 0 && image.getRGB(x, y) == 0) {
+      while(x > 0 && !ImageHelper.isCompletelyTransparent(image, x, y)) {
          x--;
       }
       return new Point(x, y);

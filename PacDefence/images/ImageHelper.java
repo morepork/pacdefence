@@ -161,6 +161,11 @@ public class ImageHelper {
       }
    }
    
+   public static boolean isCompletelyTransparent(BufferedImage image, int x, int y) {
+      // The first 24 bits are the RGB values, the last 8 are the alpha
+      return image.getTransparency() != BufferedImage.OPAQUE && (image.getRGB(x, y) >>> 24 == 0);
+   }
+   
    private static int getImageType(BufferedImage image) {
       // Don't just use the ARGB type as memory can be saved by having no alpha layer when it isn't
       // needed.
