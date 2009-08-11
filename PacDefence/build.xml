@@ -30,17 +30,36 @@
                               screenshots, and will also run Pac Defence.
   -->
 
-<project name="PacDefence" basedir="." default="buildJars">
+<project name="PacDefence" basedir="." default="compile">
 
-	<property name="ClassPath" location="." />
+   <property name="JUnitJar" value="/usr/share/java/junit4.jar" />
+   <property name="ClassPath" location=".:${JUnitJar}" />
    <property name="SrcDir" location="." />
+	<property name="BinDir" location="." />
    <property name="JarLocation" location="." />
    <property name="NoSrcJar" location="${JarLocation}/PacDefence.jar" />
    <property name="SrcJar" location="${JarLocation}/PacDefenceSrc.jar" />
    <property name="MainClass" value="gui.Application" />
    <property name="ManualName" value="PacDefence_manual" />
+	
+	<target name="compile">
+      <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" />
+	</target>
+   
+   <!-- At the moment this just removes all the class files -->
+   <target name="clean">
+      <delete>
+         <fileset dir="${BinDir}" includes="**/*.class" />         
+      </delete>
+   </target>
+	
+	<!-- This ensures everything is compiled by deleting all the class files
+	     then compiling everything. -->
+	<target name="compileAll" depends="clean">
+	   <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" />
+   </target>
 
-   <target name="buildJars" depends="buildManual,makeWebPages">
+   <target name="buildJars" depends="compileAll,buildManual,makeWebPages">
       <delete file="${NoSrcJar}" />
       <jar destfile="${NoSrcJar}">
          <fileset dir="${SrcDir}" casesensitive="yes">
@@ -129,10 +148,10 @@
          <arg line='-c "pdflatex -halt-on-error ${ManualName}.tex > /dev/null"'/>
       </exec>
       <!-- Cleans up after the build -->
-      <delete  file="${ManualName}.aux" />
-      <delete  file="${ManualName}.log" />
-   	<delete  file="${ManualName}.toc" />
-   	<delete  file="${ManualName}.out" />
+      <delete file="${ManualName}.aux" />
+      <delete file="${ManualName}.log" />
+   	<delete file="${ManualName}.toc" />
+   	<delete file="${ManualName}.out" />
    </target>
 	
 	<target name="makeWebPages">
