@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 09.
  */
 
-package towers;
+package towers.impl;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -27,6 +27,10 @@ import java.util.Collection;
 import java.util.List;
 
 import sprites.Sprite;
+import towers.AbstractTower;
+import towers.BasicBullet;
+import towers.Bullet;
+import towers.Tower;
 
 // The laser tower is very similar to this so it is unneeded really
 @Deprecated

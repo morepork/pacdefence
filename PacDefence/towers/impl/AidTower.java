@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 09.
  */
 
-package towers;
+package towers.impl;
 
 import java.awt.Point;
 import java.awt.Shape;
@@ -30,6 +30,10 @@ import java.util.Map;
 import java.util.Set;
 
 import sprites.Sprite;
+import towers.AbstractTower;
+import towers.Bullet;
+import towers.DamageNotifier;
+import towers.Tower;
 
 
 public class AidTower extends AbstractTower {

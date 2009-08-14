@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 09.
  */
 
-package towers;
+package towers.impl;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -35,6 +35,10 @@ import java.util.List;
 import logic.Game;
 import logic.Helper;
 import sprites.Sprite;
+import towers.AbstractTower;
+import towers.BasicBullet;
+import towers.Bullet;
+import towers.Tower;
 
 
 public class WaveTower extends AbstractTower {

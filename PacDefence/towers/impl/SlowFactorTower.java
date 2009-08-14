@@ -17,35 +17,36 @@
  *  (C) Liam Byrne, 2008 - 09.
  */
 
-package towers;
+package towers.impl;
+
 
 import java.awt.Point;
 import java.awt.Shape;
 import java.util.List;
 
-import logic.Game;
 import logic.Helper;
 
-
-public class SlowLengthTower extends SlowTower {
+// Should remove this later as it is poor compared to the freeze tower
+@Deprecated
+public class SlowFactorTower extends SlowTower {
    
-   public SlowLengthTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Slow", 40, 100, 5, 1, 50, 23, true);
+   public SlowFactorTower(Point p, List<Shape> pathBounds) {
+      super(p, pathBounds, "Slow Factor", 40, 100, 5, 1, 50, 23, true);
    }
 
    @Override
    public String getSpecial() {
-      return Helper.format(slowTicks / Game.CLOCK_TICKS_PER_SECOND, 1) + "s";
+      return Helper.format(slowFactor, 2);
    }
 
    @Override
    public String getSpecialName() {
-      return "Slow Length";
+      return "Slow Factor";
    }
 
    @Override
    protected void upgradeSpecial() {
-      slowTicks *= upgradeIncreaseFactor;
+      slowFactor /= upgradeIncreaseFactor;
    }
 
 }

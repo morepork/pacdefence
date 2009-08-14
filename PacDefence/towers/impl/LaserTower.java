@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 09.
  */
 
-package towers;
+package towers.impl;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -31,6 +31,10 @@ import java.awt.geom.Point2D;
 import java.util.List;
 
 import sprites.Sprite;
+import towers.AbstractTower;
+import towers.BasicBullet;
+import towers.Bullet;
+import towers.Tower;
 
 
 public class LaserTower extends AbstractTower {

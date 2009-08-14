@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 09.
  */
 
-package towers;
+package towers.impl;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -25,44 +25,33 @@ import java.awt.Shape;
 import java.util.List;
 
 import logic.Game;
-import logic.Helper;
 import sprites.Sprite;
+import towers.AbstractTower;
+import towers.BasicBullet;
+import towers.Bullet;
 
 
-public class WeakenTower extends AbstractTower {
+public abstract class SlowTower extends AbstractTower {
    
-   private double extraDamageTicks = Game.CLOCK_TICKS_PER_SECOND / 2;
-   private double upgradeIncreaseTicks = Game.CLOCK_TICKS_PER_SECOND / 10;
-   private double increaseDamageFactor = 2;
+   protected double slowFactor = 0.50;
+   // So it starts at 1s
+   protected double slowTicks = Game.CLOCK_TICKS_PER_SECOND;
+
+   protected SlowTower(Point p, List<Shape> pathBounds, String name, int fireRate, int range,
+         double bulletSpeed, double damage, int width, int turretWidth, boolean hasOverlay) {
+      super(p, pathBounds, name, fireRate, range, bulletSpeed, damage, width, turretWidth,
+            hasOverlay);
+   }
    
-   public WeakenTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Weaken", 40, 100, 5, 1, 50, 19, true);
-   }
-
-   @Override
-   public String getSpecial() {
-      return Helper.format(extraDamageTicks / Game.CLOCK_TICKS_PER_SECOND, 1) + "s";
-   }
-
-   @Override
-   public String getSpecialName() {
-      return "Weaken time";
-   }
-
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
          double damage, Point p, Sprite s, List<Shape> pathBounds) {
-      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds){
+      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds) {
          @Override
-         protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
-            s.setDamageMultiplier(increaseDamageFactor, (int)extraDamageTicks);
-         }
+         public void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
+            s.slow(slowFactor, (int)slowTicks);
+         }         
       };
-   }
-
-   @Override
-   protected void upgradeSpecial() {
-      extraDamageTicks += upgradeIncreaseTicks;
    }
 
 }

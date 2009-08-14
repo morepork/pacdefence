@@ -17,57 +17,55 @@
  *  (C) Liam Byrne, 2008 - 09.
  */
 
-package towers;
+package towers.impl;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.awt.Shape;
-import java.util.ArrayList;
 import java.util.List;
 
+import logic.Game;
+import logic.Helper;
 import sprites.Sprite;
+import towers.AbstractTower;
+import towers.BasicBullet;
+import towers.Bullet;
 
 
-public class ScatterTower extends AbstractTower {
+public class WeakenTower extends AbstractTower {
    
-   private int shots = 2;
+   private double extraDamageTicks = Game.CLOCK_TICKS_PER_SECOND / 2;
+   private double upgradeIncreaseTicks = Game.CLOCK_TICKS_PER_SECOND / 10;
+   private double increaseDamageFactor = 2;
    
-   public ScatterTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Scatter", 40, 100, 5, 5, 50, 0, true);
+   public WeakenTower(Point p, List<Shape> pathBounds) {
+      super(p, pathBounds, "Weaken", 40, 100, 5, 1, 50, 19, true);
    }
 
    @Override
    public String getSpecial() {
-      return Integer.toString(shots);
+      return Helper.format(extraDamageTicks / Game.CLOCK_TICKS_PER_SECOND, 1) + "s";
    }
 
    @Override
    public String getSpecialName() {
-      return "Shots";
-   }
-   
-   @Override
-   protected List<Bullet> fireBullets(List<Sprite> sprites) {
-      List<Bullet> fired = new ArrayList<Bullet>();
-      for (Sprite s : sprites) {
-         if (checkDistance(s)) {
-            fired.addAll(fireBulletsAt(s, false));
-            if(fired.size() >= shots) {
-               return fired;
-            }
-         }
-      }
-      return fired;
+      return "Weaken time";
    }
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
          double damage, Point p, Sprite s, List<Shape> pathBounds) {
-      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
+      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds){
+         @Override
+         protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
+            s.setDamageMultiplier(increaseDamageFactor, (int)extraDamageTicks);
+         }
+      };
    }
 
    @Override
    protected void upgradeSpecial() {
-      shots++;
+      extraDamageTicks += upgradeIncreaseTicks;
    }
 
 }

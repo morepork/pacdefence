@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 09.
  */
 
-package towers;
+package towers.impl;
 
 import java.awt.Point;
 import java.awt.Shape;
@@ -27,15 +27,10 @@ import logic.Game;
 import logic.Helper;
 
 
-public class FreezeTower extends SlowTower {
+public class SlowLengthTower extends SlowTower {
    
-   private static final double baseSlowTicks = Game.CLOCK_TICKS_PER_SECOND / 2.0;
-   private final double upgradeIncreaseTicks = Game.CLOCK_TICKS_PER_SECOND / 10;
-      
-   public FreezeTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Freeze", 40, 100, 5, 1, 50, 22, true);
-      slowTicks = baseSlowTicks;
-      slowFactor = 0;
+   public SlowLengthTower(Point p, List<Shape> pathBounds) {
+      super(p, pathBounds, "Slow", 40, 100, 5, 1, 50, 23, true);
    }
 
    @Override
@@ -45,12 +40,12 @@ public class FreezeTower extends SlowTower {
 
    @Override
    public String getSpecialName() {
-      return "Freeze Time";
+      return "Slow Length";
    }
 
    @Override
    protected void upgradeSpecial() {
-      slowTicks += upgradeIncreaseTicks;
+      slowTicks *= upgradeIncreaseFactor;
    }
 
 }

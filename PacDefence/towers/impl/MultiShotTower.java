@@ -17,38 +17,45 @@
  *  (C) Liam Byrne, 2008 - 09.
  */
 
-package towers;
+package towers.impl;
 
 import java.awt.Point;
 import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 
-import logic.Helper;
 import sprites.Sprite;
+import towers.AbstractTower;
+import towers.BasicBullet;
+import towers.Bullet;
 
 
-public class OmnidirectionalTower extends AbstractTower {
+public class MultiShotTower extends AbstractTower {
    
-   private int numShots = 3;
+   private static final double speedIncreaseFactor = 1.1;
+   private int shots = 5;
    
-   public OmnidirectionalTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Omnidirectional", 40, 100, 5, 5.5, 50, 0, true);
-      // Testing tower with way too many bullets
-      /*super(p, pathBounds, "Omnidirectional", 0, 1000, 5, 0.005, 50, 0, true);
-      for(int i = 0; i < 200; i++) {
-         upgradeSpecial();
-      }*/
+   public MultiShotTower(Point p, List<Shape> pathBounds) {
+      super(p, pathBounds, "Multi Shot", 40, 100, 3, 1.5, 50, 5, true);
    }
 
    @Override
    public String getSpecial() {
-      return String.valueOf(numShots);
+      return Integer.toString(shots);
+   }
+   
+   @Override
+   public String getStatName(Attribute a) {
+      if(a == Attribute.Speed) {
+         return "Min " + a.toString();
+      } else {
+         return super.getStatName(a);
+      }
    }
 
    @Override
    public String getSpecialName() {
-      return "Number of shots";
+      return "Shots";
    }
 
    @Override
@@ -56,25 +63,21 @@ public class OmnidirectionalTower extends AbstractTower {
          double damage, Point p, Sprite s, List<Shape> pathBounds) {
       return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
-   
-   @Override
-   protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
-         double speed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
-      List<Bullet> bullets = new ArrayList<Bullet>();
-      double angle = Helper.vectorAngle(dx, dy);
-      double dTheta = 2 * Math.PI / numShots;
-      for(int i = 0; i < numShots; i++) {
-         dx = Math.sin(angle);
-         dy = Math.cos(angle);
-         angle += dTheta;
-         bullets.add(makeBullet(dx, dy, turretWidth, range, speed, damage, p, s, pathBounds));
-      }
-      return bullets;
-   }
 
    @Override
    protected void upgradeSpecial() {
-      numShots++;
+      shots++;
+   }
+   
+   @Override
+   protected List<Bullet> makeBullets(double dx, double dy,  int turretWidth, int range,
+         double bulletSpeed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
+      List<Bullet> bullets = new ArrayList<Bullet>();
+      for(int i = 0; i < shots; i++) {
+         bullets.add(makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p, s, pathBounds));
+         bulletSpeed *= speedIncreaseFactor;
+      }
+      return bullets;
    }
 
 }

@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 09.
  */
 
-package towers;
+package towers.impl;
 
 import java.awt.Point;
 import java.awt.Shape;
@@ -27,6 +27,10 @@ import java.util.Collection;
 import java.util.List;
 
 import sprites.Sprite;
+import towers.AbstractTower;
+import towers.BasicBullet;
+import towers.Bullet;
+import towers.Tower;
 
 
 public class JumperTower extends AbstractTower {

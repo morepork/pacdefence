@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 09.
  */
 
-package towers;
+package towers.impl;
 
 
 import java.awt.Color;
@@ -33,6 +33,10 @@ import logic.Circle;
 import logic.Helper;
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
+import towers.AbstractTower;
+import towers.BasicBullet;
+import towers.Bullet;
+import towers.Tower;
 
 public class BomberTower extends AbstractTower {
    
