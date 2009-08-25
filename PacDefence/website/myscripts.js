@@ -20,7 +20,9 @@
 // You need to externally load the script http://java.com/js/deployJava.js before calling this as I
 // haven't figured out how to get this to load it yet
 function runPacDefence(debugTimes) {
-	deployJava.runApplet(
-			{archive:"PacDefence.jar", code:"gui.Applet.class", width:"800", Height:"600"},
-			{DebugTimes:debugTimes}, "1.6");
+	var attributes = {archive:"PacDefence.jar", code:"gui.Applet.class", width:"800", Height:"600"};
+	var parameters = {DebugTimes:debugTimes};
+	var version = "1.6"
+	
+	deployJava.writeAppletTag(attributes, parameters, version);
 }
