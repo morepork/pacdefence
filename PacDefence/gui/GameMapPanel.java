@@ -176,7 +176,10 @@ public class GameMapPanel extends JPanel {
       // This should completely cover the old image in the buffer
       g.drawImage(backgroundImage, 0, 0, null);
       for(Drawable d : drawables) {
-         d.draw(g);
+         // These should never be null, but occasionally, I think due to threading, they are
+         if(d != null) {
+            d.draw(g);
+         }
       }
       drawDebug(g, processTime, processSpritesTime, processBulletsTime, processTowersTime,
             drawTime, numBullets);

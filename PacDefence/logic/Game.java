@@ -849,8 +849,8 @@ public class Game {
       private Iterable<Drawable> getDrawableIterable() {
          List<Drawable> drawables = new ArrayList<Drawable>(sprites.size() + towers.size() +
                bullets.size() + 1);
-         // Watch the order that things are added to the list. Things added later will be drawn 'on
-         // top' of things added earlier
+         // Watch the order that things are added to the list. Things added later will be drawn on
+         // top of things added earlier
          drawables.addAll(sprites);
          drawables.addAll(towers);
          // Set the selected tower to be drawn last, so its range is drawn over
