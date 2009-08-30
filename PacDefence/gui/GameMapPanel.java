@@ -53,6 +53,9 @@ public class GameMapPanel extends JPanel {
    //Have two precreated buffers as recreating them at each step is much slower
    private BufferedImage front;
    private BufferedImage back;
+   
+   private boolean drawingFlag = false;
+   
    private final List<Polygon> path;
    private final List<Point> pathPoints;
    private final List<Shape> pathBounds;
@@ -115,18 +118,26 @@ public class GameMapPanel extends JPanel {
    public long draw(Iterable<Drawable> drawables, long processTime, long processSpritesTime,
          long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
       if(gameOver == null) {
-         Graphics2D g = back.createGraphics();
-         // The default value for alpha interpolation causes significant lag
-         g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
-               RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-         //System.out.println(g.getRenderingHint(RenderingHints.KEY_ANTIALIASING) ==
-         //      RenderingHints.VALUE_ANTIALIAS_ON);
-         //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-         drawUpdate(g, drawables, processTime, processSpritesTime, processBulletsTime, processTowersTime,
-               drawTime, numBullets);
-         textDisplay.draw(g);
-         flip();
-         g.dispose();
+         if(!drawingFlag) { // Only draw if there is not another thread already drawing
+            drawingFlag = true;
+            
+            Graphics2D g = back.createGraphics();
+            // The default value for alpha interpolation causes significant lag
+            g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
+                  RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+            //System.out.println(g.getRenderingHint(RenderingHints.KEY_ANTIALIASING) ==
+            //      RenderingHints.VALUE_ANTIALIAS_ON);
+            //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            
+            drawUpdate(g, drawables, processTime, processSpritesTime, processBulletsTime, processTowersTime,
+                  drawTime, numBullets);
+            textDisplay.draw(g);
+            
+            flip();
+            g.dispose();
+            
+            drawingFlag = false;
+         }
       } else {
          // Game over needs to always draw on the same buffer for its sliding effect
          gameOver.draw(front.createGraphics());
