@@ -30,6 +30,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
@@ -621,17 +622,23 @@ public abstract class AbstractTower implements Tower {
    private void drawRange(Graphics g, Point p) {
       int topLeftRangeX = (int)(p.getX() - range);
       int topLeftRangeY = (int)(p.getY() - range);
-      Graphics2D g2D = (Graphics2D) g;
-      Composite c = g2D.getComposite();
+      
+      Graphics2D g2D = (Graphics2D) g.create();
+      
+      // This draws the white shadow showing the range
       g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5F));
       g2D.setColor(Color.WHITE);
       g2D.fillOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
-      g2D.setComposite(c);
-      Stroke s = g2D.getStroke();
+
+      // This draws a circle at the edge of the range
+      // Antialiasing makes this look much nicer
+      g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+      g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
       g2D.setStroke(new BasicStroke(2));
       g2D.setColor(Color.DARK_GRAY);
       g2D.drawOval(topLeftRangeX, topLeftRangeY, twiceRange, twiceRange);
-      g2D.setStroke(s);
+      
+      g2D.dispose();
    }
 
    private void setBounds() {
