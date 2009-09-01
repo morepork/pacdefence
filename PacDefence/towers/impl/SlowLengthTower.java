@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -24,28 +24,18 @@ import java.awt.Shape;
 import java.util.List;
 
 import logic.Game;
-import logic.Helper;
 
 
 public class SlowLengthTower extends SlowTower {
    
    public SlowLengthTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Slow", 40, 100, 5, 1, 50, 23, true);
-   }
-
-   @Override
-   public String getSpecial() {
-      return Helper.format(slowTicks / Game.CLOCK_TICKS_PER_SECOND, 1) + "s";
+      super(p, pathBounds, "Slow", 40, 100, 5, 1, 50, 23, true, 0.5, Game.CLOCK_TICKS_PER_SECOND);
+      // Halves the speed of the sprites it hits, and lasts for 1s
    }
 
    @Override
    public String getSpecialName() {
       return "Slow Length";
-   }
-
-   @Override
-   protected void upgradeSpecial() {
-      slowTicks *= upgradeIncreaseFactor;
    }
 
 }

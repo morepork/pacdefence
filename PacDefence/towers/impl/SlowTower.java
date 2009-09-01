@@ -13,18 +13,19 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
 package towers.impl;
 
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.awt.Shape;
+import java.awt.geom.Point2D;
 import java.util.List;
 
 import logic.Game;
+import logic.Helper;
 import sprites.Sprite;
 import towers.AbstractTower;
 import towers.BasicBullet;
@@ -33,14 +34,28 @@ import towers.Bullet;
 
 public abstract class SlowTower extends AbstractTower {
    
-   protected double slowFactor = 0.50;
-   // So it starts at 1s
-   protected double slowTicks = Game.CLOCK_TICKS_PER_SECOND;
+   // The amount this tower slows sprites by, generally in the range 0 - 1
+   protected double slowFactor;
+   // The number of ticks the slow effect lasts for
+   protected double slowTicks;
+   private final double upgradeIncreaseTicks;
 
    protected SlowTower(Point p, List<Shape> pathBounds, String name, int fireRate, int range,
-         double bulletSpeed, double damage, int width, int turretWidth, boolean hasOverlay) {
+         double bulletSpeed, double damage, int width, int turretWidth, boolean hasOverlay,
+         double slowFactor, double slowTicks) {
       super(p, pathBounds, name, fireRate, range, bulletSpeed, damage, width, turretWidth,
             hasOverlay);
+      this.slowFactor = slowFactor;
+      this.slowTicks = slowTicks;
+      // This makes the increase decent, the base increase is just not enough
+      // Also having it increase by a fixed amount, rather than go up exponentially stops freeze
+      // towers being ridiculously powerful if they get upgraded a lot
+      upgradeIncreaseTicks = slowTicks * 4 * (upgradeIncreaseFactor - 1);
+   }
+
+   @Override
+   public String getSpecial() {
+      return Helper.format(slowTicks / Game.CLOCK_TICKS_PER_SECOND, 1) + "s";
    }
    
    @Override
@@ -50,8 +65,13 @@ public abstract class SlowTower extends AbstractTower {
          @Override
          public void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
             s.slow(slowFactor, (int)slowTicks);
-         }         
+         }
       };
+   }
+
+   @Override
+   protected void upgradeSpecial() {
+      slowTicks += upgradeIncreaseTicks;
    }
 
 }
