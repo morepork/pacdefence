@@ -30,6 +30,7 @@ import java.awt.geom.Point2D;
 import java.util.Comparator;
 import java.util.Random;
 
+import towers.DamageNotifier;
 import towers.Tower;
 
 
@@ -70,7 +71,7 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
     */
    public double getHPFactor();
    public void slow(double factor, int numTicks);
-   public void setDamageMultiplier(double multiplier, int numTicks);
+   public void setDamageMultiplier(DamageNotifier dn, double multiplier, int numTicks);
    public void poison(int numTicks);
    
    public enum SpriteEffect {
@@ -230,6 +231,12 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
          return moneyEarnt;
       }
       
+      /**
+       * Returns whether this damage was a kill directly.
+       * If the damage was increased because the sprite was taking extra damage due to the effect
+       * of another tower, and this caused the sprite to be killed, this will be false even though
+       * the tower was killed.
+       */
       public boolean wasKill() {
          return kill;
       }

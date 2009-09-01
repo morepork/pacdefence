@@ -38,8 +38,9 @@ import towers.Tower;
 
 public class AidTower extends AbstractTower {
    
-   private static final int xpDivisor = 10;
+   // The base amount of the aid, in %
    private static final int baseValue = 5;
+   // The amount the aid increases per upgrade, in %
    private static final int upgradeAidAmount = 1;
    private final Map<Attribute, Integer> aidAmounts = makeAidAmounts();
    // Give each AidTower a unique ID
@@ -49,7 +50,7 @@ public class AidTower extends AbstractTower {
    // I don't think it's much of a memory issue though.
    private final Set<Tower> aidingTowers = new HashSet<Tower>();
    private List<Tower> towers;
-   private final DamageNotifier damageNotifier = new AidDamageNotifier();
+   private final DamageNotifier damageNotifier = new AidDamageNotifier(this, 10);
    private boolean isSold = false;
 
    public AidTower(Point p, List<Shape> pathBounds) {
@@ -185,22 +186,34 @@ public class AidTower extends AbstractTower {
       }
    }
    
-   private class AidDamageNotifier implements DamageNotifier {
+   private class AidDamageNotifier extends DamageNotifier {
       
-      private int killsSinceLastIncrease = 0;
-      
+      // The amount to divide the kills and experience earned by, before notifying the Tower
+      private final double xpDivisor;
+      // Keep track of leftover kills since the last time the towers kills was increased
+      private double killsSinceLastIncrease = 0;
+
+      public AidDamageNotifier(Tower t, double xpDivisor) {
+         super(t);
+         this.xpDivisor = xpDivisor;
+      }
+
+      @Override
       public synchronized void notifyOfKills(int kills) {
          killsSinceLastIncrease += kills;
+         
          // Makes it get a kill for every xpDivisor kills it was notified of
          if(killsSinceLastIncrease >= xpDivisor) {
-            int reducedKills = killsSinceLastIncrease / xpDivisor;
-            increaseKills(reducedKills);
+            int reducedKills = (int) (killsSinceLastIncrease / xpDivisor);
+            super.notifyOfKills(reducedKills);
             killsSinceLastIncrease -= reducedKills * xpDivisor;
          }
       }
-      
+
+      @Override
       public void notifyOfDamage(double damage) {
-         increaseDamageDealt(damage / xpDivisor);
+         super.notifyOfDamage(damage / xpDivisor);
       }
    }
+
 }

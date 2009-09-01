@@ -13,15 +13,15 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
 package towers.impl;
 
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.awt.Shape;
+import java.awt.geom.Point2D;
 import java.util.List;
 
 import logic.Game;
@@ -30,6 +30,7 @@ import sprites.Sprite;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
+import towers.DamageNotifier;
 
 
 public class WeakenTower extends AbstractTower {
@@ -37,6 +38,7 @@ public class WeakenTower extends AbstractTower {
    private double extraDamageTicks = Game.CLOCK_TICKS_PER_SECOND / 2;
    private double upgradeIncreaseTicks = Game.CLOCK_TICKS_PER_SECOND / 10;
    private double increaseDamageFactor = 2;
+   private final DamageNotifier damageNotifier = new DamageNotifier(this);
    
    public WeakenTower(Point p, List<Shape> pathBounds) {
       super(p, pathBounds, "Weaken", 40, 100, 5, 1, 50, 19, true);
@@ -58,7 +60,7 @@ public class WeakenTower extends AbstractTower {
       return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds){
          @Override
          protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
-            s.setDamageMultiplier(increaseDamageFactor, (int)extraDamageTicks);
+            s.setDamageMultiplier(damageNotifier, increaseDamageFactor, (int)extraDamageTicks);
          }
       };
    }

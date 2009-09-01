@@ -46,6 +46,7 @@ import java.util.Set;
 import logic.Circle;
 import logic.Formulae;
 import logic.Helper;
+import towers.DamageNotifier;
 import towers.Tower;
 
 public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
@@ -105,6 +106,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    
    private double damageMultiplier = 1;
    private int adjustedDamageTicksLeft = 0;
+   private DamageNotifier adjustedDamageNotifier;
    
    private int poisonTicksLeft = 0;
    
@@ -243,20 +245,39 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       if(!alive) {
          return null;
       }
-      if(adjustedDamageTicksLeft > 0) {
-         damage *= damageMultiplier;
-      }
       damage *= calculateMultiTowerBonus(towerClass);
-      if (hp - damage <= 0) {
-         // This hit killed the sprite, so the damage dealt is however many hp the sprite had left,
+      double adjustedDamage = damage;
+      if(adjustedDamageTicksLeft > 0) {
+         adjustedDamage *= damageMultiplier;
+      }
+      if (hp - adjustedDamage <= 0) {
+         // This hit killed the sprite, so the damage dealt is the number of hp the sprite had left,
          // not the raw damage of the hit
          alive = false;
+         double damageToReport = hp;
+         boolean wasKill = true;
+         if(adjustedDamageNotifier != null && adjustedDamage > damage && hp > damage) {
+            // Notify the tower that caused the extra damage of the damage it caused
+            // Note that it only caused extra damage if the original shot would not have killed this
+            // sprite.
+            adjustedDamageNotifier.notifyOfDamage(hp - damage);
+            adjustedDamageNotifier.notifyOfKills(1);
+            
+            damageToReport = damage;
+            // Don't count it as a kill on the damage report
+            wasKill = false;
+         }
          double moneyEarnt = Formulae.damageDollars(hp, hpFactor, currentLevel) +
                Formulae.killBonus(levelHP, currentLevel);
-         return new DamageReport(hp, moneyEarnt, true);
+         return new DamageReport(damageToReport, moneyEarnt, wasKill);
       } else {
-         hp -= damage;
-         double moneyEarnt = Formulae.damageDollars(damage, hpFactor, currentLevel);
+         hp -= adjustedDamage;
+         if(adjustedDamageNotifier != null && adjustedDamage > damage) {
+            // Notify the tower that caused the extra damage of the damage it caused
+            adjustedDamageNotifier.notifyOfDamage(adjustedDamage / damageMultiplier);
+         }
+         double moneyEarnt = Formulae.damageDollars(adjustedDamage, hpFactor, currentLevel);
+         // Only report the damage actually from this shot, not the extra
          return new DamageReport(damage, moneyEarnt, false);
       }
    }
@@ -294,16 +315,19 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    }
    
    @Override
-   public void setDamageMultiplier(double multiplier, int numTicks) {
+   public void setDamageMultiplier(DamageNotifier dn, double multiplier, int numTicks) {
       assert multiplier > 1 : "Multiplier must be greater than 1";
       currentEffects.add(SpriteEffect.WEAK);
-      if(multiplier > damageMultiplier) {
+      if(multiplier > damageMultiplier) { // If this would weaken the sprite by more
          damageMultiplier = multiplier;
          adjustedDamageTicksLeft = numTicks;
+         adjustedDamageNotifier = dn;
       } else if(Math.abs(multiplier - damageMultiplier) < 0.01) {
+         // Otherwise only apply it if it's approx. the same and would apply for longer
          if(numTicks > adjustedDamageTicksLeft) {
             damageMultiplier = multiplier;
             adjustedDamageTicksLeft = numTicks;
+            adjustedDamageNotifier = dn;
          }
       }
    }
@@ -465,6 +489,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          if(adjustedDamageTicksLeft <= 0) {
             currentEffects.remove(SpriteEffect.WEAK);
             damageMultiplier = 1;
+            adjustedDamageNotifier = null;
          }
       }
       if(poisonTicksLeft > 0) {
