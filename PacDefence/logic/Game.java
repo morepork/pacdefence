@@ -1058,10 +1058,15 @@ public class Game {
          public List<Integer> call() {
             List<Integer> toRemove = new ArrayList<Integer>();
             for(int i = firstPos; i < lastPos; i++) {
-               double money = bullets.get(i).tick(sprites);
-               if(money >= 0) {
-                  moneyEarnt += money;
+               Bullet b = bullets.get(i);
+               if(b == null) { // This was null once, so handle it
                   toRemove.add(i);
+               } else {
+                  double money = b.tick(sprites);
+                  if(money >= 0) {
+                     moneyEarnt += money;
+                     toRemove.add(i);
+                  }
                }
             }
             return toRemove;
