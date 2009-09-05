@@ -55,12 +55,16 @@ public class SelectionScreens extends JPanel {
 
    public SelectionScreens(int width, int height, Game.GameStarter continueOn) {
       super(new BorderLayout());
+      
       title.setForeground(textColour);
       title.setFontSize(40F);
       title.setHorizontalAlignment(JLabel.CENTER);
       title.setText("Map Selection");
+      
       background = ImageHelper.makeImage("other", "hoops.png");
+      
       this.continueOn = continueOn;
+      
       add(title, BorderLayout.NORTH);
       add(createMapSelections(), BorderLayout.CENTER);
    }
@@ -71,8 +75,6 @@ public class SelectionScreens extends JPanel {
    }
    
    private List<GameMap> createGameMapList() {
-      // For measuring the time this method takes
-//      long time = System.nanoTime();
       final String[] maps = new String[]{"mosaicPathEasy.xml", "mosaicPathMedium.xml",
             "mosaicPathHard.xml", "curvyEasy.xml", "curvyMedium.xml", "curvyHard.xml"};
       final List<GameMap> gameMaps = new ArrayList<GameMap>(maps.length);
@@ -104,7 +106,6 @@ public class SelectionScreens extends JPanel {
             throw new RuntimeException(e);
          }
       }
-//      System.out.println((System.nanoTime() - time) / 1000000.0);
       return gameMaps;
    }
    
@@ -136,15 +137,6 @@ public class SelectionScreens extends JPanel {
          panel.add(b);
       }
       return panel;
-   }
-   
-   public static void main(String[] args) {
-      // Do this beforehand as MyExecutor has to be initialised at some point, so it's unfair just
-      // having this in the multi threaded execution method
-      MyExecutor.invokeAll(new ArrayList<Callable<Double>>());
-      // I made this for comparing the speeds of using threads in createGameMapList()
-      new SelectionScreens(Game.MAP_WIDTH, Game.MAP_HEIGHT, null);
-      System.exit(0);
    }
    
 }
