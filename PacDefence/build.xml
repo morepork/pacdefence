@@ -46,16 +46,34 @@
       <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" />
 	</target>
    
-   <!-- At the moment this just removes all the class files -->
-   <target name="clean">
+   <target name="clean" depends="cleanClassFiles,cleanWebPages">
+      <delete file="${NoSrcJar}" />
+      <delete file="${SrcJar}" />
+      <delete file="${ManualName}.pdf" />
+   </target>
+   
+   <target name="cleanClassFiles">
       <delete>
          <fileset dir="${BinDir}" includes="**/*.class" />         
+      </delete>
+   </target>
+   
+   <target name="cleanWebPages">
+      <delete>
+         <fileset dir="website">
+            <include name="changelog.html" />
+            <include name="debug.html" />
+            <include name="development.html" />
+            <include name="index.html" />
+            <include name="pacdefence.html" />
+            <include name="screenshots.html" />
+         </fileset>
       </delete>
    </target>
 	
 	<!-- This ensures everything is compiled by deleting all the class files
 	     then compiling everything. -->
-	<target name="compileAll" depends="clean">
+	<target name="compileAll" depends="cleanClassFiles">
 	   <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" />
    </target>
 
