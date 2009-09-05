@@ -13,14 +13,13 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
 package gui;
 
 import java.awt.Dimension;
-import java.awt.Insets;
 import java.awt.Toolkit;
 import java.util.Arrays;
 import java.util.List;
@@ -50,16 +49,13 @@ public class Application {
       }
       JFrame frame = new JFrame("Pac Defence");
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      frame.setResizable(false);      
+      frame.setResizable(false);
       new Game(frame, debugTimes, debugPath);
       frame.pack();
       Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
       // Centres the frame on screen
       frame.setLocation((d.width - frame.getWidth())/2, (d.height - frame.getHeight())/2);
       frame.setVisible(true);
-      // Need this to set the frame to the right size under openjdk...
-      Insets ins = frame.getInsets();
-      frame.setSize(Game.WIDTH + ins.left + ins.right, Game.HEIGHT + ins.top + ins.bottom);
    }
 
 }
