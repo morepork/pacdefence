@@ -48,29 +48,20 @@ public class Title extends JPanel {
    
    private static boolean firstRun = true;
    private static Skin selectedSkin;
-   private final JComboBox skinComboBox;
+   private JComboBox skinComboBox;
    private final BufferedImage background;
    
    public Title(int width, int height, ActionListener continueListener) {
       super(new BorderLayout());
+      
       background = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
       Graphics2D g = background.createGraphics();
       g.drawImage(ImageHelper.makeImage(width, height, "other", "hoops.png"), 0, 0, null);
       g.drawImage(ImageHelper.makeImage(width, height, "other", "title.png"), 0, 0, null);
-      addContinueButton(continueListener);
-      JPanel topRow = new JPanel(new BorderLayout());
-      topRow.setOpaque(false);
-      if(firstRun) {
-         firstRun = false;
-         skinComboBox = new JComboBox(Skin.getSkins().toArray());
-         // Only show the skin chooser on the first run, as otherwise every loaded, cached, etc.
-         // image would be reloaded, which I think is way too much work
-         topRow.add(createSkinSelector(), BorderLayout.WEST);
-      } else {
-         skinComboBox = null;
-      }
-      topRow.add(createLicenseInfo(), BorderLayout.EAST);
-      add(topRow, BorderLayout.NORTH);
+      
+      add(createTopRow(), BorderLayout.NORTH);
+      add(createBottomRow(continueListener), BorderLayout.SOUTH);
+      
       setPreferredSize(new Dimension(width, height));
    }
    
@@ -86,12 +77,41 @@ public class Title extends JPanel {
       return selectedSkin;
    }
    
-   private void addContinueButton(ActionListener continueListener) {
+   private JComponent createTopRow() {
+      JPanel topRow = new JPanel(new BorderLayout());
+      topRow.setOpaque(false);
+      if(firstRun) {
+         firstRun = false;
+         skinComboBox = new JComboBox(Skin.getSkins().toArray());
+         // Only show the skin chooser on the first run, as otherwise every loaded, cached, etc.
+         // image would be reloaded, which I think is way too much work
+         topRow.add(createSkinSelector(), BorderLayout.WEST);
+      } else {
+         skinComboBox = null;
+      }
+      topRow.add(createLicenseInfo(), BorderLayout.EAST);
+      return topRow;
+   }
+   
+   private JComponent createBottomRow(ActionListener continueListener) {
+      JPanel botRow = new JPanel(new BorderLayout());
+      botRow.setOpaque(false);
+      botRow.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+
+      if(!Applet.isApplet()) { // Don't show this button if it's an Applet, it won't work
+         botRow.add(createHighScoresButton(), BorderLayout.WEST);
+      }
+      
+      botRow.add(createContinueButton(continueListener), BorderLayout.EAST);
+      
+      return botRow;
+   }
+   
+   private JComponent createContinueButton(ActionListener continueListener) {
       JButton continueButton = new OverlayButton("Continue", 50, 12, 12);
       continueButton.addActionListener(continueListener);
-      add(SwingHelper.createBorderLayedOutWrapperPanel(
-            SwingHelper.createWrapperPanel(
-                  continueButton, 10), BorderLayout.EAST), BorderLayout.SOUTH);
+      
+      return continueButton;
    }
    
    private JComponent createSkinSelector() {
@@ -105,6 +125,20 @@ public class Title extends JPanel {
       panel.add(skinComboBox);
       
       return panel;
+   }
+   
+   private JComponent createHighScoresButton() {
+      OverlayButton button = new OverlayButton("High Scores", 20F);
+      
+      final Title title = this;
+      
+      button.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            HighScoresDialog.showHighScoresDialog(title);
+         }
+      });
+      
+      return SwingHelper.createBorderLayedOutWrapperPanel(button, BorderLayout.SOUTH);
    }
    
    private JComponent createLicenseInfo() {

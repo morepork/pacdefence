@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.prefs.BackingStoreException;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -117,6 +118,7 @@ public class Game {
    private SelectionScreens selectionScreens;
    private ControlPanel controlPanel;
    private GameMapPanel gameMap;
+   private String gameMapName;
    private ControlEventProcessor eventProcessor = new ControlEventProcessor();
    
    private final Map<Attribute, Integer> upgradesSoFar =
@@ -542,9 +544,9 @@ public class Game {
    
    private void updateLives() {
       controlPanel.updateLives(lives);
-      if(lives <= 0) {
-         clock.gameOver = true;
-         gameMap.signalGameOver();
+
+      if(lives <= 0 && !clock.gameOver) {
+         signalGameOver();
       }
    }
    
@@ -706,6 +708,19 @@ public class Game {
          }
       }
       return true;
+   }
+   
+   private void signalGameOver() {
+      clock.gameOver = true;
+      
+      boolean isNewHighScore = false;
+      try {
+         isNewHighScore = HighScores.addScore(gameMapName, level);
+      } catch(BackingStoreException e) {
+         // Print the error and continue if this happens
+         e.printStackTrace();
+      }
+      gameMap.signalGameOver(isNewHighScore);
    }
    
    private class Clock extends Thread {
@@ -1274,6 +1289,7 @@ public class Game {
          pathBounds = g.getPathBounds();
          pathBounds = Collections.unmodifiableList(pathBounds);
          gameMap = createGameMapPanel(g);
+         gameMapName = g.getDescription();
          try {
             asynchronousLoader.join();
          } catch(InterruptedException e) {

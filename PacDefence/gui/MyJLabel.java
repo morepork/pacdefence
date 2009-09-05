@@ -29,6 +29,10 @@ public class MyJLabel extends JLabel {
       super();
    }
    
+   public MyJLabel(long l) {
+      super(String.valueOf(l));
+   }
+   
    public MyJLabel(String text) {
       super(text);
    }

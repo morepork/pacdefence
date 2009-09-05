@@ -27,12 +27,15 @@ import logic.Game;
 
 @SuppressWarnings("serial")
 public class Applet extends JApplet {
+
+   private static boolean isApplet = false;
    
    private boolean debugTimes;
    private Game game;
    
    @Override
    public void init() {
+      isApplet = true;
       String debugTimesParam = getParameter("DebugTimes");
       debugTimes = debugTimesParam == null ? false : Boolean.parseBoolean(debugTimesParam);
       
@@ -51,6 +54,10 @@ public class Applet extends JApplet {
       removeAll();
       game.end();
       game = null;
+   }
+   
+   public static boolean isApplet() {
+      return isApplet;
    }
    
    private void startGame() {

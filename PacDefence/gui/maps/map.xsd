@@ -23,6 +23,7 @@
    <xs:element name="map">
       <xs:complexType>
          <xs:all>
+            <!-- These descriptions should be unique, otherwise the high score table won't work -->
             <xs:element name="description" type="xs:string"/>
             <xs:element ref="images"/>
             <xs:element ref="pathPoints"/>

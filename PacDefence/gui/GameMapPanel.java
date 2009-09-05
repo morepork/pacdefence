@@ -26,6 +26,7 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -109,9 +110,9 @@ public class GameMapPanel extends JPanel {
       repaint();
    }
    
-   public void signalGameOver() {
+   public void signalGameOver(boolean wasHighScore) {
       if(gameOver == null) {
-         gameOver = new GameOver();
+         gameOver = new GameOver(wasHighScore);
       }
    }
    
@@ -277,13 +278,14 @@ public class GameMapPanel extends JPanel {
     */
    private class GameOver {
       
-      private final int framesBetweenRedraw = 1;
-      private int framesUntilRedraw = 0;
-      private int deltaY, deltaX;
-      private BufferedImage img;
+      private final Composite comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f);
+      private final int deltaY;
+      private final BufferedImage img;
       private int currentX, currentY, iterations, numTimes;
+      private boolean drawNewHighScore;
       
-      private GameOver() {
+      private GameOver(boolean wasHighScore) {
+         drawNewHighScore = wasHighScore;
          deltaY = 1;
          img = ImageHelper.makeImage((int)(getWidth()*0.75), (int)(getHeight()*0.2), "other",
                "GameOver.png");
@@ -297,21 +299,25 @@ public class GameMapPanel extends JPanel {
          if(iterations > numTimes) {
             return;
          }
-         if(framesUntilRedraw > 0) {
-            framesUntilRedraw--;
-         } else {
-            framesUntilRedraw = framesBetweenRedraw;
-            currentY += deltaY;
-            currentX += deltaX;
-            iterations++;
+         currentY += deltaY;
+         iterations++;
+         
+         g = (Graphics2D) g.create();
+         
+         if(drawNewHighScore) {
+            drawNewHighScore = false;
+            g.setColor(Color.ORANGE);
+            g.setFont(g.getFont().deriveFont(Font.BOLD).deriveFont(30f));
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                  RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g.drawString("New High Score", 50, 50);
          }
-         // Save the current composite to reset back to later
-         Composite c = g.getComposite();
+         
          // Makes it so what is drawn is partly transparent
-         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-               0.7f/(framesBetweenRedraw + 1)));
+         g.setComposite(comp);
          g.drawImage(img, currentX, currentY, null);
-         g.setComposite(c);
+         
+         g.dispose();
       }
    }
 
