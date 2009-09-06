@@ -25,12 +25,13 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
 
-// You need to manually tell this to toggle icons
+// You need to manually tell this to toggle icons when it is pressed (which makes it easier in the
+// one place I actually use this button)
 @SuppressWarnings("serial")
 public class OverlayToggleButton extends OverlayButton {
    
    private ImageIcon[][] icons;
-   private int currentIndex = 0;
+   private int currentImageIndex = 0;
    
    public OverlayToggleButton(BufferedImage... images) {
       this(images[0].getWidth(), images[0].getHeight(), images);
@@ -38,6 +39,7 @@ public class OverlayToggleButton extends OverlayButton {
    
    public OverlayToggleButton(int width, int height, BufferedImage... images) {
       super(images[0], width, height);
+      
       icons = new ImageIcon[images.length][4];
       for(int i = 0; i < images.length; i++) {
          icons[i][0] = drawOverlay(ImageHelper.resize(images[i], width, height), baseColour);
@@ -48,25 +50,25 @@ public class OverlayToggleButton extends OverlayButton {
    }
    
    public void setToDefault() {
-      currentIndex = 0;
+      currentImageIndex = 0;
       setIcons();
    }
    
    public void toggleIcons(boolean toNext) {
       if(toNext) {
-         currentIndex++;
+         currentImageIndex++;
       } else { // Don't subtract one as if on 0 it will be left negative, which ain't good
-         currentIndex += icons.length - 1;
+         currentImageIndex += icons.length - 1;
       }
-      currentIndex %= icons.length;
+      currentImageIndex %= icons.length;
       setIcons();
    }
    
    private void setIcons() {
-      setIcon(icons[currentIndex][0]);
-      setRolloverIcon(icons[currentIndex][1]);
-      setPressedIcon(icons[currentIndex][2]);
-      setDisabledIcon(icons[currentIndex][3]);
+      setIcon(icons[currentImageIndex][0]);
+      setRolloverIcon(icons[currentImageIndex][1]);
+      setPressedIcon(icons[currentImageIndex][2]);
+      setDisabledIcon(icons[currentImageIndex][3]);
    }
 
 }
