@@ -24,6 +24,7 @@ import gui.Drawable;
 import gui.GameMapPanel;
 import gui.SelectionScreens;
 import gui.Title;
+import gui.GameMapPanel.DebugStats;
 import gui.maps.MapParser.GameMap;
 import images.ImageHelper;
 
@@ -788,7 +789,6 @@ public class Game {
                }
             }
             long drawingBeginTime = draw();
-            gameMap.repaint();
             if(debugTimes) {
                drawTimes[timesLength] = calculateElapsedTimeMillis(drawingBeginTime);
                calculateTimesTaken();
@@ -856,12 +856,13 @@ public class Game {
       
       private long draw() {
          long drawingBeginTime = System.nanoTime();
-         drawingBeginTime -= gameMap.draw(getDrawableIterable(), processTime, processSpritesTime,
-               processBulletsTime, processTowersTime, drawTime, bullets.size());
+         drawingBeginTime -= gameMap.redraw(getDrawables(),
+               new DebugStats(processTime, processSpritesTime, processBulletsTime,
+                     processTowersTime, drawTime, bullets.size()));
          return drawingBeginTime;
       }
       
-      private Iterable<Drawable> getDrawableIterable() {
+      private List<Drawable> getDrawables() {
          List<Drawable> drawables = new ArrayList<Drawable>(sprites.size() + towers.size() +
                bullets.size() + 1);
          // Watch the order that things are added to the list. Things added later will be drawn on

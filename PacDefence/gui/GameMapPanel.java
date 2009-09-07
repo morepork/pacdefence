@@ -52,10 +52,12 @@ public class GameMapPanel extends JPanel {
    
    private final BufferedImage backgroundImage;
    //Have two precreated buffers as recreating them at each step is much slower
-   private BufferedImage front;
-   private BufferedImage back;
+   private BufferedImage buffer;
    
    private boolean drawingFlag = false;
+   
+   private List<Drawable> drawablesToDraw;
+   private DebugStats debugStatsToDraw;
    
    private final List<Polygon> path;
    private final List<Point> pathPoints;
@@ -67,33 +69,56 @@ public class GameMapPanel extends JPanel {
    private long lastPaintTime = 0;
 
    public GameMapPanel(int width, int height, GameMap map, boolean debugTimes, boolean debugPath) {
+      setDoubleBuffered(false); // This does its own double buffering
+      setIgnoreRepaint(true); // Ignore repaints as there should be ones scheduled often anyway
+      setPreferredSize(new Dimension(width, height));
+      
       this.debugTimes = debugTimes;
       this.debugPath = debugPath;
+      
       GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().
             getDefaultScreenDevice().getDefaultConfiguration();
       backgroundImage = gc.createCompatibleImage(width, height, Transparency.OPAQUE);
-      front = gc.createCompatibleImage(width, height, Transparency.OPAQUE);
-      back = gc.createCompatibleImage(width, height, Transparency.OPAQUE);
-      Graphics g = backgroundImage.getGraphics();
-      // Draws the actual map (maze)
-      g.drawImage(map.getImage(), 0, 0, width, height, null);
-      setDoubleBuffered(false);
-      setPreferredSize(new Dimension(width, height));
+      buffer = gc.createCompatibleImage(width, height, Transparency.OPAQUE);
+
+      // Draws the actual map (maze) onto the background image
+      backgroundImage.createGraphics().drawImage(map.getImage(), 0, 0, width, height, null);
+      
       pathPoints = map.getPathPoints();
       path = map.getPath();
       pathBounds = map.getPathBounds();
       textDisplay = new TextDisplay(width, height);
+      
       if(debugPath) {
          printClickedCoords();
       }
-      setIgnoreRepaint(true);
    }
    
    @Override
-   public synchronized void paintComponent(Graphics g) {
-      long beginTime = System.nanoTime();
-      g.drawImage(front, 0, 0, null);
-      lastPaintTime = System.nanoTime() - beginTime;
+   public void paintComponent(Graphics g) {
+      // If this is called again while it is drawing, just do nothing, an update will be soon enough
+      // and dropping frames is probably the best way to handle the drawing if it starts to lag
+      if(!drawingFlag) {
+         long beginTime = System.nanoTime();
+         
+         drawingFlag = true;
+         
+         if(drawablesToDraw != null) {
+            // First set the fields to null, so this particular update isn't drawn multiple times,
+            // but if an update is scheduled while it's redrawing, that it will get drawn
+            List<Drawable> drawables = drawablesToDraw;
+            drawablesToDraw = null;
+            DebugStats debugStats = debugStatsToDraw;
+            debugStatsToDraw = null;
+            drawUpdate(drawables, debugStats);
+         }
+         
+         g.drawImage(buffer, 0, 0, null); // Always draw the buffer on screen
+         
+         drawingFlag = false;
+         
+         lastPaintTime = System.nanoTime() - beginTime;
+      }
    }
    
    public void displayText(String... lines) {
@@ -116,75 +141,24 @@ public class GameMapPanel extends JPanel {
       }
    }
    
-   public long draw(Iterable<Drawable> drawables, long processTime, long processSpritesTime,
-         long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
+   public long redraw(List<Drawable> drawables, DebugStats debugStats) {
       if(gameOver == null) {
-         if(!drawingFlag) { // Only draw if there is not another thread already drawing
-            drawingFlag = true;
-            
-            Graphics2D g = back.createGraphics();
-            // The default value for alpha interpolation causes significant lag
-            g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
-                  RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-            //System.out.println(g.getRenderingHint(RenderingHints.KEY_ANTIALIASING) ==
-            //      RenderingHints.VALUE_ANTIALIAS_ON);
-            //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            
-            drawUpdate(g, drawables, processTime, processSpritesTime, processBulletsTime, processTowersTime,
-                  drawTime, numBullets);
-            textDisplay.draw(g);
-            
-            flip();
-            g.dispose();
-            
-            drawingFlag = false;
-         }
+         this.drawablesToDraw = drawables;
+         this.debugStatsToDraw = debugStats;
       } else {
          // Game over needs to always draw on the same buffer for its sliding effect
-         gameOver.draw(front.createGraphics());
+         gameOver.draw(buffer.createGraphics());
       }
+      repaint();
       return lastPaintTime;
    }
    
-   // draw implementation that uses a VolatileImage instead of a BufferedImage
-   // for the buffer, which should be faster, but it was about as fast in most
-   // cases, except much slower at drawing transparencies (under Xubuntu)
-   /*public long draw(List<Tower> towers, Tower buildingTower, List<Sprite> sprites,
-         List<Bullet> bullets, long processTime, long processSpritesTime,
-         long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
-      if(gameOver == null) {
-         int nextIndex = (bufferIndex + 1) % buffers.length;
-         VolatileImage vi = buffers[nextIndex];
-         do {
-            vi.validate(gc);
-            Graphics2D g = vi.createGraphics();
-            drawUpdate(g, towers, buildingTower, sprites, bullets, processTime,
-                  processSpritesTime, processBulletsTime, processTowersTime, drawTime, numBullets);
-            textDisplay.draw(g);
-            g.dispose();
-         } while(vi.contentsLost());
-         bufferIndex = nextIndex;
-      } else {
-         // Game over needs to always draw on the same buffer for its sliding effect
-          
-         // Needs changing to check the VolatileImage, maybe copy to a BufferedImage
-         gameOver.draw(buffers[bufferIndex].createGraphics());
-      }
-      return lastPaintTime;
-   }*/
-   
-   /**
-    * Flips the front and back buffers
-    */
-   private void flip() {
-      BufferedImage temp = back;
-      back = front;
-      front = temp;
-   }
-   
-   private void drawUpdate(Graphics g, Iterable<Drawable> drawables, long processTime,
-         long processSpritesTime, long processBulletsTime, long processTowersTime, long drawTime,
-         int numBullets) {
+   private void drawUpdate(List<Drawable> drawables, DebugStats debugStats) {
+      Graphics2D g = buffer.createGraphics();
+      // The default value for alpha interpolation causes significant lag
+      g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
+            RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+      
       // This should completely cover the old image in the buffer
       g.drawImage(backgroundImage, 0, 0, null);
       for(Drawable d : drawables) {
@@ -193,20 +167,21 @@ public class GameMapPanel extends JPanel {
             d.draw(g);
          }
       }
-      drawDebug(g, processTime, processSpritesTime, processBulletsTime, processTowersTime,
-            drawTime, numBullets);
+      drawDebug(g, debugStats);
+      textDisplay.draw(g);
+      
+      g.dispose();
    }
    
-   private void drawDebug(Graphics g, long processTime, long processSpritesTime,
-         long processBulletsTime, long processTowersTime, long drawTime, int numBullets) {
+   private void drawDebug(Graphics g, DebugStats debugStats) {
       if(debugTimes) {
          g.setColor(Color.WHITE);
-         g.drawString("Process time: " + processTime, 10, 15);
-         g.drawString("Draw time: " + drawTime, 10, 30);
-         g.drawString("Sprites time: " + processSpritesTime, 150, 15);
-         g.drawString("Bullets time: " + processBulletsTime, 150, 30);
-         g.drawString("Towers time: " + processTowersTime, 150, 45);
-         g.drawString("Num bullets: " + numBullets, 400, 15);
+         g.drawString("Process time: " + debugStats.processTime, 10, 15);
+         g.drawString("Draw time: " + debugStats.drawTime, 10, 30);
+         g.drawString("Sprites time: " + debugStats.processSpritesTime, 150, 15);
+         g.drawString("Bullets time: " + debugStats.processBulletsTime, 150, 30);
+         g.drawString("Towers time: " + debugStats.processTowersTime, 150, 45);
+         g.drawString("Num bullets: " + debugStats.numBullets, 400, 15);
       }
       if(debugPath) {
          drawPath(g);
@@ -268,6 +243,22 @@ public class GameMapPanel extends JPanel {
             System.out.println("<point x=\"" + e.getX() + "\" y=\"" + e.getY() + "\" />");
          }
       });
+   }
+   
+   public static class DebugStats {
+      final long processTime, processSpritesTime, processBulletsTime, processTowersTime, drawTime;
+      final int numBullets;
+      
+      public DebugStats(long processTime, long processSpritesTime, long processBulletsTime,
+            long processTowersTime, long drawTime, int numBullets) {
+         this.processTime = processTime;
+         this.processSpritesTime = processSpritesTime;
+         this.processBulletsTime = processBulletsTime;
+         this.processTowersTime = processTowersTime;
+         this.drawTime = drawTime;
+         this.numBullets = numBullets;
+      }
+      
    }
    
    /**
