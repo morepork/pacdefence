@@ -225,12 +225,12 @@ public class BasicBullet implements Bullet {
    }
    
    protected double doTick(List<Sprite> sprites) {
-      if(distanceTravelled >= range || canBulletBeRemovedAsOffScreen()) {
+      if(isOutOfRange() || canBulletBeRemovedAsOffScreen()) {
          return 0;
       }
       distanceTravelled += speed;
       lastPosition.setLocation(position);
-      if(distanceTravelled > range) {
+      if(isOutOfRange()) { // Check if it's now out of range
          double extraFraction = (distanceTravelled - range) / speed;
          position.setLocation(position.getX() + extraFraction * dir[0],
                position.getY() + extraFraction * dir[1]);
@@ -241,6 +241,13 @@ public class BasicBullet implements Bullet {
          position.setLocation(position.getX() + dir[0], position.getY() + dir[1]);
          return checkIfSpriteIsHit(sprites);
       }
+   }
+   
+   /**
+    * True if the bullet has travelled so far it should be removed, false otherwise
+    */
+   protected boolean isOutOfRange() {
+      return distanceTravelled > range;
    }
    
    protected List<Shape> getPathBounds() {

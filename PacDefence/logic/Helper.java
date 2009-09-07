@@ -13,12 +13,13 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
 package logic;
 
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Arc2D;
@@ -57,6 +58,10 @@ public class Helper {
    
    public static double vectorAngleBetween(Point2D p1, Point2D p2) {
       return vectorAngle(p1.getX() - p2.getX(), p1.getY() - p2.getY());
+   }
+   
+   public static Point toPoint(Point2D p) {
+      return new Point((int)p.getX(), (int)p.getY());
    }
    
    public static List<Point2D> getPointsOnLine(Line2D line) {

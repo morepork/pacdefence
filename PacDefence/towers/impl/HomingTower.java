@@ -21,11 +21,14 @@ package towers.impl;
 
 import java.awt.Point;
 import java.awt.Shape;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import logic.Game;
 import logic.Helper;
 import sprites.Sprite;
+import sprites.Sprite.DistanceComparator;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -36,15 +39,16 @@ public class HomingTower extends AbstractTower {
    
    // Max angle the bullet redirects each tick in degrees
    private double maxRedirectAngle = 2;
-   private static final double upgradeIncreaseAngle = 0.1;
+   // Only increase the redirect angle by a fixed amount otherwise it quickly gets silly
+   private final double upgradeIncreaseAngle = maxRedirectAngle * (upgradeIncreaseFactor - 1);
 
    public HomingTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Homing", 40, 100, 5, 20, 50, 18, true);
+      super(p, pathBounds, "Homing", 40, 100, 3, 20, 50, 18, true);
    }
    
    @Override
    public String getSpecial() {
-      // \u00b0 is the degree sym
+      // \u00b0 is the degree symbol
       return Helper.format(maxRedirectAngle * Game.CLOCK_TICKS_PER_SECOND, 1) + "\u00b0/s";
    }
 
@@ -65,9 +69,9 @@ public class HomingTower extends AbstractTower {
       maxRedirectAngle += upgradeIncreaseAngle;
    }
    
-   private static class HomingBullet extends BasicBullet {
+   private class HomingBullet extends BasicBullet {
       
-      private final Sprite target;
+      private Sprite target;
       // This is in radians for convenience
       private final double maxRedirectAngle;
       
@@ -82,7 +86,38 @@ public class HomingTower extends AbstractTower {
       @Override
       protected double doTick(List<Sprite> sprites) {
          double value = super.doTick(sprites);
-         if(target.isAlive()) {
+         
+         selectNewTarget(sprites); // Selects a new target if necessary
+         retarget();
+         
+         return value;
+      }
+      
+      @Override
+      protected boolean isOutOfRange() {
+         return getCentre().distance(position) > range + turretWidth;
+      }
+      
+      private void selectNewTarget(List<Sprite> sprites) {
+         // If the target has died or is out of range, start targetting the closest sprite that is
+         // in range (if there is any)
+         if(!target.isAlive() || !checkDistance(target)) {
+            // Copy the list as the passed list can't be modified
+            sprites = new ArrayList<Sprite>(sprites);
+            Collections.sort(sprites, new DistanceComparator(Helper.toPoint(position), true));
+            
+            for(Sprite s : sprites) {
+               if(s.isAlive() && checkDistance(s)) {
+                  target = s;
+                  break;
+               }
+            }
+         }
+      }
+      
+      private void retarget() {
+         // Only redirect if the target is alive, and is in range
+         if(target.isAlive() && checkDistance(target)) {
             double currentAngle = Helper.vectorAngle(dir[0], dir[1]);
             double angleToTarget = Helper.vectorAngle(
                   target.getPosition().getX() - position.getX(),
@@ -98,7 +133,6 @@ public class HomingTower extends AbstractTower {
             }
             setDirections(Math.sin(angleToChangeTo), Math.cos(angleToChangeTo));
          }
-         return value;
       }
       
       private double normaliseAngle(double angle) {
