@@ -139,6 +139,9 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
 
    @Override
    public void draw(Graphics g) {
+      if(halfWidth < 0) { // Sprite is dead and so small it's not showing
+         return;
+      }
       g.drawImage(currentImage, (int) centre.getX() - halfWidth, (int) centre.getY() - halfWidth,
                width, width, null);
       if(!currentEffects.isEmpty()) {
