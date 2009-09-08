@@ -98,6 +98,11 @@ public class HomingTower extends AbstractTower {
          return getCentre().distance(position) > range + turretWidth;
       }
       
+      @Override
+      protected boolean canBulletBeRemovedAsOffScreen() {
+         return false; // The bullet homes so can come back on screen
+      }
+      
       private void selectNewTarget(List<Sprite> sprites) {
          // If the target has died or is out of range, start targetting the closest sprite that is
          // in range (if there is any)
