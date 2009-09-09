@@ -104,15 +104,14 @@ public class HomingTower extends AbstractTower {
       }
       
       private void selectNewTarget(List<Sprite> sprites) {
-         // If the target has died or is out of range, start targetting the closest sprite that is
-         // in range (if there is any)
-         if(!target.isAlive() || !checkDistance(target)) {
+         // If the bullet can't target its current target, find the closest sprite that it can
+         if(!canTarget(target)) {
             // Copy the list as the passed list can't be modified
             sprites = new ArrayList<Sprite>(sprites);
             Collections.sort(sprites, new DistanceComparator(Helper.toPoint(position), true));
             
             for(Sprite s : sprites) {
-               if(s.isAlive() && checkDistance(s)) {
+               if(canTarget(s)) {
                   target = s;
                   break;
                }
@@ -121,8 +120,9 @@ public class HomingTower extends AbstractTower {
       }
       
       private void retarget() {
-         // Only redirect if the target is alive, and is in range
-         if(target.isAlive() && checkDistance(target)) {
+         // Make sure can actually target this sprite, this may still be false as their could be no
+         // sprites that it can target
+         if(canTarget(target)) {
             double currentAngle = Helper.vectorAngle(dir[0], dir[1]);
             double angleToTarget = Helper.vectorAngle(
                   target.getPosition().getX() - position.getX(),
@@ -140,16 +140,20 @@ public class HomingTower extends AbstractTower {
          }
       }
       
+      private boolean canTarget(Sprite s) {
+         return s.isAlive() && !s.isFinished() && checkDistance(s);
+      }
+      
       private double normaliseAngle(double angle) {
          // This shouldn't be used if the angle is too large as the approximation
          // of pi causes inaccuracies.
-         if(angle > Math.PI) {
-            return normaliseAngle(angle - 2 * Math.PI);
-         } else if(angle < -Math.PI) {
-            return normaliseAngle(angle + 2 * Math.PI);
-         } else {
-            return angle;
+         while(angle > Math.PI) {
+            angle -= 2 * Math.PI;
          }
+         while(angle < -Math.PI) {
+            angle += 2 * Math.PI;
+         }
+         return angle;
       }
       
    }

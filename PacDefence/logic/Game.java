@@ -923,7 +923,7 @@ public class Game {
             if(s.tick()) {
                // True if sprite has either been killed and is gone from screen or has finished
                sprites.remove(i);
-               if(s.isAlive()) { // If the sprite is still alive, it means it finished
+               if(s.isFinished()) {
                   livesLost++;
                }
                if(selectedSprite == s) { // Deselect this sprite as it is dead/finished

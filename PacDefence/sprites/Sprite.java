@@ -56,6 +56,7 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
    public double getTotalDistanceTravelled();
    public Shape getBounds();
    public boolean isAlive();
+   public boolean isFinished();
    /**
     * 
     * @param b

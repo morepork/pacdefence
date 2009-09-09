@@ -100,6 +100,8 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private double steps;
    // Whether the sprite is still alive
    private boolean alive = true;
+   // Whether the sprite has finished, i.e. got to the end of the map
+   private boolean finished = false;
    
    private double speedFactor = 1;
    private int adjustedSpeedTicksLeft = 0;
@@ -166,6 +168,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          currentImageIndex %= currentImages.size();
          currentImage = currentImages.get(currentImageIndex);
          if(!move()) { // If this returns false; the sprite has finished
+            finished = true;
             return true;
          }
          decreaseEffectsTicksLeft();
@@ -224,6 +227,11 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          // If the sprite is dead or dying it can't be hit
          return false;
       }
+   }
+   
+   @Override
+   public boolean isFinished() {
+      return finished;
    }
    
    @Override
