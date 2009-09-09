@@ -41,10 +41,6 @@
    <property name="SrcJar" location="${JarLocation}/PacDefenceSrc.jar" />
    <property name="MainClass" value="gui.Application" />
    <property name="ManualName" value="PacDefence_manual" />
-	
-	<target name="compile">
-      <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" />
-	</target>
    
    <target name="clean" depends="cleanClassFiles,cleanWebPages">
       <delete file="${NoSrcJar}" />
@@ -69,6 +65,10 @@
             <include name="screenshots.html" />
          </fileset>
       </delete>
+   </target>
+   
+   <target name="compile">
+      <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" />
    </target>
 	
 	<!-- This ensures everything is compiled by deleting all the class files
@@ -102,13 +102,11 @@
             <exclude name="**/*.tex" />
             <exclude name="**/*.pdf" />
          	<exclude name="gui/maps/PathAnalyser.class" />
-         	<!-- Tower's that aren't actually used -->
-         	<exclude name="towers/BasicTower.class" />
+         	<!-- Towers that aren't actually used -->
+         	<exclude name="**/BasicTower.class" />
          	<exclude name="images/**/basic*" />
-         	<exclude name="towers/PiercerTower*.class" />
-         	<exclude name="images/**/piercer*" />
-         	<exclude name="towers/SlowFactorTower.class" />
-         	<exclude name="images/**/slowFactor*" />
+         	<exclude name="**/PiercerTower*.class" />
+         	<exclude name="images/**/pierc*" />
          	
          	<exclude name="images/maps/curvyMaps" />
             <exclude name="images/maps/rainbowColours.png" />
