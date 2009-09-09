@@ -19,11 +19,11 @@ are:
                evaluating performance.
 --debugPath    Draws some information about the path (that the sprites follow).
                This is primarily used when making a new map.
---debugAll     Both of the above.
+--debugAll     Turns on both of the above.
                
 
 
-If you find the game runs to slow at higher levels (particularly if you run
+If you find the game runs too slow at higher levels (particularly if you run
 with the --debugTimes command line switch and see the bullet time running
 high), try running the game with the server vm. In my (very) brief test, it was
 about twice as fast on level 30 and with ~4000 bullets with the server vm than
