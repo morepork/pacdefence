@@ -23,10 +23,12 @@ import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import logic.Helper;
 import sprites.Sprite;
+import sprites.Sprite.DistanceComparator;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -35,10 +37,10 @@ import towers.Tower;
 
 public class JumperTower extends AbstractTower {
    
-   private int jumps = 1;
+   private int jumps = 2;
    
    public JumperTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Jumper", 40, 100, 5, 5.8, 50, 20, true);
+      super(p, pathBounds, "Jumper", 40, 100, 5, 5, 50, 20, true);
    }
 
    @Override
@@ -64,7 +66,7 @@ public class JumperTower extends AbstractTower {
    
    private class JumpingBullet extends BasicBullet {
       
-      private final Collection<Sprite> hitSprites = new ArrayList<Sprite>();
+      private Sprite lastHit;
       private int hitsLeft;
       private final int jumpRange;
       private static final double jumpRangeDividend = 1.5;
@@ -77,17 +79,22 @@ public class JumperTower extends AbstractTower {
       }
       
       @Override
-      protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
-         hitSprites.add(s);
+      protected void specialOnHit(Point2D p, Sprite hitSprite, List<Sprite> sprites) {
          if(hitsLeft > 0) {
-            Point point = new Point((int)p.getX(), (int)p.getY());
-            for(Sprite a : sprites) {
-               if(!hitSprites.contains(a) && checkDistance(a, point, jumpRange)) {
-                  hitsLeft--;
-                  JumpingBullet b = (JumpingBullet) fireBulletsAt(a, point, false, 0, jumpRange,
+            // Add the last hit sprite as it was removed in doTick() and can now be hit, as it is
+            // now the sprite hit before last
+            if(lastHit != null) {
+               sprites.add(lastHit);
+            }
+            Point point = Helper.toPoint(p);
+            // Make it so sprites closest to this point will be targetted first
+            Collections.sort(sprites, new DistanceComparator(point, true));
+            for(Sprite s : sprites) {
+               if(!hitSprite.equals(s) && checkDistance(s, point, jumpRange)) {
+                  JumpingBullet b = (JumpingBullet) fireBulletsAt(s, point, false, 0, jumpRange,
                         getBulletSpeed(), getDamage()).get(0);
-                  b.addHitSprites(hitSprites);
-                  b.setHitsLeft(hitsLeft);
+                  b.hitsLeft = hitsLeft - 1;
+                  b.lastHit = hitSprite;
                   addExtraBullets(b);
                   break;
                }
@@ -97,17 +104,10 @@ public class JumperTower extends AbstractTower {
       
       @Override
       protected double doTick(List<Sprite> sprites) {
+         // Remove the last hit sprite so that it won't get hit again
          List<Sprite> newList = new ArrayList<Sprite>(sprites);
-         newList.removeAll(hitSprites);
+         newList.remove(lastHit);
          return super.doTick(newList);
-      }
-      
-      private void addHitSprites(Collection<Sprite> sprites) {
-         hitSprites.addAll(sprites);
-      }
-      
-      private void setHitsLeft(int hitsLeft) {
-         this.hitsLeft = hitsLeft;
       }
       
    }
