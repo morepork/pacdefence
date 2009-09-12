@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ * 
  *  (C) Liam Byrne, 2008 - 09.
  */
 
@@ -37,7 +37,7 @@ import java.util.List;
 
 public class Circle implements Shape {
    
-   private final Point2D centre;
+   private double x, y;
    private double radius;
    private double radiusSq;
    private Ellipse2D bounds;
@@ -46,14 +46,15 @@ public class Circle implements Shape {
       this(new Point2D.Double(), 0);
    }
    
-   public Circle(Point2D centre, double radius){
-      this.centre = (Point2D) centre.clone();
+   public Circle(double x, double y, double radius) {
+      this.x = x;
+      this.y = y;
       setRadius(radius);
       setBounds();
    }
    
-   public Circle(double x, double y, double radius) {
-      this(new Point2D.Double(x, y), radius);
+   public Circle(Point2D centre, double radius){
+      this(centre.getX(), centre.getY(), radius);
    }
    
    public void draw(Graphics g) {
@@ -76,8 +77,8 @@ public class Circle implements Shape {
 
    @Override
    public boolean contains(double x, double y) {
-      double dx = x - centre.getX();
-      double dy = y - centre.getY();
+      double dx = x - this.x;
+      double dy = y - this.y;
       return dx*dx + dy*dy < radiusSq;
    }
 
@@ -89,7 +90,7 @@ public class Circle implements Shape {
    }
    
    public Point2D getCentre() {
-      return (Point2D) centre.clone();
+      return new Point2D.Double(x, y);
    }
    
    public double getRadius() {
@@ -125,7 +126,8 @@ public class Circle implements Shape {
    }
    
    public void setCentre(double x, double y) {
-      centre.setLocation(x, y);
+      this.x = x;
+      this.y = y;
       setBounds();
    }
    
@@ -149,7 +151,7 @@ public class Circle implements Shape {
    }
    
    public boolean intersects(Polygon p) {
-      if(p.contains(centre)) {
+      if(p.contains(x, y)) {
          return true;
       }
       List<Line2D> outline = Helper.getPolygonOutline(p);
@@ -162,12 +164,12 @@ public class Circle implements Shape {
    }
    
    public boolean intersects(Circle c) {
-      double combinedRadii = radius + c.getRadius();
-      return centre.distanceSq(c.getCentre()) < combinedRadii * combinedRadii;
+      double combinedRadii = radius + c.radius;
+      return Point2D.distanceSq(x, y, c.x, c.y) < combinedRadii * combinedRadii;
    }
    
    public boolean intersects(Line2D line) {
-      return line.ptSegDistSq(centre) < radiusSq;
+      return line.ptSegDistSq(x, y) < radiusSq;
    }
    
    public boolean intersects(Arc2D a) {
@@ -176,7 +178,7 @@ public class Circle implements Shape {
                "framing rectangle.");
       }
       // These are the easy but necessary checks (latter two for open arcs)
-      if(a.contains(centre) || contains(a.getStartPoint()) || contains(a.getEndPoint())) {
+      if(a.contains(x, y) || contains(a.getStartPoint()) || contains(a.getEndPoint())) {
          return true;
       }
       List<Line2D> lines = new ArrayList<Line2D>();
@@ -192,13 +194,13 @@ public class Circle implements Shape {
             return true;
          }
       }
-      double distance = centre.distance(arcCentre);
+      double distance = Point2D.distance(x, y, arcCentre.getX(), arcCentre.getY());
       // Need to halve the height to get the radius of the arc
       double arcRadius = a.getHeight() / 2;
       if(distance < arcRadius + radius && distance > arcRadius - radius) {
          // The distance from the centre is less than the radius of the arc
          // plus the radius of the circle
-         double angleBetween = Helper.vectorAngleBetween(arcCentre, centre);
+         double angleBetween = Helper.vectorAngle(arcCentre.getX() - x, arcCentre.getY() - y);
          double angleToStart = Helper.vectorAngleBetween(arcCentre, a.getStartPoint());
          double extentAngle = Math.toRadians(a.getAngleExtent());
          if(extentAngle > 0 ?
@@ -231,7 +233,7 @@ public class Circle implements Shape {
    
    @Override
    public Circle clone() {
-      return new Circle(centre, radius);
+      return new Circle(x, y, radius);
    }
    
    public double calculateCircumference() {
@@ -239,13 +241,11 @@ public class Circle implements Shape {
    }
    
    public Point2D getPointAt(double theta) {
-      return new Point2D.Double(centre.getX() + radius * Math.sin(theta),
-            centre.getY() + radius * Math.cos(theta));
+      return new Point2D.Double(x + radius * Math.sin(theta), y + radius * Math.cos(theta));
    }
    
    private void setBounds() {
-      bounds = new Ellipse2D.Double(centre.getX() - radius, centre.getY() - radius, radius * 2,
-            radius * 2);
+      bounds = new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2);
    }
 
 }
