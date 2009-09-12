@@ -31,7 +31,6 @@ import java.awt.Shape;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,14 +56,12 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private static final double multiTowerBonusPerTower = 1.1;
    
    // The amount the image of the sprite shrinks by per tick after it has been killed
-   private static final int dieImageHalfWidthShrinkAmount = 2;
-   private static final int dieImageWidthShrinkAmount = dieImageHalfWidthShrinkAmount * 2;
+   private static final int dieImageWidthShrinkAmount = 4;
 
    private int width;
    private int halfWidth;
    
    private final Circle bounds = new Circle();
-   private final Rectangle2D rectangularBounds = new Rectangle2D.Double();
 
    // Cache the rotated images so every time a sprite rounds a corner the original images do not
    // need to be re-rotated, but can be retrieved from here.
@@ -144,19 +141,12 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       if(halfWidth < 0) { // Sprite is dead and so small it's not showing
          return;
       }
+      
       g.drawImage(currentImage, (int) centre.getX() - halfWidth, (int) centre.getY() - halfWidth,
                width, width, null);
+      
       if(!currentEffects.isEmpty()) {
-         Graphics2D g2D = (Graphics2D) g;
-         Composite c = g2D.getComposite();
-         g2D.setComposite(effectsComposite);
-         // If the sprite is dying, only have the circle as big as its current size
-         Circle fillArea = alive ? bounds : new Circle(centre, halfWidth);
-         for(SpriteEffect se : currentEffects) {
-            g2D.setColor(effectsColours.get(se));
-            fillArea.fill(g);
-         }
-         g2D.setComposite(c);
+         drawCurrentEffects(g);
       }
    }
 
@@ -174,8 +164,8 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          decreaseEffectsTicksLeft();
       } else {
          // If the sprite is dead, reduce the size it is drawn at
-         halfWidth -= dieImageHalfWidthShrinkAmount;
          width -= dieImageWidthShrinkAmount;
+         halfWidth = width / 2;
          // When it gets too small, stop showing it - the sprite is gone from the game now
          if(halfWidth < 0) {
             return true;
@@ -377,14 +367,13 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    
    private void setBounds() {
       bounds.setCentre(centre);
-      rectangularBounds.setRect(centre.getX() - halfWidth, centre.getY() - halfWidth, width, width);
    }
 
    private Point calculateFirstPoint() {
       Point p1 = path.get(0);
       Point p2 = path.get(1);
-      int dx = (int) (p2.getX() - p1.getX());
-      int dy = (int) (p2.getY() - p1.getY());
+      double dx = p2.getX() - p1.getX();
+      double dy = p2.getY() - p1.getY();
       double distance = Math.sqrt(dx * dx + dy * dy);
       // Now make it so the sprite starts fully off screen, then comes on screen
       double mult = (halfWidth + 1) / distance;
@@ -476,9 +465,9 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
     * @return
     */
    private boolean fastIntersects(Point2D p) {
-      // Checks the rectangular bounds instead of the bounds of the circle as it's faster
-      // Need to check this first otherwise the image check won't work
-      if (rectangularBounds.contains(p)) {
+      // Need to check this first otherwise the image check won't work, as it'll look outside the
+      // bounds of the image
+      if (bounds.contains(p)) {
          int x = (int) (p.getX() - centre.getX() + halfWidth);
          int y = (int) (p.getY() - centre.getY() + halfWidth);
          // If this is a completely transparent pixel, it's not a hit
@@ -534,6 +523,24 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          numOtherTowers--;
       }
       return mult;
+   }
+   
+   private void drawCurrentEffects(Graphics g) {
+      Graphics2D g2D = (Graphics2D) g.create();
+      
+      g2D.setComposite(effectsComposite);
+      
+      // If the sprite is dying, only have the circle as big as its current size, which is why a new
+      // circle is created, rather than using bounds
+      // Increase the radius to ensure it fully covers the sprite picture
+      Circle fillArea = new Circle(centre, halfWidth + 1);
+      
+      for(SpriteEffect se : currentEffects) {
+         g2D.setColor(effectsColours.get(se));
+         g2D.fill(fillArea);
+      }
+      
+      g2D.dispose();
    }
    
    private static Map<SpriteEffect, Color> createEffectsColours() {
