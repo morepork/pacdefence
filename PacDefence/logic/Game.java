@@ -399,29 +399,25 @@ public class Game {
    private void endLevel() {
       levelInProgress = false;
       endLevelUpgradesLeft++;
-      long moneyBefore = money;
-      multiplyMoney(interestRate);
-      long interest = money - moneyBefore;
+      
+      long interest = (long)(money * interestRate);
       int levelEndBonus = Formulae.levelEndBonus(level);
       int noEnemiesThroughBonus = 0;
-      StringBuilder text = new StringBuilder();
-      text.append("Level ");
-      text.append(level);
-      text.append(" finished. ");
-      text.append(interest);
-      text.append(" interest earned. ");
-      text.append(levelEndBonus);
-      text.append(" for finishing the level.");
+      
+      String text = "Level " + level + " finished. " + interest + " interest earned. " +
+            levelEndBonus + " for finishing the level.";
+      
       if(livesLostOnThisLevel == 0) {
          noEnemiesThroughBonus = Formulae.noEnemiesThroughBonus(level);
-         text.append(" ");
-         text.append(noEnemiesThroughBonus);
-         text.append(" bonus for losing no lives.");
+         text += " " + noEnemiesThroughBonus + " bonus for losing no lives.";
       }
-      increaseMoney(levelEndBonus + noEnemiesThroughBonus);
+      
+      increaseMoney(interest + levelEndBonus + noEnemiesThroughBonus);
       updateAllButLevelStats();
-      gameMap.displayText(text.toString());
+      
+      gameMap.displayText(text);
       controlPanel.enableStartButton(true);
+      
       // Remove all the ghosts at the end of the level
       for(Tower t : towers) {
          if(t instanceof Ghost) {
@@ -457,10 +453,6 @@ public class Game {
       money -= amount;
    }
    
-   private void multiplyMoney(double factor) {
-      money *= factor;
-   }
-   
    private void setStartingStats() {
       level = 0;
       towers.clear();
@@ -475,7 +467,7 @@ public class Game {
       nextGhostCost = Formulae.towerCost(0, 0);
       lives = 25;
       livesLostOnThisLevel = 0;
-      interestRate = 1.03;
+      interestRate = 0.03;
       endLevelUpgradesLeft = 0;
       updateAll();
    }
@@ -507,18 +499,18 @@ public class Game {
    
    private int numTowersOfType(Class<? extends Tower> towerType) {
       int num = 0;
-      for(Tower t : towers) {
-         if(t.getClass() == towerType) {
+      for(int i = 0; i < towers.size(); i++) {
+         if(towers.get(i).getClass() == towerType) {
             num++;
          }
       }
-      for(Tower t : towersToAdd) {
-         if(t.getClass() == towerType) {
+      for(int i = 0; i < towersToAdd.size(); i++) {
+         if(towersToAdd.get(i).getClass() == towerType) {
             num++;
          }
       }
-      for(Tower t : towersToRemove) {
-         if(t.getClass() == towerType) {
+      for(int i = 0; i < towersToRemove.size(); i++) {
+         if(towersToRemove.get(i).getClass() == towerType) {
             num--;
          }
       }
@@ -566,7 +558,7 @@ public class Game {
    }
    
    private void updateInterestLabel() {
-      controlPanel.updateInterest(Helper.format(((interestRate - 1) * 100), 0) + "%");
+      controlPanel.updateInterest(Helper.format((interestRate * 100), 0) + "%");
    }
    
    private void updateEndLevelUpgradesLabel() {
@@ -920,10 +912,10 @@ public class Game {
          // Count down as sprites are being removed
          for(int i = sprites.size() - 1; i >= 0; i--) {
             Sprite s = sprites.get(i);
+            // True if sprite has either been killed and is gone from screen or has finished
             if(s.tick()) {
-               // True if sprite has either been killed and is gone from screen or has finished
                sprites.remove(i);
-               if(s.isFinished()) {
+               if(s.isFinished()) { // As opposed to being killed
                   livesLost++;
                }
                if(selectedSprite == s) { // Deselect this sprite as it is dead/finished
