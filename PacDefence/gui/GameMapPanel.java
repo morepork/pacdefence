@@ -366,8 +366,8 @@ public class GameMapPanel extends JPanel {
       }
       
       public void displayText(String... lines) {
-         if(isOnDisplay) {
-            throw new RuntimeException("There is already text on display.");
+         if(isOnDisplay) { // If it's already (partly) showing, make it start again
+            currentPosition = startPosition;
          }
          drawImage(lines);
          goingUp = true;
