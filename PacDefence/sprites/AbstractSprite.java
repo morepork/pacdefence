@@ -138,15 +138,19 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
 
    @Override
    public void draw(Graphics g) {
-      if(halfWidth < 0) { // Sprite is dead and so small it's not showing
+      // Save these as the processing might change them in another thread, causing strange errors
+      int currentHalfWidth = halfWidth;
+      int currentWidth = width;
+      
+      if(currentHalfWidth < 0) { // Sprite is dead and so small it's not showing
          return;
       }
       
-      g.drawImage(currentImage, (int) centre.getX() - halfWidth, (int) centre.getY() - halfWidth,
-               width, width, null);
+      g.drawImage(currentImage, (int) centre.getX() - currentHalfWidth,
+            (int) centre.getY() - currentHalfWidth, currentWidth, currentWidth, null);
       
       if(!currentEffects.isEmpty()) {
-         drawCurrentEffects(g);
+         drawCurrentEffects(g, currentHalfWidth);
       }
    }
 
@@ -525,7 +529,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       return mult;
    }
    
-   private void drawCurrentEffects(Graphics g) {
+   private void drawCurrentEffects(Graphics g, int radius) {
       Graphics2D g2D = (Graphics2D) g.create();
       
       g2D.setComposite(effectsComposite);
@@ -533,7 +537,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       // If the sprite is dying, only have the circle as big as its current size, which is why a new
       // circle is created, rather than using bounds
       // Increase the radius to ensure it fully covers the sprite picture
-      Circle fillArea = new Circle(centre, halfWidth + 1);
+      Circle fillArea = new Circle(centre, radius + 1);
       
       for(SpriteEffect se : currentEffects) {
          g2D.setColor(effectsColours.get(se));
