@@ -1,15 +1,10 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
 
-<head>
+{% block title %}
+  Pac Defence (debug)
+{% endblock %}
 
-<title>
-Pac Defence (debug)
-</title>
-
-</head>
-
-<body>
+{% block content %}
 
 <script type="text/javascript" src="myscripts.js"></script>
 <script type="text/javascript" src="http://java.com/js/deployJava.js"></script>
@@ -17,6 +12,4 @@ Pac Defence (debug)
 	runPacDefence(true);
 </script>
 
-</body>
-
-</html>
+{% endblock %}

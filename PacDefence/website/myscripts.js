@@ -24,5 +24,7 @@ function runPacDefence(debugTimes) {
 	var parameters = {DebugTimes:debugTimes};
 	var version = "1.6"
 	
+	document.write('<center>');
 	deployJava.writeAppletTag(attributes, parameters, version);
+	document.write('</center>');
 }

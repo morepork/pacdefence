@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--  This file is part of Pac Defence.
-      
+    
       Pac Defence is free software: you can redistribute it and/or modify
       it under the terms of the GNU General Public License as published by
       the Free Software Foundation, either version 3 of the License, or
@@ -20,158 +20,159 @@
 
 
 <!--
-      Pac Defence Build File
-      
-      Builds two jar files:
-         PacDefence.jar       This is a minimal build containing only the
-                              resources necessary to run PacDefence, the
-                              licence, readme and credits.
-         PacDefenceSrc.jar    This contains all resources except the
-                              screenshots, and will also run Pac Defence.
+    Pac Defence Build File
+    
+    Builds two jar files:
+      PacDefence.jar
+        This is a minimal build containing only the resources necessary to run PacDefence, the
+        licence, readme and credits.
+      PacDefenceSrc.jar
+        This contains all resources except the screenshots, and will also run Pac Defence.
   -->
 
 <project name="PacDefence" basedir="." default="compile">
 
-   <property name="JUnitJar" value="/usr/share/java/junit4.jar" />
-   <property name="ClassPath" location=".:${JUnitJar}" />
-   <property name="SrcDir" location="." />
+  <property name="JUnitJar" value="/usr/share/java/junit4.jar" />
+  <property name="ClassPath" location=".:${JUnitJar}" />
+  <property name="SrcDir" location="." />
 	<property name="BinDir" location="." />
-   <property name="JarLocation" location="." />
-   <property name="NoSrcJar" location="${JarLocation}/PacDefence.jar" />
-   <property name="SrcJar" location="${JarLocation}/PacDefenceSrc.jar" />
-   <property name="MainClass" value="gui.Application" />
-   <property name="ManualName" value="PacDefence_manual" />
-   
-   <target name="clean" depends="cleanClassFiles,cleanWebPages">
-      <delete file="${NoSrcJar}" />
-      <delete file="${SrcJar}" />
-      <delete file="${ManualName}.pdf" />
-   </target>
-   
-   <target name="cleanClassFiles">
-      <delete>
-         <fileset dir="${BinDir}" includes="**/*.class" />         
-      </delete>
-   </target>
-   
-   <target name="cleanWebPages">
-      <delete>
-         <fileset dir="website">
-            <include name="changelog.html" />
-            <include name="debug.html" />
-            <include name="development.html" />
-            <include name="index.html" />
-            <include name="pacdefence.html" />
-            <include name="screenshots.html" />
-         </fileset>
-      </delete>
-   </target>
-   
-   <target name="compile">
-      <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" />
-   </target>
+  <property name="JarLocation" location="." />
+  <property name="NoSrcJar" location="${JarLocation}/PacDefence.jar" />
+  <property name="SrcJar" location="${JarLocation}/PacDefenceSrc.jar" />
+  <property name="MainClass" value="gui.Application" />
+  <property name="ManualName" value="PacDefence_manual" />
+  
+  <target name="clean" depends="cleanClassFiles,cleanWebPages">
+    <delete file="${NoSrcJar}" />
+    <delete file="${SrcJar}" />
+    <delete file="${ManualName}.pdf" />
+  </target>
+  
+  <target name="cleanClassFiles">
+    <delete>
+      <fileset dir="${BinDir}" includes="**/*.class" />      
+    </delete>
+  </target>
+  
+  <target name="cleanWebPages">
+    <delete>
+      <fileset dir="website">
+        <include name="changelog.html" />
+        <include name="debug.html" />
+        <include name="development.html" />
+        <include name="index.html" />
+        <include name="pacdefence.html" />
+        <include name="screenshots.html" />
+      </fileset>
+    </delete>
+  </target>
+  
+  <target name="compile">
+    <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" />
+  </target>
 	
-	<!-- This ensures everything is compiled by deleting all the class files
-	     then compiling everything. -->
+	<!-- This ensures everything is compiled by deleting all the class files then compiling
+	     everything. -->
 	<target name="compileAll" depends="cleanClassFiles">
-	   <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" />
-   </target>
+	  <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" />
+  </target>
 
-   <target name="buildJars" depends="compileAll,buildManual,makeWebPages">
-      <delete file="${NoSrcJar}" />
-      <jar destfile="${NoSrcJar}">
-         <fileset dir="${SrcDir}" casesensitive="yes">
-         	<!-- Exclude anything that doesn't need to be there -->
-         	
-            <!-- Hidden files -->
-            <exclude name="**/.*" />
-         	<!-- Anything in a hidden directory -->
-            <exclude name="**/.*/*" />
-            <!-- Backup files -->
-            <exclude name="**/*.*~" />
-            <exclude name="**/*.*backup" />
-         	
-            <exclude name="**/*.jar" />
-            <exclude name="**/*.java" />
-            <exclude name="**/*Test*" />
-            <exclude name="**/*.xcf.gz" />
-            <exclude name="**/*.svg" />
-            <exclude name="**/*.html" />
-            <exclude name="**/*.js" />
-            <exclude name="**/*.css" />
-            <exclude name="**/*.tex" />
-            <exclude name="**/*.pdf" />
-         	<exclude name="gui/maps/PathAnalyser.class" />
-         	<!-- Towers that aren't actually used -->
-         	<exclude name="**/BasicTower.class" />
-         	<exclude name="images/**/basic*" />
-         	<exclude name="**/PiercerTower*.class" />
-         	<exclude name="images/**/pierc*" />
-         	
-         	<exclude name="images/maps/curvyMaps" />
-            <exclude name="images/maps/rainbowColours.png" />
-            <exclude name="images/maps/rainbowColours.jpg" />
-         	<exclude name="images/maps/nebula.png" />
-            <exclude name="images/maps/*Map.png" />
-            <exclude name="images/other/theGreenPlace.png" />
-            <exclude name="images/control_panel/blue_lava.*" />
-            <exclude name="images/control_panel/blue_lava_blurred.png" />
-            <exclude name="images/sprites/other/" />
-            <exclude name="images/towers/overlays/turrets/" />
-            <exclude name="images/towers/overlays/turretLengths" />
-            <exclude name="images/towers/overlays/makeTowerOverlays" />
-            <exclude name="website/**" />
-            <exclude name="java.policy.applet" />
-            <exclude name="build.xml" />
-         </fileset>
-         <manifest>
-            <attribute name="Main-Class" value="${MainClass}" />
-         </manifest>
-      </jar>
-      
-      <delete file="${SrcJar}" />
-      <jar destfile="${SrcJar}">
-         <fileset dir="${SrcDir}" casesensitive="yes">
-            <exclude name="**/.*" />
-            <exclude name="**/.*/*" />
-            <exclude name="**/*.*~" />
-            <exclude name="**/*.*backup" />
-            <exclude name="**/*.jar" />
-            <!-- The screenshots don't need to be in here as it just makes the
-                 jar much bigger without really giving anything extra -->
-            <exclude name="website/screenshots/screenshot*" />
-         	<!-- The png version of these are in there so these are unnecessary -->
-         	<exclude name="images/maps/rainbowColours.jpg" />
-            <exclude name="images/control_panel/blue_lava.jpg" />
-         	
-            <exclude name="java.policy.applet" />
-         </fileset>
-         <manifest>
-            <attribute name="Main-Class" value="${MainClass}" />
-         </manifest>
-      </jar>
-   </target>
-   
-   <target name="buildManual">
-      <!-- The pipes to tail and head make it so only one line that says
-           whether it was successful or not is printed -->
-      <exec executable="/bin/bash" os="Linux" >
-      	<arg line='-c "pdflatex -halt-on-error ${ManualName}.tex | tail -n 2 | head -n 1"' />
-      </exec>
-      <!-- LaTeX must be run twice to ensure labels and the contents link
-           properly. -->
-      <exec executable="/bin/bash" os="Linux" >
-         <arg line='-c "pdflatex -halt-on-error ${ManualName}.tex > /dev/null"'/>
-      </exec>
-      <!-- Cleans up after the build -->
-      <delete file="${ManualName}.aux" />
-      <delete file="${ManualName}.log" />
-   	<delete file="${ManualName}.toc" />
-   	<delete file="${ManualName}.out" />
-   </target>
+  <target name="buildJars" depends="compileAll,buildManual,makeWebPages">
+    <delete file="${NoSrcJar}" />
+    <jar destfile="${NoSrcJar}">
+      <fileset dir="${SrcDir}" casesensitive="yes">
+      	<!-- Exclude anything that doesn't need to be there -->
+        
+        <!-- Hidden files -->
+        <exclude name="**/.*" />
+      	<!-- Anything in a hidden directory -->
+        <exclude name="**/.*/*" />
+        <!-- Backup files -->
+        <exclude name="**/*.*~" />
+        <exclude name="**/*.*backup" />
+        <!-- Tests -->
+        <exclude name="**/*Test*" />
+        <exclude name="**/*.jar" />
+        <exclude name="**/*.java" />
+        <exclude name="**/*.xcf.gz" />
+        <exclude name="**/*.svg" />
+        <exclude name="**/*.html" />
+        <exclude name="**/*.js" />
+        <exclude name="**/*.css" />
+        <exclude name="**/*.tex" />
+        <exclude name="**/*.pdf" />
+      	<exclude name="gui/maps/PathAnalyser.class" />
+      	<!-- Towers that aren't actually used -->
+      	<exclude name="**/BasicTower.class" />
+      	<exclude name="images/**/basic*" />
+      	<exclude name="**/PiercerTower*.class" />
+      	<exclude name="images/**/pierc*" />
+      	
+      	<exclude name="images/maps/curvyMaps" />
+        <exclude name="images/maps/rainbowColours.png" />
+        <exclude name="images/maps/rainbowColours.jpg" />
+      	<exclude name="images/maps/nebula.png" />
+        <exclude name="images/maps/*Map.png" />
+        <exclude name="images/other/theGreenPlace.png" />
+        <exclude name="images/control_panel/blue_lava.*" />
+        <exclude name="images/control_panel/blue_lava_blurred.png" />
+        <exclude name="images/sprites/other/" />
+        <exclude name="images/towers/overlays/turrets/" />
+        <exclude name="images/towers/overlays/turretLengths" />
+        <exclude name="images/towers/overlays/makeTowerOverlays" />
+        <exclude name="website/**" />
+        <exclude name="java.policy.applet" />
+        <exclude name="build.xml" />
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="${MainClass}" />
+      </manifest>
+    </jar>
+    
+    <delete file="${SrcJar}" />
+    <jar destfile="${SrcJar}">
+      <fileset dir="${SrcDir}" casesensitive="yes">
+        <exclude name="**/.*" />
+        <exclude name="**/.*/*" />
+        <exclude name="**/*.*~" />
+        <exclude name="**/*.*backup" />
+        <exclude name="**/*.jar" />
+        <!-- The screenshots don't need to be in here as it just makes the jar much bigger without
+             really giving anything extra -->
+        <exclude name="website/screenshots/screenshot*" />
+      	<!-- The png version of these are in there so these are unnecessary -->
+      	<exclude name="images/maps/rainbowColours.jpg" />
+        <exclude name="images/control_panel/blue_lava.jpg" />
+      	
+        <exclude name="java.policy.applet" />
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="${MainClass}" />
+      </manifest>
+    </jar>
+  </target>
+  
+  <target name="buildManual">
+    <!-- The pipes to tail and head make it so only one line that says whether it was successful or
+         not is printed -->
+    <exec executable="/bin/bash" os="Linux" >
+    	<arg line='-c "pdflatex -halt-on-error ${ManualName}.tex | tail -n 2 | head -n 1"' />
+    </exec>
+    <!-- LaTeX must be run twice to ensure labels and the contents link properly. -->
+    <exec executable="/bin/bash" os="Linux" >
+      <arg line='-c "pdflatex -halt-on-error ${ManualName}.tex > /dev/null"'/>
+    </exec>
+    <!-- Cleans up after the build -->
+    <delete file="${ManualName}.aux" />
+    <delete file="${ManualName}.log" />
+  	<delete file="${ManualName}.toc" />
+  	<delete file="${ManualName}.out" />
+  </target>
 	
 	<target name="makeWebPages">
-		<java classname="website.WebPageCreator" classpath="${ClassPath}" />
-   </target>
+	  <exec executable="/usr/bin/python" os="Linux" dir="website">
+      <arg line='WebPageCreator.py'/>
+    </exec>
+  </target>
 
 </project>

@@ -1,15 +1,10 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
 
-<head>
+{% block title %}
+  Pac Defence - Screenshots
+{% endblock %}
 
-<title>
-Pac Defence - Screenshots
-</title>
-
-</head>
-
-<body>
+{% block content %}
 
 <script type="text/javascript">
    document.write('<table cellspacing="40">');
@@ -21,7 +16,7 @@ Pac Defence - Screenshots
 		}
 		// Reverse order so later pictures come at the top
 		var img = num - i + 1;
-		document.write('<td><a href="./screenshots/screenshot" + img + ".png">' +
+		document.write('<td><a href="./screenshots/screenshot' + img + '.png">' +
 				'<img width="300" height="225" src="./screenshots/screenshot' + img + 'thumb.jpg">' +
 				'</a></td>');
 		if(i%cols == 0) {
@@ -35,6 +30,4 @@ Pac Defence - Screenshots
 	document.write('</table>');
 </script>
 
-</body>
-
-</html>
+{% endblock %}
