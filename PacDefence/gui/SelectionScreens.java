@@ -80,7 +80,7 @@ public class SelectionScreens extends JPanel {
       final List<GameMap> gameMaps = new ArrayList<GameMap>(maps.length);
       // Using multiple threads here makes it around 25% faster on my dual core, which is decent
       // seeing there is noticeable lag (when 'Continue' is pressed, before the maps show)
-      if(MyExecutor.NUM_PROCESSORS == 1) {
+      if(MyExecutor.singleThreaded()) {
          for(String s: maps) {
             gameMaps.add(MapParser.parse(s));
          }

@@ -746,11 +746,11 @@ public class Game {
       private boolean keepRunning = true;
 
       // I tried 1x, 2x, 8x, 10x, 16x, and 20x and 16x was the best (then 10x, then 8x) on my dual
-      // core machine - think some callables will be more work, even though they have the same
-      // number of bullets
+      // core machine - some callables will be more work, even though they have the same number of
+      // bullets as other ones
       // Set it to zero if only one processor to signal that single threaded versions should be used
-      private final int numCallables = MyExecutor.NUM_PROCESSORS == 1 ? 0 :
-         MyExecutor.NUM_PROCESSORS * 16;
+      private final int numCallables = MyExecutor.singleThreaded() ? 0 :
+         MyExecutor.getNumThreads() * 16;
       
       private boolean gameOver = false;
       
@@ -1039,7 +1039,7 @@ public class Game {
       
       private void tickBulletsSingleThread(List<Sprite> unmodifiableSprites) {
          // Run through from last to first as bullets are being removed
-         for(int i = bullets.size() - 1; i >= 0 ; i--) {
+         for(int i = bullets.size() - 1; i >= 0; i--) {
             double money = bullets.get(i).tick(unmodifiableSprites);
             if(money >= 0) {
                moneyEarnt += money;

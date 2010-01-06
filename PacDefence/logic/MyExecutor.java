@@ -27,17 +27,41 @@ import java.util.concurrent.TimeUnit;
 
 public class MyExecutor {
 
-   public static final int NUM_PROCESSORS = Runtime.getRuntime().availableProcessors();
+   private static int numThreads;
    
    private static ExecutorService executorService;
+   
+   public static void setNumThreads(int num) {
+      if(num <= 0) {
+         throw new IllegalArgumentException("Number of threads must be >= 0.");
+      }
+      if(numThreads != 0) {
+         throw new IllegalStateException("The number of threads has already been set.");
+      }
+      numThreads = num;
+   }
    
    public static void initialiseExecutor() {
       if(executorService != null) {
          throw new IllegalStateException("The ExecutorService has already been initialised.");
-      } else if(NUM_PROCESSORS > 1) {
-         // Only make the ExecutorService if there is more than 1 processor
-         executorService = Executors.newFixedThreadPool(NUM_PROCESSORS);
       }
+      // If it hasn't been explicitly set, use the number of processors
+      if(numThreads == 0) {
+         numThreads = Runtime.getRuntime().availableProcessors();
+      }
+      // Only make the ExecutorService if more than one thread is being used
+      if(numThreads > 1) {
+         System.out.println("Using " + numThreads + " threads.");
+         executorService = Executors.newFixedThreadPool(numThreads);
+      }
+   }
+   
+   public static boolean singleThreaded() {
+      return numThreads == 1;
+   }
+   
+   public static int getNumThreads() {
+      return numThreads;
    }
    
    public static void terminateExecutor() {
