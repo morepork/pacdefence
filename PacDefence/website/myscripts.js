@@ -22,7 +22,7 @@
 function runPacDefence(debugTimes) {
 	var attributes = {archive:"PacDefence.jar", code:"gui.Applet.class", width:"800", Height:"600"};
 	var parameters = {DebugTimes:debugTimes};
-	var version = "1.6"
+	var version = "1.6";
 	
 	document.write('<center>');
 	deployJava.writeAppletTag(attributes, parameters, version);
