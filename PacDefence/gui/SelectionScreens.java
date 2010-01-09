@@ -61,7 +61,7 @@ public class SelectionScreens extends JPanel {
       title.setHorizontalAlignment(JLabel.CENTER);
       title.setText("Map Selection");
       
-      background = ImageHelper.makeImage("other", "hoops.png");
+      background = ImageHelper.loadImage("other", "hoops.png");
       
       this.continueOn = continueOn;
       

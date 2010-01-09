@@ -89,7 +89,7 @@ public class OverlayButton extends JButton {
    }
    
    public OverlayButton(String... foldersAndFileName) {
-      this(ImageHelper.makeImage(foldersAndFileName));
+      this(ImageHelper.loadImage(foldersAndFileName));
    }
 
    public OverlayButton(BufferedImage image, int width, int height) {
@@ -106,7 +106,7 @@ public class OverlayButton extends JButton {
    }
 
    public static OverlayButton makeUpgradeButton(String imageName) {
-      return new OverlayButton(ImageHelper.makeImage("buttons", "upgrades", imageName),
+      return new OverlayButton(ImageHelper.loadImage("buttons", "upgrades", imageName),
             UPGRADE_BUTTON_WIDTH, UPGRADE_BUTTON_WIDTH);
    }
    

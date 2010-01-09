@@ -62,7 +62,7 @@ public class ImageHelperTest {
 
    @Before
    public void setUp() throws Exception {
-      tower = ImageHelper.makeImage("towers", "basic.png");
+      tower = ImageHelper.loadImage("towers", "basic.png");
       toDraw.clear();
    }
 

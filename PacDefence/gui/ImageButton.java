@@ -44,7 +44,7 @@ public class ImageButton extends JButton {
 
    private void setButtonImages(boolean withOverlays, String fileName, String extension,
          String... foldersAndFileName) {
-      BufferedImage mainImage = ImageHelper.makeImage(foldersAndFileName);
+      BufferedImage mainImage = ImageHelper.loadImage(foldersAndFileName);
       Color nextOverlayColour = OverlayButton.baseColour;
       setIcon(makeIcon(withOverlays, nextOverlayColour, foldersAndFileName));
       try {
@@ -81,7 +81,7 @@ public class ImageButton extends JButton {
    
    private ImageIcon makeIcon(boolean withOverlay, Color overlayColour,
          String[] foldersAndFileName) {
-      BufferedImage image = ImageHelper.makeImage(foldersAndFileName);
+      BufferedImage image = ImageHelper.loadImage(foldersAndFileName);
       return withOverlay ? OverlayButton.drawOverlay(image, overlayColour) : new ImageIcon(image);
    }
 

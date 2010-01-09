@@ -585,9 +585,9 @@ public abstract class AbstractTower implements Tower {
       String imageName = imagePath[imagePath.length - 1];
       if(!map.containsKey(imageName)) {
          if(width <= 0) {
-            map.put(imageName, ImageHelper.makeImage(imagePath));
+            map.put(imageName, ImageHelper.loadImage(imagePath));
          } else {
-            map.put(imageName, ImageHelper.makeImage(width, width, imagePath));
+            map.put(imageName, ImageHelper.loadImage(width, width, imagePath));
          }
       }
       return map.get(imageName);
@@ -708,7 +708,7 @@ public abstract class AbstractTower implements Tower {
    
    private static BufferedImage createRotatingImage(int width, int turretWidth) {
       assert turretWidth > 0 : "turretWidth must be > 0";
-      BufferedImage turretCentre = ImageHelper.makeImage("towers", "overlays", "turrets",
+      BufferedImage turretCentre = ImageHelper.loadImage("towers", "overlays", "turrets",
             "turretCentre.png");
       BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB_PRE);
       Graphics2D g = image.createGraphics();

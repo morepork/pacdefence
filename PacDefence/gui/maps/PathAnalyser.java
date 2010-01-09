@@ -35,7 +35,7 @@ public class PathAnalyser {
    private static final boolean upDown = true;
 
    public static void main(String[] args) {
-      BufferedImage image = ImageHelper.makeImage("maps", "curvyEasy.png");
+      BufferedImage image = ImageHelper.loadImage("maps", "curvyEasy.png");
       if(1 == 1) {
          doPathBounds(image);
       } else {

@@ -74,7 +74,14 @@ public class ImageHelper {
       }
    }
 
-   public static BufferedImage makeImage(String... foldersAndFileName) {
+   /**
+    * Load and return an image from the specified array of folders and the filename.
+    * 
+    * The path must be relative and it is loaded from the images folder.
+    * 
+    * For instance, to get images/other/bullet.png use {"other", "bullet.png"}.
+    */
+   public static BufferedImage loadImage(String... foldersAndFileName) {
       URL imageURL = createImageURL(foldersAndFileName);
       if (imageURL == null) {
          throw new IllegalArgumentException("Image: '" + Arrays.asList(foldersAndFileName) +
@@ -87,8 +94,8 @@ public class ImageHelper {
       }
    }
 
-   public static BufferedImage makeImage(int width, int height, String... foldersAndFileName) {
-      return resize(makeImage(foldersAndFileName), width, height);
+   public static BufferedImage loadImage(int width, int height, String... foldersAndFileName) {
+      return resize(loadImage(foldersAndFileName), width, height);
    }
 
    /**

@@ -278,7 +278,7 @@ public class GameMapPanel extends JPanel {
       private GameOver(boolean wasHighScore) {
          drawNewHighScore = wasHighScore;
          deltaY = 1;
-         img = ImageHelper.makeImage((int)(getWidth()*0.75), (int)(getHeight()*0.2), "other",
+         img = ImageHelper.loadImage((int)(getWidth()*0.75), (int)(getHeight()*0.2), "other",
                "GameOver.png");
          double mult = 1.2;
          currentY = (int)(img.getHeight() * mult);

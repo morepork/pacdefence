@@ -113,7 +113,7 @@ public class MapParser {
       Graphics2D g = image.createGraphics();
       for(int i = 0; i < children.getLength(); i++) {
          // Then draw each succesive image over the top
-         g.drawImage(ImageHelper.makeImage("maps", children.item(i).getFirstChild().getNodeValue()),
+         g.drawImage(ImageHelper.loadImage("maps", children.item(i).getFirstChild().getNodeValue()),
                0, 0, null);
       }
       return image;

@@ -53,7 +53,7 @@ public class BasicBullet implements Bullet {
    protected final double damage;
    private boolean draw = true;
    protected final Tower shotBy;
-   private static final BufferedImage image = ImageHelper.makeImage(radius * 2, radius * 2,
+   private static final BufferedImage image = ImageHelper.loadImage(radius * 2, radius * 2,
          "other", "bullet.png");
    private final List<Shape> pathBounds;
    

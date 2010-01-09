@@ -282,7 +282,7 @@ public class Game {
          @Override
          public void run() {
             controlPanel = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
-                  ImageHelper.makeImage("control_panel", "blue_lava_blurred.jpg"), eventProcessor,
+                  ImageHelper.loadImage("control_panel", "blue_lava_blurred.jpg"), eventProcessor,
                   createTowerImplementations());
             controlPanel.addMouseMotionListener(new MouseMotionListener() {
                @Override
