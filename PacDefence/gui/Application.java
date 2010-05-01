@@ -38,7 +38,7 @@ public class Application {
       
       Option debugTimesOption = parser.addBooleanOption('d', "debugTimes");
       Option debugPathOption = parser.addBooleanOption("debugPath");
-      Option threadsOption = parser.addIntegerOption('t', "--threads");
+      Option threadsOption = parser.addIntegerOption('t', "threads");
       
       try {
          parser.parse(args);
