@@ -43,7 +43,7 @@ public class Circle implements Shape {
    private Ellipse2D bounds;
    
    public Circle() {
-      this(new Point2D.Double(), 0);
+      this(0, 0, 0);
    }
    
    public Circle(double x, double y, double radius) {
