@@ -222,8 +222,8 @@ public class Game {
             ImageHelper.setSkin(title.getSelectedSkin());
             outerContainer.remove(title);
             outerContainer.add(selectionScreens);
+            outerContainer.invalidate(); // This is needed for it to work with java7
             outerContainer.validate();
-            outerContainer.repaint();
             // Free up memory used by title (around 2-3 MB)
             title = null;
             loadControlPanel();
