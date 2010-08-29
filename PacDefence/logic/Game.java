@@ -295,7 +295,7 @@ public class Game {
    
    @SuppressWarnings("serial")
    private void addKeyboardShortcuts(InputMap inputMap, ActionMap actionMap) {
-      // Sets 1+ as the keyboard shortcuts for the tower upgrades
+      // Sets 1, 2, 3, etc. as the keyboard shortcuts for the tower upgrades
       for(int i = 1; i <= Attribute.values().length; i++) {
          final Attribute a = Attribute.values()[i - 1];
          Character c = Character.forDigit(i, 10);
