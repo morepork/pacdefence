@@ -87,17 +87,6 @@ import towers.impl.ZapperTower;
 
 public class Game {
    
-   public static final int WIDTH = 800;
-   public static final int HEIGHT = 600;
-   public static final int MAP_WIDTH = WIDTH - 200;
-   public static final int MAP_HEIGHT = HEIGHT;
-   public static final int CONTROLS_WIDTH = WIDTH - MAP_WIDTH;
-   public static final int CONTROLS_HEIGHT = MAP_HEIGHT;
-   
-   // Time between each update in ms
-   public static final int CLOCK_TICK = 30;
-   public static final double CLOCK_TICKS_PER_SECOND = (double)1000 / CLOCK_TICK;
-   
    private final boolean debugTimes;
    private final boolean debugPath;
    
@@ -211,8 +200,9 @@ public class Game {
    }
    
    private Title createTitle() {
-      return new Title(WIDTH, HEIGHT, new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
+      return new Title(Constants.WIDTH, Constants.HEIGHT, new ActionListener() {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             try {
                asynchronousLoader.join();
             } catch(InterruptedException ex) {
@@ -242,7 +232,8 @@ public class Game {
       asynchronousLoader = new Thread() {
          @Override
          public void run() {
-            selectionScreens = new SelectionScreens(WIDTH, HEIGHT, new GameStarter());
+            selectionScreens = new SelectionScreens(Constants.WIDTH, Constants.HEIGHT,
+                    new GameStarter());
          }
       };
       asynchronousLoader.start();
@@ -251,7 +242,8 @@ public class Game {
    private GameMapPanel createGameMapPanel(GameMap g) {
       // Give null here for the background image as for jar file size
       // concerns I'm just using the one image now.
-      GameMapPanel gmp = new GameMapPanel(MAP_WIDTH, MAP_HEIGHT, g, debugTimes, debugPath);
+      GameMapPanel gmp = new GameMapPanel(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, g, debugTimes,
+              debugPath);
       gmp.addMouseListener(new MouseAdapter(){
          @Override
          public void mouseReleased(MouseEvent e) {
@@ -281,7 +273,7 @@ public class Game {
       asynchronousLoader = new Thread() {
          @Override
          public void run() {
-            controlPanel = new ControlPanel(CONTROLS_WIDTH, CONTROLS_HEIGHT,
+            controlPanel = new ControlPanel(Constants.CONTROLS_WIDTH, Constants.CONTROLS_HEIGHT,
                   ImageHelper.loadImage("control_panel", "blue_lava_blurred.jpg"), eventProcessor,
                   createTowerImplementations());
             controlPanel.addMouseMotionListener(new MouseMotionListener() {
@@ -309,6 +301,7 @@ public class Game {
          Character c = Character.forDigit(i, 10);
          inputMap.put(KeyStroke.getKeyStroke(c), a);
          actionMap.put(a, new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                controlPanel.clickTowerUpgradeButton(a);
             }
@@ -316,32 +309,37 @@ public class Game {
       }
       inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0), "Change target up");
       actionMap.put("Change target up", new AbstractAction() {
-         public void actionPerformed(ActionEvent e) {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             controlPanel.clickTargetButton(true);
          }
       });
       inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0), "Change target down");
       actionMap.put("Change target down", new AbstractAction() {
-         public void actionPerformed(ActionEvent e) {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             controlPanel.clickTargetButton(false);
          }
       });
       inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, 0), "Speed Up");
       inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0), "Speed Up");
       actionMap.put("Speed Up", new AbstractAction() {
-         public void actionPerformed(ActionEvent e) {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             controlPanel.clickFastButton(true);
          }
       });
       inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0), "Slow Down");
       actionMap.put("Slow Down", new AbstractAction() {
-         public void actionPerformed(ActionEvent e) {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             controlPanel.clickFastButton(false);
          }
       });
       inputMap.put(KeyStroke.getKeyStroke('s'), "Sell");
       actionMap.put("Sell", new AbstractAction() {
-         public void actionPerformed(ActionEvent e) {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             controlPanel.clickSellButton();
          }
       });
@@ -553,7 +551,7 @@ public class Game {
       long hp = Formulae.hp(level);
       String hpText = String.valueOf((long)(0.5 * hp) + " - " + hp * 2);
       String timeBetweenSprites = "0 - " + Helper.format(Formulae.
-            ticksBetweenAddSprite(level) * 2 / Game.CLOCK_TICKS_PER_SECOND, 2) + "s";
+            ticksBetweenAddSprite(level) * 2 / Constants.CLOCK_TICKS_PER_SECOND, 2) + "s";
       controlPanel.updateLevelStats(levelText, numSprites, hpText, timeBetweenSprites);
    }
    
@@ -727,7 +725,7 @@ public class Game {
       private int ticksBetweenAddSprite;
       private int addSpriteIn = 0;
       
-      private final int timesLength = (int)(CLOCK_TICKS_PER_SECOND / 2);
+      private final int timesLength = (int)(Constants.CLOCK_TICKS_PER_SECOND / 2);
       private int timesPos = 0;
       // In each of these the last position is used to store the last time
       // and is not used for calculating the average
@@ -786,9 +784,9 @@ public class Game {
                calculateTimesTaken();
             }
             long elapsedTime = calculateElapsedTimeMillis(beginTime);
-            if(elapsedTime < CLOCK_TICK) {
+            if(elapsedTime < Constants.CLOCK_TICK) {
                try {
-                  Thread.sleep(CLOCK_TICK - elapsedTime);
+                  Thread.sleep(Constants.CLOCK_TICK - elapsedTime);
                } catch(InterruptedException e) {
                   // The sleep should never be interrupted
                   e.printStackTrace();
@@ -869,6 +867,7 @@ public class Game {
          drawables.addAll(bullets);
          // Displays the tower on the cursor that could be built
          drawables.add(new Drawable() {
+            @Override
             public void draw(Graphics g) {
                if(buildingTower != null && lastMousePosition != null) {
                   buildingTower.drawShadowAt(g, lastMousePosition,

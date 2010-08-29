@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import logic.Game;
+import logic.Constants;
 import logic.Helper;
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
@@ -48,7 +48,7 @@ import towers.Tower;
 public class BeamTower extends AbstractTower {
    
    // The number of ticks the beam lasts for
-   private static final double startingBeamLastTicks = Game.CLOCK_TICKS_PER_SECOND / 2;
+   private static final double startingBeamLastTicks = Constants.CLOCK_TICKS_PER_SECOND / 2;
    private static final double upgradeBeamLastTicks = startingBeamLastTicks / 10;
    private double beamLastTicks = startingBeamLastTicks;
    
@@ -82,7 +82,7 @@ public class BeamTower extends AbstractTower {
 
    @Override
    protected String getSpecial() {
-      return Helper.format(beamLastTicks / Game.CLOCK_TICKS_PER_SECOND, 2) + "s";
+      return Helper.format(beamLastTicks / Constants.CLOCK_TICKS_PER_SECOND, 2) + "s";
    }
 
    @Override
@@ -130,7 +130,7 @@ public class BeamTower extends AbstractTower {
          this.centre = centre;
          this.launchedBy = t;
          this.arcAngle = Math.toDegrees(angle) - 90;
-         this.deltaAngle = speed / Game.CLOCK_TICKS_PER_SECOND * getDirectionModifier(target);
+         this.deltaAngle = speed / Constants.CLOCK_TICKS_PER_SECOND * getDirectionModifier(target);
          this.range = range;
          ticksLeft = numTicks;
          setBeam();

@@ -24,7 +24,7 @@ import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.List;
 
-import logic.Game;
+import logic.Constants;
 import logic.Helper;
 import sprites.Sprite;
 import towers.AbstractTower;
@@ -55,7 +55,7 @@ public abstract class SlowTower extends AbstractTower {
 
    @Override
    public String getSpecial() {
-      return Helper.format(slowTicks / Game.CLOCK_TICKS_PER_SECOND, 1) + "s";
+      return Helper.format(slowTicks / Constants.CLOCK_TICKS_PER_SECOND, 1) + "s";
    }
    
    @Override

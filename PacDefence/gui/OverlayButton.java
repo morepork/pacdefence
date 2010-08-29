@@ -32,7 +32,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
-import logic.Game;
+import logic.Constants;
 
 @SuppressWarnings("serial")
 public class OverlayButton extends JButton {
@@ -45,7 +45,7 @@ public class OverlayButton extends JButton {
    
    private static final int TOWER_BUTTON_WIDTH = 30;
    // Need the -1 otherwise they overlap slightly
-   private static final int UPGRADE_BUTTON_WIDTH = Game.CONTROLS_WIDTH / 8 - 1;
+   private static final int UPGRADE_BUTTON_WIDTH = Constants.CONTROLS_WIDTH / 8 - 1;
    
    private static final Font defaultFont = new Font(Font.SANS_SERIF, Font.BOLD, 14);
    private static final FontRenderContext frc = new FontRenderContext(null, true, true);

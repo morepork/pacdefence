@@ -29,7 +29,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import logic.Game;
+import logic.Constants;
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
 
@@ -93,13 +93,15 @@ public class BasicBullet implements Bullet {
       this.pathBounds = pathBounds;
    }
 
-   public final double tick(List<Sprite> sprites) {
+   @Override
+public final double tick(List<Sprite> sprites) {
       double tick = doTick(sprites);
       draw = tick < 0;
       return tick;
    }
 
-   public void draw(Graphics g) {
+   @Override
+public void draw(Graphics g) {
       if(draw && !checkIfBulletIsOffScreen()) {
          g.drawImage(image, (int) position.getX() - radius, (int) position.getY() - radius, null);
       }
@@ -216,8 +218,8 @@ public class BasicBullet implements Bullet {
    protected boolean checkIfBulletIsOffScreen(Point2D p) {
       return p.getX() < -getOffScreenFudgeDistance() ||
             p.getY() < -getOffScreenFudgeDistance() ||
-            p.getX() > Game.MAP_WIDTH + getOffScreenFudgeDistance() ||
-            p.getY() > Game.MAP_HEIGHT + getOffScreenFudgeDistance();
+            p.getX() > Constants.MAP_WIDTH + getOffScreenFudgeDistance() ||
+            p.getY() > Constants.MAP_HEIGHT + getOffScreenFudgeDistance();
    }
    
    protected int getOffScreenFudgeDistance() {

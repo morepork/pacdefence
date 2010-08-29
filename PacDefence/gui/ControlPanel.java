@@ -53,7 +53,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import logic.Game;
+import logic.Constants;
 import logic.Helper;
 import logic.Game.ControlEventProcessor;
 import sprites.Sprite;
@@ -159,7 +159,7 @@ public class ControlPanel extends JPanel {
          towerLevelLabel.setText(" ");
          killsLabel.setText(" ");
          damageDealtLabel.setText("Speed: " + Helper.format(s.getSpeed() *
-               Game.CLOCK_TICKS_PER_SECOND, 0) + " pixels/s ");
+                 Constants.CLOCK_TICKS_PER_SECOND, 0) + " pixels/s ");
          sellButton.setEnabled(false);
          targetLabel.setText(" ");
          targetButton.setEnabled(false);
@@ -321,7 +321,8 @@ public class ControlPanel extends JPanel {
       }
       OverlayToggleButton b = new OverlayToggleButton(images);
       b.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             clickFastButton(true);
          }
       });
@@ -388,12 +389,14 @@ public class ControlPanel extends JPanel {
          OverlayButton button = OverlayButton.makeTowerButton(t.getButtonImage());
          towerTypes.put(button, t);
          button.addActionListener(new ActionListener(){
+            @Override
             public void actionPerformed(ActionEvent e) {
                JButton b = (JButton) e.getSource();
                eventProcessor.processTowerButtonPressed(b, towerTypes.get(b));
             }
          });
          button.addChangeListener(new ChangeListener(){
+            @Override
             public void stateChanged(ChangeEvent e) {
                JButton b = (JButton) e.getSource();
                eventProcessor.processTowerButtonChangeEvent(b, towerTypes.get(b));
@@ -428,6 +431,7 @@ public class ControlPanel extends JPanel {
             speedUpgrade, specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade};
       for(OverlayButton b : buttons) {
          b.addActionListener(new ActionListener(){
+            @Override
             public void actionPerformed(ActionEvent e) {
                OverlayButton o = (OverlayButton) e.getSource();
                eventProcessor.processEndLevelUpgradeButtonPress(o, o.equals(livesUpgrade),
@@ -435,6 +439,7 @@ public class ControlPanel extends JPanel {
             }
          });
          b.addChangeListener(new ChangeListener() {
+            @Override
             public void stateChanged(ChangeEvent e) {
                OverlayButton o = (OverlayButton) e.getSource();
                eventProcessor.processEndLevelUpgradeButtonChanged(o, o.equals(livesUpgrade),
@@ -480,13 +485,15 @@ public class ControlPanel extends JPanel {
       OverlayButton b = new OverlayButton(" ", 13);
       
       b.addActionListener(new ActionListener(){
-         public void actionPerformed(ActionEvent e) {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             JButton b = (JButton)e.getSource();
             eventProcessor.processUpgradeButtonPressed(e, buttonAttributeMap.get(b));
          }
       });
       b.addChangeListener(new ChangeListener(){
-         public void stateChanged(ChangeEvent e) {
+         @Override
+        public void stateChanged(ChangeEvent e) {
             JButton b = (JButton)e.getSource();
             eventProcessor.processUpgradeButtonChanged(b, buttonAttributeMap.get(b));
          }
@@ -536,7 +543,8 @@ public class ControlPanel extends JPanel {
       };
       
       b.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             // Go back if ctrl is pressed at the same time
             boolean ctrl = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK;
             eventProcessor.processTargetButtonPressed((JButton)e.getSource(), !ctrl);
@@ -572,7 +580,8 @@ public class ControlPanel extends JPanel {
 
    private void setUpStartButton() {
       start.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             eventProcessor.processStartButtonPressed();
          }
       });
@@ -598,12 +607,14 @@ public class ControlPanel extends JPanel {
       // So when disabled it is blank but keeps its size
       b.setDisabledIcon(new ImageIcon());
       b.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             eventProcessor.processSellButtonPressed((JButton) e.getSource());
          }
       });
       b.addChangeListener(new ChangeListener() {
-         public void stateChanged(ChangeEvent e) {
+         @Override
+        public void stateChanged(ChangeEvent e) {
             eventProcessor.processSellButtonChanged((JButton) e.getSource());
          }
       });
@@ -615,14 +626,16 @@ public class ControlPanel extends JPanel {
       JButton title = new OverlayButton("Title");
       title.setMnemonic(KeyEvent.VK_T);
       title.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             eventProcessor.processTitleButtonPressed();
          }
       });
       JButton restart = new OverlayButton("Restart");
       restart.setMnemonic(KeyEvent.VK_R);
       restart.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             eventProcessor.processRestartPressed();
          }
       });

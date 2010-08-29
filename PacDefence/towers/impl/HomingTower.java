@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import logic.Game;
+import logic.Constants;
 import logic.Helper;
 import sprites.Sprite;
 import sprites.Sprite.DistanceComparator;
@@ -49,7 +49,7 @@ public class HomingTower extends AbstractTower {
    @Override
    public String getSpecial() {
       // \u00b0 is the degree symbol
-      return Helper.format(maxRedirectAngle * Game.CLOCK_TICKS_PER_SECOND, 1) + "\u00b0/s";
+      return Helper.format(maxRedirectAngle * Constants.CLOCK_TICKS_PER_SECOND, 1) + "\u00b0/s";
    }
 
    @Override

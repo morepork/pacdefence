@@ -41,7 +41,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import logic.Game;
+import logic.Constants;
 
 @SuppressWarnings("serial")
 public class Title extends JPanel {
@@ -133,7 +133,8 @@ public class Title extends JPanel {
       final Title title = this;
       
       button.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
+         @Override
+        public void actionPerformed(ActionEvent e) {
             HighScoresDialog.showHighScoresDialog(title);
          }
       });
@@ -187,7 +188,7 @@ public class Title extends JPanel {
                @Override
                public Dimension getPreferredScrollableViewportSize() {
                   Dimension d = getPreferredSize();
-                  d.setSize(d.getWidth(), Game.HEIGHT - 100.0);
+                  d.setSize(d.getWidth(), Constants.HEIGHT - 100.0);
                   return d;
                }
             };

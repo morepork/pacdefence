@@ -47,8 +47,8 @@ import java.util.List;
 import java.util.Map;
 
 import logic.Circle;
+import logic.Constants;
 import logic.Formulae;
-import logic.Game;
 import logic.Helper;
 import sprites.LooseFloat;
 import sprites.Sprite;
@@ -359,7 +359,7 @@ public abstract class AbstractTower implements Tower {
          case Range:
             return Helper.format(range, 1);
          case Rate:
-            return Helper.format(fireRate / Game.CLOCK_TICKS_PER_SECOND, 2) + "s";
+            return Helper.format(fireRate / Constants.CLOCK_TICKS_PER_SECOND, 2) + "s";
          case Speed:
             return Helper.format(bulletSpeed, 2);
          case Special:

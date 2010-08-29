@@ -24,7 +24,7 @@ import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.List;
 
-import logic.Game;
+import logic.Constants;
 import logic.Helper;
 import sprites.Sprite;
 import towers.AbstractTower;
@@ -35,8 +35,8 @@ import towers.DamageNotifier;
 
 public class WeakenTower extends AbstractTower {
    
-   private double extraDamageTicks = Game.CLOCK_TICKS_PER_SECOND / 2;
-   private double upgradeIncreaseTicks = Game.CLOCK_TICKS_PER_SECOND / 10;
+   private double extraDamageTicks = Constants.CLOCK_TICKS_PER_SECOND / 2;
+   private double upgradeIncreaseTicks = Constants.CLOCK_TICKS_PER_SECOND / 10;
    private double increaseDamageFactor = 2;
    private final DamageNotifier damageNotifier = new DamageNotifier(this);
    
@@ -46,7 +46,7 @@ public class WeakenTower extends AbstractTower {
 
    @Override
    public String getSpecial() {
-      return Helper.format(extraDamageTicks / Game.CLOCK_TICKS_PER_SECOND, 1) + "s";
+      return Helper.format(extraDamageTicks / Constants.CLOCK_TICKS_PER_SECOND, 1) + "s";
    }
 
    @Override

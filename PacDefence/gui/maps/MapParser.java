@@ -39,8 +39,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import logic.Game;
-
+import logic.Constants;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -108,7 +107,7 @@ public class MapParser {
    private static BufferedImage parseImages(Node n) {
       NodeList children = n.getChildNodes();
       // Make a blank image of this type so all colours can be shown
-      BufferedImage image = new BufferedImage(Game.MAP_WIDTH, Game.MAP_HEIGHT,
+      BufferedImage image = new BufferedImage(Constants.MAP_WIDTH, Constants.MAP_HEIGHT,
             BufferedImage.TYPE_INT_ARGB_PRE);
       Graphics2D g = image.createGraphics();
       for(int i = 0; i < children.getLength(); i++) {

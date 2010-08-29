@@ -23,6 +23,7 @@ import java.awt.Dimension;
 
 import javax.swing.JApplet;
 
+import logic.Constants;
 import logic.Game;
 
 @SuppressWarnings("serial")
@@ -62,7 +63,7 @@ public class Applet extends JApplet {
    
    private void startGame() {
       game = new Game(this, debugTimes, false);
-      setSize(new Dimension(Game.WIDTH, Game.HEIGHT));
+      setSize(new Dimension(Constants.WIDTH, Constants.HEIGHT));
       setVisible(true);
    }
 

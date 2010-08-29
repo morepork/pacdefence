@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import logic.Game;
+import logic.Constants;
 import logic.Helper;
 import sprites.Sprite;
 import towers.AbstractTower;
@@ -154,7 +154,7 @@ public class WaveTower extends AbstractTower {
       @Override
       protected boolean canBulletBeRemovedAsOffScreen() {
          // Need to check that the arc isn't empty as it may not have been set yet
-         return !arc.isEmpty() && !arc.intersects(0, 0, Game.WIDTH, Game.HEIGHT);
+         return !arc.isEmpty() && !arc.intersects(0, 0, Constants.WIDTH, Constants.HEIGHT);
       }
       
       private void setArc(Arc2D a, double radius) {
