@@ -88,7 +88,6 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private int pointAfterIndex;
    
    private final Point2D centre = new Point2D.Double();
-   // private double x, y;
    private double xStep, yStep;
    private double totalDistanceTravelled = 0;
    // The distance in pixels to the next point from the previous one
