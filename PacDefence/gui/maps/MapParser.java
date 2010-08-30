@@ -30,6 +30,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.XMLConstants;
@@ -222,9 +223,9 @@ public class MapParser {
       public GameMap(String description, List<Point> pathPoints, List<Polygon> path,
             List<Shape> pathBounds, BufferedImage image) {
          this.description = description;
-         this.pathPoints = pathPoints;
-         this.path = path;
-         this.pathBounds = pathBounds;
+         this.pathPoints = Collections.unmodifiableList(pathPoints);
+         this.path = Collections.unmodifiableList(path);
+         this.pathBounds = Collections.unmodifiableList(pathBounds);
          this.image = image;
       }
       

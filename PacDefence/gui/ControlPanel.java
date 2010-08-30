@@ -95,12 +95,11 @@ public class ControlPanel extends JPanel {
    
    private final ImageButton start = new ImageButton("start", ".png", true);
 
-   private final ControlEventProcessor eventProcessor;
+   private ControlEventProcessor eventProcessor;
 
    public ControlPanel(int width, int height, BufferedImage backgroundImage,
-         ControlEventProcessor eventProcessor, List<Tower> towerImplementations) {
+         List<Tower> towerImplementations) {
       this.backgroundImage = ImageHelper.resize(backgroundImage, width, height);
-      this.eventProcessor = eventProcessor;
       setPreferredSize(new Dimension(width, height));
       // Reflective method to set up the MyJLabels
       setUpJLabels();
@@ -164,6 +163,13 @@ public class ControlPanel extends JPanel {
          targetLabel.setText(" ");
          targetButton.setEnabled(false);
       }
+   }
+   
+   public void setEventProcessor(ControlEventProcessor eventProcessor) {;
+      if(this.eventProcessor != null) {
+         throw new IllegalStateException("Control even proccessor already set.");
+      }
+      this.eventProcessor = eventProcessor;
    }
    
    public void enableTowerStatsButtons(boolean enable) {

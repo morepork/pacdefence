@@ -19,6 +19,7 @@
 
 package gui;
 
+import gui.PacDefence.GameStarter;
 import gui.maps.MapParser;
 import gui.maps.MapParser.GameMap;
 import images.ImageHelper;
@@ -41,7 +42,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import logic.Game;
 import logic.MyExecutor;
 
 @SuppressWarnings("serial")
@@ -51,9 +51,9 @@ public class SelectionScreens extends JPanel {
    private final MyJLabel title = new MyJLabel();
    private final BufferedImage background;
    private final List<GameMap> gameMaps = createGameMapList();
-   private final Game.GameStarter continueOn;
+   private final GameStarter gameStarter;
 
-   public SelectionScreens(int width, int height, Game.GameStarter continueOn) {
+   public SelectionScreens(int width, int height, GameStarter gameStarter) {
       super(new BorderLayout());
       
       title.setForeground(textColour);
@@ -63,7 +63,7 @@ public class SelectionScreens extends JPanel {
       
       background = ImageHelper.loadImage("other", "hoops.png");
       
-      this.continueOn = continueOn;
+      this.gameStarter = gameStarter;
       
       add(title, BorderLayout.NORTH);
       add(createMapSelections(), BorderLayout.CENTER);
@@ -124,8 +124,9 @@ public class SelectionScreens extends JPanel {
          }
          OverlayButton button = new OverlayButton(g.getImage(), 225, 225);
          button.addActionListener(new ActionListener(){
+            @Override
             public void actionPerformed(ActionEvent e) {
-               continueOn.startGame(g);
+               gameStarter.startGame(g);
             }
          });
          b.add(SwingHelper.createHorizontalWrapperBoxWithGlue(button));

@@ -24,7 +24,6 @@ import java.awt.Dimension;
 import javax.swing.JApplet;
 
 import logic.Constants;
-import logic.Game;
 
 @SuppressWarnings("serial")
 public class Applet extends JApplet {
@@ -32,7 +31,7 @@ public class Applet extends JApplet {
    private static boolean isApplet = false;
    
    private boolean debugTimes;
-   private Game game;
+   private PacDefence pacDefence;
    
    @Override
    public void init() {
@@ -45,7 +44,7 @@ public class Applet extends JApplet {
    
    @Override
    public void start() {
-      if(game == null) {
+      if(pacDefence == null) {
          startGame();
       }
    }
@@ -53,8 +52,8 @@ public class Applet extends JApplet {
    @Override
    public void destroy() {
       removeAll();
-      game.end();
-      game = null;
+      pacDefence.end();
+      pacDefence = null;
    }
    
    public static boolean isApplet() {
@@ -62,7 +61,7 @@ public class Applet extends JApplet {
    }
    
    private void startGame() {
-      game = new Game(this, debugTimes, false);
+      pacDefence = new PacDefence(this, debugTimes, false);
       setSize(new Dimension(Constants.WIDTH, Constants.HEIGHT));
       setVisible(true);
    }

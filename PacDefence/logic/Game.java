@@ -22,22 +22,13 @@ package logic;
 import gui.ControlPanel;
 import gui.Drawable;
 import gui.GameMapPanel;
-import gui.SelectionScreens;
-import gui.Title;
+import gui.PacDefence;
 import gui.GameMapPanel.DebugStats;
 import gui.maps.MapParser.GameMap;
-import images.ImageHelper;
-
-import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -52,12 +43,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.prefs.BackingStoreException;
 
-import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
 import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.KeyStroke;
+import javax.swing.JPanel;
 
 import sprites.Pacman;
 import sprites.Sprite;
@@ -67,28 +54,9 @@ import towers.Ghost;
 import towers.Tower;
 import towers.Tower.Attribute;
 import towers.impl.AidTower;
-import towers.impl.BeamTower;
-import towers.impl.BomberTower;
-import towers.impl.ChargeTower;
-import towers.impl.CircleTower;
-import towers.impl.FreezeTower;
-import towers.impl.HomingTower;
-import towers.impl.JumperTower;
-import towers.impl.LaserTower;
-import towers.impl.MultiShotTower;
-import towers.impl.OmnidirectionalTower;
-import towers.impl.PoisonTower;
-import towers.impl.ScatterTower;
-import towers.impl.SlowLengthTower;
-import towers.impl.WaveTower;
-import towers.impl.WeakenTower;
-import towers.impl.ZapperTower;
 
 
 public class Game {
-   
-   private final boolean debugTimes;
-   private final boolean debugPath;
    
    private final List<Sprite> sprites = new ArrayList<Sprite>();
    private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
@@ -97,19 +65,11 @@ public class Game {
    private List<Tower> towersToRemove = new ArrayList<Tower>();
    
    private Clock clock;
-   
-   private List<Polygon> path;
-   private List<Shape> pathBounds;
-   private List<Point> pathPoints;
 
-   private final Container outerContainer;
-   private Title title = createTitle();
-   private Thread asynchronousLoader;
-   private SelectionScreens selectionScreens;
+   private GameMap gameMap;
+   private PacDefence pacDefence;
+   private GameMapPanel gameMapPanel;
    private ControlPanel controlPanel;
-   private GameMapPanel gameMap;
-   private String gameMapName;
-   private ControlEventProcessor eventProcessor = new ControlEventProcessor();
    
    private final Map<Attribute, Integer> upgradesSoFar =
          new EnumMap<Attribute, Integer>(Attribute.class);
@@ -145,22 +105,42 @@ public class Game {
    private Sprite selectedSprite;
    private Sprite hoverOverSprite;
    
-   public Game(Container c, boolean debugTimes, boolean debugPath) {
-      this.debugTimes = debugTimes;
-      this.debugPath = debugPath;
-      outerContainer = c;
-      outerContainer.setLayout(new BorderLayout());
-      outerContainer.add(title);
-      MyExecutor.initialiseExecutor();
-      loadSelectionScreens();
+   public Game(PacDefence pd, ControlPanel cp, GameMap gm) {
+      this.pacDefence = pd;
+      this.controlPanel = cp;
+      controlPanel.setEventProcessor(new ControlEventProcessor());
+      controlPanel.addMouseMotionListener(new MouseMotionListener() {
+         @Override
+         public void mouseMoved(MouseEvent e) {
+            lastMousePosition = null;
+         }
+         @Override
+         public void mouseDragged(MouseEvent e) {
+            lastMousePosition = null;
+         }
+      });
+      
+      
+      gameMap = gm;
+      gameMapPanel = createGameMapPanel(gm);
+      setStartingStats();
+      clock = new Clock();
    }
    
-   public void end() {
-      if(clock != null) {
-         clock.end();
-      }
-      MyExecutor.terminateExecutor();
-      outerContainer.setVisible(false);
+   public JPanel getGameMapPanel() {
+      return gameMapPanel;
+   }
+   
+   public JPanel getControlPanel() {
+      return controlPanel;
+   }
+   
+   public void stopRunning() {
+      clock.end();
+      sprites.clear();
+      towers.clear();
+      bullets.clear();
+      levelInProgress = false;
    }
    
    private void setSelectedTower(Tower t) {
@@ -198,52 +178,12 @@ public class Game {
    private void setHoverOverSprite(Sprite s) {
       hoverOverSprite = s;
    }
-   
-   private Title createTitle() {
-      return new Title(Constants.WIDTH, Constants.HEIGHT, new ActionListener() {
-         @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-               asynchronousLoader.join();
-            } catch(InterruptedException ex) {
-               // Should never happen
-               throw new RuntimeException(ex);
-            }
-            ImageHelper.setSkin(title.getSelectedSkin());
-            outerContainer.remove(title);
-            outerContainer.add(selectionScreens);
-            outerContainer.invalidate(); // This is needed for it to work with java7
-            outerContainer.validate();
-            // Free up memory used by title (around 2-3 MB)
-            title = null;
-            loadControlPanel();
-         }
-      });
-   }
-   
-   /**
-    * Loads the selection screens asynchronously.
-    * 
-    * It's worth doing this as previously it would pause for around a second while it was loaded,
-    * but it may as well be loaded in the background because nothing is happening while you're at
-    * the title screen.
-    */
-   private void loadSelectionScreens() {
-      asynchronousLoader = new Thread() {
-         @Override
-         public void run() {
-            selectionScreens = new SelectionScreens(Constants.WIDTH, Constants.HEIGHT,
-                    new GameStarter());
-         }
-      };
-      asynchronousLoader.start();
-   }
-   
+
    private GameMapPanel createGameMapPanel(GameMap g) {
       // Give null here for the background image as for jar file size
       // concerns I'm just using the one image now.
-      GameMapPanel gmp = new GameMapPanel(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, g, debugTimes,
-              debugPath);
+      GameMapPanel gmp = new GameMapPanel(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, g,
+            pacDefence.getDebugTimes(), pacDefence.getDebugPath());
       gmp.addMouseListener(new MouseAdapter(){
          @Override
          public void mouseReleased(MouseEvent e) {
@@ -261,111 +201,6 @@ public class Game {
          }
       });
       return gmp;
-   }
-   
-   /**
-    * Load the control panel asynchronously.
-    * 
-    * This is fine as like on the title screen, while the selection screens are shown nothing is
-    * really happening.
-    */
-   private void loadControlPanel() {
-      asynchronousLoader = new Thread() {
-         @Override
-         public void run() {
-            controlPanel = new ControlPanel(Constants.CONTROLS_WIDTH, Constants.CONTROLS_HEIGHT,
-                  ImageHelper.loadImage("control_panel", "blue_lava_blurred.jpg"), eventProcessor,
-                  createTowerImplementations());
-            controlPanel.addMouseMotionListener(new MouseMotionListener() {
-               @Override
-               public void mouseMoved(MouseEvent e) {
-                  lastMousePosition = null;
-               }
-               @Override
-               public void mouseDragged(MouseEvent e) {
-                  lastMousePosition = null;
-               }
-            });
-            addKeyboardShortcuts(controlPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW),
-                  controlPanel.getActionMap());
-         }
-      };
-      asynchronousLoader.start();
-   }
-   
-   @SuppressWarnings("serial")
-   private void addKeyboardShortcuts(InputMap inputMap, ActionMap actionMap) {
-      // Sets 1, 2, 3, etc. as the keyboard shortcuts for the tower upgrades
-      for(int i = 1; i <= Attribute.values().length; i++) {
-         final Attribute a = Attribute.values()[i - 1];
-         Character c = Character.forDigit(i, 10);
-         inputMap.put(KeyStroke.getKeyStroke(c), a);
-         actionMap.put(a, new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-               controlPanel.clickTowerUpgradeButton(a);
-            }
-         });
-      }
-      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0), "Change target up");
-      actionMap.put("Change target up", new AbstractAction() {
-         @Override
-        public void actionPerformed(ActionEvent e) {
-            controlPanel.clickTargetButton(true);
-         }
-      });
-      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0), "Change target down");
-      actionMap.put("Change target down", new AbstractAction() {
-         @Override
-        public void actionPerformed(ActionEvent e) {
-            controlPanel.clickTargetButton(false);
-         }
-      });
-      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, 0), "Speed Up");
-      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0), "Speed Up");
-      actionMap.put("Speed Up", new AbstractAction() {
-         @Override
-        public void actionPerformed(ActionEvent e) {
-            controlPanel.clickFastButton(true);
-         }
-      });
-      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0), "Slow Down");
-      actionMap.put("Slow Down", new AbstractAction() {
-         @Override
-        public void actionPerformed(ActionEvent e) {
-            controlPanel.clickFastButton(false);
-         }
-      });
-      inputMap.put(KeyStroke.getKeyStroke('s'), "Sell");
-      actionMap.put("Sell", new AbstractAction() {
-         @Override
-        public void actionPerformed(ActionEvent e) {
-            controlPanel.clickSellButton();
-         }
-      });
-   }
-   
-   private List<Tower> createTowerImplementations() {
-      List<Tower> towerTypes = new ArrayList<Tower>();
-      towerTypes.add(new BomberTower(new Point(), null));
-      towerTypes.add(new SlowLengthTower(new Point(), null));
-      towerTypes.add(new FreezeTower(new Point(), null));
-      towerTypes.add(new JumperTower(new Point(), null));
-      towerTypes.add(new CircleTower(new Point(), null));
-      towerTypes.add(new ScatterTower(new Point(), null));
-      towerTypes.add(new MultiShotTower(new Point(), null));
-      towerTypes.add(new LaserTower(new Point(), null));
-      towerTypes.add(new PoisonTower(new Point(), null));
-      towerTypes.add(new OmnidirectionalTower(new Point(), null));
-      towerTypes.add(new WeakenTower(new Point(), null));
-      towerTypes.add(new WaveTower(new Point(), null));
-      towerTypes.add(new HomingTower(new Point(), null));
-      towerTypes.add(new ChargeTower(new Point(), null));
-      towerTypes.add(new ZapperTower(new Point(), null));
-      towerTypes.add(new BeamTower(new Point(), null));
-      towerTypes.add(new AidTower(new Point(), null));
-      towerTypes.add(new Ghost(new Point()));
-      return towerTypes;
    }
    
    private static List<Comparator<Sprite>> createComparators() {
@@ -413,7 +248,7 @@ public class Game {
       increaseMoney(interest + levelEndBonus + noEnemiesThroughBonus);
       updateAllButLevelStats();
       
-      gameMap.displayText(text);
+      gameMapPanel.displayText(text);
       controlPanel.enableStartButton(true);
       
       // Remove all the ghosts at the end of the level
@@ -633,14 +468,6 @@ public class Game {
       }
    }
    
-   private void stopRunning() {
-      clock.end();
-      sprites.clear();
-      towers.clear();
-      bullets.clear();
-      levelInProgress = false;
-   }
-   
    private Tower getTowerContaining(Point p) {
       for(Tower t : towers) {
          if(t.contains(p)) {
@@ -665,7 +492,7 @@ public class Game {
          return;
       }
       if(isValidTowerPos(p)) {
-         Tower toBuild = buildingTower.constructNew(p, pathBounds);
+         Tower toBuild = buildingTower.constructNew(p, gameMap.getPathBounds());
          if(canBuildTower(toBuild.getClass())) {
             buildTower(toBuild);
             // Have to add after telling the control panel otherwise the price will be wrong
@@ -687,9 +514,9 @@ public class Game {
       if(buildingTower == null || p == null) {
          return false;
       }
-      Tower toBuild = buildingTower.constructNew(p, pathBounds);
+      Tower toBuild = buildingTower.constructNew(p, gameMap.getPathBounds());
       // Checks that the point isn't on the path
-      if(!toBuild.canTowerBeBuilt(path)) {
+      if(!toBuild.canTowerBeBuilt(gameMap.getPath())) {
          return false;
       }
       for(Tower t : towers) {
@@ -706,12 +533,12 @@ public class Game {
       
       boolean isNewHighScore = false;
       try {
-         isNewHighScore = HighScores.addScore(gameMapName, level);
+         isNewHighScore = HighScores.addScore(gameMap.getDescription(), level);
       } catch(BackingStoreException e) {
          // Print the error and continue if this happens
          e.printStackTrace();
       }
-      gameMap.signalGameOver(isNewHighScore);
+      gameMapPanel.signalGameOver(isNewHighScore);
    }
    
    private class Clock extends Thread {
@@ -774,12 +601,12 @@ public class Game {
             long beginTime = System.nanoTime();
             if(!gameOver) {
                doTicks();
-               if(debugTimes) {
+               if(pacDefence.getDebugTimes()) {
                   processTimes[timesLength] = calculateElapsedTimeMillis(beginTime);
                }
             }
             long drawingBeginTime = draw();
-            if(debugTimes) {
+            if(pacDefence.getDebugTimes()) {
                drawTimes[timesLength] = calculateElapsedTimeMillis(drawingBeginTime);
                calculateTimesTaken();
             }
@@ -825,7 +652,7 @@ public class Game {
          // which is a slight aid.
          Collections.sort(spritesCopy, AbstractTower.DEFAULT_SPRITE_COMPARATOR);
          List<Sprite> unmodifiableSprites = Collections.unmodifiableList(spritesCopy);
-         if(debugTimes) {
+         if(pacDefence.getDebugTimes()) {
             // Make sure any changes here or below are reflected in both, bar the timing bits
             long beginTime = System.nanoTime();
             tickSprites();
@@ -846,7 +673,7 @@ public class Game {
       
       private long draw() {
          long drawingBeginTime = System.nanoTime();
-         drawingBeginTime -= gameMap.redraw(getDrawables(),
+         drawingBeginTime -= gameMapPanel.redraw(getDrawables(),
                new DebugStats(processTime, processSpritesTime, processBulletsTime,
                      processTowersTime, drawTime, bullets.size()));
          return drawingBeginTime;
@@ -931,7 +758,8 @@ public class Game {
       private void lookAfterAddingNewSprites() {
          if(spritesToAdd > 0) {
             if(addSpriteIn < 1) { // If the time has got to zero, add a sprite
-               sprites.add(new Pacman(level, levelHP, new ArrayList<Point>(pathPoints)));
+               sprites.add(new Pacman(level, levelHP,
+                     new ArrayList<Point>(gameMap.getPathPoints())));
                // Adds a sprite in somewhere between 0 and twice the designated time
                addSpriteIn = (int)(Math.random() * (ticksBetweenAddSprite * 2 + 1));
                spritesToAdd--;
@@ -1088,7 +916,7 @@ public class Game {
          if(!levelInProgress) {
             controlPanel.enableStartButton(false);
             level++;
-            gameMap.removeText();
+            gameMapPanel.removeText();
             livesLostOnThisLevel = 0;
             levelInProgress = true;
             clock.spritesToAdd = Formulae.numSprites(level);
@@ -1242,19 +1070,12 @@ public class Game {
       
       public void processTitleButtonPressed() {
          stopRunning();
-         title = createTitle();
-         outerContainer.remove(gameMap);
-         outerContainer.remove(controlPanel);
-         outerContainer.add(title);
-         outerContainer.validate();
-         outerContainer.repaint();
-         loadSelectionScreens();
-         AbstractTower.flushImageCache();
+         pacDefence.returnToTitle(gameMapPanel, controlPanel);
       }
       
       public void processRestartPressed() {
-         stopRunning(); // This ends the clock
-         gameMap.restart();
+         stopRunning(); // This ends the old clock
+         gameMapPanel.restart();
          controlPanel.restart();
          setStartingStats();
          clock = new Clock();
@@ -1273,33 +1094,4 @@ public class Game {
       }
    }
    
-   public class GameStarter {
-      
-      public void startGame(GameMap g) {
-         pathPoints = g.getPathPoints();
-         path = g.getPath();
-         pathBounds = g.getPathBounds();
-         pathBounds = Collections.unmodifiableList(pathBounds);
-         gameMap = createGameMapPanel(g);
-         gameMapName = g.getDescription();
-         try {
-            asynchronousLoader.join();
-         } catch(InterruptedException e) {
-            // Should never happen
-            throw new RuntimeException(e);
-         }
-         outerContainer.remove(selectionScreens);
-         // Releases memory used by the images in the GameMaps, ~20 MB when last checked
-         selectionScreens = null;
-         outerContainer.add(gameMap, BorderLayout.WEST);
-         outerContainer.add(controlPanel, BorderLayout.EAST);
-         outerContainer.validate();
-         outerContainer.repaint();
-         controlPanel.requestFocus();
-         setStartingStats();
-         clock = new Clock();
-      }
-      
-   }
-
 }

@@ -50,6 +50,8 @@ public class GameMapPanel extends JPanel {
    private final boolean debugTimes;
    private final boolean debugPath;
    
+   private final GameMap gameMap;
+   
    private final BufferedImage backgroundImage;
    //Have two precreated buffers as recreating them at each step is much slower
    private BufferedImage buffer;
@@ -59,10 +61,6 @@ public class GameMapPanel extends JPanel {
    private List<Drawable> drawablesToDraw;
    private DebugStats debugStatsToDraw;
    
-   private final List<Polygon> path;
-   private final List<Point> pathPoints;
-   private final List<Shape> pathBounds;
-
    private GameOver gameOver = null;
    private final TextDisplay textDisplay;
    
@@ -84,9 +82,8 @@ public class GameMapPanel extends JPanel {
       // Draws the actual map (maze) onto the background image
       backgroundImage.createGraphics().drawImage(map.getImage(), 0, 0, width, height, null);
       
-      pathPoints = map.getPathPoints();
-      path = map.getPath();
-      pathBounds = map.getPathBounds();
+      this.gameMap = map;
+
       textDisplay = new TextDisplay(width, height);
       
       if(debugPath) {
@@ -196,7 +193,7 @@ public class GameMapPanel extends JPanel {
    private void drawPath(Graphics g) {
       g.setColor(Color.BLACK);
       Point lastPoint = null;
-      for(Point p : pathPoints) {
+      for(Point p : gameMap.getPathPoints()) {
          int x = p.x;
          int y = p.y;
          // These two lines are the cross at each point
@@ -213,7 +210,7 @@ public class GameMapPanel extends JPanel {
     * Test method that draws an outline of the path.
     */
    private void drawPathOutline(Graphics g) {
-      for(Polygon p : path) {
+      for(Polygon p : gameMap.getPath()) {
          g.setColor(Color.RED);
          g.drawPolygon(p);
          g.setColor(new Color(0, 0, 0, 90));
@@ -224,11 +221,11 @@ public class GameMapPanel extends JPanel {
    private void drawPathBounds(Graphics g) {
       Graphics2D g2D = (Graphics2D) g;
       g2D.setColor(new Color(0, 0, 255, 30));
-      for(Shape s : pathBounds) {
+      for(Shape s : gameMap.getPathBounds()) {
          g2D.fill(s);
       }
       g2D.setColor(new Color(0, 0, 255, 100));
-      for(Shape s : pathBounds) {
+      for(Shape s : gameMap.getPathBounds()) {
          g2D.draw(s);
       }
    }
