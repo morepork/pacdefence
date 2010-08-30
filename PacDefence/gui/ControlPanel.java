@@ -43,13 +43,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -57,12 +62,52 @@ import logic.Constants;
 import logic.Helper;
 import logic.Game.ControlEventProcessor;
 import sprites.Sprite;
+import towers.Ghost;
 import towers.Tower;
 import towers.Tower.Attribute;
+import towers.impl.AidTower;
+import towers.impl.BeamTower;
+import towers.impl.BomberTower;
+import towers.impl.ChargeTower;
+import towers.impl.CircleTower;
+import towers.impl.FreezeTower;
+import towers.impl.HomingTower;
+import towers.impl.JumperTower;
+import towers.impl.LaserTower;
+import towers.impl.MultiShotTower;
+import towers.impl.OmnidirectionalTower;
+import towers.impl.PoisonTower;
+import towers.impl.ScatterTower;
+import towers.impl.SlowLengthTower;
+import towers.impl.WaveTower;
+import towers.impl.WeakenTower;
+import towers.impl.ZapperTower;
 
 
 @SuppressWarnings("serial")
 public class ControlPanel extends JPanel {
+   
+   // The tower implementations to use for the game, there should be exactly 18 here
+   private static final Tower[] towerImplementations = {
+      new BomberTower(new Point(), null),
+      new SlowLengthTower(new Point(), null),
+      new FreezeTower(new Point(), null),
+      new JumperTower(new Point(), null),
+      new CircleTower(new Point(), null),
+      new ScatterTower(new Point(), null),
+      new MultiShotTower(new Point(), null),
+      new LaserTower(new Point(), null),
+      new PoisonTower(new Point(), null),
+      new OmnidirectionalTower(new Point(), null),
+      new WeakenTower(new Point(), null),
+      new WaveTower(new Point(), null),
+      new HomingTower(new Point(), null),
+      new ChargeTower(new Point(), null),
+      new ZapperTower(new Point(), null),
+      new BeamTower(new Point(), null),
+      new AidTower(new Point(), null),
+      new Ghost(new Point()),
+   };
    
    private static final Color defaultTextColour = Color.YELLOW;
    private static final Color costLabelsColour = Color.GREEN;
@@ -97,8 +142,7 @@ public class ControlPanel extends JPanel {
 
    private ControlEventProcessor eventProcessor;
 
-   public ControlPanel(int width, int height, BufferedImage backgroundImage,
-         List<Tower> towerImplementations) {
+   public ControlPanel(int width, int height, BufferedImage backgroundImage) {
       this.backgroundImage = ImageHelper.resize(backgroundImage, width, height);
       setPreferredSize(new Dimension(width, height));
       // Reflective method to set up the MyJLabels
@@ -106,7 +150,7 @@ public class ControlPanel extends JPanel {
       // Creates each of the sub panels of this panel
       setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
       setUpTopStats();
-      setUpNewTowers(towerImplementations);
+      setUpNewTowers();
       setUpEndLevelUpgrades();
       setUpCurrentTowerInfo();
       setUpCurrentTowerStats();
@@ -114,6 +158,7 @@ public class ControlPanel extends JPanel {
       setUpCurrentCost();
       setUpStartButton();
       setUpBottomButtons();
+      addKeyboardShortcuts(getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW), getActionMap());
    }
 
    @Override
@@ -256,6 +301,63 @@ public class ControlPanel extends JPanel {
       fastButton.toggleIcons(normalClick);
    }
    
+   private void addKeyboardShortcuts(InputMap inputMap, ActionMap actionMap) {
+      // Sets 1, 2, 3, etc. as the keyboard shortcuts for the tower upgrades
+      for(int i = 1; i <= Attribute.values().length; i++) {
+         final Attribute a = Attribute.values()[i - 1];
+         Character c = Character.forDigit(i, 10);
+         inputMap.put(KeyStroke.getKeyStroke(c), a);
+         actionMap.put(a, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               clickTowerUpgradeButton(a);
+            }
+         });
+      }
+      
+      // Page Up/Down change what the selected tower is targetting
+      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0), "Change target up");
+      actionMap.put("Change target up", new AbstractAction() {
+         @Override
+        public void actionPerformed(ActionEvent e) {
+            clickTargetButton(true);
+         }
+      });
+      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0), "Change target down");
+      actionMap.put("Change target down", new AbstractAction() {
+         @Override
+        public void actionPerformed(ActionEvent e) {
+            clickTargetButton(false);
+         }
+      });
+      
+      // + and = increase the speed, - decreases it
+      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, 0), "Speed Up");
+      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0), "Speed Up");
+      actionMap.put("Speed Up", new AbstractAction() {
+         @Override
+        public void actionPerformed(ActionEvent e) {
+            clickFastButton(true);
+         }
+      });
+      inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0), "Slow Down");
+      actionMap.put("Slow Down", new AbstractAction() {
+         @Override
+        public void actionPerformed(ActionEvent e) {
+            clickFastButton(false);
+         }
+      });
+      
+      // s sells the currently selected tower
+      inputMap.put(KeyStroke.getKeyStroke('s'), "Sell");
+      actionMap.put("Sell", new AbstractAction() {
+         @Override
+        public void actionPerformed(ActionEvent e) {
+            clickSellButton();
+         }
+      });
+   }
+   
    private void blankCurrentTowerInfo() {
       // Don't use an empty string here so as not to collapse the label
       towerNameLabel.setText(" ");
@@ -378,7 +480,7 @@ public class ControlPanel extends JPanel {
       return SwingHelper.createLeftRightPanel(c, label);
    }
 
-   private void setUpNewTowers(List<Tower> towers) {
+   private void setUpNewTowers() {
       JPanel panel = new JPanel();
       panel.setOpaque(false);
       panel.setBorder(BorderFactory.createEmptyBorder(5, 0, 4, 0));
@@ -388,10 +490,10 @@ public class ControlPanel extends JPanel {
       GridLayout gl = new GridLayout(numY, numX);
       gl.setVgap(2);
       panel.setLayout(gl);
-      assert towers.size() == total : "Number of tower implementations is different to number" +
-            " of buttons.";
+      assert towerImplementations.length == total : "Number of tower implementations is " +
+            "different to number of buttons.";
       for (int a = 0; a < numY * numX; a++) {
-         Tower t = towers.get(a);
+         Tower t = towerImplementations[a];
          OverlayButton button = OverlayButton.makeTowerButton(t.getButtonImage());
          towerTypes.put(button, t);
          button.addActionListener(new ActionListener(){

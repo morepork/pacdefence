@@ -49,11 +49,8 @@ public class MyExecutor {
       if(numThreads == 0) {
          numThreads = Runtime.getRuntime().availableProcessors();
       }
-      // Only make the ExecutorService if more than one thread is being used
-      if(numThreads > 1) {
-         System.out.println("Using " + numThreads + " threads.");
-         executorService = Executors.newFixedThreadPool(numThreads);
-      }
+      System.out.println("Using " + numThreads + " threads.");
+      executorService = Executors.newFixedThreadPool(numThreads);
    }
    
    public static boolean singleThreaded() {

@@ -25,6 +25,8 @@ import gui.GameMapPanel;
 import gui.PacDefence;
 import gui.GameMapPanel.DebugStats;
 import gui.maps.MapParser.GameMap;
+import images.ImageHelper;
+
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -69,6 +71,7 @@ public class Game {
    private GameMap gameMap;
    private PacDefence pacDefence;
    private GameMapPanel gameMapPanel;
+   private Future<ControlPanel> controlPanelFuture;
    private ControlPanel controlPanel;
    
    private final Map<Attribute, Integer> upgradesSoFar =
@@ -105,26 +108,9 @@ public class Game {
    private Sprite selectedSprite;
    private Sprite hoverOverSprite;
    
-   public Game(PacDefence pd, ControlPanel cp, GameMap gm) {
+   public Game(PacDefence pd) {
       this.pacDefence = pd;
-      this.controlPanel = cp;
-      controlPanel.setEventProcessor(new ControlEventProcessor());
-      controlPanel.addMouseMotionListener(new MouseMotionListener() {
-         @Override
-         public void mouseMoved(MouseEvent e) {
-            lastMousePosition = null;
-         }
-         @Override
-         public void mouseDragged(MouseEvent e) {
-            lastMousePosition = null;
-         }
-      });
-      
-      
-      gameMap = gm;
-      gameMapPanel = createGameMapPanel(gm);
-      setStartingStats();
-      clock = new Clock();
+      loadControlPanel();
    }
    
    public JPanel getGameMapPanel() {
@@ -135,12 +121,55 @@ public class Game {
       return controlPanel;
    }
    
+   public void startGame(GameMap gm) {
+      try {
+         controlPanel = controlPanelFuture.get();
+      } catch(InterruptedException e) {
+         // This shouldn't ever happen
+         throw new RuntimeException(e);
+      } catch(ExecutionException e) {
+         // Hopefully this won't happen either
+         throw new RuntimeException(e);
+      }
+      gameMap = gm;
+      gameMapPanel = createGameMapPanel(gm);
+      setStartingStats();
+      clock = new Clock();
+   }
+   
    public void stopRunning() {
       clock.end();
       sprites.clear();
       towers.clear();
       bullets.clear();
       levelInProgress = false;
+   }
+   
+   /**
+    * Load the control panel asynchronously.
+    * 
+    * This saves time when the player clicks a map to when they can start playing.
+    */
+   private void loadControlPanel() {
+      controlPanelFuture = MyExecutor.submit(new Callable<ControlPanel>() {
+         @Override
+         public ControlPanel call() {
+            ControlPanel cp = new ControlPanel(Constants.CONTROLS_WIDTH, Constants.CONTROLS_HEIGHT,
+                  ImageHelper.loadImage("control_panel", "blue_lava_blurred.jpg"));
+            cp.setEventProcessor(new ControlEventProcessor());
+            cp.addMouseMotionListener(new MouseMotionListener() {
+               @Override
+               public void mouseMoved(MouseEvent e) {
+                  lastMousePosition = null;
+               }
+               @Override
+               public void mouseDragged(MouseEvent e) {
+                  lastMousePosition = null;
+               }
+            });
+            return cp;
+         }
+      });
    }
    
    private void setSelectedTower(Tower t) {
