@@ -21,16 +21,16 @@ package logic;
 
 
 public class Constants {
-    
-    public static final int WIDTH = 800;
-    public static final int HEIGHT = 600;
-    public static final int MAP_WIDTH = WIDTH - 200;
-    public static final int MAP_HEIGHT = HEIGHT;
-    public static final int CONTROLS_WIDTH = WIDTH - MAP_WIDTH;
-    public static final int CONTROLS_HEIGHT = MAP_HEIGHT;
-    
-    // Time between each update in ms
-    public static final int CLOCK_TICK = 30;
-    public static final double CLOCK_TICKS_PER_SECOND = (double)1000 / CLOCK_TICK;
+
+   public static final int WIDTH = 800;
+   public static final int HEIGHT = 600;
+   public static final int MAP_WIDTH = WIDTH - 200;
+   public static final int MAP_HEIGHT = HEIGHT;
+   public static final int CONTROLS_WIDTH = WIDTH - MAP_WIDTH;
+   public static final int CONTROLS_HEIGHT = MAP_HEIGHT;
+
+   // Time between each update in ms
+   public static final int CLOCK_TICK = 30;
+   public static final double CLOCK_TICKS_PER_SECOND = (double)1000 / CLOCK_TICK;
 
 }
