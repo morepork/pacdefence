@@ -25,8 +25,6 @@ import gui.GameMapPanel;
 import gui.PacDefence;
 import gui.GameMapPanel.DebugStats;
 import gui.maps.MapParser.GameMap;
-import images.ImageHelper;
-
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -154,8 +152,7 @@ public class Game {
       controlPanelFuture = MyExecutor.submit(new Callable<ControlPanel>() {
          @Override
          public ControlPanel call() {
-            ControlPanel cp = new ControlPanel(Constants.CONTROLS_WIDTH, Constants.CONTROLS_HEIGHT,
-                  ImageHelper.loadImage("control_panel", "blue_lava_blurred.jpg"));
+            ControlPanel cp = new ControlPanel();
             cp.setEventProcessor(new ControlEventProcessor());
             cp.addMouseMotionListener(new MouseMotionListener() {
                @Override
@@ -208,11 +205,9 @@ public class Game {
       hoverOverSprite = s;
    }
 
-   private GameMapPanel createGameMapPanel(GameMap g) {
-      // Give null here for the background image as for jar file size
-      // concerns I'm just using the one image now.
-      GameMapPanel gmp = new GameMapPanel(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, g,
-            pacDefence.getDebugTimes(), pacDefence.getDebugPath());
+   private GameMapPanel createGameMapPanel(GameMap gm) {
+      GameMapPanel gmp = new GameMapPanel(gm, pacDefence.getDebugTimes(),
+            pacDefence.getDebugPath());
       gmp.addMouseListener(new MouseAdapter(){
          @Override
          public void mouseReleased(MouseEvent e) {

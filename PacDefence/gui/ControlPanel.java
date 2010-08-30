@@ -142,8 +142,11 @@ public class ControlPanel extends JPanel {
 
    private ControlEventProcessor eventProcessor;
 
-   public ControlPanel(int width, int height, BufferedImage backgroundImage) {
-      this.backgroundImage = ImageHelper.resize(backgroundImage, width, height);
+   public ControlPanel() {
+      int width = Constants.CONTROLS_WIDTH;
+      int height = Constants.CONTROLS_HEIGHT;
+      backgroundImage = ImageHelper.loadImage(width, height, "control_panel",
+            "blue_lava_blurred.jpg");
       setPreferredSize(new Dimension(width, height));
       // Reflective method to set up the MyJLabels
       setUpJLabels();

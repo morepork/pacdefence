@@ -43,6 +43,8 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import logic.Constants;
+
 
 @SuppressWarnings("serial")
 public class GameMapPanel extends JPanel {
@@ -66,13 +68,18 @@ public class GameMapPanel extends JPanel {
    
    private long lastPaintTime = 0;
 
-   public GameMapPanel(int width, int height, GameMap map, boolean debugTimes, boolean debugPath) {
-      setDoubleBuffered(false); // This does its own double buffering
-      setIgnoreRepaint(true); // Ignore repaints as there should be ones scheduled often anyway
-      setPreferredSize(new Dimension(width, height));
-      
+   public GameMapPanel(GameMap map, boolean debugTimes, boolean debugPath) {
+      int width = Constants.MAP_WIDTH;
+      int height = Constants.MAP_HEIGHT;
       this.debugTimes = debugTimes;
       this.debugPath = debugPath;
+      
+      // This class does its own double buffering
+      setDoubleBuffered(false);
+      // Repaints are scheduled by the clock every few ms, so we don't need the normal ones
+      setIgnoreRepaint(true);
+      
+      setPreferredSize(new Dimension(width, height));
       
       GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().
             getDefaultScreenDevice().getDefaultConfiguration();
