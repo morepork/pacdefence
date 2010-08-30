@@ -83,9 +83,8 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private double hp;
    private final double hpFactor;
    private final List<Point> path;
-   private final Point lastPoint = new Point();
    private Point nextPoint;
-   private int pointAfterIndex;
+   private int nextGoalPointIndex;
    
    private final Point2D centre = new Point2D.Double();
    private double xStep, yStep;
@@ -131,7 +130,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       hpFactor = levelHP / this.hp;
       this.path = path;
       nextPoint = calculateFirstPoint();
-      pointAfterIndex = 0;
+      nextGoalPointIndex = 0;
       calculateNextMove();
    }
 
@@ -392,37 +391,44 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
     *        true if it is still on screen, false if it has finished and has gone off screen
     */
    private boolean calculateNextMove() {
-      if (pointAfterIndex < path.size()) {
+      if (nextGoalPointIndex < path.size()) {
          // There is still another point to head to
-         lastPoint.setLocation(nextPoint);
-         centre.setLocation(nextPoint);
-         setBounds();
-         nextPoint.setLocation(path.get(pointAfterIndex));
-         pointAfterIndex++;
-         double dx = nextPoint.getX() - lastPoint.getX();
-         double dy = nextPoint.getY() - lastPoint.getY();
-         distance = Math.sqrt(dx * dx + dy * dy) / speed;
-         xStep = dx / distance;
-         yStep = dy / distance;
-         steps = 0;
-         // Invert yStep here as y coord goes down as it increases, rather than
-         // up as in a conventional coordinate system.
-         rotateImages(Helper.vectorAngle(xStep, -yStep));
+         headTowardsNextPoint();
       } else {
          // There are no more points to head towards
-         if (nextPoint == null) { // Sprite is finished
-            return false;
-         } else {
-            // This flags that the final path has been extended, so this else branch will not be
-            // re-entered
+         if (nextPoint != null) {
+            // Need to add enough distance so the sprite will go off the screen
+            // Flag that we've done this so we don't do it again
             nextPoint = null;
             double distancePerStep = Math.sqrt(xStep * xStep + yStep * yStep);
-            // Add enough distance so the sprite will go off the screen
-            // One is added to halfWidth just to be sure
+            // One pixel is added to halfWidth just to be sure
             distance += (halfWidth + 1) / distancePerStep;
+         } else {
+            // Sprite is finished
+            return false;
          }
       }
       return true;
+   }
+   
+   private void headTowardsNextPoint() {
+      centre.setLocation(nextPoint);
+      setBounds();
+      nextPoint.setLocation(path.get(nextGoalPointIndex));
+      nextGoalPointIndex++;
+      // The relative amounts we need to move in the x and y directions to reach the next point
+      // in the path
+      double dx = nextPoint.getX() - centre.getX();
+      double dy = nextPoint.getY() - centre.getY();
+      // Now normalise these in relation to the sprite's speed
+      distance = Math.sqrt(dx * dx + dy * dy) / speed;
+      xStep = dx / distance;
+      yStep = dy / distance;
+
+      steps = 0;
+      // Invert yStep here as y coord goes down as it increases, rather than up as in a
+      // conventional coordinate system.
+      rotateImages(Helper.vectorAngle(xStep, -yStep));
    }
    
    private void rotateImages(double angle) {
