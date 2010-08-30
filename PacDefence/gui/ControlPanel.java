@@ -150,7 +150,7 @@ public class ControlPanel extends JPanel {
       setPreferredSize(new Dimension(width, height));
       // Reflective method to set up the MyJLabels
       setUpJLabels();
-      // Creates each of the sub panels of this panel
+      // Create each of the sub panels of this panel, from top to bottom
       setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
       setUpTopStats();
       setUpNewTowers();
