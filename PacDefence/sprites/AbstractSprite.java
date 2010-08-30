@@ -92,7 +92,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private double totalDistanceTravelled = 0;
    // The distance in pixels to the next point from the previous one
    private double distance;
-   // The steps taken so far (in pixels)
+   // The steps taken so far (in pixels) in the current direction
    private double steps;
    // Whether the sprite is still alive
    private boolean alive = true;
