@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Pac Defence - Change Log
+{% endblock %}
+
+{% block content %}
+
+<h4>Version 1.1.6 Released, 4th of January, 2010</h4>
+<ul>
+   <li>Completely revamped the web site to use the Django template language rather than my custom
+   code which is more powerful and should require less work in the future.</li>
+   <li>Jumping Tower's bullets can now jump to a sprite that's already been hit by that bullet
+   rather than being restricted to ones that it hasn't hit yet, making it stronger.</li>
+   <li>A few other minor tweaks and bug fixes.</li>
+</ul>
+
+<br />
+
+<h4>Version 1.1.5 Released, 7th of September, 2009</h4>
+<ul>
+   <li>Added a high scores table (not in the applet version).</li>
+   <li>Made weaken tower gain damage and kills that result from its effect.</li>
+   <li>Changed the way homing tower's bullets work, try it and see.</li>
+   <li>Improved the rate that the length of the slow of slow tower increases by.</li>
+   <li>Simplified the drawing routine somewhat, which now drops frames if the drawing starts to lag.</li>
+   <li>A few other minor bug fixes.</li>
+</ul>
+
+<br />
+
+<h4>Version 1.1.4 Released, 11th of August, 2009</h4>
+<ul>
+   <li>Changed the stats of a few towers to make it more balanced.</li>
+   <li>Changed how some of the buttons appear to make them more uniform.</li>
+   <li>You are now able to see the licence from the title screen.</li>
+   <li>Reduced the memory usage by 10-20%</li>
+   <li>A few other bug fixes and refactorings.</li>
+</ul>
+
+<br />
+
+<h4>Version 1.1.3 Released, 13th of July, 2009</h4>
+<ul>
+   <li>Made the game skinnable, and added a new default skin (for towers and the bullet). Some of
+   the pictures look a bit weird, because I can't draw.</li>
+   <li>A few other bug fixes, performance tweaks and refactorings.</li>
+</ul>
+
+<br />
+
+<h4>Version 1.1.2 Released, 8th of July, 2009</h4>
+<ul>
+   <li>Sprites now change colours when they are slowed/weakened/poisoned.</li>
+   <li>Right-clicking cycles through the speeds in reverse, and added +/- as keyboard shortcuts for
+   that.</li>
+   <li>The text on the end-level display is now antialiased so looks nicer.</li>
+   <li>Revamped the way the multithreading works, is much simpler now.</li>
+   <li>Fixed a few bugs, made a few performance improvements and some refactoring.</li>
+</ul>
+
+<br />
+
+<h4>Version 1.1.1 Released, 10th of June 2009</h4>
+
+<ul>
+   <li>Improved performance of the new maps significantly.</li>
+   <li>Fixed the ridiculously high memory use of the previous version when the new maps were used.</li>
+   <li>Fixed a couple of other minor bugs.</li>
+</ul>
+
+<br />
+
+<h4>Version 1.1.0 Released, 8th of June 2009</h4>
+<ul>
+   <li>Added a lot more detail to the <a href="PacDefence_manual.pdf">manual</a>, most aspects of
+   the game should be covered there now.</li>
+   <li>Added damage bonuses for a sprite being hit by different tower types. More detail in the
+   manual.</li>
+   <li>Changed the format of the map description files to be a nice XML format rather than the nasty
+   one I was using previously.</li>
+   <li>Added 3 new maps.</li>
+   <li>Lots of under the hood changes and refactoring.</li>
+</ul>
+
+<br />
+
+<h4>Version 1.0.1 Released, 19th of February 2009</h4>
+<ul>
+	<li>Incomplete <a href="PacDefence_manual.pdf">manual</a> added, currently lists all the towers.</li>
+	<li>Fast forward button letting you choose between 1x, 2x, and 5x normal speed.</li>
+</ul>
+
+<br />
+
+<h4>Version 1.0.0 Released, 4th of February 2009</h4>
+<ul>
+	<li>Initial numbered release</li>
+	<li>Fully playable</li>
+	<li>18 available towers (including the ghost)</li>
+	<li>3 available maps</li>
+</ul>
+
+{% endblock %}

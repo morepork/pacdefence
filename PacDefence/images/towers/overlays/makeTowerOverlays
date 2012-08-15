@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Copies the images from turrets to the overlays directory based
+# on the turretLengths text file
+
+i=0
+
+exec < turretLengths
+while read line
+do
+	if [ "$i" -eq "0" ];
+	then
+		last="$line"
+		i=1
+	else
+		name="$last""Overlay.png"
+		echo "Creating $name"
+		cp "./turrets/turret$line.png" "./$name"
+		i=0
+	fi
+done

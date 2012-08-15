@@ -1,0 +1,155 @@
+/*
+ *  This file is part of Pac Defence.
+ *
+ *  Pac Defence is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Pac Defence is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ *  (C) Liam Byrne, 2008 - 10.
+ */
+
+package towers.impl;
+
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Shape;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import logic.Circle;
+import logic.Helper;
+import sprites.Sprite;
+import towers.AbstractTower;
+import towers.BasicBullet;
+import towers.Bullet;
+import towers.Tower;
+
+public class CircleTower extends AbstractTower {
+
+   private int hits = 1;
+
+   public CircleTower(Point p, List<Shape> pathBounds) {
+      super(p, pathBounds, "Circle", 40, 100, 5, 12, 50, 0, true);
+   }
+
+   @Override
+   public String getSpecial() {
+      return Integer.toString(hits);
+   }
+
+   @Override
+   public String getSpecialName() {
+      return "Hits";
+   }
+
+   @Override
+   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+      return new CirclingBullet(this, dx, dy, turretWidth, range, speed, damage, p, s, pathBounds);
+   }
+
+   @Override
+   protected void upgradeSpecial() {
+      hits++;
+   }
+
+   private class CirclingBullet extends BasicBullet {
+
+      private final Circle route;
+      private final double deltaTheta;
+      private final double arcLengthPerTick;
+      private final double endAngle;
+      private double angle;
+      private int hitsLeft = hits;
+      private double moneyEarntSoFar = 0;
+      private Collection<Sprite> hitSprites = new ArrayList<Sprite>();
+
+      public CirclingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
+            double speed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
+         double distance = p.distance(s.getPosition()) - s.getHalfWidth();
+         double angleToSprite = Helper.vectorAngle(dx, dy);
+         double theta = angleToSprite - Math.acos(distance / getRange());
+         double halfRange = getRange() / 2.0;
+         double deltaX = halfRange * Math.sin(theta);
+         double deltaY = halfRange * Math.cos(theta);
+         route = new Circle(new Point2D.Double(p.getX() + deltaX, p.getY() + deltaY), halfRange);
+         arcLengthPerTick = getBulletSpeed();
+         deltaTheta = 2 * Math.PI * arcLengthPerTick / route.calculateCircumference();
+         angle = Math.PI + theta;
+         endAngle = angle + 2 * Math.PI;
+      }
+
+      @Override
+      public void draw(Graphics g) {
+         super.draw(g);
+      }
+
+      @Override
+      public double doTick(List<Sprite> sprites) {
+         if (angle >= endAngle || hitsLeft <= 0) {
+            return moneyEarntSoFar;
+         }
+         List<Sprite> hittableSprites = new ArrayList<Sprite>(sprites);
+         hittableSprites.removeAll(hitSprites);
+         moneyEarntSoFar += checkIfSpriteIsHit(hittableSprites);
+         angle += deltaTheta;
+         position.setLocation(route.getPointAt(angle));
+         return -1;
+      }
+
+      @Override
+      protected double checkIfSpriteIsHit(List<Sprite> sprites) {
+         List<Point2D> points = makeArcPoints();
+         double moneyEarnt = 0;
+         if(!points.isEmpty()) {
+            for (Sprite s : sprites) {
+               for (Point2D p : points) {
+                  if (s.intersects(p)) {
+                     specialOnHit(p, s, sprites);
+                     moneyEarnt += processDamageReport(s.hit(getDamage(), shotBy.getClass()));
+                     hitSprites.add(s);
+                     hitsLeft--;
+                     if (hitsLeft <= 0) {
+                        return moneyEarnt;
+                     }
+                     break;
+                  }
+               }
+            }
+         }
+         return moneyEarnt;
+      }
+      
+      @Override
+      protected boolean canBulletBeRemovedAsOffScreen() {
+         // Circle bullets always come back so shouldn't be removed
+         return false;
+      }
+
+      private List<Point2D> makeArcPoints() {
+         List<Point2D> points = new ArrayList<Point2D>();
+         double delta = deltaTheta / arcLengthPerTick;
+         for (double a = angle + delta; a <= angle + deltaTheta; a += delta) {
+            Point2D p = route.getPointAt(a);
+            if(Helper.containedInAShape(p, getPathBounds())) {
+               points.add(p);
+            }
+         }
+         return points;
+      }
+
+   }
+
+}

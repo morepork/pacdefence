@@ -1,0 +1,80 @@
+a {
+	color: #6699CC;
+}
+
+a:hover {
+	color: #669933;
+}
+
+body {
+	background-color: #0f5e93;
+  color: #222222;
+  font-family: sans-serif;
+  margin: 0px;
+}
+
+h1, h2, h3, h4, h5 {
+  color: #0f5e93;
+}
+
+div.wrapper {
+  width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+div.title {
+  background-color: #94D4FF;
+  padding-top: 0.5em;
+  padding-bottom: 1em;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+div.lower {
+  background-color: #D2E7F2;
+  padding-bottom: 50px;
+}
+
+div.content {
+  background-color: #ffffff;
+  margin-left: auto;
+  margin-right: auto;
+  width: 800px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+div.navbar a {
+  display: block;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+div.navbar a:link, div.navbar a:visited {
+  font-size: 12px;
+  font-weight:bold;
+  color:#ffffff;
+  background-color:#2984c1;
+  text-align: center;
+  text-decoration:none;
+}
+div.navbar a:hover, div.navbar a:active {
+  background-color:#1A5983;
+}
+div.navbar table {
+  background-color: #85B6DD;
+  width: 90%;
+}
+div.navbar td {
+  width: 11.1%;
+}
+div.navbar table, div.navbar td {
+  padding: 3px;
+}
+
+div.justified p {
+  text-align: justify;
+}
+

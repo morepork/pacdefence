@@ -1,0 +1,286 @@
+% I permit others to modify and redistribute this manual, as long as they keep this notice attached, and make the LaTeX file available under the same conditions.
+
+% (C) Liam Byrne 2008 - 2010
+
+\documentclass[a4paper,11pt]{article}
+\usepackage{fullpage, graphicx, wrapfig, color, hyperref, multicol}
+\setlength{\parindent}{0mm}
+
+% This is for when I draw the boxes around the buttons later
+\setlength{\unitlength}{1mm}
+
+% This is the same as the background colour of the website as defined in the css file
+\definecolor{murkyblue}{rgb}{0.06, 0.37, 0.58}
+\pagecolor{murkyblue}
+
+\definecolor{yellow}{rgb}{1, 1, 0}
+\color{yellow}
+
+% This is the same as baseColour in OverlayButton
+\definecolor{darkblue}{rgb}{0.05, 0, 0.63}
+
+% Draws the image of a tower, include a fourth parameter if you don't want an overlay
+\newcommand{\tower}[4]{
+\vbox{
+\subsection{#1}
+\vspace{-5mm}
+% Setting this to 0 makes it uses as much space as needed
+% [x] specifies how many lines on the right the wrapfig displaces, after this text starts using the entire page again. I never really want this to happen so set it high
+\begin{wrapfigure}[10]{l}{0pt}
+% The tower's image with its overlay drawn over it
+\includegraphics[width=\towersize, height=\towersize]{./images/towers/#2}\if #4\empty \hspace{-\towersize}\includegraphics[width=\towersize, height=\towersize]{./images/towers/overlays/#2Overlay}\fi
+\hspace{3mm}
+% The button image
+\includegraphics[width=\towerbuttonsize mm, height=\towerbuttonsize mm]{./images/buttons/towers/#2Button}\hspace{-\towerbuttonsize mm}\color{darkblue}\begin{picture}(\towerbuttonsize, \towerbuttonsize)
+ % Draws a box around the button picture as they are seen in game
+ \linethickness{0.4mm}
+ \put(0,0){\line(1,0){\towerbuttonsize}}
+ \put(0,0){\line(0,1){\towerbuttonsize}}
+ \put(7,7){\line(-1,0){\towerbuttonsize}}
+ \put(7,7){\line(0,-1){\towerbuttonsize}}
+\end{picture}\color{yellow}
+\vspace{10cm}
+\end{wrapfigure}
+\quad \\[1mm]
+#3
+}
+}
+
+
+% The width of the tower pictures
+\newcommand{\towersize}{12mm}
+
+% The width of the tower button pictures, should be ~3/5 \towersize
+\newcommand{\towerbuttonsize}{7.2}
+
+\title{Pac Defence Manual}
+
+
+\begin{document}
+
+\maketitle
+%\pagebreak
+
+\begin{center}
+\begin{minipage}{12cm}
+\begin{small}
+\it
+Disclaimer: To the best of my knowledge, this manual is correct, but I make no guarantees as such. In particular, the game is being updated on a frequent basis, so parts of this manual may be out of date.
+\end{small}
+\end{minipage}
+\end{center}
+
+\tableofcontents
+\pagebreak
+
+% Note that this is after the table of contents, otherwise that becomes ridiculous
+\setlength{\parskip}{4mm plus 2mm minus 1 mm}
+
+\section{Game Play}
+The aim of the game is to stop the sprites, the yellow pacman like things, from getting from one side of the screen to the other. There is one main way to achieve this, bulding towers. Towers will automatically shoot at any sprites that are within range, causing damage, and ultimate death to the evil sprites. Towers can be built anywhere on the map that is not the path that the sprites travel along. Towers can be upgraded in two ways, firstly you can buy upgrades for them, and secondly they will get upgrades for dealing damage, and killing sprites. You cannot just keep upgrading towers though, things cost money, and if you run out of money, you won't be able to build any new towers, nor be able to upgrade them (they will still receive upgrades for dealing damage and kills however).
+
+\section{Upgrades}
+Towers can be upgraded at a cost, these upgrades will typically improve the stat by 5\%, though it works differently for some towers, and the special stat generally increases differently. When a tower goes up an experience level for damage or kills (you can see the amount needed for the next upgrade in brackets) it receives the equivalent of one upgrade for each of its stats for free, and also without increasing the price of its upgrades.
+
+All currently built towers can be upgraded at once by pressing the upgrade button with no tower selected, and holding ctrl while pressing an upgrade will do the equivalent of pressing the button 5 times.
+
+\section{Towers}
+
+\vspace{3mm}
+% TODO perhaps reorder these to fit with their order on the GUI
+\tower{Aid Tower}{aid}{
+Aids other towers whose centres are within its range, initially giving a 5\% bonus. Each of its main stats are the amount it increases neighbouring towers by, and its special stat is the range to which its bonus applies. As it gains no experience directly, 10\% of the damage and kills inflicted by the towers it aids are added to it. Note, that in order to aid a tower, the centre of the tower must be within the range of the aid tower.}{x}
+
+\tower{Beam Tower}{beam}{
+Fires a straight beam from the centre of the tower to the centre of the sprite it is targetting and then travels in a circle in the opposite direction to the motion of the targetted sprite. Each sprite is hit a maximum of one time by the beam. The speed stat of this tower is the speed the beam rotates and the special stat is how long the beam lasts for.}{x}
+
+\tower{Bomber Tower}{bomber}{
+Fires an bullet that does full damage to the sprite it hits, then explodes and deals half damage to each sprite caught in the blast. The explosion is circular and always lasts for the same time. The special stat of this tower is the radius of the blast}
+
+\tower{Charge Tower}{charge}{
+The damage of this tower will charge up when it is able to shoot, but has no target. This increases the damage on the next bullet it will fire. The special stat of this tower is the amount the damage can charge up to, which is a constant factor multiplied by the tower's base damage. It takes two seconds to fully charge.}
+
+\tower{Circle Tower}{circle}{
+The circle tower's bullets follow a circular trajectory and can pass through multiple sprites doing full damage to each sprite the bullet hits. The tower's special stat is the number of sprites the bullet can damage before vanishing, but each sprite will take damage no more than once.}
+
+\tower{Freeze Tower}{freeze}{
+This tower does very little damage, however when a sprite is hit by this tower it will freeze for a short amount of time. The special stat of this tower is the length of time it will stay frozen for. If an already frozen sprite is frozen it will stay frozen for the longer of the time it is currently frozen for, or the time the new hit would freeze it for.}
+
+\tower{Homing Tower}{homing}{
+This towers bullets will home in on their targets. If the target dies before the bullet hits it, the bullet will continue travelling in a straight line. The tower's special stat is the maximum rate that the angle of the bullet can change as it tracks a sprite.}
+
+\tower{Jumper Tower}{jumper}{
+When each bullet hits, it can jump to retarget on another sprite. There must be another sprite withing 1.5 times the range of the tower for this to happen. The special stat of this tower is the maximum number of times the bullet can jump.}
+
+\tower{Laser Tower}{laser}{
+Fires a laser instead of a bullet, doing damage based on the amount of time the beam is over a sprite. The laser will also travel through sprites, and will damage all the sprites that the beam touches. The special stat of this tower is the length of its laser beam.}
+
+\tower{Multi Shot Tower}{multiShot}{
+Fires multiple bullets at once. The first bullet will go at the shown bullet speed, the second will travel 10\% faster than that, the third 10\% faster than the second and so on. The special stat of the tower is how many bullets it will shoot at a time.}
+
+\tower{Omnidirectional Tower}{omnidirectional}{
+Fires bullets in multiple directions at once. One bullet will target a sprite, and the remainder will be shot at regular angles from this. So if it shoots 4 bullets, the latter 3 will launch at angles of \(\frac{\pi}{2}\), \(\pi\), and \(\frac{3\pi}{2}\) from the first. The tower's special stat is how many bullets it will launch.}
+
+\tower{Poison Tower}{poison}{
+Poisons the sprites it hits, meaning they take poison damage for a short while after they are hit. Each poison hit is separate, so a sprite can be simultaneously poisoned by multiple hits from one tower, or a number of poison towers. The bullet does the shown damage when it hits, and the poison damage is additional to this. The poison damage will always be the same as the base damage of the tower, and its special stat is the length of time the poison lasts for.}
+
+\tower{Scatter Tower}{scatter}{
+Scatters bullets at multiple sprites at once. Each bullet targets an individual sprite, but only one bullet will be shot at any one sprite, so if the tower can shoot more bullets than it has targets, some shots are wasted. The tower's special stat is how many bullets it can fire.}
+
+\tower{Slow Tower}{slowLength}{
+Similar to the freeze tower, except instead of freezing the sprite it will reduce its speed by half. This effect is not cumulative, in that a sprite hit twice will go down to one quarter speed, but will remain at half. A slow bullet hitting a frozen sprite will have no effect, and a freeze bullet will remove any slow effect it may have. This tower's special stat is how long the slow effect lasts.}
+
+\tower{Wave Tower}{wave}{
+Fires a wave or arc that hits multiple targets and passes through them. The wave will damage as all the sprites it passes through, but each sprite will be only be damaged by any particular wave once. The tower's special stat is the angle between each end of the arc.}
+
+\tower{Weaken Tower}{weaken}{
+Does little damage, but the sprites hit by this tower will take double damage for a short period of time. Like the freeze and slow towers, if an already weakened sprite is hit it will be weakened for whichever is longer, the old hit or the new. The special stat of this tower is the length of time the weaken effect lasts for. It gains experience for the extra damage and kills inflicted because of its effect.}
+
+\tower{Zapper Tower}{zapper}{
+Fires a slow main bullet that inflicts no damage on its own, but will zap sprites within range. The zaps will instantly hit their target, and will affect only that sprite. The range of the zaps is one quarter the range of the tower itself, and the target of each zap is randomly chosen from the possible targets. The special stat of this tower is the total number of zaps that the main bullet can do.}
+
+\tower{Ghost}{ghost}{
+Not really a tower as such, but a ghost is placed on the path and will kill instantly kill any sprite that touches it. It will vanish after it has killed 5 sprites, or at the end of a level. Ghosts can not be upgraded and have no stats like the other towers. The price of succesive sprites is double the cost of the last one used.}{x}
+
+\section{Formulae Reference}
+
+\subsection{Number of Sprites}
+
+\[20 + 4 \times \left( \mathrm{level} - 1 \right)\]
+
+\subsection{Sprite HP}
+
+\[10 \times 1.5^{\mathrm{level} - 1}\]
+
+Note that the actually hp of a particular sprite will be between 0.5 and 2 times this amount, depending on its speed.
+
+\subsection{Level End Bonus}
+
+\[1000 + 100 \times \left( \mathrm{level} - 1 \right)\]
+
+The additional bonus for not letting any sprites through is:
+
+\[\mathrm{level} \times 100\]
+
+In both cases, the level is the one that was just completed.
+
+\subsection{Cost of Tower Upgrades}
+
+\[100 \times 1.25^{\mathrm{currentLevel} - 1}\]
+
+Where currentLevel is the level of the stat to be upgraded.
+
+\subsection{Money Earnt From Attacking Sprites}
+
+Each hit earns:
+
+\[\frac{\mathrm{damage}}{1.15^{\mathrm{level}}}\]
+
+A kill will additionally earn:
+
+\[\frac{\mathrm{hp}}{1.15^{\mathrm{level}}}\]
+
+Where damage is the damage caused by the hit, never more than the amount of hp the sprite has left, hp is the total hp of the sprite, and level is the current level. Both the damage and hp are adjusted so that killing a sprite on any given level will give the same amount of money, despite the fact that sprites have differing amounts of hp.
+
+\subsection{Tower Experience}
+
+The next milestone for a level up from number of kills is at:
+
+\[10 \times \mathrm{currentLevel}^2\]
+
+The next milestone for a level up from amount of damage is at:
+
+\[250 \times 2^{\mathrm{currentLevel} - 1}\]
+
+Where currentLevel is the current experience level for that experience type, starting at 1.
+
+\subsection{Tower Cost}
+
+The cost to build a new tower is:
+
+\[1000 \times 1.05^{\mathrm{numTowers}} \times 1.1^{\mathrm{numTowersOfThatType}}\]
+
+Where numTowers is the total number of towers currently built and numTowersOfThatType is the number of towers currently built of the type that is to be built.
+
+\subsection{Tower Sell Value}
+
+\[ 0.9 \times \left( \mathrm{towerCost + upgradeCost} \right) \times 1.1^{\mathrm{killsLevel + damageLevel} - 2}\]
+
+Where towerCost is the cost to rebuild a new tower of that type after it is deleted, upgradeCost is the sum of the cost of all upgrades bought for this tower, and killsLevel and damageLevel are the experience levels for kills and damage respectively (both of which start at 1).
+
+\subsection{Ticks Between New Sprites}
+
+This base value for this is initially 40, and for each succesive level, it is multiplied by 0.95 and rounded down to the nearest integer, always at least one. The actual time is a random number between 0 and twice this number.
+
+\section{Targets}
+It is possible to tell a target to attack a particular sprite, however you can set where it will look for targets first. If a tower can attack multiple sprites, it will attack the one that meets its target. Currently, the following settings are possible:
+
+\begin{description}
+ \item[First]\quad\\ Targets the sprite that is in `first place' -- the one closest to finishing.
+ \item[Last]\quad\\ Targets the sprite that is in `last place' -- the one that has travelled the least distance.
+ \item[Fastest]\quad\\ Targets the fastest sprite.
+ \item[Slowest]\quad\\ Targets the slowest sprite.
+ \item[Most HP]\quad\\ Targets the sprite with the most HP.
+ \item[Least HP]\quad\\ Targets the sprite with the least HP.
+ \item[Random]\quad\\ Targets a random sprite.
+\end{description}
+
+
+\section{Fast Mode}
+Pressing the button in the top right corner will cycle between 3 modes, \(1 \times\), \(2 \times\) and \(5 \times\), which increase the speed of the game by that amount. There is no disadvantage to speeding it up other than having less time to respond, as all it does is do multiple clock ticks in the time it would do one at normal speed.
+
+\section{Bonuses}
+One bonus point is awarded at the completion of each level, and can be used on any of the 8 bonuses. 5 of the bonuses mirror the 5 stats of each tower -- damage, range, fire rate, bullet speed and special. Using one of these gives the same effect as buying a single upgrade for all of your towers, but does not increase the cost of upgrades. When a new tower is built, it gets the effect of half of these upgrades (rounded down). The other three, give bonus lives, increase the interest rate and give bonus money.
+
+\section{Different Tower Type Hit Bonus}
+If the last bullet that hit a sprite was from a tower of a different type, it will receive a 10\% damage bonus for every hit that the sprite has received since it was last hit by a bullet from a tower of this type. Say a sprite is struck by bullets in the following order:
+
+\begin{enumerate}
+ \item Bomber tower bullet\\
+ This will receive no damage bonus, as the sprite had not been hit before.
+ \item Homing tower bullet\\
+ This will receive a 10\% damage bonus.
+ \item Wave tower bullet (wave)\\
+ This will receive two 10\% bonuses, for a total of a 21\% (\(1.1 \times 1.1\)) damage bonus.
+ \item Bomber tower bullet (from a different tower to the first)\\
+ This will also receive two 10\% bonuses as there are two hits since the last bomber tower hit.
+ \item Bomber tower bullet\\
+ This will receive no damage bonus.
+\end{enumerate}
+
+Notice that these bonuses are cumulative, and very large bonuses can be gained by having long sequences, for example, a sequence of 9 gives a damage bonus of approximately 95\% (\(1.1^{9} = 1.95\)).
+
+\section{Keyboard Shortcuts}
+
+\begin{multicols}{2}
+\begin{tabular}{l l}
+Alt+S & Start\\
+Alt+R & Restart\\
+Alt+T & Title\\
+Page up & Change target\\
+Page down & Change target (back)\\
+S & Sell tower\\
++ / - & Increase/Decrease Speed\\
+\end{tabular}
+
+\begin{tabular}{l l}
+1 & Upgrade damage\\
+2 & Upgrade range\\
+3 & Upgrade fire rate\\
+4 & Upgrade bullet speed\\
+5 & Upgrade special\\
+Ctrl+ & Do up to 5 upgrades\\
+\end{tabular}
+\end{multicols}
+
+\section{Maps}
+The Maps are detailed in an XML format, the schema of which can be found in the archive including source. This specifies 5 details about each map, its description (shown on the map selection screen), the image file(s) that are used to draw it, a sequence of points that is the path the sprites follow, a sequence of polygons that contains the path (closely), and another sequence of shapes that contains the path.
+
+The reason for the two sequences of shapes is non--obvious. The first is used to decide where towers (and the ghost) can be placed, so must wrap the path very closely. However, this means the ensuing polygon will often have a large number of points. The second sequence is used to speed up the game -- if a bullet is not over one of the shapes, it is not necessary to check whether it has hit a sprite, but for this to give a good performance improvement, it must only take a minimal amount of time to check against the sequence of shapes. It does not need to be as accurate, just enclosing the entire path.
+
+Care must be taken when forming the first sequence of polygons, as if an area is included twice in the polygon, it is counted as excluded (think the rectangle where sprites travel fast in the easy mosaic map). Thus additional shapes must enclose these areas. But a shape of just that size is not enough, because a ghost that is placed on the border will count as intersecting the path, not fully contained in it, so cannot be placed. Therefore these shapes must have redundant space either side of the border.
+
+I wrote the PathAnalyser class to aid in the construction of these polygons, particularly for circular maps. Using an overlay that is just the path, it will run across the x axis, and for each x point it will increase y until it hits a non--transparent pixel -- the edge of the path, and print out this point as it needs to be formatted for the XML file. When it reaches the end, it will come back, giving y its maximum value, then decreasing it until it hits the path. It can also do the same for the y axis, increasing x. Lastly, to create the sprite's path it can average the values going up and down (left and right). The class is a little nasty at the moment, and you need to hack at the internals (mainly just fields and the main method) to get it to work right.
+
+
+\end{document}          

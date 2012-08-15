@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="description" content="Pac Defence, an open source tower defence game">
+  <meta name="keywords" content="Pac Defence, pacdefence, Tower Defence, Game, Open Source, GPL">
+  
+  
+  
+  <link rel="stylesheet" type="text/css" href="mystyle.css">
+  
+  <title>{% block title %}Pac Defence{% endblock %}</title>
+
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="title">
+      <center>
+        <h2>Pac Defence</h2>
+        <div class="navbar">
+          <table>
+            <tr>
+              <td><a href="index.html">Main</a></td>
+              <td><a href="pacdefence.html">Play online</a></td>
+              <td><a href="changelog.html">Change Log</a></td>
+              <td><a href="screenshots.html">Screenshots</a></td>
+              <td><a href="development.html">Development</a></td>
+              <td><a href="PacDefence.jar">Download</a></td>
+              <td><a href="PacDefence_manual.pdf">Manual (pdf)</a></td>
+            </tr>
+          </table>
+        </div>
+      </center>
+    </div>
+    <div class="lower">
+      <div class="content">
+        {% block content %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+  
+  <!-- Google analytics stuff -->
+  <script type="text/javascript">
+  var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+  document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+  <script type="text/javascript">
+  try {
+  var pageTracker = _gat._getTracker("UA-10604950-1");
+  pageTracker._trackPageview();
+  } catch(err) {}
+  </script>
+  
+  <!-- This is for the freewebs hit counter -->
+  <script src="http://static.freewebs.getclicky.com/36392404.js" type="text/javascript"></script>
+
+</body>
+
+</html>

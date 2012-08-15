@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--  This file is part of Pac Defence.
+      
+      Pac Defence is free software: you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+      
+      Pac Defence is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+      
+      You should have received a copy of the GNU General Public License
+      along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
+      
+      (C) Liam Byrne, 2008 - 10.
+  -->
+  
+<map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="map.xsd">
+  <description>Mosaic Medium</description>
+  <images>
+    <image>mosaicPathMedium.jpg</image>
+  </images>
+  <pathPoints>
+    <point x="0" y="135"/>
+    <point x="235" y="135"/>
+    <point x="235" y="335"/>
+    <point x="100" y="335"/>
+    <point x="100" y="470"/>
+    <point x="600" y="470"/>
+  </pathPoints>  
+  <path>
+    <polygon>
+      <point x="0" y="106"/>
+      <point x="273" y="106"/>
+      <point x="273" y="372"/>
+      <point x="137" y="372"/>
+      <point x="137" y="438"/>
+      <point x="600" y="438"/>
+      <point x="600" y="503"/>
+      <point x="67" y="503"/>
+      <point x="67" y="305"/>
+      <point x="203" y="305"/>
+      <point x="203" y="166"/>
+      <point x="0" y="166"/>
+    </polygon>
+  </path>
+  <pathBounds>
+    <polygon>
+      <!-- Should be the same as the one above, don't know a nice way of reusing it -->
+      <point x="0" y="106"/>
+      <point x="273" y="106"/>
+      <point x="273" y="372"/>
+      <point x="137" y="372"/>
+      <point x="137" y="438"/>
+      <point x="600" y="438"/>
+      <point x="600" y="503"/>
+      <point x="67" y="503"/>
+      <point x="67" y="305"/>
+      <point x="203" y="305"/>
+      <point x="203" y="166"/>
+      <point x="0" y="166"/>
+    </polygon>
+  </pathBounds>
+</map>
