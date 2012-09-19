@@ -1,3 +1,7 @@
 # Java build output
 *.class
 *.jar
+
+# Eclipse files
+.classpath
+.project
