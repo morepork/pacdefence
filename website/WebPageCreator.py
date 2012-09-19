@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
 #
-# (C) Liam Byrne, 2008 - 10
+# (C) Liam Byrne, 2008 - 2012.
 
 '''
 This script is used to generate the web pages for the site from the .part.html files. It must be

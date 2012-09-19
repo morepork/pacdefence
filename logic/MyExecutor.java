@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Pac Defence. If not,
  * see <http://www.gnu.org/licenses/>.
  * 
- * (C) Liam Byrne, 2008 - 10.
+ * (C) Liam Byrne, 2008 - 2012.
  */
 
 package logic;
