@@ -22,9 +22,10 @@ package logic;
 import gui.ControlPanel;
 import gui.Drawable;
 import gui.GameMapPanel;
-import gui.PacDefence;
 import gui.GameMapPanel.DebugStats;
+import gui.PacDefence.ReturnToTitleCallback;
 import gui.maps.MapParser.GameMap;
+
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -67,7 +68,8 @@ public class Game {
    private Clock clock;
 
    private GameMap gameMap;
-   private PacDefence pacDefence;
+   private final ReturnToTitleCallback returnToTitleCallback;
+   private final Options options;
    private GameMapPanel gameMapPanel;
    private Future<ControlPanel> controlPanelFuture;
    private ControlPanel controlPanel;
@@ -106,8 +108,9 @@ public class Game {
    private Sprite selectedSprite;
    private Sprite hoverOverSprite;
    
-   public Game(PacDefence pd) {
-      this.pacDefence = pd;
+   public Game(ReturnToTitleCallback returnToTitleCallback, Options options) {
+      this.returnToTitleCallback = returnToTitleCallback;
+      this.options = options;
       loadControlPanel();
    }
    
@@ -206,8 +209,7 @@ public class Game {
    }
 
    private GameMapPanel createGameMapPanel(GameMap gm) {
-      GameMapPanel gmp = new GameMapPanel(gm, pacDefence.getDebugTimes(),
-            pacDefence.getDebugPath());
+      GameMapPanel gmp = new GameMapPanel(gm, options.isDebugTimes(), options.isDebugPath());
       gmp.addMouseListener(new MouseAdapter(){
          @Override
          public void mouseReleased(MouseEvent e) {
@@ -625,12 +627,12 @@ public class Game {
             long beginTime = System.nanoTime();
             if(!gameOver) {
                doTicks();
-               if(pacDefence.getDebugTimes()) {
+               if(options.isDebugTimes()) {
                   processTimes[timesLength] = calculateElapsedTimeMillis(beginTime);
                }
             }
             long drawingBeginTime = draw();
-            if(pacDefence.getDebugTimes()) {
+            if(options.isDebugTimes()) {
                drawTimes[timesLength] = calculateElapsedTimeMillis(drawingBeginTime);
                calculateTimesTaken();
             }
@@ -676,7 +678,7 @@ public class Game {
          // which is a slight aid.
          Collections.sort(spritesCopy, AbstractTower.DEFAULT_SPRITE_COMPARATOR);
          List<Sprite> unmodifiableSprites = Collections.unmodifiableList(spritesCopy);
-         if(pacDefence.getDebugTimes()) {
+         if(options.isDebugTimes()) {
             // Make sure any changes here or below are reflected in both, bar the timing bits
             long beginTime = System.nanoTime();
             tickSprites();
@@ -1094,7 +1096,7 @@ public class Game {
       
       public void processTitleButtonPressed() {
          stopRunning();
-         pacDefence.returnToTitle(gameMapPanel, controlPanel);
+         returnToTitleCallback.returnToTitle(gameMapPanel, controlPanel);
       }
       
       public void processRestartPressed() {

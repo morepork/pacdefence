@@ -31,16 +31,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.swing.JPanel;
-import towers.AbstractTower;
+
 import logic.Constants;
 import logic.Game;
 import logic.MyExecutor;
-
+import logic.Options;
+import towers.AbstractTower;
 
 public class PacDefence {
 
-   private final boolean debugTimes;
-   private final boolean debugPath;
+   private final Options options;
 
    private final Container outerContainer;
    private Title title = createTitle();
@@ -49,9 +49,8 @@ public class PacDefence {
    
    private Game game;
 
-   public PacDefence(Container c, boolean debugTimes, boolean debugPath) {
-      this.debugTimes = debugTimes;
-      this.debugPath = debugPath;
+   public PacDefence(Container c, Options options) {
+      this.options = options;
       outerContainer = c;
       outerContainer.setLayout(new BorderLayout());
       outerContainer.add(title);
@@ -64,31 +63,8 @@ public class PacDefence {
       MyExecutor.terminateExecutor();
       outerContainer.setVisible(false);
    }
-   
-   public boolean getDebugTimes() {
-      return debugTimes;
-   }
-   
-   public boolean getDebugPath() {
-      return debugPath;
-   }
-   
-   public void returnToTitle(JPanel... panelsToRemove) {
-      // Need to create a new title screen as we got rid of the old one to free up memory
-      title = createTitle();
-      for(JPanel panel : panelsToRemove) {
-         outerContainer.remove(panel);
-      }
-      outerContainer.add(title);
-      outerContainer.invalidate();
-      outerContainer.validate();
-      outerContainer.repaint();
-      loadSelectionScreens();
-      AbstractTower.flushImageCache();
-   }
 
    private Title createTitle() {
-      final PacDefence pd = this;
       return new Title(Constants.WIDTH, Constants.HEIGHT, new ActionListener() {
          @Override
          public void actionPerformed(ActionEvent e) {
@@ -109,7 +85,7 @@ public class PacDefence {
             // Free up memory used by title (around 2-3 MB)
             title = null;
             // Create a new game so it can load stuff asynchronously
-            game = new Game(pd);
+            game = new Game(new ReturnToTitleCallback(), options);
          }
       });
    }
@@ -147,6 +123,25 @@ public class PacDefence {
          game.getControlPanel().requestFocus();
       }
       
+   }
+
+   public class ReturnToTitleCallback {
+
+      public void returnToTitle(JPanel... panelsToRemove) {
+         // Need to create a new title screen as we got rid of the old one to
+         // free up memory
+         title = createTitle();
+         for (JPanel panel : panelsToRemove) {
+            outerContainer.remove(panel);
+         }
+         outerContainer.add(title);
+         outerContainer.invalidate();
+         outerContainer.validate();
+         outerContainer.repaint();
+         loadSelectionScreens();
+         AbstractTower.flushImageCache();
+      }
+
    }
 
 }

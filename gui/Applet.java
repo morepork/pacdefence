@@ -24,6 +24,7 @@ import java.awt.Dimension;
 import javax.swing.JApplet;
 
 import logic.Constants;
+import logic.Options;
 
 @SuppressWarnings("serial")
 public class Applet extends JApplet {
@@ -61,7 +62,7 @@ public class Applet extends JApplet {
    }
    
    private void startGame() {
-      pacDefence = new PacDefence(this, debugTimes, false);
+      pacDefence = new PacDefence(this, new Options(debugTimes, false));
       setSize(new Dimension(Constants.WIDTH, Constants.HEIGHT));
       setVisible(true);
    }
