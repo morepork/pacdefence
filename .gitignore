@@ -3,5 +3,7 @@
 *.jar
 
 # Eclipse files
-.classpath
-.project
+/.classpath
+/.project
+/.pydevproject
+/.settings
