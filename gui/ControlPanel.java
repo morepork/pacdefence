@@ -59,8 +59,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import logic.Constants;
-import logic.Helper;
 import logic.Game.ControlEventProcessor;
+import logic.Helper;
 import sprites.Sprite;
 import towers.Ghost;
 import towers.Tower;
@@ -291,14 +291,6 @@ public class ControlPanel extends JPanel {
       attributeButtonMap.get(a).doClick();
    }
    
-   public void clickTargetButton(boolean normalClick) {
-      if(normalClick) {
-         targetButton.doClick();
-      } else {
-         processTargetButtonRightClicked(targetButton);
-      }
-   }
-   
    public void clickFastButton(boolean normalClick) {
       eventProcessor.processFastButtonPressed(normalClick);
       fastButton.toggleIcons(normalClick);
@@ -323,14 +315,14 @@ public class ControlPanel extends JPanel {
       actionMap.put("Change target up", new AbstractAction() {
          @Override
         public void actionPerformed(ActionEvent e) {
-            clickTargetButton(true);
+            processTargetButtonClicked(targetButton, true);
          }
       });
       inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0), "Change target down");
       actionMap.put("Change target down", new AbstractAction() {
          @Override
         public void actionPerformed(ActionEvent e) {
-            clickTargetButton(false);
+            processTargetButtonClicked(targetButton, false);
          }
       });
       
@@ -503,14 +495,14 @@ public class ControlPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                JButton b = (JButton) e.getSource();
-               eventProcessor.processTowerButtonPressed(b, towerTypes.get(b));
+               eventProcessor.processTowerButtonPressed(towerTypes.get(b));
             }
          });
          button.addChangeListener(new ChangeListener(){
             @Override
             public void stateChanged(ChangeEvent e) {
                JButton b = (JButton) e.getSource();
-               eventProcessor.processTowerButtonChangeEvent(b, towerTypes.get(b));
+               eventProcessor.processTowerButtonRollover(towerTypes.get(b), checkIfRolledOver(b));
             }
          });
          panel.add(button);
@@ -545,7 +537,7 @@ public class ControlPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                OverlayButton o = (OverlayButton) e.getSource();
-               eventProcessor.processEndLevelUpgradeButtonPress(o, o.equals(livesUpgrade),
+               eventProcessor.processEndLevelUpgradeButtonPress(o.equals(livesUpgrade),
                      o.equals(interestUpgrade), o.equals(moneyUpgrade), getAttributeFromButton(o));
             }
          });
@@ -553,8 +545,9 @@ public class ControlPanel extends JPanel {
             @Override
             public void stateChanged(ChangeEvent e) {
                OverlayButton o = (OverlayButton) e.getSource();
-               eventProcessor.processEndLevelUpgradeButtonChanged(o, o.equals(livesUpgrade),
-                     o.equals(interestUpgrade), o.equals(moneyUpgrade), getAttributeFromButton(o));
+               eventProcessor.processEndLevelUpgradeButtonRollover(o.equals(livesUpgrade),
+                     o.equals(interestUpgrade), o.equals(moneyUpgrade), getAttributeFromButton(o),
+                     checkIfRolledOver(o));
             }
          });
          box.add(b);
@@ -599,14 +592,16 @@ public class ControlPanel extends JPanel {
          @Override
         public void actionPerformed(ActionEvent e) {
             JButton b = (JButton)e.getSource();
-            eventProcessor.processUpgradeButtonPressed(e, buttonAttributeMap.get(b));
+            boolean ctrl = (e.getModifiers() & InputEvent.CTRL_MASK) != 0 ;
+            eventProcessor.processUpgradeButtonPressed(buttonAttributeMap.get(b), ctrl);
          }
       });
       b.addChangeListener(new ChangeListener(){
          @Override
         public void stateChanged(ChangeEvent e) {
             JButton b = (JButton)e.getSource();
-            eventProcessor.processUpgradeButtonChanged(b, buttonAttributeMap.get(b));
+            eventProcessor.processUpgradeButtonRollover(buttonAttributeMap.get(b),
+                  checkIfRolledOver(b));
          }
       });
       return b;
@@ -656,9 +651,7 @@ public class ControlPanel extends JPanel {
       b.addActionListener(new ActionListener() {
          @Override
         public void actionPerformed(ActionEvent e) {
-            // Go back if ctrl is pressed at the same time
-            boolean ctrl = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK;
-            eventProcessor.processTargetButtonPressed((JButton)e.getSource(), !ctrl);
+            processTargetButtonClicked((JButton)e.getSource(), true);
          }
       });
       // Go back on a right click
@@ -666,15 +659,15 @@ public class ControlPanel extends JPanel {
          @Override
          public void mouseClicked(MouseEvent e) {
             if(e.getButton() == MouseEvent.BUTTON3) {
-               processTargetButtonRightClicked((JButton) e.getSource());
+               processTargetButtonClicked((JButton)e.getSource(), false);
             }
          }
       });
       return b;
    }
    
-   private void processTargetButtonRightClicked(JButton b) {
-      eventProcessor.processTargetButtonPressed(b, false);
+   private void processTargetButtonClicked(JButton b, boolean left) {
+      b.setText(eventProcessor.processTargetButtonPressed(left));
    }
    
    private void setUpLevelStats() {
@@ -720,13 +713,13 @@ public class ControlPanel extends JPanel {
       b.addActionListener(new ActionListener() {
          @Override
         public void actionPerformed(ActionEvent e) {
-            eventProcessor.processSellButtonPressed((JButton) e.getSource());
+            eventProcessor.processSellButtonPressed();
          }
       });
       b.addChangeListener(new ChangeListener() {
          @Override
         public void stateChanged(ChangeEvent e) {
-            eventProcessor.processSellButtonChanged((JButton) e.getSource());
+            eventProcessor.processSellButtonRollover(checkIfRolledOver((JButton) e.getSource()));
          }
       });
       return b;
@@ -754,6 +747,10 @@ public class ControlPanel extends JPanel {
       panel.add(restart, BorderLayout.EAST);
       panel.setBorder(BorderFactory.createEmptyBorder(0, 13, 1, 13));
       add(panel);
+   }
+   
+   private boolean checkIfRolledOver(JButton b) {
+      return b.getModel().isRollover();
    }
 
    private class TowerStat {

@@ -28,8 +28,6 @@ import gui.maps.MapParser.GameMap;
 
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -44,7 +42,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.prefs.BackingStoreException;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import sprites.Pacman;
@@ -952,8 +949,8 @@ public class Game {
          }
       }
       
-      public void processUpgradeButtonPressed(ActionEvent e, Attribute a) {
-         int numTimes = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 5 : 1;
+      public void processUpgradeButtonPressed(Attribute a, boolean ctrl) {
+         int numTimes = ctrl ? 5 : 1;
          Tower toAffect = towerToAffect();
          for(int i = 0; i < numTimes; i++) {
             if(toAffect == null) {
@@ -975,8 +972,8 @@ public class Game {
          updateTowerStats();
       }
       
-      public void processUpgradeButtonChanged(JButton b, Attribute a) {
-         if(checkIfRolledOver(b)) {
+      public void processUpgradeButtonRollover(Attribute a, boolean on) {
+         if(on) {
             String description = a.toString() + " Upgrade";
             Tower toAffect = towerToAffect();
             long cost = 0;
@@ -992,7 +989,7 @@ public class Game {
          }
       }
       
-      public void processTowerButtonPressed(JButton b, Tower t) {
+      public void processTowerButtonPressed(Tower t) {
          if(money >= getNextTowerCost(t.getClass())) {
             setSelectedTower(null);
             setBuildingTower(t);
@@ -1000,8 +997,8 @@ public class Game {
          }
       }
       
-      public void processTowerButtonChangeEvent(JButton b, Tower t) {
-         if(!checkIfRolledOver(b)) {
+      public void processTowerButtonRollover(Tower t, boolean on) {
+         if(!on) {
             t = null;
             if(buildingTower == null) {
                controlPanel.clearCurrentCost();
@@ -1011,8 +1008,8 @@ public class Game {
          updateTowerStats();
       }
       
-      public void processEndLevelUpgradeButtonPress(JButton b, boolean livesUpgrade,
-            boolean interestUpgrade, boolean moneyUpgrade, Attribute a) {
+      public void processEndLevelUpgradeButtonPress(boolean livesUpgrade, boolean interestUpgrade,
+            boolean moneyUpgrade, Attribute a) {
          if(endLevelUpgradesLeft > 0) {
             endLevelUpgradesLeft--;
             if(a != null) {
@@ -1036,9 +1033,9 @@ public class Game {
          }
       }
       
-      public void processEndLevelUpgradeButtonChanged(JButton b, boolean livesUpgrade,
-            boolean interestUpgrade, boolean moneyUpgrade, Attribute a) {
-         if(checkIfRolledOver(b)) {
+      public void processEndLevelUpgradeButtonRollover(boolean livesUpgrade,
+            boolean interestUpgrade, boolean moneyUpgrade, Attribute a, boolean on) {
+         if(on) {
             String description = new String();
             String cost = "Free";
             if(a != null) {
@@ -1056,7 +1053,7 @@ public class Game {
          }
       }
       
-      public void processSellButtonPressed(JButton b) {
+      public void processSellButtonPressed() {
          Tower toAffect = towerToAffect();
          if(toAffect != null) {
             increaseMoney(sellValue(toAffect));
@@ -1066,17 +1063,16 @@ public class Game {
          }
       }
       
-      public void processSellButtonChanged(JButton b) {
+      public void processSellButtonRollover(boolean on) {
          Tower toAffect = towerToAffect();
-         if(toAffect != null && checkIfRolledOver(b)) {
-            controlPanel.updateCurrentCost("Sell " + toAffect.getName(),
-                  sellValue(toAffect));
+         if(toAffect != null && on) {
+            controlPanel.updateCurrentCost("Sell " + toAffect.getName(), sellValue(toAffect));
          } else {
             controlPanel.clearCurrentCost();
          }
       }
       
-      public void processTargetButtonPressed(JButton b, boolean direction) {
+      public String processTargetButtonPressed(boolean direction) {
          Tower currentTower = hoverOverTower != null ? hoverOverTower : selectedTower;
          Comparator<Sprite> currentComparator = currentTower.getSpriteComparator();
          int nextIndex = comparators.indexOf(currentComparator) + (direction ? 1 : -1);
@@ -1086,8 +1082,8 @@ public class Game {
             nextIndex += comparators.size();
          }
          Comparator<Sprite> c = comparators.get(nextIndex);
-         b.setText(c.toString());
          selectedTower.setSpriteComparator(c);
+         return c.toString();
       }
       
       public void processFastButtonPressed(boolean wasLeftClick) {
@@ -1108,10 +1104,6 @@ public class Game {
          // Flush the cache here, so only the directions that towers actually use are put into it
          // and the extra time for rotating images is fine at the beginning of the level
          AbstractTower.flushImageCache();
-      }
-      
-      private boolean checkIfRolledOver(JButton b) {
-         return b.getModel().isRollover();
       }
       
       private Tower towerToAffect() {
