@@ -260,13 +260,12 @@ public class Game {
       int levelEndBonus = Formulae.levelEndBonus(level);
       int noEnemiesThroughBonus = 0;
       
-      String text = "Level " + level + " finished. " + interest + " interest earned. " +
-            levelEndBonus + " for finishing the level.";
-      
+      String text = "Level " + level + " complete! ";
+      text += "Earned " + levelEndBonus + " + ";
       if(livesLostOnThisLevel == 0) {
-         noEnemiesThroughBonus = Formulae.noEnemiesThroughBonus(level);
-         text += " " + noEnemiesThroughBonus + " bonus for losing no lives.";
+         text += Formulae.noEnemiesThroughBonus(level) + " (perfect) + ";
       }
+      text += interest + " (interest)";
       
       increaseMoney(interest + levelEndBonus + noEnemiesThroughBonus);
       updateAllButLevelStats();

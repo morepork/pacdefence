@@ -328,7 +328,7 @@ public class GameMapPanel extends JPanel {
       
       private static final Color backgroundColour = Color.WHITE;
       private static final Color textColour = Color.BLACK;
-      private static final float fontSize = 11.0f;
+      private static final Font font = new Font(Font.SANS_SERIF, Font.BOLD, 14);
       private static final Composite composite =
             AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5F);
       private final int startPosition;
@@ -339,7 +339,7 @@ public class GameMapPanel extends JPanel {
       private static final int aboveTextMargin = 7;
       private static final int belowTextMargin = 10;
       // The margin on the side from the left of the TextDisplay (not the screen)
-      private static final int sideMargin = 7;
+      private static final int sideMargin = 12;
       // The offset from the side of the screen for the TextDisplay
       private static final int offset = 3;
       // The height of the screen
@@ -418,7 +418,7 @@ public class GameMapPanel extends JPanel {
          g.fillRoundRect(0, 0, image.getWidth(), screenHeight, rounding, rounding);
          
          // Use the same font, just change the font size
-         g.setFont(g.getFont().deriveFont(fontSize));
+         g.setFont(font);
          // Draw the text on top
          int lineHeight = g.getFontMetrics().getHeight() + aboveTextMargin;
          g.setColor(textColour);
