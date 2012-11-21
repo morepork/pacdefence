@@ -151,6 +151,11 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          drawCurrentEffects(g, currentHalfWidth);
       }
    }
+   
+   @Override
+   public ZCoordinate getZ() {
+      return ZCoordinate.Sprite;
+   }
 
    @Override
    public boolean tick() {

@@ -238,6 +238,11 @@ public abstract class AbstractTower implements Tower {
       g.drawLine(p.x - halfWidth, p.y + halfWidth, p.x + halfWidth, p.y - halfWidth);
       g.setStroke(s);
    }
+   
+   @Override
+   public ZCoordinate getZ() {
+      return isSelected ? ZCoordinate.SelectedTower : ZCoordinate.Tower;
+   }
 
    @Override
    public boolean doesTowerClashWith(Tower t) {

@@ -39,6 +39,7 @@ import logic.Constants;
 import logic.Helper;
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
+import towers.AbstractBullet;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -102,7 +103,7 @@ public class BeamTower extends AbstractTower {
       beamLastTicks += upgradeBeamLastTicks;
    }
    
-   private static class Beam implements Bullet {
+   private static class Beam extends AbstractBullet {
 
       private static final Color beamColour = new Color(138, 138, 138);
       private float currentAlpha = 1F;

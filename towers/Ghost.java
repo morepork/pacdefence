@@ -73,7 +73,7 @@ public class Ghost implements Tower {
             if(d != null) {
                final double moneyEarnt = d.getMoneyEarnt();
                // Gives you the money for killing this sprite
-               toReturn.add(new Bullet() {
+               toReturn.add(new AbstractBullet() {
                   @Override
                   public void draw(Graphics g) {
                      // Does nothing as it isn't drawn
@@ -123,6 +123,11 @@ public class Ghost implements Tower {
       if(!validPlacement) {
          AbstractTower.drawX(g2D, p, halfWidth);
       }
+   }
+   
+   @Override
+   public ZCoordinate getZ() {
+      return ZCoordinate.Tower;
    }
    
    @Override

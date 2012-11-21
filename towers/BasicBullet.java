@@ -33,7 +33,7 @@ import logic.Constants;
 import sprites.Sprite;
 import sprites.Sprite.DamageReport;
 
-public class BasicBullet implements Bullet {
+public class BasicBullet extends AbstractBullet {
 
    
    // Determined by the image

@@ -39,6 +39,8 @@ import java.awt.Transparency;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -147,6 +149,12 @@ public class GameMapPanel extends JPanel {
    
    public long redraw(List<Drawable> drawables, DebugStats debugStats) {
       if(gameOver == null) {
+         Collections.sort(drawables, new Comparator<Drawable>() {
+            @Override
+            public int compare(Drawable d1, Drawable d2) {
+               return d1.getZ().ordinal() - d2.getZ().ordinal();
+            }
+         });
          this.drawablesToDraw = drawables;
          this.debugStatsToDraw = debugStats;
       } else {

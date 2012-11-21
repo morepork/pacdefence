@@ -703,17 +703,9 @@ public class Game {
       }
       
       private List<Drawable> getDrawables() {
-         List<Drawable> drawables = new ArrayList<Drawable>(sprites.size() + towers.size() +
-               bullets.size() + 1);
-         // Watch the order that things are added to the list. Things added later will be drawn on
-         // top of things added earlier
+         List<Drawable> drawables = new ArrayList<Drawable>();
          drawables.addAll(sprites);
          drawables.addAll(towers);
-         // Set the selected tower to be drawn last, so its range is drawn over
-         // all the other towers, rather than some drawn under and some over
-         if(selectedTower != null) {
-            Collections.swap(drawables, drawables.indexOf(selectedTower), drawables.size() - 1);
-         }
          drawables.addAll(bullets);
          // Displays the tower on the cursor that could be built
          drawables.add(new Drawable() {
@@ -723,6 +715,10 @@ public class Game {
                   buildingTower.drawShadowAt(g, lastMousePosition,
                         isValidTowerPos(lastMousePosition));
                }
+            }
+            @Override
+            public ZCoordinate getZ() {
+               return ZCoordinate.SelectedTower;
             }
          });
          return drawables;

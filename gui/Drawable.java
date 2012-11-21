@@ -23,7 +23,21 @@ import java.awt.Graphics;
 
 
 public interface Drawable {
+
+   /**
+    * The Z coordinate of a Drawable object.
+    * 
+    * Objects with higher Z coordinate are drawn later, and are thus shown on
+    * top of objects with lower Z.
+    */
+   public enum ZCoordinate {
+      Tower,
+      Sprite,
+      SelectedTower,
+      Bullet,
+   }
    
    public void draw(Graphics g);
+   public ZCoordinate getZ();
 
 }
