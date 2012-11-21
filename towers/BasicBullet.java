@@ -94,14 +94,14 @@ public class BasicBullet implements Bullet {
    }
 
    @Override
-public final double tick(List<Sprite> sprites) {
+   public final double tick(List<Sprite> sprites) {
       double tick = doTick(sprites);
       draw = tick < 0;
       return tick;
    }
 
    @Override
-public void draw(Graphics g) {
+   public void draw(Graphics g) {
       if(draw && !checkIfBulletIsOffScreen()) {
          g.drawImage(image, (int) position.getX() - radius, (int) position.getY() - radius, null);
       }
