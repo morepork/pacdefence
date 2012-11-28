@@ -61,7 +61,7 @@ import javax.swing.event.ChangeListener;
 import logic.Constants;
 import logic.Game.ControlEventProcessor;
 import logic.Helper;
-import sprites.Sprite;
+import creeps.Creep;
 import towers.Ghost;
 import towers.Tower;
 import towers.Tower.Attribute;
@@ -135,7 +135,7 @@ public class ControlPanel extends JPanel {
          new EnumMap<Attribute, JButton>(Attribute.class);
    
    // These labels are in the level stats box
-   private MyJLabel numSpritesLabel, timeBetweenSpritesLabel, hpLabel;
+   private MyJLabel numCreepsLabel, timeBetweenCreepsLabel, hpLabel;
    private MyJLabel currentCostStringLabel, currentCostLabel;
    
    private final ImageButton start = new ImageButton("start", ".png", true);
@@ -170,7 +170,7 @@ public class ControlPanel extends JPanel {
    }
    
    public void updateNumberLeft(int number) {
-      numSpritesLabel.setText(number);
+      numCreepsLabel.setText(number);
    }
    
    public void setStats(Tower t) {
@@ -189,7 +189,7 @@ public class ControlPanel extends JPanel {
          damageDealtLabel.setText("Dmg: " + t.getDamageDealt() + " (" +
                t.getDamageDealtForUpgrade() + ")");
          sellButton.setEnabled(true);
-         Comparator<Sprite> c = t.getSpriteComparator();
+         Comparator<Creep> c = t.getCreepComparator();
          if(c != null) {
             targetLabel.setText("Target");
             targetButton.setEnabled(true);
@@ -198,14 +198,14 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   public void setCurrentInfoToSprite(Sprite s) {
-      if(s == null) {
+   public void setCurrentInfoToCreep(Creep c) {
+      if(c == null) {
          blankCurrentTowerInfo();
       } else {
-         towerNameLabel.setText("HP Left: " + Helper.format(s.getHPLeft(), 2));
+         towerNameLabel.setText("HP Left: " + Helper.format(c.getHPLeft(), 2));
          towerLevelLabel.setText(" ");
          killsLabel.setText(" ");
-         damageDealtLabel.setText("Speed: " + Helper.format(s.getSpeed() *
+         damageDealtLabel.setText("Speed: " + Helper.format(c.getSpeed() *
                  Constants.CLOCK_TICKS_PER_SECOND, 0) + " pixels/s ");
          sellButton.setEnabled(false);
          targetLabel.setText(" ");
@@ -226,12 +226,12 @@ public class ControlPanel extends JPanel {
       }
    }
    
-   public void updateLevelStats(String level, String numSprites, String hp,
-         String timeBetweenSprites) {
+   public void updateLevelStats(String level, String numCreeps, String hp,
+         String timeBetweenCreeps) {
       levelLabel.setText(level);
-      numSpritesLabel.setText(numSprites);
+      numCreepsLabel.setText(numCreeps);
       hpLabel.setText(hp);
-      timeBetweenSpritesLabel.setText(timeBetweenSprites);
+      timeBetweenCreepsLabel.setText(timeBetweenCreeps);
    }
    
    public void updateCurrentCost(String description, long cost) {
@@ -675,9 +675,9 @@ public class ControlPanel extends JPanel {
       Box box = Box.createVerticalBox();
       box.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
       box.setOpaque(false);
-      box.add(createLeftRightPanel("Number Left", textSize, defaultTextColour, numSpritesLabel));
-      box.add(createLeftRightPanel("Between Sprites", textSize, defaultTextColour,
-            timeBetweenSpritesLabel));
+      box.add(createLeftRightPanel("Number Left", textSize, defaultTextColour, numCreepsLabel));
+      box.add(createLeftRightPanel("Between Creeps", textSize, defaultTextColour,
+            timeBetweenCreepsLabel));
       box.add(createLeftRightPanel("HP", textSize, defaultTextColour, hpLabel));
       add(box);
    }

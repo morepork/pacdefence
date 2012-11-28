@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
-package sprites;
+package creeps;
 
 import images.ImageHelper;
 
@@ -48,14 +48,14 @@ import logic.Helper;
 import towers.DamageNotifier;
 import towers.Tower;
 
-public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
+public abstract class AbstractCreep implements Creep, Comparable<Creep> {
    
    private static final double baseSpeed = 2;
    private static final double maxMult = 2;
    private static final Random rand = new Random();
    private static final double multiTowerBonusPerTower = 1.1;
    
-   // The amount the image of the sprite shrinks by per tick after it has been killed
+   // The amount the image of the creep shrinks by per tick after it has been killed
    private static final int dieImageWidthShrinkAmount = 4;
 
    private int width;
@@ -63,12 +63,12 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    
    private final Circle bounds = new Circle();
 
-   // Cache the rotated images so every time a sprite rounds a corner the original images do not
+   // Cache the rotated images so every time a creep rounds a corner the original images do not
    // need to be re-rotated, but can be retrieved from here.
-   // The list of images if filed under the specific class of AbstractSprite and a LooseFloat which
-   // is the angle the sprite is facing.
-   private static final Map<Class<? extends AbstractSprite>, Map<LooseFloat,
-         List<BufferedImage>>> rotatedImages = new HashMap<Class<? extends AbstractSprite>,
+   // The list of images if filed under the specific class of AbstractCreep and a LooseFloat which
+   // is the angle the creep is facing.
+   private static final Map<Class<? extends AbstractCreep>, Map<LooseFloat,
+         List<BufferedImage>>> rotatedImages = new HashMap<Class<? extends AbstractCreep>,
          Map<LooseFloat, List<BufferedImage>>>();
    
    private final List<BufferedImage> originalImages;
@@ -93,9 +93,9 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    private double distance;
    // The steps taken so far (in pixels) in the current direction
    private double steps;
-   // Whether the sprite is still alive
+   // Whether the creep is still alive
    private boolean alive = true;
-   // Whether the sprite has finished, i.e. got to the end of the map
+   // Whether the creep has finished, i.e. got to the end of the map
    private boolean finished = false;
    
    private double speedFactor = 1;
@@ -107,14 +107,14 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    
    private int poisonTicksLeft = 0;
    
-   private final Set<SpriteEffect> currentEffects = EnumSet.noneOf(SpriteEffect.class);
-   private static final Map<SpriteEffect, Color> effectsColours = createEffectsColours();
+   private final Set<CreepEffect> currentEffects = EnumSet.noneOf(CreepEffect.class);
+   private static final Map<CreepEffect, Color> effectsColours = createEffectsColours();
    private static final Composite effectsComposite =
          AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25F);
    
    private final List<Class<? extends Tower>> hits = new ArrayList<Class<? extends Tower>>();
 
-   public AbstractSprite(List<BufferedImage> images, int currentLevel, long hp, List<Point> path){
+   public AbstractCreep(List<BufferedImage> images, int currentLevel, long hp, List<Point> path){
       this.currentLevel = currentLevel;
       width = images.get(0).getWidth();
       halfWidth = width / 2;
@@ -140,7 +140,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       int currentHalfWidth = halfWidth;
       int currentWidth = width;
       
-      if(currentHalfWidth < 0) { // Sprite is dead and so small it's not showing
+      if(currentHalfWidth < 0) { // Creep is dead and so small it's not showing
          return;
       }
       
@@ -154,7 +154,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    
    @Override
    public ZCoordinate getZ() {
-      return ZCoordinate.Sprite;
+      return ZCoordinate.Creep;
    }
 
    @Override
@@ -164,16 +164,16 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          currentImageIndex++;
          currentImageIndex %= currentImages.size();
          currentImage = currentImages.get(currentImageIndex);
-         if(!move()) { // If this returns false; the sprite has finished
+         if(!move()) { // If this returns false; the creep has finished
             finished = true;
             return true;
          }
          decreaseEffectsTicksLeft();
       } else {
-         // If the sprite is dead, reduce the size it is drawn at
+         // If the creep is dead, reduce the size it is drawn at
          width -= dieImageWidthShrinkAmount;
          halfWidth = width / 2;
-         // When it gets too small, stop showing it - the sprite is gone from the game now
+         // When it gets too small, stop showing it - the creep is gone from the game now
          if(halfWidth < 0) {
             return true;
          }
@@ -221,7 +221,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       if(alive) {
          return fastIntersects(p);
       } else {
-         // If the sprite is dead or dying it can't be hit
+         // If the creep is dead or dying it can't be hit
          return false;
       }
    }
@@ -259,7 +259,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          adjustedDamage *= damageMultiplier;
       }
       if (hp - adjustedDamage <= 0) {
-         // This hit killed the sprite, so the damage dealt is the number of hp the sprite had left,
+         // This hit killed the creep, so the damage dealt is the number of hp the creep had left,
          // not the raw damage of the hit
          alive = false;
          double damageToReport = hp;
@@ -267,7 +267,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          if(adjustedDamageNotifier != null && adjustedDamage > damage && hp > damage) {
             // Notify the tower that caused the extra damage of the damage it caused
             // Note that it only caused extra damage if the original shot would not have killed this
-            // sprite.
+            // creep.
             adjustedDamageNotifier.notifyOfDamage(hp - damage);
             adjustedDamageNotifier.notifyOfKills(1);
             
@@ -305,7 +305,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       if(factor >= 1) {
          throw new IllegalArgumentException("Factor must be less than 1 in order to slow.");
       }
-      currentEffects.add(SpriteEffect.SLOW);
+      currentEffects.add(CreepEffect.SLOW);
       if(factor < speedFactor) {
          // New speed is slower, so it is better, even if only for a short
          // time. Or so I think.
@@ -319,14 +319,14 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
             adjustedSpeedTicksLeft = numTicks;
          }
       }
-      // Otherwise ignore it as it would increase the sprite's speed
+      // Otherwise ignore it as it would increase the creep's speed
    }
    
    @Override
    public void setDamageMultiplier(DamageNotifier dn, double multiplier, int numTicks) {
       assert multiplier > 1 : "Multiplier must be greater than 1";
-      currentEffects.add(SpriteEffect.WEAK);
-      if(multiplier > damageMultiplier) { // If this would weaken the sprite by more
+      currentEffects.add(CreepEffect.WEAK);
+      if(multiplier > damageMultiplier) { // If this would weaken the creep by more
          damageMultiplier = multiplier;
          adjustedDamageTicksLeft = numTicks;
          adjustedDamageNotifier = dn;
@@ -343,20 +343,20 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    @Override
    public void poison(int numTicks) {
       assert numTicks > 0 : "Can't be poisoned for 0 or fewer ticks";
-      currentEffects.add(SpriteEffect.POISON);
+      currentEffects.add(CreepEffect.POISON);
       if(numTicks > poisonTicksLeft) {
          poisonTicksLeft = numTicks;
       }
    }
    
    @Override
-   public int compareTo(Sprite s) {
+   public int compareTo(Creep c) {
       // The speed differences should never be so large that the int wraps
-      return (int)(1e6 * (s.getSpeed() - this.getSpeed()));
+      return (int)(1e6 * (c.getSpeed() - this.getSpeed()));
    }
    
    /**
-    * Moves the sprite.
+    * Moves the creep.
     * 
     * @return
     *        true if it is still on screen, false if it has finished and has gone off screen
@@ -382,7 +382,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       double dx = p2.getX() - p1.getX();
       double dy = p2.getY() - p1.getY();
       double distance = Math.sqrt(dx * dx + dy * dy);
-      // Now make it so the sprite starts fully off screen, then comes on screen
+      // Now make it so the creep starts fully off screen, then comes on screen
       double mult = (halfWidth + 1) / distance;
       int x = (int) (p1.getX() - mult * dx);
       int y = (int) (p1.getY() - mult * dy);
@@ -390,7 +390,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    }
 
    /**
-    * Calculates and sets the next point on this sprite's path
+    * Calculates and sets the next point on this creep's path
     * 
     * @return
     *        true if it is still on screen, false if it has finished and has gone off screen
@@ -402,14 +402,14 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       } else {
          // There are no more points to head towards
          if (nextPoint != null) {
-            // Need to add enough distance so the sprite will go off the screen
+            // Need to add enough distance so the creep will go off the screen
             // Flag that we've done this so we don't do it again
             nextPoint = null;
             double distancePerStep = Math.sqrt(xStep * xStep + yStep * yStep);
             // One pixel is added to halfWidth just to be sure
             distance += (halfWidth + 1) / distancePerStep;
          } else {
-            // Sprite is finished
+            // Creep is finished
             return false;
          }
       }
@@ -425,7 +425,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       // in the path
       double dx = nextPoint.getX() - centre.getX();
       double dy = nextPoint.getY() - centre.getY();
-      // Now normalise these in relation to the sprite's speed
+      // Now normalise these in relation to the creep's speed
       distance = Math.sqrt(dx * dx + dy * dy) / speed;
       xStep = dx / distance;
       yStep = dy / distance;
@@ -443,7 +443,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       }
       Map<LooseFloat, List<BufferedImage>> m = rotatedImages.get(getClass());
       // Use LooseFloat to reduce precision so rotated images are less likely to be duplicated
-      LooseFloat f = new AbstractSpriteLooseFloat(angle);
+      LooseFloat f = new AbstractCreepLooseFloat(angle);
       if(!m.containsKey(f)) {
          List<BufferedImage> images = new ArrayList<BufferedImage>(originalImages.size());
          for(BufferedImage i : originalImages) {
@@ -451,7 +451,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
          }
          m.put(f, Collections.unmodifiableList(images));
       }
-      // Need to copy this as when the sprite dies the images are changed
+      // Need to copy this as when the creep dies the images are changed
       currentImages = new ArrayList<BufferedImage>(m.get(f));
    }
    
@@ -474,7 +474,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
    }
    
    /**
-    * A faster version of the intersect method - doesn't check if Sprite is alive
+    * A faster version of the intersect method - doesn't check if Creep is alive
     * @param p
     * @return
     */
@@ -494,14 +494,14 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       if(adjustedSpeedTicksLeft > 0) {
          adjustedSpeedTicksLeft--;
          if(adjustedSpeedTicksLeft <= 0) {
-            currentEffects.remove(SpriteEffect.SLOW);
+            currentEffects.remove(CreepEffect.SLOW);
             speedFactor = 1;
          }
       }
       if(adjustedDamageTicksLeft > 0) {
          adjustedDamageTicksLeft--;
          if(adjustedDamageTicksLeft <= 0) {
-            currentEffects.remove(SpriteEffect.WEAK);
+            currentEffects.remove(CreepEffect.WEAK);
             damageMultiplier = 1;
             adjustedDamageNotifier = null;
          }
@@ -509,7 +509,7 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       if(poisonTicksLeft > 0) {
          poisonTicksLeft--;
          if(poisonTicksLeft <= 0) {
-            currentEffects.remove(SpriteEffect.POISON);
+            currentEffects.remove(CreepEffect.POISON);
          }
       }
    }
@@ -544,12 +544,12 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       
       g2D.setComposite(effectsComposite);
       
-      // If the sprite is dying, only have the circle as big as its current size, which is why a new
+      // If the creep is dying, only have the circle as big as its current size, which is why a new
       // circle is created, rather than using bounds
-      // Increase the radius to ensure it fully covers the sprite picture
+      // Increase the radius to ensure it fully covers the creep picture
       Circle fillArea = new Circle(centre, radius + 1);
       
-      for(SpriteEffect se : currentEffects) {
+      for(CreepEffect se : currentEffects) {
          g2D.setColor(effectsColours.get(se));
          g2D.fill(fillArea);
       }
@@ -557,21 +557,21 @@ public abstract class AbstractSprite implements Sprite, Comparable<Sprite> {
       g2D.dispose();
    }
    
-   private static Map<SpriteEffect, Color> createEffectsColours() {
-      Map<SpriteEffect, Color> map = new EnumMap<SpriteEffect, Color>(SpriteEffect.class);
-      map.put(SpriteEffect.SLOW, Color.BLUE);
-      map.put(SpriteEffect.WEAK, Color.MAGENTA);
-      map.put(SpriteEffect.POISON, Color.GREEN);
+   private static Map<CreepEffect, Color> createEffectsColours() {
+      Map<CreepEffect, Color> map = new EnumMap<CreepEffect, Color>(CreepEffect.class);
+      map.put(CreepEffect.SLOW, Color.BLUE);
+      map.put(CreepEffect.WEAK, Color.MAGENTA);
+      map.put(CreepEffect.POISON, Color.GREEN);
       return Collections.unmodifiableMap(map);
    }
    
-   private class AbstractSpriteLooseFloat extends LooseFloat {
+   private class AbstractCreepLooseFloat extends LooseFloat {
       
-      public AbstractSpriteLooseFloat(float f) {
+      public AbstractCreepLooseFloat(float f) {
          super(f);
       }
       
-      public AbstractSpriteLooseFloat(double d) {
+      public AbstractCreepLooseFloat(double d) {
          super(d);
       }
 

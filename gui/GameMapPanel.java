@@ -190,7 +190,7 @@ public class GameMapPanel extends JPanel {
          g.setColor(Color.WHITE);
          g.drawString("Process time: " + debugStats.processTime, 10, 15);
          g.drawString("Draw time: " + debugStats.drawTime, 10, 30);
-         g.drawString("Sprites time: " + debugStats.processSpritesTime, 150, 15);
+         g.drawString("Creeps time: " + debugStats.processCreepsTime, 150, 15);
          g.drawString("Bullets time: " + debugStats.processBulletsTime, 150, 30);
          g.drawString("Towers time: " + debugStats.processTowersTime, 150, 45);
          g.drawString("Num bullets: " + debugStats.numBullets, 400, 15);
@@ -258,13 +258,13 @@ public class GameMapPanel extends JPanel {
    }
    
    public static class DebugStats {
-      final long processTime, processSpritesTime, processBulletsTime, processTowersTime, drawTime;
+      final long processTime, processCreepsTime, processBulletsTime, processTowersTime, drawTime;
       final int numBullets;
       
-      public DebugStats(long processTime, long processSpritesTime, long processBulletsTime,
+      public DebugStats(long processTime, long processCreepsTime, long processBulletsTime,
             long processTowersTime, long drawTime, int numBullets) {
          this.processTime = processTime;
-         this.processSpritesTime = processSpritesTime;
+         this.processCreepsTime = processCreepsTime;
          this.processBulletsTime = processBulletsTime;
          this.processTowersTime = processTowersTime;
          this.drawTime = drawTime;

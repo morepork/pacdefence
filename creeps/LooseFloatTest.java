@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
-package sprites;
+package creeps;
 
 import junit.framework.Assert;
 

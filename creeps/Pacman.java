@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
-package sprites;
+package creeps;
 
 import images.ImageHelper;
 
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Pacman extends AbstractSprite {
+public class Pacman extends AbstractCreep {
 
    private static final int width = 40;
    
@@ -45,7 +45,7 @@ public class Pacman extends AbstractSprite {
       ArrayList<BufferedImage> images = new ArrayList<BufferedImage>();
       for(int i = 1; i <= numImages; i++) {
          // Adds all the images
-         images.add(ImageHelper.loadImage(width, width, "sprites", imageName + i + extension));
+         images.add(ImageHelper.loadImage(width, width, "creeps", imageName + i + extension));
       }
       for(int i = images.size() - 2; i > 0; i--) {
          // Adds the images from the second to last to the second again to make a cycle

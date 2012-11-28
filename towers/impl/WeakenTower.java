@@ -26,7 +26,7 @@ import java.util.List;
 
 import logic.Constants;
 import logic.Helper;
-import sprites.Sprite;
+import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -56,11 +56,11 @@ public class WeakenTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds){
          @Override
-         protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
-            s.setDamageMultiplier(damageNotifier, increaseDamageFactor, (int)extraDamageTicks);
+         protected void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {
+            c.setDamageMultiplier(damageNotifier, increaseDamageFactor, (int)extraDamageTicks);
          }
       };
    }

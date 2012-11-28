@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
-package sprites;
+package creeps;
 
 import gui.Drawable;
 
@@ -35,17 +35,18 @@ import towers.Tower;
 
 
 /**
- * Is a sprite, one of the things that is meant to be killed
+ * Is a creep, one of the things that is meant to be killed
  * 
  * @author Byrne
  * 
  */
-public interface Sprite extends Comparable<Sprite>, Drawable {
+public interface Creep extends Comparable<Creep>, Drawable {
    
+   @Override
    public void draw(Graphics g);
    /**
     * 
-    * @return true if this Sprite has finished or has been killed, false otherwise
+    * @return true if this Creep has finished or has been killed, false otherwise
     */
    public boolean tick();
    public int getHalfWidth();
@@ -60,7 +61,7 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
    /**
     * 
     * @param b
-    * @return null if the sprite is already dead
+    * @return null if the creep is already dead
     */
    public DamageReport hit(double damage, Class<? extends Tower> towerClass);
    public boolean intersects(Point2D p);
@@ -75,13 +76,13 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
    public void setDamageMultiplier(DamageNotifier dn, double multiplier, int numTicks);
    public void poison(int numTicks);
    
-   public enum SpriteEffect {
+   public enum CreepEffect {
       SLOW,
       WEAK,
       POISON;
    }
    
-   public abstract class AbstractSpriteComparator implements Comparator<Sprite> {
+   public abstract class AbstractCreepComparator implements Comparator<Creep> {
       @Override
       public boolean equals(Object o) {
          return getClass() == o.getClass();
@@ -91,10 +92,10 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
       public abstract String toString();
    }
 
-   public class FirstComparator extends AbstractSpriteComparator {
+   public class FirstComparator extends AbstractCreepComparator {
       @Override
-      public int compare(Sprite s1, Sprite s2) {
-         return (int) (s2.getTotalDistanceTravelled() - s1.getTotalDistanceTravelled());
+      public int compare(Creep c1, Creep c2) {
+         return (int) (c2.getTotalDistanceTravelled() - c1.getTotalDistanceTravelled());
       }
       
       @Override
@@ -105,8 +106,8 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
    
    public class LastComparator extends FirstComparator {
       @Override
-      public int compare(Sprite s1, Sprite s2) {
-         return -super.compare(s1, s2);
+      public int compare(Creep c1, Creep c2) {
+         return -super.compare(c1, c2);
       }
       
       @Override
@@ -115,10 +116,10 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
       }
    }
    
-   public class FastestComparator extends AbstractSpriteComparator {
+   public class FastestComparator extends AbstractCreepComparator {
       @Override
-      public int compare(Sprite s1, Sprite s2) {
-         return (int)((s2.getSpeed() - s1.getSpeed()) * 100);
+      public int compare(Creep c1, Creep c2) {
+         return (int)((c2.getSpeed() - c1.getSpeed()) * 100);
       }
       
       @Override
@@ -129,8 +130,8 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
    
    public class SlowestComparator extends FastestComparator {
       @Override
-      public int compare(Sprite s1, Sprite s2) {
-         return -super.compare(s1, s2);
+      public int compare(Creep c1, Creep c2) {
+         return -super.compare(c1, c2);
       }
       
       @Override
@@ -139,12 +140,12 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
       }
    }
    
-   public class MostHPComparator extends AbstractSpriteComparator {
+   public class MostHPComparator extends AbstractCreepComparator {
       @Override
-      public int compare(Sprite s1, Sprite s2) {
-         int sign = s2.getHPLeft() > s1.getHPLeft() ? 1 : -1;
+      public int compare(Creep c1, Creep c2) {
+         int sign = c2.getHPLeft() > c1.getHPLeft() ? 1 : -1;
          // Take the log here as the hp difference can get larger than an int
-         return sign * (int)Math.log(Math.abs(s2.getHPLeft() - s1.getHPLeft()) + 1);
+         return sign * (int)Math.log(Math.abs(c2.getHPLeft() - c1.getHPLeft()) + 1);
       }
       
       @Override
@@ -155,8 +156,8 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
    
    public class LeastHPComparator extends MostHPComparator {
       @Override
-      public int compare(Sprite s1, Sprite s2) {
-         return -super.compare(s1, s2);
+      public int compare(Creep c1, Creep c2) {
+         return -super.compare(c1, c2);
       }
       
       @Override
@@ -165,10 +166,10 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
       }
    }
    
-   public class RandomComparator extends AbstractSpriteComparator {
+   public class RandomComparator extends AbstractCreepComparator {
       private static final Random rand = new Random();
       @Override
-      public int compare(Sprite s1, Sprite s2) {
+      public int compare(Creep c1, Creep c2) {
          return rand.nextInt();
       }
       
@@ -178,8 +179,8 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
       }
    }
    
-   // Note, as the compare method is slow, this could cause some lag when there are lots of sprites
-   public class DistanceComparator extends AbstractSpriteComparator {
+   // Note, as the compare method is slow, this could cause some lag when there are lots of creeps
+   public class DistanceComparator extends AbstractCreepComparator {
       
       private final Point p;
       private final boolean closestFirst;
@@ -190,9 +191,9 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
       }
 
       @Override
-      public int compare(Sprite s1, Sprite s2) {
+      public int compare(Creep c1, Creep c2) {
          // This distance should never be greater than an int
-         int distanceSq = (int)(s1.getPosition().distanceSq(p) - s2.getPosition().distanceSq(p));
+         int distanceSq = (int)(c1.getPosition().distanceSq(p) - c2.getPosition().distanceSq(p));
          return closestFirst ? distanceSq : -distanceSq;
       }
       
@@ -234,8 +235,8 @@ public interface Sprite extends Comparable<Sprite>, Drawable {
       
       /**
        * Returns whether this damage was a kill directly.
-       * If the damage was increased because the sprite was taking extra damage due to the effect
-       * of another tower, and this caused the sprite to be killed, this will be false even though
+       * If the damage was increased because the creep was taking extra damage due to the effect
+       * of another tower, and this caused the creep to be killed, this will be false even though
        * the tower was killed.
        */
       public boolean wasKill() {

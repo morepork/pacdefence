@@ -31,8 +31,8 @@ import java.util.Set;
 
 import logic.Circle;
 import logic.Helper;
-import sprites.Sprite;
-import sprites.Sprite.DamageReport;
+import creeps.Creep;
+import creeps.Creep.DamageReport;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -67,7 +67,7 @@ public class BomberTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       return new Bomb(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
 
@@ -75,7 +75,7 @@ public class BomberTower extends AbstractTower {
 
       private boolean exploding = false;
       private boolean expanding = true;
-      private Set<Sprite> hitSprites = new HashSet<Sprite>();
+      private Set<Creep> hitCreeps = new HashSet<Creep>();
       private final Color blastColour = new Color(255, 0, 0, 100);
       private final double blastSizeIncrement;
       private final int frames = 5;
@@ -89,7 +89,7 @@ public class BomberTower extends AbstractTower {
       }
 
       @Override
-      public double doTick(List<Sprite> sprites) {
+      public double doTick(List<Creep> creeps) {
          if(exploding) {
             double radius = blast.getRadius();
             if(expanding) {
@@ -107,10 +107,10 @@ public class BomberTower extends AbstractTower {
                   blast.setRadius(newRadius);
                }
             }
-            checkIfSpriteIsHitByBlast(sprites);
+            checkIfCreepIsHitByBlast(creeps);
             return -1;
          } else { // If it's not exploding, the bullet is still travelling
-            double earnings = super.doTick(sprites);
+            double earnings = super.doTick(creeps);
             if(earnings <= 0) {
                // <= 0 means it has either it is still going, or it got to the edge of its range
                return earnings;
@@ -134,19 +134,19 @@ public class BomberTower extends AbstractTower {
       }
 
       @Override
-      protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
+      protected void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {
          // System.out.println(p.getX() + " " + p.getY());
          blast.setCentre(p);
          exploding = true;
-         hitSprites.add(s);
+         hitCreeps.add(c);
       }
 
-      private void checkIfSpriteIsHitByBlast(List<Sprite> sprites) {
-         for(Sprite s : sprites) {
-            // Sprites are only affected by the blast once
-            if(!hitSprites.contains(s) && blast.intersects(s.getBounds())) {
-               hitSprites.add(s);
-               DamageReport d = s.hit(damage / bombDamageDividend, shotBy.getClass());
+      private void checkIfCreepIsHitByBlast(List<Creep> creeps) {
+         for(Creep c : creeps) {
+            // Creeps are only affected by the blast once
+            if(!hitCreeps.contains(c) && blast.intersects(c.getBounds())) {
+               hitCreeps.add(c);
+               DamageReport d = c.hit(damage / bombDamageDividend, shotBy.getClass());
                if(d != null) {
                   moneyEarnt += processDamageReport(d);
                }

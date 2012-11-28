@@ -24,7 +24,7 @@ import gui.Drawable;
 import java.awt.Graphics;
 import java.util.List;
 
-import sprites.Sprite;
+import creeps.Creep;
 
 
 public interface Bullet extends Drawable {
@@ -32,13 +32,13 @@ public interface Bullet extends Drawable {
    /**
     * Tick this bullet
     * 
-    * @param sprites
+    * @param creeps
     * @return
     *        How much money, if any, the bullet earned. A negative return value
     *        means the bullet is still going and 0 means the bullet reached the
     *        edge of its range.
     */
-   public double tick(List<Sprite> sprites);
+   public double tick(List<Creep> creeps);
    
    public void draw(Graphics g);
 

@@ -30,8 +30,8 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 import logic.Constants;
-import sprites.Sprite;
-import sprites.Sprite.DamageReport;
+import creeps.Creep;
+import creeps.Creep.DamageReport;
 
 public class BasicBullet extends AbstractBullet {
 
@@ -39,7 +39,7 @@ public class BasicBullet extends AbstractBullet {
    // Determined by the image
    public static final int radius = 3;
    // Extra distance a bullet can be off screen before it is removed. Should be greater than the
-   // radius of the largest sprite and the radius of the bullet
+   // radius of the largest creep and the radius of the bullet
    private static final int offScreenFudgeDistance = 50 + radius;
    
    // The direction of the bullet, first is dx, second is dy. Should be normalised
@@ -94,8 +94,8 @@ public class BasicBullet extends AbstractBullet {
    }
 
    @Override
-   public final double tick(List<Sprite> sprites) {
-      double tick = doTick(sprites);
+   public final double tick(List<Creep> creeps) {
+      double tick = doTick(creeps);
       draw = tick < 0;
       return tick;
    }
@@ -124,11 +124,11 @@ public class BasicBullet extends AbstractBullet {
       dir[1] = speed * dy / divisor;
    }
    
-   protected double checkIfSpriteIsHit(List<Sprite> sprites) {
-      return checkIfSpriteIsHit(lastPosition, position, sprites);
+   protected double checkIfCreepIsHit(List<Creep> creeps) {
+      return checkIfCreepIsHit(lastPosition, position, creeps);
    }
    
-   protected double checkIfSpriteIsHit(Point2D p1, Point2D p2, List<Sprite> sprites) {
+   protected double checkIfCreepIsHit(Point2D p1, Point2D p2, List<Creep> creeps) {
       // It turns out using the line is much faster than using a list of points, even though the
       // list of points must be calculated if the lines intersects the shape.
       // A number of reasons:
@@ -141,13 +141,13 @@ public class BasicBullet extends AbstractBullet {
       // Overall this is around 3x faster than the above
       Line2D line = new Line2D.Double(p1, p2);
       // I used to do intersectsPath here first, but that doesn't work for a bullet that's just off
-      // screen hitting a just started/nearly finished sprite
-      for(Sprite s : sprites) {
-         Point2D p = s.intersects(line);
+      // screen hitting a just started/nearly finished creep
+      for(Creep c : creeps) {
+         Point2D p = c.intersects(line);
          if(p != null) {
-            DamageReport d = s.hit(damage, shotBy.getClass());
-            if(d != null) { // Sprite is not already dead, may happen due to threading
-               specialOnHit(p, s, sprites);
+            DamageReport d = c.hit(damage, shotBy.getClass());
+            if(d != null) { // Creep is not already dead, may happen due to threading
+               specialOnHit(p, c, creeps);
                return processDamageReport(d);
             }
          }
@@ -196,7 +196,7 @@ public class BasicBullet extends AbstractBullet {
     * 
     * @param p
     */
-   protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {}
+   protected void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {}
    
    protected double processDamageReport(DamageReport d) {
       return processDamageReport(d, shotBy);
@@ -226,7 +226,7 @@ public class BasicBullet extends AbstractBullet {
       return offScreenFudgeDistance;
    }
    
-   protected double doTick(List<Sprite> sprites) {
+   protected double doTick(List<Creep> creeps) {
       if(isOutOfRange() || canBulletBeRemovedAsOffScreen()) {
          return 0;
       }
@@ -236,12 +236,12 @@ public class BasicBullet extends AbstractBullet {
          double extraFraction = (distanceTravelled - range) / speed;
          position.setLocation(position.getX() + extraFraction * dir[0],
                position.getY() + extraFraction * dir[1]);
-         double result = checkIfSpriteIsHit(sprites);
+         double result = checkIfCreepIsHit(creeps);
          // Bullet has exceeded range so should be removed no matter what
          return result > 0 ? result : 0;
       } else {
          position.setLocation(position.getX() + dir[0], position.getY() + dir[1]);
-         return checkIfSpriteIsHit(sprites);
+         return checkIfCreepIsHit(creeps);
       }
    }
    

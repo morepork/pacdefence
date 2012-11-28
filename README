@@ -16,7 +16,7 @@ At the time of writing this, the command line switches that the game recognises 
 
 -d, --debugTimes   Display the times of different parts of the internals. Used for evaluating
                    performance.
---debugPath        Draws some information about the path (that the sprites follow).
+--debugPath        Draws some information about the path (that the creeps follow).
                    This is primarily used when making a new map.
 -t N, --threads=N  Use N threads in the executor pool. If this isn't provided, or a value < 1 is
                    given, it will use the number of processors that java detects. A value of 1 won't

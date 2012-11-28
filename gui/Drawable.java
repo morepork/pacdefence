@@ -32,7 +32,7 @@ public interface Drawable {
     */
    public enum ZCoordinate {
       Tower,
-      Sprite,
+      Creep,
       SelectedTower,
       Bullet,
    }

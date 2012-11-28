@@ -50,10 +50,10 @@ import logic.Circle;
 import logic.Constants;
 import logic.Formulae;
 import logic.Helper;
-import sprites.LooseFloat;
-import sprites.Sprite;
-import sprites.Sprite.DistanceComparator;
-import sprites.Sprite.FirstComparator;
+import creeps.Creep;
+import creeps.Creep.DistanceComparator;
+import creeps.Creep.FirstComparator;
+import creeps.LooseFloat;
 
 public abstract class AbstractTower implements Tower {
 
@@ -62,7 +62,7 @@ public abstract class AbstractTower implements Tower {
    // down or something when it's multiplied with them
    protected static final double upgradeIncreaseFactor = 1.050001;
    
-   public static final Comparator<Sprite> DEFAULT_SPRITE_COMPARATOR = new FirstComparator();
+   public static final Comparator<Creep> DEFAULT_CREEP_COMPARATOR = new FirstComparator();
    
    // Keep track of the loaded images so they are only loaded once
    private static final Map<String, BufferedImage> towerImages =
@@ -130,7 +130,7 @@ public abstract class AbstractTower implements Tower {
    private int nextUpgradeKills = Formulae.nextUpgradeKills(damageDealtLevel);
    
    // Defaults to FirstComparator
-   private Comparator<Sprite> spriteComparator = DEFAULT_SPRITE_COMPARATOR;
+   private Comparator<Creep> creepComparator = DEFAULT_CREEP_COMPARATOR;
    
    private List<Bullet> bulletsToAdd = new ArrayList<Bullet>();
 
@@ -181,20 +181,20 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress) {
+   public List<Bullet> tick(List<Creep> creeps, boolean levelInProgress) {
       // Decrements here so it's on every tick, not just when it is able to shoot
       timeToNextShot--;
       List<Bullet> fired = null;
       if(imageRotates || timeToNextShot <= 0) {
-         // The sprites are sorted by the default sprite comparator in Clock, so that they don't
+         // The creeps are sorted by the default creep comparator in Clock, so that they don't
          // have to be resorted for any tower left on the default (which is often most of them)
-         if(!spriteComparator.getClass().equals(DEFAULT_SPRITE_COMPARATOR.getClass())) {
+         if(!creepComparator.getClass().equals(DEFAULT_CREEP_COMPARATOR.getClass())) {
             // Make a copy so it can be sorted
-            sprites = new ArrayList<Sprite>(sprites);
-            Collections.sort(sprites, spriteComparator);
+            creeps = new ArrayList<Creep>(creeps);
+            Collections.sort(creeps, creepComparator);
          }
          // If the image rotates, this needs to be done to find out the direction to rotate to
-         fired = fireBullets(sprites);
+         fired = fireBullets(creeps);
       }
       if (timeToNextShot <= 0 && fired != null && fired.size() > 0) {
          timeToNextShot = fireRate;
@@ -470,18 +470,18 @@ public abstract class AbstractTower implements Tower {
    }
    
    @Override
-   public void setSpriteComparator(Comparator<Sprite> c) {
+   public void setCreepComparator(Comparator<Creep> c) {
       if(c instanceof DistanceComparator) {
-         spriteComparator = new DistanceComparator(centre,
+         creepComparator = new DistanceComparator(centre,
                ((DistanceComparator) c).isClosestFirst());
       } else {
-         spriteComparator = c;
+         creepComparator = c;
       }
    }
    
    @Override
-   public Comparator<Sprite> getSpriteComparator() {
-      return spriteComparator;
+   public Comparator<Creep> getCreepComparator() {
+      return creepComparator;
    }
    
    @Override
@@ -514,53 +514,53 @@ public abstract class AbstractTower implements Tower {
    protected abstract String getSpecialName();
    
    protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Sprite s, List<Shape> pathBounds);
+            double speed, double damage, Point p, Creep c, List<Shape> pathBounds);
    
    protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
-      return Helper.makeListContaining(makeBullet(dx, dy, turretWidth, range, speed, damage, p, s,
+            double speed, double damage, Point p, Creep c, List<Shape> pathBounds) {
+      return Helper.makeListContaining(makeBullet(dx, dy, turretWidth, range, speed, damage, p, c,
             pathBounds));
    }
    
-   protected List<Bullet> fireBullets(List<Sprite> sprites) {
-      for(Sprite s : sprites) {
-         if(checkDistance(s)) {
-            return fireBulletsAt(s, true);
+   protected List<Bullet> fireBullets(List<Creep> creeps) {
+      for(Creep c : creeps) {
+         if(checkDistance(c)) {
+            return fireBulletsAt(c, true);
          }
       }
       return Collections.emptyList();
    }
    
-   protected boolean checkDistance(Sprite s) {
-      return checkDistance(s, centre, range);
+   protected boolean checkDistance(Creep c) {
+      return checkDistance(c, centre, range);
    }
    
    /**
-    * Checks if the distance from the sprite to a point is less than the range.
-    * @param s
+    * Checks if the distance from the creep to a point is less than the range.
+    * @param c
     * @param p
     * @param range
     * @return
     */
-   protected boolean checkDistance(Sprite s, Point p, double range) {
-      if (!s.isAlive()) {
+   protected boolean checkDistance(Creep c, Point p, double range) {
+      if (!c.isAlive()) {
          return false;
       }
-      return p.distance(s.getPosition()) < range + s.getHalfWidth();
+      return p.distance(c.getPosition()) < range + c.getHalfWidth();
    }
    
-   protected List<Bullet> fireBulletsAt(Sprite s, boolean rotateTurret) {
-      return fireBulletsAt(s, centre, rotateTurret, turretWidth, range, bulletSpeed, damage);
+   protected List<Bullet> fireBulletsAt(Creep c, boolean rotateTurret) {
+      return fireBulletsAt(c, centre, rotateTurret, turretWidth, range, bulletSpeed, damage);
    }
    
-   protected List<Bullet> fireBulletsAt(Sprite s, Point p, boolean rotateTurret,
+   protected List<Bullet> fireBulletsAt(Creep c, Point p, boolean rotateTurret,
          int turretWidth, double range, double bulletSpeed, double damage) {
-      double dx = s.getPosition().getX() - p.getX();
-      double dy = s.getPosition().getY() - p.getY();
+      double dx = c.getPosition().getX() - p.getX();
+      double dy = c.getPosition().getY() - p.getY();
       if(imageRotates && rotateTurret) {
          currentImage = getRotatedImage(Helper.vectorAngle(dx, -dy));
       }
-      return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, s, pathBounds);
+      return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, c, pathBounds);
    }
 
    protected void upgradeDamage() {

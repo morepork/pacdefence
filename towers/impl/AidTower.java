@@ -29,11 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import sprites.Sprite;
 import towers.AbstractTower;
 import towers.Bullet;
 import towers.DamageNotifier;
 import towers.Tower;
+import creeps.Creep;
 
 
 public class AidTower extends AbstractTower {
@@ -76,7 +76,7 @@ public class AidTower extends AbstractTower {
    }
 
    @Override
-   public synchronized List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress) {
+   public synchronized List<Bullet> tick(List<Creep> creeps, boolean levelInProgress) {
       if(!isSold) {
          for(Tower t : towers) {
             if(!(t instanceof AidTower) && !aidingTowers.contains(t)) {
@@ -100,7 +100,7 @@ public class AidTower extends AbstractTower {
    }
    
    @Override
-   public Comparator<Sprite> getSpriteComparator() {
+   public Comparator<Creep> getCreepComparator() {
       return null;
    }
    
@@ -127,7 +127,7 @@ public class AidTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       throw new RuntimeException("makeBullet called on AidTower which doesn't shoot");
    }
    

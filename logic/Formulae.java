@@ -30,11 +30,11 @@ public class Formulae {
    
    private final static List<Double> moneyDivisors = new ArrayList<Double>();
    
-   public static int numSprites(int level) {
+   public static int numCreeps(int level) {
       return 20 + 4 * (level - 1);
    }
    
-   public static int ticksBetweenAddSprite(int level) {
+   public static int ticksBetweenAddCreep(int level) {
       int ticks = 40;
       for(int i = 1; i < level; i++) {
          ticks *= 0.95;

@@ -32,8 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import sprites.Sprite;
-import sprites.Sprite.DamageReport;
+import creeps.Creep;
+import creeps.Creep.DamageReport;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -62,7 +62,7 @@ public class ZapperTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       return new ZapperBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds,
             numZaps);
    }
@@ -88,7 +88,7 @@ public class ZapperTower extends AbstractTower {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          numZapsLeft = numZaps;
          zapRange = range / 4;
-         // Bullet shouldn't be removed if it can still zap sprites
+         // Bullet shouldn't be removed if it can still zap creeps
          offScreenFudgeDistance = super.getOffScreenFudgeDistance() + (int)zapRange;
       }
       
@@ -111,11 +111,11 @@ public class ZapperTower extends AbstractTower {
       }
       
       @Override
-      protected double doTick(List<Sprite> sprites) {
-         double value = super.doTick(sprites);
+      protected double doTick(List<Creep> creeps) {
+         double value = super.doTick(creeps);
          // Only actually fire once every two ticks
          if(zap == null && numZapsLeft > 0) {
-            tryToFireZap(sprites);
+            tryToFireZap(creeps);
          } else {
             zap = null;
          }
@@ -124,7 +124,7 @@ public class ZapperTower extends AbstractTower {
       }
       
       @Override
-      protected double checkIfSpriteIsHit(Point2D p1, Point2D p2, List<Sprite> sprites) {
+      protected double checkIfCreepIsHit(Point2D p1, Point2D p2, List<Creep> creeps) {
          // The actual bullet never hits
          return -1;
       }
@@ -134,33 +134,33 @@ public class ZapperTower extends AbstractTower {
          return offScreenFudgeDistance;
       }
       
-      private void tryToFireZap(List<Sprite> sprites) {
-         List<Sprite> hittableSprites = new ArrayList<Sprite>();
-         for(Sprite s : sprites) {
-            if(position.distance(s.getPosition()) < zapRange + s.getHalfWidth()) {
-               hittableSprites.add(s);
+      private void tryToFireZap(List<Creep> creeps) {
+         List<Creep> hittableCreeps = new ArrayList<Creep>();
+         for(Creep c : creeps) {
+            if(position.distance(c.getPosition()) < zapRange + c.getHalfWidth()) {
+               hittableCreeps.add(c);
             }
          }
-         fireZap(hittableSprites);
+         fireZap(hittableCreeps);
       }
          
-      private void fireZap(List<Sprite> hittableSprites) {
-         if(hittableSprites.isEmpty()) {
+      private void fireZap(List<Creep> hittableCreeps) {
+         if(hittableCreeps.isEmpty()) {
             // It didn't fire, so remove the last zap
             zap = null;
             return;
          }
-         int index = rand.nextInt(hittableSprites.size());
-         Sprite s = hittableSprites.get(index);
-         DamageReport d = s.hit(damage, shotBy.getClass());
+         int index = rand.nextInt(hittableCreeps.size());
+         Creep c = hittableCreeps.get(index);
+         DamageReport d = c.hit(damage, shotBy.getClass());
          if(d != null) {
             moneyEarnt += processDamageReport(d);
             numZapsLeft--;
-            zap = new Line2D.Double(position, s.getPosition());
+            zap = new Line2D.Double(position, c.getPosition());
          } else {
-            // It didn't actually hit after all so try the other sprites
-            hittableSprites.remove(index);
-            fireZap(hittableSprites);
+            // It didn't actually hit after all so try the other creeps
+            hittableCreeps.remove(index);
+            fireZap(hittableCreeps);
          }
       }
       

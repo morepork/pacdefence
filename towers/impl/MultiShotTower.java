@@ -24,7 +24,7 @@ import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 
-import sprites.Sprite;
+import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -60,7 +60,7 @@ public class MultiShotTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
 
@@ -71,10 +71,10 @@ public class MultiShotTower extends AbstractTower {
    
    @Override
    protected List<Bullet> makeBullets(double dx, double dy,  int turretWidth, int range,
-         double bulletSpeed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double bulletSpeed, double damage, Point p, Creep c, List<Shape> pathBounds) {
       List<Bullet> bullets = new ArrayList<Bullet>();
       for(int i = 0; i < shots; i++) {
-         bullets.add(makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p, s, pathBounds));
+         bullets.add(makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p, c, pathBounds));
          bulletSpeed *= speedIncreaseFactor;
       }
       return bullets;

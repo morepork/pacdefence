@@ -37,8 +37,8 @@ import java.util.List;
 
 import logic.Constants;
 import logic.Helper;
-import sprites.Sprite;
-import sprites.Sprite.DamageReport;
+import creeps.Creep;
+import creeps.Creep.DamageReport;
 import towers.AbstractBullet;
 import towers.AbstractTower;
 import towers.BasicBullet;
@@ -93,9 +93,9 @@ public class BeamTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       double angle = Helper.vectorAngle(dx, dy);
-      return new Beam(this, p, angle, range, speed, damage, pathBounds, s, (int)beamLastTicks);
+      return new Beam(this, p, angle, range, speed, damage, pathBounds, c, (int)beamLastTicks);
    }
    
    @Override
@@ -112,8 +112,8 @@ public class BeamTower extends AbstractTower {
       private final float deltaAlpha;
       private final Tower launchedBy;
       // Tried using a HashSet and a TreeMap here but there was no noticeable performance
-      // improvement even with a large number of sprites.
-      private final Collection<Sprite> hitSprites = new ArrayList<Sprite>();
+      // improvement even with a large number of creeps.
+      private final Collection<Creep> hitCreeps = new ArrayList<Creep>();
       //private final Line2D beam = new Line2D.Double();
       private final Point2D centre;
       private final Arc2D arc = new Arc2D.Double(Arc2D.PIE);
@@ -126,7 +126,7 @@ public class BeamTower extends AbstractTower {
       private double moneyEarnt = 0;
       
       private Beam(Tower t, Point2D centre, double angle, int range, double speed, double damage,
-            List<Shape> pathBounds, Sprite target, int numTicks) {
+            List<Shape> pathBounds, Creep target, int numTicks) {
          deltaAlpha = (1 - minAlpha) / numTicks;
          this.centre = centre;
          this.launchedBy = t;
@@ -159,13 +159,13 @@ public class BeamTower extends AbstractTower {
       }
 
       @Override
-      public double tick(List<Sprite> sprites) {
+      public double tick(List<Creep> creeps) {
          if(ticksLeft <= 0) {
             return moneyEarnt;
          }
          ticksLeft--;
          currentAlpha -= deltaAlpha;
-         hitSprites(sprites);
+         hitCreeps(creeps);
          arcAngle += deltaAngle;
          setBeam();
          return -1;
@@ -177,25 +177,25 @@ public class BeamTower extends AbstractTower {
                Arc2D.PIE);
       }
       
-      private int getDirectionModifier(Sprite s) {
-         Point2D p = s.getPosition();
+      private int getDirectionModifier(Creep c) {
+         Point2D p = c.getPosition();
          double angleBetween = Helper.vectorAngle(p.getX() - centre.getX(),
                p.getY() - centre.getY());
-         // Two points just ahead of where the sprite is now
-         double nextX = p.getX() + Math.sin(s.getCurrentAngle());
-         double nextY = p.getY() - Math.cos(s.getCurrentAngle());
+         // Two points just ahead of where the creep is now
+         double nextX = p.getX() + Math.sin(c.getCurrentAngle());
+         double nextY = p.getY() - Math.cos(c.getCurrentAngle());
          double nextAngleBetween = Helper.vectorAngle(nextX - centre.getX(),
                nextY - centre.getY());
          return (nextAngleBetween > angleBetween) ? -1 : 1;
       }
       
-      private void hitSprites(List<Sprite> sprites) {
-         for(Sprite s : sprites) {
-            if(!hitSprites.contains(s) && s.intersects(arc)) {
-               DamageReport d = s.hit(damage, launchedBy.getClass());
+      private void hitCreeps(List<Creep> creeps) {
+         for(Creep c : creeps) {
+            if(!hitCreeps.contains(c) && c.intersects(arc)) {
+               DamageReport d = c.hit(damage, launchedBy.getClass());
                if(d != null) {
                   moneyEarnt += BasicBullet.processDamageReport(d, launchedBy);
-                  hitSprites.add(s);
+                  hitCreeps.add(c);
                }
             }
          }

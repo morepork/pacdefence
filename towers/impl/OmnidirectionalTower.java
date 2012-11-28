@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import logic.Helper;
-import sprites.Sprite;
+import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -56,13 +56,13 @@ public class OmnidirectionalTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
    
    @Override
    protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
-         double speed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double speed, double damage, Point p, Creep c, List<Shape> pathBounds) {
       List<Bullet> bullets = new ArrayList<Bullet>();
       double angle = Helper.vectorAngle(dx, dy);
       double dTheta = 2 * Math.PI / numShots;
@@ -70,7 +70,7 @@ public class OmnidirectionalTower extends AbstractTower {
          dx = Math.sin(angle);
          dy = Math.cos(angle);
          angle += dTheta;
-         bullets.add(makeBullet(dx, dy, turretWidth, range, speed, damage, p, s, pathBounds));
+         bullets.add(makeBullet(dx, dy, turretWidth, range, speed, damage, p, c, pathBounds));
       }
       return bullets;
    }

@@ -27,7 +27,7 @@ import java.util.List;
 
 import logic.Constants;
 import logic.Helper;
-import sprites.Sprite;
+import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -69,7 +69,7 @@ public class PoisonTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       return new PoisonBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
 
@@ -80,7 +80,7 @@ public class PoisonTower extends AbstractTower {
    
    private class PoisonBullet extends BasicBullet {
       
-      private Sprite poisonedSprite = null;
+      private Creep poisonedCreep = null;
       private double moneyEarnt = 0;
       private int poisonTicksLeft;
       
@@ -92,16 +92,16 @@ public class PoisonTower extends AbstractTower {
       
       @Override
       public void draw(Graphics g) {
-         if(poisonedSprite == null) {
-            // Sprite should only be drawn if it's yet to hit a sprite
+         if(poisonedCreep == null) {
+            // Creep should only be drawn if it's yet to hit a creep
             super.draw(g);
          }
       }
       
       @Override
-      public double doTick(List<Sprite> sprites) {
-         if(poisonedSprite == null) {
-            double tickMoney = super.doTick(sprites);
+      public double doTick(List<Creep> creeps) {
+         if(poisonedCreep == null) {
+            double tickMoney = super.doTick(creeps);
             if(tickMoney > 0) {
                moneyEarnt += tickMoney;
             } else if(tickMoney == 0) {
@@ -109,20 +109,20 @@ public class PoisonTower extends AbstractTower {
             }
             return -1;
          } else {
-            if(poisonTicksLeft <= 0 || !poisonedSprite.isAlive()) {
+            if(poisonTicksLeft <= 0 || !poisonedCreep.isAlive()) {
                return moneyEarnt;
             }
             poisonTicksLeft--;
             // Don't count each poisoning as a new hit
-            moneyEarnt += processDamageReport(poisonedSprite.hit(damagePerTick, null));
+            moneyEarnt += processDamageReport(poisonedCreep.hit(damagePerTick, null));
             return -1;
          }
       }
       
       @Override
-      protected void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
-         s.poison(poisonTicksLeft);
-         poisonedSprite = s;
+      protected void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {
+         c.poison(poisonTicksLeft);
+         poisonedCreep = c;
       }
       
    }

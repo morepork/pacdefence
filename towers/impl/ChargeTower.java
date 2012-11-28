@@ -25,7 +25,7 @@ import java.util.List;
 
 import logic.Constants;
 import logic.Helper;
-import sprites.Sprite;
+import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -42,8 +42,8 @@ public class ChargeTower extends AbstractTower {
    }
    
    @Override
-   public List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress) {
-      List<Bullet> bullets = super.tick(sprites, levelInProgress);
+   public List<Bullet> tick(List<Creep> creeps, boolean levelInProgress) {
+      List<Bullet> bullets = super.tick(creeps, levelInProgress);
       if(bullets.isEmpty()) {
          // Only charge during levels
          if(levelInProgress && getTimeToNextShot() <= 0) {
@@ -72,7 +72,7 @@ public class ChargeTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       return new BasicBullet(this, dx, dy, turretWidth, range, speed, getNextDamage(), p, pathBounds);
    }
 

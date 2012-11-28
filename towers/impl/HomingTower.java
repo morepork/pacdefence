@@ -27,8 +27,8 @@ import java.util.List;
 
 import logic.Constants;
 import logic.Helper;
-import sprites.Sprite;
-import sprites.Sprite.DistanceComparator;
+import creeps.Creep;
+import creeps.Creep.DistanceComparator;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -59,8 +59,8 @@ public class HomingTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
-      return new HomingBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, s,
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
+      return new HomingBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, c,
             maxRedirectAngle);
    }
 
@@ -71,23 +71,23 @@ public class HomingTower extends AbstractTower {
    
    private class HomingBullet extends BasicBullet {
       
-      private Sprite target;
+      private Creep target;
       // This is in radians for convenience
       private final double maxRedirectAngle;
       
       private HomingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, List<Shape> pathBounds, Sprite s,
+            double speed, double damage, Point p, List<Shape> pathBounds, Creep c,
             double maxRedirectAngle) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
-         target = s;
+         target = c;
          this.maxRedirectAngle = Math.toRadians(maxRedirectAngle);
       }
       
       @Override
-      protected double doTick(List<Sprite> sprites) {
-         double value = super.doTick(sprites);
+      protected double doTick(List<Creep> creeps) {
+         double value = super.doTick(creeps);
          
-         selectNewTarget(sprites); // Selects a new target if necessary
+         selectNewTarget(creeps); // Selects a new target if necessary
          retarget();
          
          return value;
@@ -103,16 +103,16 @@ public class HomingTower extends AbstractTower {
          return false; // The bullet homes so can come back on screen
       }
       
-      private void selectNewTarget(List<Sprite> sprites) {
-         // If the bullet can't target its current target, find the closest sprite that it can
+      private void selectNewTarget(List<Creep> creeps) {
+         // If the bullet can't target its current target, find the closest creep that it can
          if(!canTarget(target)) {
             // Copy the list as the passed list can't be modified
-            sprites = new ArrayList<Sprite>(sprites);
-            Collections.sort(sprites, new DistanceComparator(Helper.toPoint(position), true));
+            creeps = new ArrayList<Creep>(creeps);
+            Collections.sort(creeps, new DistanceComparator(Helper.toPoint(position), true));
             
-            for(Sprite s : sprites) {
-               if(canTarget(s)) {
-                  target = s;
+            for(Creep c : creeps) {
+               if(canTarget(c)) {
+                  target = c;
                   break;
                }
             }
@@ -120,8 +120,8 @@ public class HomingTower extends AbstractTower {
       }
       
       private void retarget() {
-         // Make sure can actually target this sprite, this may still be false as their could be no
-         // sprites that it can target
+         // Make sure can actually target this creep, this may still be false as their could be no
+         // creeps that it can target
          if(canTarget(target)) {
             double currentAngle = Helper.vectorAngle(dir[0], dir[1]);
             double angleToTarget = Helper.vectorAngle(
@@ -140,8 +140,8 @@ public class HomingTower extends AbstractTower {
          }
       }
       
-      private boolean canTarget(Sprite s) {
-         return s.isAlive() && !s.isFinished() && checkDistance(s);
+      private boolean canTarget(Creep c) {
+         return c.isAlive() && !c.isFinished() && checkDistance(c);
       }
       
       private double normaliseAngle(double angle) {

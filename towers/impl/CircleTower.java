@@ -29,7 +29,7 @@ import java.util.List;
 
 import logic.Circle;
 import logic.Helper;
-import sprites.Sprite;
+import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -55,8 +55,8 @@ public class CircleTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
-      return new CirclingBullet(this, dx, dy, turretWidth, range, speed, damage, p, s, pathBounds);
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
+      return new CirclingBullet(this, dx, dy, turretWidth, range, speed, damage, p, c, pathBounds);
    }
 
    @Override
@@ -73,14 +73,14 @@ public class CircleTower extends AbstractTower {
       private double angle;
       private int hitsLeft = hits;
       private double moneyEarntSoFar = 0;
-      private Collection<Sprite> hitSprites = new ArrayList<Sprite>();
+      private Collection<Creep> hitCreeps = new ArrayList<Creep>();
 
       public CirclingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Sprite s, List<Shape> pathBounds) {
+            double speed, double damage, Point p, Creep c, List<Shape> pathBounds) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
-         double distance = p.distance(s.getPosition()) - s.getHalfWidth();
-         double angleToSprite = Helper.vectorAngle(dx, dy);
-         double theta = angleToSprite - Math.acos(distance / getRange());
+         double distance = p.distance(c.getPosition()) - c.getHalfWidth();
+         double angleToCreep = Helper.vectorAngle(dx, dy);
+         double theta = angleToCreep - Math.acos(distance / getRange());
          double halfRange = getRange() / 2.0;
          double deltaX = halfRange * Math.sin(theta);
          double deltaY = halfRange * Math.cos(theta);
@@ -97,29 +97,29 @@ public class CircleTower extends AbstractTower {
       }
 
       @Override
-      public double doTick(List<Sprite> sprites) {
+      public double doTick(List<Creep> creeps) {
          if (angle >= endAngle || hitsLeft <= 0) {
             return moneyEarntSoFar;
          }
-         List<Sprite> hittableSprites = new ArrayList<Sprite>(sprites);
-         hittableSprites.removeAll(hitSprites);
-         moneyEarntSoFar += checkIfSpriteIsHit(hittableSprites);
+         List<Creep> hittableCreeps = new ArrayList<Creep>(creeps);
+         hittableCreeps.removeAll(hitCreeps);
+         moneyEarntSoFar += checkIfCreepIsHit(hittableCreeps);
          angle += deltaTheta;
          position.setLocation(route.getPointAt(angle));
          return -1;
       }
 
       @Override
-      protected double checkIfSpriteIsHit(List<Sprite> sprites) {
+      protected double checkIfCreepIsHit(List<Creep> creeps) {
          List<Point2D> points = makeArcPoints();
          double moneyEarnt = 0;
          if(!points.isEmpty()) {
-            for (Sprite s : sprites) {
+            for (Creep c : creeps) {
                for (Point2D p : points) {
-                  if (s.intersects(p)) {
-                     specialOnHit(p, s, sprites);
-                     moneyEarnt += processDamageReport(s.hit(getDamage(), shotBy.getClass()));
-                     hitSprites.add(s);
+                  if (c.intersects(p)) {
+                     specialOnHit(p, c, creeps);
+                     moneyEarnt += processDamageReport(c.hit(getDamage(), shotBy.getClass()));
+                     hitCreeps.add(c);
                      hitsLeft--;
                      if (hitsLeft <= 0) {
                         return moneyEarnt;

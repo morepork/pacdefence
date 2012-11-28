@@ -30,7 +30,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.List;
 
-import sprites.Sprite;
+import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -67,7 +67,7 @@ public class LaserTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       double divisor = Math.sqrt(dx * dx + dy * dy);
       Point2D firstPoint = new Point2D.Double(p.getX() + turretWidth * dx / divisor,
             p.getY() + turretWidth * dy / divisor);
@@ -118,7 +118,7 @@ public class LaserTower extends AbstractTower {
       }
 
       @Override
-      public double doTick(List<Sprite> sprites) {
+      public double doTick(List<Creep> creeps) {
          Point2D oldP1 = laser.getP1();
          laser.setLine(laser.getX1() + xStep, laser.getY1() + yStep, laser.getX2() + xStep,
                laser.getY2() + yStep);
@@ -131,7 +131,7 @@ public class LaserTower extends AbstractTower {
                laser.setLine(laser.getP1(), lastPoint);
             }
          }
-         double tickMoney = checkIfSpriteIsHit(oldP1, laser.getP2(), sprites);
+         double tickMoney = checkIfCreepIsHit(oldP1, laser.getP2(), creeps);
          if(tickMoney > 0) {
             moneyEarnt += tickMoney;
          }

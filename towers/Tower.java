@@ -29,7 +29,7 @@ import java.awt.image.BufferedImage;
 import java.util.Comparator;
 import java.util.List;
 
-import sprites.Sprite;
+import creeps.Creep;
 
 
 public interface Tower extends Drawable, Cloneable {
@@ -80,12 +80,12 @@ public interface Tower extends Drawable, Cloneable {
    public void drawShadowAt(Graphics g, Point p, boolean validPlacement);
    /**
     * 
-    * @param sprites
+    * @param creeps
     * @param levelInProgress
     * @return The bullets shot by this tower after the last tick and
     *         up to this one null if the tower is to be removed
     */
-   public List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress);
+   public List<Bullet> tick(List<Creep> creeps, boolean levelInProgress);
    public boolean doesTowerClashWith(Tower t);
    public boolean canTowerBeBuilt(List<Polygon> path);
    public boolean contains(Point p);
@@ -116,8 +116,8 @@ public interface Tower extends Drawable, Cloneable {
    public int getKillsForUpgrade();
    public int getExperienceLevel();
    public BufferedImage getButtonImage();
-   public void setSpriteComparator(Comparator<Sprite> c);
-   public Comparator<Sprite> getSpriteComparator();
+   public void setCreepComparator(Comparator<Creep> c);
+   public Comparator<Creep> getCreepComparator();
    public void sell();
 
 }

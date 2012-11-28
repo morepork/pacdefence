@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import sprites.Sprite;
+import creeps.Creep;
 
 
 public class Ghost implements Tower {
@@ -62,17 +62,17 @@ public class Ghost implements Tower {
    }
 
    @Override
-   public List<Bullet> tick(List<Sprite> sprites, boolean levelInProgress) {
+   public List<Bullet> tick(List<Creep> creeps, boolean levelInProgress) {
       if(hitsLeft <= 0) {
          return null;
       }
       List<Bullet> toReturn = new ArrayList<Bullet>();
-      for(Sprite s : sprites) {
-         if(s.isAlive() && s.getPosition().distance(centre) < s.getHalfWidth() + halfWidth) {
-            Sprite.DamageReport d = s.hit(s.getHPLeft(), null);
+      for(Creep c : creeps) {
+         if(c.isAlive() && c.getPosition().distance(centre) < c.getHalfWidth() + halfWidth) {
+            Creep.DamageReport d = c.hit(c.getHPLeft(), null);
             if(d != null) {
                final double moneyEarnt = d.getMoneyEarnt();
-               // Gives you the money for killing this sprite
+               // Gives you the money for killing this creep
                toReturn.add(new AbstractBullet() {
                   @Override
                   public void draw(Graphics g) {
@@ -80,7 +80,7 @@ public class Ghost implements Tower {
                   }
    
                   @Override
-                  public double tick(List<Sprite> sprites) {
+                  public double tick(List<Creep> creeps) {
                      return moneyEarnt;
                   }
                });
@@ -223,7 +223,7 @@ public class Ghost implements Tower {
    }
 
    @Override
-   public Comparator<Sprite> getSpriteComparator() {
+   public Comparator<Creep> getCreepComparator() {
       // Ghosts don't have comparators
       return null;
    }
@@ -261,7 +261,7 @@ public class Ghost implements Tower {
    }
 
    @Override
-   public void setSpriteComparator(Comparator<Sprite> c) {
+   public void setCreepComparator(Comparator<Creep> c) {
       // Ghosts don't have comparators
    }
    

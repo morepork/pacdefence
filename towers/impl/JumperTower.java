@@ -27,12 +27,12 @@ import java.util.Collections;
 import java.util.List;
 
 import logic.Helper;
-import sprites.Sprite;
-import sprites.Sprite.DistanceComparator;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import creeps.Creep;
+import creeps.Creep.DistanceComparator;
 
 
 public class JumperTower extends AbstractTower {
@@ -55,7 +55,7 @@ public class JumperTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       return new JumpingBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, jumps);
    }
 
@@ -66,7 +66,7 @@ public class JumperTower extends AbstractTower {
    
    private class JumpingBullet extends BasicBullet {
       
-      private Sprite lastHit;
+      private Creep lastHit;
       private int hitsLeft;
       private final int jumpRange;
       private static final double jumpRangeDividend = 1.5;
@@ -79,22 +79,22 @@ public class JumperTower extends AbstractTower {
       }
       
       @Override
-      protected void specialOnHit(Point2D p, Sprite hitSprite, List<Sprite> sprites) {
+      protected void specialOnHit(Point2D p, Creep hitCreep, List<Creep> creeps) {
          if(hitsLeft > 0) {
-            // Add the last hit sprite as it was removed in doTick() and can now be hit, as it is
-            // now the sprite hit before last
+            // Add the last hit creep as it was removed in doTick() and can now be hit, as it is
+            // now the creep hit before last
             if(lastHit != null) {
-               sprites.add(lastHit);
+               creeps.add(lastHit);
             }
             Point point = Helper.toPoint(p);
-            // Make it so sprites closest to this point will be targetted first
-            Collections.sort(sprites, new DistanceComparator(point, true));
-            for(Sprite s : sprites) {
-               if(!hitSprite.equals(s) && checkDistance(s, point, jumpRange)) {
-                  JumpingBullet b = (JumpingBullet) fireBulletsAt(s, point, false, 0, jumpRange,
+            // Make it so creeps closest to this point will be targetted first
+            Collections.sort(creeps, new DistanceComparator(point, true));
+            for(Creep c : creeps) {
+               if(!hitCreep.equals(c) && checkDistance(c, point, jumpRange)) {
+                  JumpingBullet b = (JumpingBullet) fireBulletsAt(c, point, false, 0, jumpRange,
                         getBulletSpeed(), getDamage()).get(0);
                   b.hitsLeft = hitsLeft - 1;
-                  b.lastHit = hitSprite;
+                  b.lastHit = hitCreep;
                   addExtraBullets(b);
                   break;
                }
@@ -103,9 +103,9 @@ public class JumperTower extends AbstractTower {
       }
       
       @Override
-      protected double doTick(List<Sprite> sprites) {
-         // Remove the last hit sprite so that it won't get hit again
-         List<Sprite> newList = new ArrayList<Sprite>(sprites);
+      protected double doTick(List<Creep> creeps) {
+         // Remove the last hit creep so that it won't get hit again
+         List<Creep> newList = new ArrayList<Creep>(creeps);
          newList.remove(lastHit);
          return super.doTick(newList);
       }

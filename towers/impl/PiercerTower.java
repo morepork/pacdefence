@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import sprites.Sprite;
+import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -54,7 +54,7 @@ public class PiercerTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       return new PiercingBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
 
@@ -66,7 +66,7 @@ public class PiercerTower extends AbstractTower {
    private class PiercingBullet extends BasicBullet {
       
       private int piercesSoFar = 0;
-      private Collection<Sprite> spritesHit = new ArrayList<Sprite>();
+      private Collection<Creep> creepsHit = new ArrayList<Creep>();
       private int moneyEarnt;
 
       public PiercingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
@@ -75,19 +75,19 @@ public class PiercerTower extends AbstractTower {
       }
       
       @Override
-      public double doTick(List<Sprite> sprites) {
-         List<Sprite> newSprites = new ArrayList<Sprite>(sprites);
-         // Removes all the previously hit sprites so they aren't hit again
-         newSprites.removeAll(spritesHit);
-         return processShotResult(super.doTick(newSprites), newSprites);
+      public double doTick(List<Creep> creeps) {
+         List<Creep> newCreeps = new ArrayList<Creep>(creeps);
+         // Removes all the previously hit creeps so they aren't hit again
+         newCreeps.removeAll(creepsHit);
+         return processShotResult(super.doTick(newCreeps), newCreeps);
       }
       
       @Override
-      public void specialOnHit(Point2D p, Sprite s, List<Sprite> sprites) {
-         spritesHit.add(s);
+      public void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {
+         creepsHit.add(c);
       }
       
-      private double processShotResult(double shotResult, List<Sprite> sprites) {
+      private double processShotResult(double shotResult, List<Creep> creeps) {
          if(shotResult < 0) {
             // Bullet didn't hit anything
             return shotResult;
@@ -101,11 +101,11 @@ public class PiercerTower extends AbstractTower {
                return moneyEarnt;
             } else {
                piercesSoFar++;
-               // Removes the sprite that was last hit so it can't be hit again
-               sprites.removeAll(spritesHit);
-               // Checks if any other sprites were hit between the last and
+               // Removes the creep that was last hit so it can't be hit again
+               creeps.removeAll(creepsHit);
+               // Checks if any other creeps were hit between the last and
                // current points, and recursively processes them.
-               return processShotResult(super.checkIfSpriteIsHit(sprites), sprites);
+               return processShotResult(super.checkIfCreepIsHit(creeps), creeps);
             }
          }
       }

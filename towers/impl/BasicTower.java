@@ -4,10 +4,10 @@ import java.awt.Point;
 import java.awt.Shape;
 import java.util.List;
 
-import sprites.Sprite;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
+import creeps.Creep;
 
 
 
@@ -20,7 +20,7 @@ public class BasicTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
 

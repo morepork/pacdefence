@@ -34,7 +34,7 @@ import java.util.List;
 
 import logic.Constants;
 import logic.Helper;
-import sprites.Sprite;
+import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -78,7 +78,7 @@ public class WaveTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Sprite s, List<Shape> pathBounds) {
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
       return new WaveBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, angle);
    }
 
@@ -95,7 +95,7 @@ public class WaveTower extends AbstractTower {
       private final Point2D start;
       // Use an ArrayList here as the overhead of a more complicated set
       // isn't really worth it as it'll never grow much larger than 50
-      private final Collection<Sprite> hitSprites = new ArrayList<Sprite>();
+      private final Collection<Creep> hitCreeps = new ArrayList<Creep>();
       private double moneyEarnt = 0;
       private final int turretWidth;
       
@@ -120,8 +120,8 @@ public class WaveTower extends AbstractTower {
       }
       
       @Override
-      protected double doTick(List<Sprite> sprites) {
-         double value = super.doTick(sprites);
+      protected double doTick(List<Creep> creeps) {
+         double value = super.doTick(creeps);
          setArc(arc, distanceTravelled + turretWidth);
          if(value > 0) {
             moneyEarnt += value;
@@ -132,20 +132,20 @@ public class WaveTower extends AbstractTower {
       }
       
       @Override
-      protected double checkIfSpriteIsHit(List<Sprite> sprites) {
-         if(sprites.isEmpty()) {
+      protected double checkIfCreepIsHit(List<Creep> creeps) {
+         if(creeps.isEmpty()) {
             return -1;
          }
          double d = 0;
          Arc2D closerArc = (Arc2D)lastArc.clone();
          closerArc.setArcType(Arc2D.OPEN);
-         for(Sprite s : sprites) {
+         for(Creep c : creeps) {
             // It has to intersect the current arc, but not the last arc unless
             // it intersects the open arc with the same radius as the last arc
-            if(!hitSprites.contains(s) && s.intersects(arc) &&
-                  (s.intersects(closerArc) || !s.intersects(lastArc))) {
-               hitSprites.add(s);
-               d += processDamageReport(s.hit(damage, shotBy.getClass()));
+            if(!hitCreeps.contains(c) && c.intersects(arc) &&
+                  (c.intersects(closerArc) || !c.intersects(lastArc))) {
+               hitCreeps.add(c);
+               d += processDamageReport(c.hit(damage, shotBy.getClass()));
             }
          }
          return d == 0 ? -1 : d;

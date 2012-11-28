@@ -44,8 +44,8 @@ import java.util.prefs.BackingStoreException;
 
 import javax.swing.JPanel;
 
-import sprites.Pacman;
-import sprites.Sprite;
+import creeps.Pacman;
+import creeps.Creep;
 import towers.AbstractTower;
 import towers.Bullet;
 import towers.Ghost;
@@ -56,7 +56,7 @@ import towers.impl.AidTower;
 
 public class Game {
    
-   private final List<Sprite> sprites = new ArrayList<Sprite>();
+   private final List<Creep> creeps = new ArrayList<Creep>();
    private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
    private final List<Bullet> bullets = new ArrayList<Bullet>();
    private List<Tower> towersToAdd = new ArrayList<Tower>();
@@ -74,7 +74,7 @@ public class Game {
    private final Map<Attribute, Integer> upgradesSoFar =
          new EnumMap<Attribute, Integer>(Attribute.class);
 
-   private static final List<Comparator<Sprite>> comparators = createComparators();
+   private static final List<Comparator<Creep>> comparators = createComparators();
    
    // Last position inside GameMapPanel, should be null otherwise
    private Point lastMousePosition;
@@ -102,8 +102,8 @@ public class Game {
    // The tower that is being hovered over on the map
    private Tower hoverOverTower;
    
-   private Sprite selectedSprite;
-   private Sprite hoverOverSprite;
+   private Creep selectedCreep;
+   private Creep hoverOverCreep;
    
    public Game(ReturnToTitleCallback returnToTitleCallback, Options options) {
       this.returnToTitleCallback = returnToTitleCallback;
@@ -137,7 +137,7 @@ public class Game {
    
    public void stopRunning() {
       clock.end();
-      sprites.clear();
+      creeps.clear();
       towers.clear();
       bullets.clear();
       levelInProgress = false;
@@ -197,12 +197,12 @@ public class Game {
       hoverOverTower = t;
    }
    
-   private void setSelectedSprite(Sprite s) {
-      selectedSprite = s;
+   private void setSelectedCreep(Creep c) {
+      selectedCreep = c;
    }
    
-   private void setHoverOverSprite(Sprite s) {
-      hoverOverSprite = s;
+   private void setHoverOverCreep(Creep c) {
+      hoverOverCreep = c;
    }
 
    private GameMapPanel createGameMapPanel(GameMap gm) {
@@ -226,17 +226,17 @@ public class Game {
       return gmp;
    }
    
-   private static List<Comparator<Sprite>> createComparators() {
-      List<Comparator<Sprite>> list = new ArrayList<Comparator<Sprite>>();
-      list.add(new Sprite.FirstComparator());
-      list.add(new Sprite.LastComparator());
-      list.add(new Sprite.FastestComparator());
-      list.add(new Sprite.SlowestComparator());
-      list.add(new Sprite.MostHPComparator());
-      list.add(new Sprite.LeastHPComparator());
-      list.add(new Sprite.DistanceComparator(null, true));
-      list.add(new Sprite.DistanceComparator(null, false));
-      list.add(new Sprite.RandomComparator());
+   private static List<Comparator<Creep>> createComparators() {
+      List<Comparator<Creep>> list = new ArrayList<Comparator<Creep>>();
+      list.add(new Creep.FirstComparator());
+      list.add(new Creep.LastComparator());
+      list.add(new Creep.FastestComparator());
+      list.add(new Creep.SlowestComparator());
+      list.add(new Creep.MostHPComparator());
+      list.add(new Creep.LeastHPComparator());
+      list.add(new Creep.DistanceComparator(null, true));
+      list.add(new Creep.DistanceComparator(null, false));
+      list.add(new Creep.RandomComparator());
       return list;
    }
    
@@ -312,7 +312,7 @@ public class Game {
       level = 0;
       towers.clear();
       bullets.clear();
-      sprites.clear();
+      creeps.clear();
       upgradesSoFar.clear();
       selectedTower = null;
       buildingTower = null;
@@ -404,12 +404,12 @@ public class Game {
          level = 1;
       }
       String levelText = "Level " + level;
-      String numSprites = String.valueOf(Formulae.numSprites(level));
+      String numCreeps = String.valueOf(Formulae.numCreeps(level));
       long hp = Formulae.hp(level);
       String hpText = String.valueOf((long)(0.5 * hp) + " - " + hp * 2);
-      String timeBetweenSprites = "0 - " + Helper.format(Formulae.
-            ticksBetweenAddSprite(level) * 2 / Constants.CLOCK_TICKS_PER_SECOND, 2) + "s";
-      controlPanel.updateLevelStats(levelText, numSprites, hpText, timeBetweenSprites);
+      String timeBetweenCreeps = "0 - " + Helper.format(Formulae.
+            ticksBetweenAddCreep(level) * 2 / Constants.CLOCK_TICKS_PER_SECOND, 2) + "s";
+      controlPanel.updateLevelStats(levelText, numCreeps, hpText, timeBetweenCreeps);
    }
    
    private void updateInterestLabel() {
@@ -431,20 +431,20 @@ public class Game {
          t = selectedTower != null ? selectedTower : hoverOverTower;
          controlPanel.setCurrentInfoToTower(t);
       } else {
-         updateSpriteInfo();
+         updateCreepInfo();
       }
       controlPanel.setStats(t);
    }
    
-   private void updateSpriteInfo() {
-      Sprite s = null;
-      if(selectedSprite != null) {
-         s = selectedSprite;
+   private void updateCreepInfo() {
+      Creep c = null;
+      if(selectedCreep != null) {
+         c = selectedCreep;
       }
-      if(s == null && hoverOverSprite != null) {
-         s = hoverOverSprite;
+      if(c == null && hoverOverCreep != null) {
+         c = hoverOverCreep;
       }
-      controlPanel.setCurrentInfoToSprite(s);
+      controlPanel.setCurrentInfoToCreep(c);
    }
    
    private long sellValue(Tower t) {
@@ -456,7 +456,7 @@ public class Game {
          return;
       }
       setSelectedTower(null);
-      setSelectedSprite(null);
+      setSelectedCreep(null);
       if(e.getButton() == MouseEvent.BUTTON3) {
          // Stop everything if it's the right mouse button
          setBuildingTower(null);
@@ -466,7 +466,7 @@ public class Game {
       Tower t = getTowerContaining(p);
       if(t == null) {
          if(buildingTower == null) {
-            setSelectedSprite(getSpriteContaining(p));
+            setSelectedCreep(getCreepContaining(p));
          } else {
             tryToBuildTower(p);
          }
@@ -481,11 +481,11 @@ public class Game {
    private void updateHoverOverStuff(Point p) {
       if(p == null) {
          setHoverOverTower(null);
-         setHoverOverSprite(null);
+         setHoverOverCreep(null);
       } else if (selectedTower == null && buildingTower == null) {
          setHoverOverTower(getTowerContaining(p));
          if(hoverOverTower == null) {
-            setHoverOverSprite(getSpriteContaining(p));
+            setHoverOverCreep(getCreepContaining(p));
          }
       }
    }
@@ -499,11 +499,11 @@ public class Game {
       return null;
    }
    
-   private Sprite getSpriteContaining(Point p) {
-      for(Sprite s : sprites) {
-         if(s.intersects(p)) {
-            // intersects returns false if the sprite is dead so don't have to check that
-            return s;
+   private Creep getCreepContaining(Point p) {
+      for(Creep c : creeps) {
+         if(c.intersects(p)) {
+            // intersects returns false if the creep is dead so don't have to check that
+            return c;
          }
       }
       return null;
@@ -568,24 +568,24 @@ public class Game {
       private final int[] fastModes = new int[]{1, 2, 5};
       private int currentMode = 0;
       
-      private int spritesToAdd;
+      private int creepsToAdd;
       private long levelHP;
       
-      private int ticksBetweenAddSprite;
-      private int addSpriteIn = 0;
+      private int ticksBetweenAddCreep;
+      private int addCreepIn = 0;
       
       private final int timesLength = (int)(Constants.CLOCK_TICKS_PER_SECOND / 2);
       private int timesPos = 0;
       // In each of these the last position is used to store the last time
       // and is not used for calculating the average
       private final long[] processTimes        = new long[timesLength + 1];
-      private final long[] processSpritesTimes = new long[timesLength + 1];
+      private final long[] processCreepsTimes = new long[timesLength + 1];
       private final long[] processBulletsTimes = new long[timesLength + 1];
       private final long[] processTowersTimes  = new long[timesLength + 1];
       private final long[] drawTimes           = new long[timesLength + 1];
       // These are used to store the calculated average value
       private long processTime = 0;
-      private long processSpritesTime = 0;
+      private long processCreepsTime = 0;
       private long processBulletsTime = 0;
       private long processTowersTime = 0;
       private long drawTime = 0;
@@ -659,7 +659,7 @@ public class Game {
          for(int i = 0; i < ticksToDo; i++) {
                tick();
          }
-         // Catches any new sprites that may have moved under the cursor
+         // Catches any new creeps that may have moved under the cursor
          // Save the mouse position from mouseMotionListeners rather than use getMousePosition as it
          // is much faster
          updateHoverOverStuff(lastMousePosition);
@@ -667,43 +667,43 @@ public class Game {
       }
       
       private void tick() {
-         List<Sprite> spritesCopy = new ArrayList<Sprite>(sprites);
+         List<Creep> creepsCopy = new ArrayList<Creep>(creeps);
          // Sort with the default comparator here (should be FirstComparator) for two reasons:
          // Firstly, most towers should use the default comparator so don't need to resort this.
-         // Secondly, bullets will hit sprites closest to the end first when they could hit two
+         // Secondly, bullets will hit creeps closest to the end first when they could hit two
          // which is a slight aid.
-         Collections.sort(spritesCopy, AbstractTower.DEFAULT_SPRITE_COMPARATOR);
-         List<Sprite> unmodifiableSprites = Collections.unmodifiableList(spritesCopy);
+         Collections.sort(creepsCopy, AbstractTower.DEFAULT_CREEP_COMPARATOR);
+         List<Creep> unmodifiableCreeps = Collections.unmodifiableList(creepsCopy);
          if(options.isDebugTimes()) {
             // Make sure any changes here or below are reflected in both, bar the timing bits
             long beginTime = System.nanoTime();
-            tickSprites();
+            tickCreeps();
             // Use += so the sum of all of these in the tick is calculated
-            processSpritesTimes[timesLength] += calculateElapsedTimeMillis(beginTime);
+            processCreepsTimes[timesLength] += calculateElapsedTimeMillis(beginTime);
             beginTime = System.nanoTime();
-            tickBullets(unmodifiableSprites);
+            tickBullets(unmodifiableCreeps);
             processBulletsTimes[timesLength] += calculateElapsedTimeMillis(beginTime);
             beginTime = System.nanoTime();
-            tickTowers(unmodifiableSprites);
+            tickTowers(unmodifiableCreeps);
             processTowersTimes[timesLength] += calculateElapsedTimeMillis(beginTime);
          } else {
-            tickSprites();
-            tickBullets(unmodifiableSprites);
-            tickTowers(unmodifiableSprites);
+            tickCreeps();
+            tickBullets(unmodifiableCreeps);
+            tickTowers(unmodifiableCreeps);
          }
       }
       
       private long draw() {
          long drawingBeginTime = System.nanoTime();
          drawingBeginTime -= gameMapPanel.redraw(getDrawables(),
-               new DebugStats(processTime, processSpritesTime, processBulletsTime,
+               new DebugStats(processTime, processCreepsTime, processBulletsTime,
                      processTowersTime, drawTime, bullets.size()));
          return drawingBeginTime;
       }
       
       private List<Drawable> getDrawables() {
          List<Drawable> drawables = new ArrayList<Drawable>();
-         drawables.addAll(sprites);
+         drawables.addAll(creeps);
          drawables.addAll(towers);
          drawables.addAll(bullets);
          // Displays the tower on the cursor that could be built
@@ -730,7 +730,7 @@ public class Game {
       
       private void calculateTimesTaken() {
          processTime        = insertAndReturnAverage(processTimes);
-         processSpritesTime = insertAndReturnAverage(processSpritesTimes);
+         processCreepsTime = insertAndReturnAverage(processCreepsTimes);
          processBulletsTime = insertAndReturnAverage(processBulletsTimes);
          processTowersTime  = insertAndReturnAverage(processTowersTimes);
          drawTime           = insertAndReturnAverage(drawTimes);
@@ -747,47 +747,47 @@ public class Game {
          return sum / timesLength;
       }
       
-      private void tickSprites() {
-         if(levelInProgress && sprites.isEmpty() && spritesToAdd <= 0) {
+      private void tickCreeps() {
+         if(levelInProgress && creeps.isEmpty() && creepsToAdd <= 0) {
             endLevel();
          }
-         lookAfterAddingNewSprites();
+         lookAfterAddingNewCreeps();
          int livesLost = 0;
-         // Count down as sprites are being removed
-         for(int i = sprites.size() - 1; i >= 0; i--) {
-            Sprite s = sprites.get(i);
-            // True if sprite has either been killed and is gone from screen or has finished
-            if(s.tick()) {
-               sprites.remove(i);
-               if(s.isFinished()) { // As opposed to being killed
+         // Count down as creeps are being removed
+         for(int i = creeps.size() - 1; i >= 0; i--) {
+            Creep c = creeps.get(i);
+            // True if creep has either been killed and is gone from screen or has finished
+            if(c.tick()) {
+               creeps.remove(i);
+               if(c.isFinished()) { // As opposed to being killed
                   livesLost++;
                }
-               if(selectedSprite == s) { // Deselect this sprite as it is dead/finished
-                  setSelectedSprite(null);
+               if(selectedCreep == c) { // Deselect this creep as it is dead/finished
+                  setSelectedCreep(null);
                }
             }
          }
-         controlPanel.updateNumberLeft(spritesToAdd + sprites.size());
+         controlPanel.updateNumberLeft(creepsToAdd + creeps.size());
          livesLostOnThisLevel += livesLost;
          lives -= livesLost;
          updateLives();
       }
       
-      private void lookAfterAddingNewSprites() {
-         if(spritesToAdd > 0) {
-            if(addSpriteIn < 1) { // If the time has got to zero, add a sprite
-               sprites.add(new Pacman(level, levelHP,
+      private void lookAfterAddingNewCreeps() {
+         if(creepsToAdd > 0) {
+            if(addCreepIn < 1) { // If the time has got to zero, add a creep
+               creeps.add(new Pacman(level, levelHP,
                      new ArrayList<Point>(gameMap.getPathPoints())));
-               // Adds a sprite in somewhere between 0 and twice the designated time
-               addSpriteIn = (int)(Math.random() * (ticksBetweenAddSprite * 2 + 1));
-               spritesToAdd--;
-            } else { // Otherwise decrement the time until the next sprite will be added
-               addSpriteIn--;
+               // Adds a creep in somewhere between 0 and twice the designated time
+               addCreepIn = (int)(Math.random() * (ticksBetweenAddCreep * 2 + 1));
+               creepsToAdd--;
+            } else { // Otherwise decrement the time until the next creep will be added
+               addCreepIn--;
             }
          }
       }
       
-      private void tickTowers(List<Sprite> unmodifiableSprites) {
+      private void tickTowers(List<Creep> unmodifiableCreeps) {
          // Use these rather than addAll/removeAll and then clear as there's a chance a tower could
          // be added to one of the lists before they are cleared but after the addAll/removeAll
          // methods are finished, meaning it'd do nothing but still take/give you money.
@@ -804,7 +804,7 @@ public class Game {
          // I tried multi-threading this but it made it slower in my limited testing
          for(Tower t : towers) {
             if(!towersToRemove.contains(t)) {
-               List<Bullet> toAdd = t.tick(unmodifiableSprites, levelInProgress);
+               List<Bullet> toAdd = t.tick(unmodifiableCreeps, levelInProgress);
                if(toAdd == null) {
                   // Signals that a ghost is finished
                   towersToRemove.add(t);
@@ -815,7 +815,7 @@ public class Game {
          }
       }
       
-      private void tickBullets(List<Sprite> unmodifiableSprites) {
+      private void tickBullets(List<Creep> unmodifiableCreeps) {
          // This and the bit at the end is performance testing - times the first x ticks
 //         if(bullets.size() > 0) {
 //            ticks++;
@@ -823,9 +823,9 @@ public class Game {
 //         }
          if(numCallables < 2 || bullets.size() <= 1) {
             // If only one processor or 1 or fewer bullets this will be faster.
-            tickBulletsSingleThread(unmodifiableSprites);
+            tickBulletsSingleThread(unmodifiableCreeps);
          } else {
-            tickBulletsMultiThread(unmodifiableSprites);
+            tickBulletsMultiThread(unmodifiableCreeps);
          }
          increaseMoney((long)moneyEarnt);
          // Fractional amounts of money are kept until the next tick
@@ -838,7 +838,7 @@ public class Game {
 //         }
       }
       
-      private void tickBulletsMultiThread(List<Sprite> unmodifiableSprites) {
+      private void tickBulletsMultiThread(List<Creep> unmodifiableCreeps) {
          int bulletsPerThread = bullets.size() / numCallables;
          int remainder = bullets.size() % numCallables;
          int firstPos, lastPos = 0;
@@ -852,7 +852,7 @@ public class Game {
             lastPos = firstPos + bulletsPerThread + (i < remainder ? 1 : 0);
             // Copying the list should reduce the lag of each thread trying to access the same list
             futures.add(MyExecutor.submit(new BulletTickCallable(firstPos, lastPos, bullets,
-                  new ArrayList<Sprite>(sprites))));
+                  new ArrayList<Creep>(creeps))));
          }
          processTickFutures(futures);
       }
@@ -882,10 +882,10 @@ public class Game {
          Helper.removeAll(bullets, bulletsToRemove);
       }
       
-      private void tickBulletsSingleThread(List<Sprite> unmodifiableSprites) {
+      private void tickBulletsSingleThread(List<Creep> unmodifiableCreeps) {
          // Run through from last to first as bullets are being removed
          for(int i = bullets.size() - 1; i >= 0; i--) {
-            double money = bullets.get(i).tick(unmodifiableSprites);
+            double money = bullets.get(i).tick(unmodifiableCreeps);
             if(money >= 0) {
                moneyEarnt += money;
                bullets.remove(i);
@@ -897,14 +897,14 @@ public class Game {
          
          private final int firstPos, lastPos;
          private final List<Bullet> bullets;
-         private final List<Sprite> sprites;
+         private final List<Creep> creeps;
          
          public BulletTickCallable(int firstPos, int lastPos, List<Bullet> bullets,
-               List<Sprite> sprites) {
+               List<Creep> creeps) {
             this.firstPos = firstPos;
             this.lastPos = lastPos;
             this.bullets = bullets;
-            this.sprites = sprites;
+            this.creeps = creeps;
          }
 
          @Override
@@ -915,7 +915,7 @@ public class Game {
                if(b == null) { // This was null once, so handle it
                   toRemove.add(i);
                } else {
-                  double money = b.tick(sprites);
+                  double money = b.tick(creeps);
                   if(money >= 0) {
                      moneyEarnt += money;
                      toRemove.add(i);
@@ -937,9 +937,9 @@ public class Game {
             gameMapPanel.removeText();
             livesLostOnThisLevel = 0;
             levelInProgress = true;
-            clock.spritesToAdd = Formulae.numSprites(level);
+            clock.creepsToAdd = Formulae.numCreeps(level);
             clock.levelHP = Formulae.hp(level);
-            clock.ticksBetweenAddSprite = Formulae.ticksBetweenAddSprite(level);
+            clock.ticksBetweenAddCreep = Formulae.ticksBetweenAddCreep(level);
             updateLevelStats();
          }
       }
@@ -1069,15 +1069,15 @@ public class Game {
       
       public String processTargetButtonPressed(boolean direction) {
          Tower currentTower = hoverOverTower != null ? hoverOverTower : selectedTower;
-         Comparator<Sprite> currentComparator = currentTower.getSpriteComparator();
+         Comparator<Creep> currentComparator = currentTower.getCreepComparator();
          int nextIndex = comparators.indexOf(currentComparator) + (direction ? 1 : -1);
          if(nextIndex >= comparators.size()) {
             nextIndex -= comparators.size();
          } else if(nextIndex < 0) {
             nextIndex += comparators.size();
          }
-         Comparator<Sprite> c = comparators.get(nextIndex);
-         selectedTower.setSpriteComparator(c);
+         Comparator<Creep> c = comparators.get(nextIndex);
+         selectedTower.setCreepComparator(c);
          return c.toString();
       }
       

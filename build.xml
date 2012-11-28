@@ -116,7 +116,7 @@
         <exclude name="images/other/theGreenPlace.png" />
         <exclude name="images/control_panel/blue_lava.*" />
         <exclude name="images/control_panel/blue_lava_blurred.png" />
-        <exclude name="images/sprites/other/" />
+        <exclude name="images/creeps/other/" />
         <exclude name="images/towers/overlays/turrets/" />
         <exclude name="images/towers/overlays/turretLengths" />
         <exclude name="images/towers/overlays/makeTowerOverlays" />
