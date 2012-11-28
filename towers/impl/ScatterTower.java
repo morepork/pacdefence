@@ -24,10 +24,9 @@ import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 
-import creeps.Creep;
 import towers.AbstractTower;
-import towers.BasicBullet;
 import towers.Bullet;
+import creeps.Creep;
 
 
 public class ScatterTower extends AbstractTower {
@@ -60,12 +59,6 @@ public class ScatterTower extends AbstractTower {
          }
       }
       return fired;
-   }
-
-   @Override
-   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
    }
 
    @Override

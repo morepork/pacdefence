@@ -512,9 +512,11 @@ public abstract class AbstractTower implements Tower {
    protected abstract String getSpecial();
    
    protected abstract String getSpecialName();
-   
-   protected abstract Bullet makeBullet(double dx, double dy, int turretWidth, int range,
-            double speed, double damage, Point p, Creep c, List<Shape> pathBounds);
+
+   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+         double damage, Point p, Creep c, List<Shape> pathBounds) {
+      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
+   }
    
    protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, Creep c, List<Shape> pathBounds) {
