@@ -296,11 +296,6 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
    }
    
    @Override
-   public double getHPFactor() {
-      return hpFactor;
-   }
-   
-   @Override
    public void slow(double factor, int numTicks) {
       if(factor >= 1) {
          throw new IllegalArgumentException("Factor must be less than 1 in order to slow.");
