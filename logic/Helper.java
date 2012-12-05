@@ -229,20 +229,5 @@ public class Helper {
       }
       return outline;
    }
-   
-   public static double reduceAngle(double angle) {
-      while(angle > Math.PI) {
-         angle -= twoPi;
-      }
-      while(angle < -Math.PI) {
-         angle -= twoPi;
-      }
-      return angle;
-   }
-   
-   public static void main(String[] args) {
-      
-   }
-   
 
 }
