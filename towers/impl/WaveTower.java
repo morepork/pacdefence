@@ -34,11 +34,12 @@ import java.util.List;
 
 import logic.Constants;
 import logic.Helper;
-import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Vector2D;
+import creeps.Creep;
 
 
 public class WaveTower extends AbstractTower {
@@ -102,7 +103,7 @@ public class WaveTower extends AbstractTower {
       public WaveBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
             double speed, double damage, Point p, List<Shape> pathBounds, double angle) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
-         double midAngle = Helper.vectorAngle(dx, dy);
+         double midAngle = Vector2D.angle(dx, dy);
          startAngle = Math.toDegrees(midAngle) - 90 - angle / 2;
          extentAngle = angle;
          start = p;

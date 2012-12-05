@@ -50,6 +50,7 @@ import logic.Circle;
 import logic.Constants;
 import logic.Formulae;
 import logic.Helper;
+import util.Vector2D;
 import creeps.Creep;
 import creeps.Creep.DistanceComparator;
 import creeps.Creep.FirstComparator;
@@ -560,7 +561,7 @@ public abstract class AbstractTower implements Tower {
       double dx = c.getPosition().getX() - p.getX();
       double dy = c.getPosition().getY() - p.getY();
       if(imageRotates && rotateTurret) {
-         currentImage = getRotatedImage(Helper.vectorAngle(dx, -dy));
+         currentImage = getRotatedImage(Vector2D.angle(dx, -dy));
       }
       return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, c, pathBounds);
    }

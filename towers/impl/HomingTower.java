@@ -27,12 +27,13 @@ import java.util.List;
 
 import logic.Constants;
 import logic.Helper;
-import creeps.Creep;
-import creeps.Creep.DistanceComparator;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Vector2D;
+import creeps.Creep;
+import creeps.Creep.DistanceComparator;
 
 
 public class HomingTower extends AbstractTower {
@@ -123,8 +124,8 @@ public class HomingTower extends AbstractTower {
          // Make sure can actually target this creep, this may still be false as their could be no
          // creeps that it can target
          if(canTarget(target)) {
-            double currentAngle = Helper.vectorAngle(dir.getX(), dir.getY());
-            double angleToTarget = Helper.vectorAngle(
+            double currentAngle = dir.getAngle();
+            double angleToTarget = Vector2D.angle(
                   target.getPosition().getX() - position.getX(),
                   target.getPosition().getY() - position.getY());
             // Normalise the angle to between -pi and pi so that deltaAngle

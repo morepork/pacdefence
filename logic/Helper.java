@@ -32,32 +32,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import util.Vector2D;
+
 
 public class Helper {
 
    private static final Map<Integer, DecimalFormat> formats =
          new HashMap<Integer, DecimalFormat>();
    
-   private static final double twoPi = 2 * Math.PI;
-   
-   public static double vectorAngle(double dx, double dy) {
-      if (dx >= 0) {
-         if (dy > 0) {
-            return Math.atan(dx / dy);
-         } else {
-            return Math.atan(-dy / dx) + Math.PI / 2;
-         }
-      } else {
-         if (dy > 0) {
-            return Math.atan(dx / dy) + twoPi;
-         } else {
-            return Math.atan(dx / dy) + Math.PI;
-         }
-      }
-   }
-   
    public static double vectorAngleBetween(Point2D p1, Point2D p2) {
-      return vectorAngle(p1.getX() - p2.getX(), p1.getY() - p2.getY());
+      return Vector2D.angle(p1.getX() - p2.getX(), p1.getY() - p2.getY());
    }
    
    public static Point toPoint(Point2D p) {

@@ -37,7 +37,7 @@ import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
-import logic.Helper;
+import util.Vector2D;
 
 
 // All new BufferedImages returned by this class that are not directly loaded from a file are of
@@ -130,7 +130,7 @@ public class ImageHelper {
    }
 
    public static BufferedImage rotateImage(BufferedImage image, double dx, double dy) {
-      return rotateImage(image, Helper.vectorAngle(dx, dy));
+      return rotateImage(image, Vector2D.angle(dx, dy));
    }
    
    public static BufferedImage cloneImage(BufferedImage image) {

@@ -47,6 +47,7 @@ import logic.Formulae;
 import logic.Helper;
 import towers.DamageNotifier;
 import towers.Tower;
+import util.Vector2D;
 
 public abstract class AbstractCreep implements Creep, Comparable<Creep> {
    
@@ -428,7 +429,7 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
       steps = 0;
       // Invert yStep here as y coord goes down as it increases, rather than up as in a
       // conventional coordinate system.
-      rotateImages(Helper.vectorAngle(xStep, -yStep));
+      rotateImages(Vector2D.angle(xStep, -yStep));
    }
    
    private void rotateImages(double angle) {

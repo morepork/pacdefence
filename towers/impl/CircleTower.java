@@ -29,11 +29,12 @@ import java.util.List;
 
 import logic.Circle;
 import logic.Helper;
-import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Vector2D;
+import creeps.Creep;
 
 public class CircleTower extends AbstractTower {
 
@@ -79,7 +80,7 @@ public class CircleTower extends AbstractTower {
             double speed, double damage, Point p, Creep c, List<Shape> pathBounds) {
          super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
          double distance = p.distance(c.getPosition()) - c.getHalfWidth();
-         double angleToCreep = Helper.vectorAngle(dx, dy);
+         double angleToCreep = Vector2D.angle(dx, dy);
          double theta = angleToCreep - Math.acos(distance / getRange());
          double halfRange = getRange() / 2.0;
          double deltaX = halfRange * Math.sin(theta);

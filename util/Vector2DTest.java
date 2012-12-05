@@ -17,21 +17,21 @@
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
-package logic;
+package util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
 
-public class HelperTest {
+public class Vector2DTest {
 
    @Test
    public void testVectorAngle() {
       for(double a = 0; a < 2 * Math.PI; a += 0.001) {
          double x = Math.sin(a);
          double y = Math.cos(a);
-         double v = Helper.vectorAngle(x, y);
+         double v = Vector2D.angle(x, y);
          if(doesNotEqual(a, v, 0.0001)) {
             fail(a + " != " + v + " for x=" + x + " & y=" + y);
          }

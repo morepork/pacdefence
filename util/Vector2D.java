@@ -22,6 +22,7 @@ package util;
 
 public class Vector2D {
    
+   private static final double twoPi = 2 * Math.PI;
    private final double x, y;
    
    public Vector2D(double x, double y) {
@@ -35,6 +36,26 @@ public class Vector2D {
    
    public double getY() {
       return y;
+   }
+   
+   public static double angle(double x, double y) {
+      if (x >= 0) {
+         if (y > 0) {
+            return Math.atan(x / y);
+         } else {
+            return Math.atan(-y / x) + Math.PI / 2;
+         }
+      } else {
+         if (y > 0) {
+            return Math.atan(x / y) + twoPi;
+         } else {
+            return Math.atan(x / y) + Math.PI;
+         }
+      }
+   }
+   
+   public double getAngle() {
+      return Vector2D.angle(x, y);
    }
 
 }

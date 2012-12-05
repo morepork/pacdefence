@@ -37,13 +37,14 @@ import java.util.List;
 
 import logic.Constants;
 import logic.Helper;
-import creeps.Creep;
-import creeps.Creep.DamageReport;
 import towers.AbstractBullet;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Vector2D;
+import creeps.Creep;
+import creeps.Creep.DamageReport;
 
 
 public class BeamTower extends AbstractTower {
@@ -94,7 +95,7 @@ public class BeamTower extends AbstractTower {
    @Override
    protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
-      double angle = Helper.vectorAngle(dx, dy);
+      double angle = Vector2D.angle(dx, dy);
       return new Beam(this, p, angle, range, speed, damage, pathBounds, c, (int)beamLastTicks);
    }
    
@@ -179,12 +180,12 @@ public class BeamTower extends AbstractTower {
       
       private int getDirectionModifier(Creep c) {
          Point2D p = c.getPosition();
-         double angleBetween = Helper.vectorAngle(p.getX() - centre.getX(),
+         double angleBetween = Vector2D.angle(p.getX() - centre.getX(),
                p.getY() - centre.getY());
          // Two points just ahead of where the creep is now
          double nextX = p.getX() + Math.sin(c.getCurrentAngle());
          double nextY = p.getY() - Math.cos(c.getCurrentAngle());
-         double nextAngleBetween = Helper.vectorAngle(nextX - centre.getX(),
+         double nextAngleBetween = Vector2D.angle(nextX - centre.getX(),
                nextY - centre.getY());
          return (nextAngleBetween > angleBetween) ? -1 : 1;
       }

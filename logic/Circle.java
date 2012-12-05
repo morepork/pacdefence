@@ -34,6 +34,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import util.Vector2D;
+
 
 public class Circle implements Shape {
    
@@ -200,7 +202,7 @@ public class Circle implements Shape {
       if(distance < arcRadius + radius && distance > arcRadius - radius) {
          // The distance from the centre is less than the radius of the arc
          // plus the radius of the circle
-         double angleBetween = Helper.vectorAngle(arcCentre.getX() - x, arcCentre.getY() - y);
+         double angleBetween = Vector2D.angle(arcCentre.getX() - x, arcCentre.getY() - y);
          double angleToStart = Helper.vectorAngleBetween(arcCentre, a.getStartPoint());
          double extentAngle = Math.toRadians(a.getAngleExtent());
          if(extentAngle > 0 ?

@@ -24,9 +24,9 @@ import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 
-import logic.Helper;
 import towers.AbstractTower;
 import towers.Bullet;
+import util.Vector2D;
 import creeps.Creep;
 
 
@@ -57,7 +57,7 @@ public class OmnidirectionalTower extends AbstractTower {
    protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
          double speed, double damage, Point p, Creep c, List<Shape> pathBounds) {
       List<Bullet> bullets = new ArrayList<Bullet>();
-      double angle = Helper.vectorAngle(dx, dy);
+      double angle = Vector2D.angle(dx, dy);
       double dTheta = 2 * Math.PI / numShots;
       for(int i = 0; i < numShots; i++) {
          dx = Math.sin(angle);
