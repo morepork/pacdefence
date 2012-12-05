@@ -19,6 +19,8 @@
 
 package util;
 
+import java.awt.geom.Point2D;
+
 
 public class Vector2D {
    
@@ -52,6 +54,10 @@ public class Vector2D {
             return Math.atan(x / y) + Math.PI;
          }
       }
+   }
+   
+   public static double angle(Point2D p1, Point2D p2) {
+      return Vector2D.angle(p1.getX() - p2.getX(), p1.getY() - p2.getY());
    }
    
    public double getAngle() {

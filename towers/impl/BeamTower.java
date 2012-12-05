@@ -179,15 +179,11 @@ public class BeamTower extends AbstractTower {
       }
       
       private int getDirectionModifier(Creep c) {
-         Point2D p = c.getPosition();
-         double angleBetween = Vector2D.angle(p.getX() - centre.getX(),
-               p.getY() - centre.getY());
-         // Two points just ahead of where the creep is now
-         double nextX = p.getX() + Math.sin(c.getCurrentAngle());
-         double nextY = p.getY() - Math.cos(c.getCurrentAngle());
-         double nextAngleBetween = Vector2D.angle(nextX - centre.getX(),
-               nextY - centre.getY());
-         return (nextAngleBetween > angleBetween) ? -1 : 1;
+         Point2D pos = c.getPosition();
+         // A point just ahead of where the creep is now
+         Point2D nextPos = new Point2D.Double(pos.getX() + Math.sin(c.getCurrentAngle()),
+               pos.getY() - Math.cos(c.getCurrentAngle()));
+         return (Vector2D.angle(nextPos, centre) > Vector2D.angle(pos, centre)) ? -1 : 1;
       }
       
       private void hitCreeps(List<Creep> creeps) {

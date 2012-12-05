@@ -125,9 +125,7 @@ public class HomingTower extends AbstractTower {
          // creeps that it can target
          if(canTarget(target)) {
             double currentAngle = dir.getAngle();
-            double angleToTarget = Vector2D.angle(
-                  target.getPosition().getX() - position.getX(),
-                  target.getPosition().getY() - position.getY());
+            double angleToTarget = Vector2D.angle(target.getPosition(), position);
             // Normalise the angle to between -pi and pi so that deltaAngle
             // is actually the best change in angle
             double deltaAngle = normaliseAngle(angleToTarget - currentAngle);

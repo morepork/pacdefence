@@ -32,17 +32,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import util.Vector2D;
-
 
 public class Helper {
 
    private static final Map<Integer, DecimalFormat> formats =
          new HashMap<Integer, DecimalFormat>();
-   
-   public static double vectorAngleBetween(Point2D p1, Point2D p2) {
-      return Vector2D.angle(p1.getX() - p2.getX(), p1.getY() - p2.getY());
-   }
    
    public static Point toPoint(Point2D p) {
       return new Point((int)p.getX(), (int)p.getY());
