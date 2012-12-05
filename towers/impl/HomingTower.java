@@ -123,7 +123,7 @@ public class HomingTower extends AbstractTower {
          // Make sure can actually target this creep, this may still be false as their could be no
          // creeps that it can target
          if(canTarget(target)) {
-            double currentAngle = Helper.vectorAngle(dir[0], dir[1]);
+            double currentAngle = Helper.vectorAngle(dir.getX(), dir.getY());
             double angleToTarget = Helper.vectorAngle(
                   target.getPosition().getX() - position.getX(),
                   target.getPosition().getY() - position.getY());

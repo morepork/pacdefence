@@ -30,6 +30,7 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 import logic.Constants;
+import util.Vector2D;
 import creeps.Creep;
 import creeps.Creep.DamageReport;
 
@@ -44,7 +45,7 @@ public class BasicBullet extends AbstractBullet {
    
    // The direction of the bullet, first is dx, second is dy. Should be normalised
    // then multiplied by the speed.
-   protected final double[] dir = new double[2];
+   protected Vector2D dir;
    protected final double speed;
    protected double distanceTravelled = 0;
    protected final Point2D lastPosition;
@@ -120,8 +121,9 @@ public class BasicBullet extends AbstractBullet {
    
    protected void setDirections(double dx, double dy) {
       double divisor = Math.sqrt(dx * dx + dy * dy);
-      dir[0] = speed * dx / divisor;
-      dir[1] = speed * dy / divisor;
+      double x = speed * dx / divisor;
+      double y = speed * dy / divisor;
+      dir = new Vector2D(x, y);
    }
    
    protected double checkIfCreepIsHit(List<Creep> creeps) {
@@ -234,13 +236,13 @@ public class BasicBullet extends AbstractBullet {
       lastPosition.setLocation(position);
       if(isOutOfRange()) { // Check if it's now out of range
          double extraFraction = (distanceTravelled - range) / speed;
-         position.setLocation(position.getX() + extraFraction * dir[0],
-               position.getY() + extraFraction * dir[1]);
+         position.setLocation(position.getX() + extraFraction * dir.getX(),
+               position.getY() + extraFraction * dir.getY());
          double result = checkIfCreepIsHit(creeps);
          // Bullet has exceeded range so should be removed no matter what
          return result > 0 ? result : 0;
       } else {
-         position.setLocation(position.getX() + dir[0], position.getY() + dir[1]);
+         position.setLocation(position.getX() + dir.getX(), position.getY() + dir.getY());
          return checkIfCreepIsHit(creeps);
       }
    }
