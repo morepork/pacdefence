@@ -48,7 +48,7 @@ public class Title extends JPanel {
    
    private static boolean firstRun = true;
    private static Skin selectedSkin;
-   private JComboBox skinComboBox;
+   private JComboBox<Skin> skinComboBox;
    private final BufferedImage background;
    
    public Title(int width, int height, ActionListener continueListener) {

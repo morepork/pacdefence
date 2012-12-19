@@ -85,6 +85,7 @@ public class Helper {
       return false;
    }
    
+   @SafeVarargs
    public static <T> List<T> makeListContaining(T... ts) {
       return new ArrayList<T>(Arrays.asList(ts));
    }
