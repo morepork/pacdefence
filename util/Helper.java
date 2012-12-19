@@ -63,7 +63,7 @@ public class Helper {
       }
       Point2D lastPoint = p1;
       for(int i = 1; i <= length; i++) {
-         lastPoint = step.addToPoint(lastPoint);
+         lastPoint = Vector2D.add(lastPoint, step);
          if(containedIn == null || containedInAShape(lastPoint, containedIn)) {
             points.add(lastPoint);
          }

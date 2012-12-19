@@ -84,7 +84,7 @@ public class CircleTower extends AbstractTower {
          double theta = angleToCreep - Math.acos(distance / getRange());
          double halfRange = getRange() / 2.0;
          Vector2D delta = Vector2D.createFromAngle(theta, halfRange);
-         route = new Circle(delta.addToPoint(p), halfRange);
+         route = new Circle(Vector2D.add(p, delta), halfRange);
          arcLengthPerTick = getBulletSpeed();
          deltaTheta = 2 * Math.PI * arcLengthPerTick / route.calculateCircumference();
          angle = Math.PI + theta;

@@ -49,10 +49,6 @@ public class Vector2D {
       return Vector2D.angle(x, y);
    }
    
-   public Point2D addToPoint(Point2D point) {
-      return new Point2D.Double(point.getX() + x, point.getY() + y);
-   }
-   
    // Static constructors _____________________________________________
    
    public static Vector2D createFromPoints(Point2D p1, Point2D p2) {
@@ -88,6 +84,10 @@ public class Vector2D {
    
    public static double angle(Point2D p1, Point2D p2) {
       return Vector2D.angle(p2.getX() - p1.getX(), p2.getY() - p1.getY());
+   }
+   
+   public static Point2D add(Point2D point, Vector2D vec) {
+      return new Point2D.Double(point.getX() + vec.getX(), point.getY() + vec.getY());
    }
 
 }
