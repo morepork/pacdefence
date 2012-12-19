@@ -88,7 +88,7 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
    private int nextGoalPointIndex;
    
    private final Point2D centre = new Point2D.Double();
-   private double xStep, yStep;
+   private Vector2D step;
    private double totalDistanceTravelled = 0;
    // The distance in pixels to the next point from the previous one
    private double distance;
@@ -358,9 +358,10 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
     *        true if it is still on screen, false if it has finished and has gone off screen
     */
    private boolean move() {
-      centre.setLocation(centre.getX() + xStep * speedFactor, centre.getY() + yStep * speedFactor);
+      centre.setLocation(centre.getX() + step.getX() * speedFactor,
+            centre.getY() + step.getY() * speedFactor);
       setBounds();
-      totalDistanceTravelled += (Math.abs(xStep) + Math.abs(yStep)) * speedFactor;
+      totalDistanceTravelled += step.getLength() * speedFactor;
       steps += speedFactor;
       if (steps + 1 > distance) {
          return calculateNextMove();
@@ -375,13 +376,11 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
    private Point calculateFirstPoint() {
       Point p1 = path.get(0);
       Point p2 = path.get(1);
-      double dx = p2.getX() - p1.getX();
-      double dy = p2.getY() - p1.getY();
-      double distance = Math.sqrt(dx * dx + dy * dy);
+      Vector2D vec = new Vector2D(p1, p2);
       // Now make it so the creep starts fully off screen, then comes on screen
-      double mult = (halfWidth + 1) / distance;
-      int x = (int) (p1.getX() - mult * dx);
-      int y = (int) (p1.getY() - mult * dy);
+      double mult = (halfWidth + 1) / vec.getLength();
+      int x = (int) (p1.getX() - mult * vec.getX());
+      int y = (int) (p1.getY() - mult * vec.getY());
       return new Point(x, y);
    }
 
@@ -401,9 +400,8 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
             // Need to add enough distance so the creep will go off the screen
             // Flag that we've done this so we don't do it again
             nextPoint = null;
-            double distancePerStep = Math.sqrt(xStep * xStep + yStep * yStep);
             // One pixel is added to halfWidth just to be sure
-            distance += (halfWidth + 1) / distancePerStep;
+            distance += (halfWidth + 1) / step.getLength();
          } else {
             // Creep is finished
             return false;
@@ -417,19 +415,16 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
       setBounds();
       nextPoint.setLocation(path.get(nextGoalPointIndex));
       nextGoalPointIndex++;
-      // The relative amounts we need to move in the x and y directions to reach the next point
-      // in the path
-      double dx = nextPoint.getX() - centre.getX();
-      double dy = nextPoint.getY() - centre.getY();
-      // Now normalise these in relation to the creep's speed
-      distance = Math.sqrt(dx * dx + dy * dy) / speed;
-      xStep = dx / distance;
-      yStep = dy / distance;
+      // The next line the creep has to travel down
+      Vector2D nextLine = new Vector2D(centre, nextPoint);
+      step = new Vector2D(nextLine, speed);
+      // The number of steps the creep will take to reach nextPoint
+      distance = nextLine.getLength() / step.getLength();
 
       steps = 0;
       // Invert yStep here as y coord goes down as it increases, rather than up as in a
       // conventional coordinate system.
-      rotateImages(Vector2D.angle(xStep, -yStep));
+      rotateImages(Vector2D.angle(step.getX(), -step.getY()));
    }
    
    private void rotateImages(double angle) {
