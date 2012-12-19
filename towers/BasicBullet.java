@@ -87,7 +87,7 @@ public class BasicBullet extends AbstractBullet {
       this.speed = speed;
       this.damage = damage;
       setDirection(dir_);
-      Vector2D turretVector = new Vector2D(dir, turretWidthPlusRadius);
+      Vector2D turretVector = Vector2D.createFromVector(dir, turretWidthPlusRadius);
       position = turretVector.addToPoint(p);
       lastPosition = new Point2D.Double(position.getX(), position.getY());
       this.pathBounds = pathBounds;
@@ -119,7 +119,7 @@ public class BasicBullet extends AbstractBullet {
    }
    
    protected void setDirection(Vector2D direction) {
-      dir = new Vector2D(direction, speed);
+      dir = Vector2D.createFromVector(direction, speed);
    }
    
    protected double checkIfCreepIsHit(List<Creep> creeps) {

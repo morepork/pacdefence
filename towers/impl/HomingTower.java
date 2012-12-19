@@ -135,7 +135,7 @@ public class HomingTower extends AbstractTower {
             } else {
                angleToChangeTo = currentAngle + (deltaAngle > 0 ? 1 : -1) * maxRedirectAngle;
             }
-            setDirection(new Vector2D(Math.sin(angleToChangeTo), Math.cos(angleToChangeTo)));
+            setDirection(Vector2D.createFromAngle(angleToChangeTo, 1));
          }
       }
       

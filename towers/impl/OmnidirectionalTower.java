@@ -60,7 +60,7 @@ public class OmnidirectionalTower extends AbstractTower {
       double angle = dir.getAngle();
       double dTheta = 2 * Math.PI / numShots;
       for(int i = 0; i < numShots; i++) {
-         Vector2D bulletDir = new Vector2D(Math.sin(angle), Math.cos(angle));
+         Vector2D bulletDir = Vector2D.createFromAngle(angle, 1);
          angle += dTheta;
          bullets.add(makeBullet(bulletDir, turretWidth, range, speed, damage, p, c, pathBounds));
       }

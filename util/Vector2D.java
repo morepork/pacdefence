@@ -31,14 +31,6 @@ public class Vector2D {
       this.x = x;
       this.y = y;
    }
-   
-   public Vector2D(Point2D p1, Point2D p2) {
-      this(p2.getX() - p1.getX(), p2.getY() - p1.getY());
-   }
-   
-   public Vector2D(Vector2D vec, double length) {
-      this(length * vec.getX() / vec.getLength(), length * vec.getY() / vec.getLength());
-   }
 
    public double getX() {
       return x;
@@ -52,6 +44,31 @@ public class Vector2D {
       // Maybe precompute this?
       return Math.sqrt(x * x + y * y);
    }
+   
+   public double getAngle() {
+      return Vector2D.angle(x, y);
+   }
+   
+   public Point2D addToPoint(Point2D point) {
+      return new Point2D.Double(point.getX() + x, point.getY() + y);
+   }
+   
+   // Static constructors _____________________________________________
+   
+   public static Vector2D createFromPoints(Point2D p1, Point2D p2) {
+      return new Vector2D(p2.getX() - p1.getX(), p2.getY() - p1.getY());
+   }
+   
+   public static Vector2D createFromVector(Vector2D vec, double length) {
+      double mult = length / vec.getLength();
+      return new Vector2D(vec.getX() * mult, vec.getY() * mult);
+   }
+   
+   public static Vector2D createFromAngle(double angle, double length) {
+      return new Vector2D(Math.sin(angle) * length, Math.cos(angle) * length);
+   }
+   
+   // Static functions ________________________________________________
    
    public static double angle(double x, double y) {
       if (x >= 0) {
@@ -71,14 +88,6 @@ public class Vector2D {
    
    public static double angle(Point2D p1, Point2D p2) {
       return Vector2D.angle(p2.getX() - p1.getX(), p2.getY() - p1.getY());
-   }
-   
-   public double getAngle() {
-      return Vector2D.angle(x, y);
-   }
-   
-   public Point2D addToPoint(Point2D point) {
-      return new Point2D.Double(point.getX() + x, point.getY() + y);
    }
 
 }

@@ -376,7 +376,7 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
    private Point calculateFirstPoint() {
       Point p1 = path.get(0);
       Point p2 = path.get(1);
-      Vector2D vec = new Vector2D(p1, p2);
+      Vector2D vec = Vector2D.createFromPoints(p1, p2);
       // Now make it so the creep starts fully off screen, then comes on screen
       double mult = (halfWidth + 1) / vec.getLength();
       int x = (int) (p1.getX() - mult * vec.getX());
@@ -416,8 +416,8 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
       nextPoint.setLocation(path.get(nextGoalPointIndex));
       nextGoalPointIndex++;
       // The next line the creep has to travel down
-      Vector2D nextLine = new Vector2D(centre, nextPoint);
-      step = new Vector2D(nextLine, speed);
+      Vector2D nextLine = Vector2D.createFromPoints(centre, nextPoint);
+      step = Vector2D.createFromVector(nextLine, speed);
       // The number of steps the creep will take to reach nextPoint
       distance = nextLine.getLength() / step.getLength();
 

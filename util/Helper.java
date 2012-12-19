@@ -50,13 +50,13 @@ public class Helper {
    }
    
    public static List<Point2D> getPointsOnLine(Point2D p1, Point2D p2, List<Shape> containedIn) {
-      Vector2D dir = new Vector2D(p1, p2);
+      Vector2D dir = Vector2D.createFromPoints(p1, p2);
       // The maximum length in either the x or y directions to divide the line
       // into points a maximum of one pixel apart in either the x or y directions
       double absDx = Math.abs(dir.getX());
       double absDy = Math.abs(dir.getY());
       double length = (absDx > absDy) ? absDx : absDy;
-      Vector2D step = new Vector2D(dir, length);
+      Vector2D step = Vector2D.createFromVector(dir, length);
       List<Point2D> points = new ArrayList<Point2D>((int) length + 2);
       if(containedIn == null || containedInAShape(p1, containedIn)) {
          points.add((Point2D) p1.clone());

@@ -558,7 +558,7 @@ public abstract class AbstractTower implements Tower {
    
    protected List<Bullet> fireBulletsAt(Creep c, Point p, boolean rotateTurret,
          int turretWidth, double range, double bulletSpeed, double damage) {
-      Vector2D dir = new Vector2D(p, c.getPosition());
+      Vector2D dir = Vector2D.createFromPoints(p, c.getPosition());
       if(imageRotates && rotateTurret) {
          currentImage = getRotatedImage(Vector2D.angle(dir.getX(), -dir.getY()));
       }
