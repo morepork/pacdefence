@@ -87,7 +87,7 @@ public class LaserTower extends AbstractTower {
       private final Point2D lastPoint;
       private final Line2D laser;
       private final double length;
-      private final double xStep, yStep;
+      private final Vector2D step;
       private double moneyEarnt = 0;
       
       public Laser(List<Shape> pathBounds, Tower shotBy, Point2D firstPoint, Point2D lastPoint,
@@ -95,13 +95,8 @@ public class LaserTower extends AbstractTower {
          super(pathBounds, shotBy, damage, range, speed);
          this.lastPoint = lastPoint;
          this.length = length;
-         double distance = firstPoint.distance(lastPoint);
-         double stepFraction = speed / distance;
-         xStep = (lastPoint.getX() - firstPoint.getX()) * stepFraction;
-         yStep = (lastPoint.getY() - firstPoint.getY()) * stepFraction;
-         double mult = length / speed;
-         laser = new Line2D.Double(firstPoint, new Point2D.Double(firstPoint.getX() + xStep * mult,
-               firstPoint.getY() + yStep * mult));
+         step = Vector2D.createFromVector(Vector2D.createFromPoints(firstPoint, lastPoint), speed);
+         laser = Vector2D.createLine(firstPoint, Vector2D.createFromVector(step, length));
          distanceTravelled = length;
       }
 
@@ -118,8 +113,7 @@ public class LaserTower extends AbstractTower {
       @Override
       public double doTick(List<Creep> creeps) {
          Point2D oldP1 = laser.getP1();
-         laser.setLine(laser.getX1() + xStep, laser.getY1() + yStep, laser.getX2() + xStep,
-               laser.getY2() + yStep);
+         laser.setLine(Vector2D.add(laser.getP1(), step), Vector2D.add(laser.getP2(), step));
          distanceTravelled += speed;
          if(distanceTravelled >= range) {
             // Only actually finish when the point at the back of the laser crosses the range

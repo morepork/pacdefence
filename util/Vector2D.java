@@ -19,6 +19,7 @@
 
 package util;
 
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
 
@@ -88,6 +89,10 @@ public class Vector2D {
    
    public static Point2D add(Point2D point, Vector2D vec) {
       return new Point2D.Double(point.getX() + vec.getX(), point.getY() + vec.getY());
+   }
+   
+   public static Line2D createLine(Point2D point, Vector2D vec) {
+      return new Line2D.Double(point, Vector2D.add(point, vec));
    }
 
 }
