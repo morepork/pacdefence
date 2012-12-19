@@ -205,13 +205,14 @@ public class Title extends JPanel {
    }
    
    private String parseLicence() {
-      Scanner scan = new Scanner(getClass().getResourceAsStream("/COPYING"));
-      StringBuilder licence = new StringBuilder();
-      while(scan.hasNextLine()) {
-         licence.append(scan.nextLine());
-         licence.append("\n");
+      try (Scanner scan = new Scanner(getClass().getResourceAsStream("/COPYING"))) {
+         StringBuilder licence = new StringBuilder();
+         while(scan.hasNextLine()) {
+            licence.append(scan.nextLine());
+            licence.append("\n");
+         }
+         return licence.toString();
       }
-      return licence.toString();
    }
 
 }
