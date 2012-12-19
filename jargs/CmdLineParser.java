@@ -372,7 +372,7 @@ public class CmdLineParser {
      * option was not set
      */
     public final Object getOptionValue( Option o, Object def ) {
-        Vector v = (Vector)values.get(o.longForm());
+        Vector<Object> v = values.get(o.longForm());
 
         if (v == null) {
             return def;
@@ -392,8 +392,8 @@ public class CmdLineParser {
      * @return A Vector giving the parsed values of all the occurrences of the
      * given Option, or an empty Vector if the option was not set.
      */
-    public final Vector getOptionValues( Option option ) {
-        Vector result = new Vector();
+    public final Vector<Object> getOptionValues( Option option ) {
+        Vector<Object> result = new Vector<>();
 
         while (true) {
             Object o = getOptionValue(option, null);
@@ -442,9 +442,9 @@ public class CmdLineParser {
         // backwards compatibility with old user code we throw the two
         // exceptions above instead.
 
-        Vector otherArgs = new Vector();
+        Vector<String> otherArgs = new Vector<>();
         int position = 0;
-        this.values = new Hashtable(10);
+        this.values = new Hashtable<>(10);
         while ( position < argv.length ) {
             String curArg = argv[position];
             if ( curArg.startsWith("-") ) {
@@ -513,10 +513,10 @@ public class CmdLineParser {
     private void addValue(Option opt, Object value) {
         String lf = opt.longForm();
 
-        Vector v = (Vector)values.get(lf);
+        Vector<Object> v = values.get(lf);
 
         if (v == null) {
-            v = new Vector();
+            v = new Vector<>();
             values.put(lf, v);
         }
 
@@ -525,6 +525,6 @@ public class CmdLineParser {
 
 
     private String[] remainingArgs = null;
-    private Hashtable options = new Hashtable(10);
-    private Hashtable values = new Hashtable(10);
+    private Hashtable<String, Option> options = new Hashtable<>(10);
+    private Hashtable<String, Vector<Object>> values = new Hashtable<>(10);
 }
