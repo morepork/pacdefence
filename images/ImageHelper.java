@@ -37,8 +37,6 @@ import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
-import util.Vector2D;
-
 
 // All new BufferedImages returned by this class that are not directly loaded from a file are of
 // type BufferedImage.TYPE_INT_RGB or BufferedImage.TYPE_INT_ARGB_PRE so they can be used to do
@@ -127,10 +125,6 @@ public class ImageHelper {
       BufferedImageOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
       temp.createGraphics().drawImage(image, op, 0, 0);
       return temp;
-   }
-
-   public static BufferedImage rotateImage(BufferedImage image, double dx, double dy) {
-      return rotateImage(image, Vector2D.angle(dx, dy));
    }
    
    public static BufferedImage cloneImage(BufferedImage image) {
