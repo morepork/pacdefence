@@ -69,11 +69,8 @@ public class LaserTower extends AbstractTower {
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
-      double divisor = dir.getLength();
-      Point2D firstPoint = new Point2D.Double(p.getX() + turretWidth * dir.getX() / divisor,
-            p.getY() + turretWidth * dir.getY() / divisor);
-      Point2D lastPoint = new Point2D.Double(p.getX() + range * dir.getX() / divisor,
-            p.getY() + range * dir.getY() / divisor);
+      Point2D firstPoint = Vector2D.add(p, Vector2D.createFromVector(dir, turretWidth));
+      Point2D lastPoint = Vector2D.add(p, Vector2D.createFromVector(dir, range));
       return new Laser(pathBounds, this, firstPoint, lastPoint, speed, damage, range - turretWidth,
             beamLength);
    }
