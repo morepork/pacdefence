@@ -654,7 +654,6 @@ public abstract class AbstractTower implements Tower {
    }
    
    private void multiplyAttribute(Attribute a, double factor) {
-      assert a != Attribute.Special : "Special cannot be simply multiplied";
       switch(a) {
          case Damage:
             damage *= factor;
@@ -668,6 +667,9 @@ public abstract class AbstractTower implements Tower {
             return;
          case Speed:
             bulletSpeed *= factor;
+            return;
+         case Special:
+            assert false : "Special cannot be simply multiplied";
             return;
       }
    }
