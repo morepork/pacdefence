@@ -31,12 +31,13 @@ import java.util.Set;
 
 import logic.Circle;
 import logic.Helper;
-import creeps.Creep;
-import creeps.Creep.DamageReport;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Vector2D;
+import creeps.Creep;
+import creeps.Creep.DamageReport;
 
 public class BomberTower extends AbstractTower {
    
@@ -66,9 +67,9 @@ public class BomberTower extends AbstractTower {
    }
 
    @Override
-   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new Bomb(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
+      return new Bomb(this, dir, turretWidth, range, speed, damage, p, pathBounds);
    }
 
    private class Bomb extends BasicBullet {
@@ -82,9 +83,9 @@ public class BomberTower extends AbstractTower {
       private final Circle blast = new Circle(new Point(0, 0), 0);
       private double moneyEarnt;
 
-      public Bomb(Tower shotBy, double dx, double dy, int turretWidth, int range, double speed,
+      public Bomb(Tower shotBy, Vector2D dir, int turretWidth, int range, double speed,
             double damage, Point p, List<Shape> pathBounds) {
-         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
+         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
          blastSizeIncrement = blastRadius / frames;
       }
 

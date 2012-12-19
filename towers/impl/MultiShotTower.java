@@ -26,6 +26,7 @@ import java.util.List;
 
 import towers.AbstractTower;
 import towers.Bullet;
+import util.Vector2D;
 import creeps.Creep;
 
 
@@ -63,11 +64,11 @@ public class MultiShotTower extends AbstractTower {
    }
    
    @Override
-   protected List<Bullet> makeBullets(double dx, double dy,  int turretWidth, int range,
+   protected List<Bullet> makeBullets(Vector2D dir,  int turretWidth, int range,
          double bulletSpeed, double damage, Point p, Creep c, List<Shape> pathBounds) {
       List<Bullet> bullets = new ArrayList<Bullet>();
       for(int i = 0; i < shots; i++) {
-         bullets.add(makeBullet(dx, dy, turretWidth, range, bulletSpeed, damage, p, c, pathBounds));
+         bullets.add(makeBullet(dir, turretWidth, range, bulletSpeed, damage, p, c, pathBounds));
          bulletSpeed *= speedIncreaseFactor;
       }
       return bullets;

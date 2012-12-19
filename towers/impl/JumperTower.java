@@ -31,6 +31,7 @@ import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Vector2D;
 import creeps.Creep;
 import creeps.Creep.DistanceComparator;
 
@@ -54,9 +55,9 @@ public class JumperTower extends AbstractTower {
    }
 
    @Override
-   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new JumpingBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, jumps);
+      return new JumpingBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds, jumps);
    }
 
    @Override
@@ -71,9 +72,9 @@ public class JumperTower extends AbstractTower {
       private final int jumpRange;
       private static final double jumpRangeDividend = 1.5;
 
-      public JumpingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
+      public JumpingBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
             double speed, double damage, Point p, List<Shape> pathBounds, int jumps) {
-         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
+         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
          hitsLeft = jumps;
          jumpRange = (int)(range / jumpRangeDividend);
       }

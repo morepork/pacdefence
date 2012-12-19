@@ -32,12 +32,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import creeps.Creep;
-import creeps.Creep.DamageReport;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Vector2D;
+import creeps.Creep;
+import creeps.Creep.DamageReport;
 
 
 public class ZapperTower extends AbstractTower {
@@ -61,10 +62,9 @@ public class ZapperTower extends AbstractTower {
    }
 
    @Override
-   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new ZapperBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds,
-            numZaps);
+      return new ZapperBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds, numZaps);
    }
 
    @Override
@@ -83,9 +83,9 @@ public class ZapperTower extends AbstractTower {
       private final double zapRange;
       private final int offScreenFudgeDistance;
    
-      public ZapperBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
+      public ZapperBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
             double speed, double damage, Point p, List<Shape> pathBounds, int numZaps) {
-         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
+         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
          numZapsLeft = numZaps;
          zapRange = range / 4;
          // Bullet shouldn't be removed if it can still zap creeps

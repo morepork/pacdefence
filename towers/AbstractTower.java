@@ -514,14 +514,14 @@ public abstract class AbstractTower implements Tower {
    
    protected abstract String getSpecialName();
 
-   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new BasicBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
+      return new BasicBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds);
    }
    
-   protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
+   protected List<Bullet> makeBullets(Vector2D dir, int turretWidth, int range,
             double speed, double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return Helper.makeListContaining(makeBullet(dx, dy, turretWidth, range, speed, damage, p, c,
+      return Helper.makeListContaining(makeBullet(dir, turretWidth, range, speed, damage, p, c,
             pathBounds));
    }
    
@@ -558,12 +558,11 @@ public abstract class AbstractTower implements Tower {
    
    protected List<Bullet> fireBulletsAt(Creep c, Point p, boolean rotateTurret,
          int turretWidth, double range, double bulletSpeed, double damage) {
-      double dx = c.getPosition().getX() - p.getX();
-      double dy = c.getPosition().getY() - p.getY();
+      Vector2D dir = new Vector2D(p, c.getPosition());
       if(imageRotates && rotateTurret) {
-         currentImage = getRotatedImage(Vector2D.angle(dx, -dy));
+         currentImage = getRotatedImage(Vector2D.angle(dir.getX(), -dir.getY()));
       }
-      return makeBullets(dx, dy, turretWidth, (int)range, bulletSpeed, damage, p, c, pathBounds);
+      return makeBullets(dir, turretWidth, (int)range, bulletSpeed, damage, p, c, pathBounds);
    }
 
    protected void upgradeDamage() {

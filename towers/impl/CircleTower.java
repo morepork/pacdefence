@@ -55,9 +55,9 @@ public class CircleTower extends AbstractTower {
    }
 
    @Override
-   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new CirclingBullet(this, dx, dy, turretWidth, range, speed, damage, p, c, pathBounds);
+      return new CirclingBullet(this, dir, turretWidth, range, speed, damage, p, c, pathBounds);
    }
 
    @Override
@@ -76,11 +76,11 @@ public class CircleTower extends AbstractTower {
       private double moneyEarntSoFar = 0;
       private Collection<Creep> hitCreeps = new ArrayList<Creep>();
 
-      public CirclingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
+      public CirclingBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
             double speed, double damage, Point p, Creep c, List<Shape> pathBounds) {
-         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
+         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
          double distance = p.distance(c.getPosition()) - c.getHalfWidth();
-         double angleToCreep = Vector2D.angle(dx, dy);
+         double angleToCreep = dir.getAngle();
          double theta = angleToCreep - Math.acos(distance / getRange());
          double halfRange = getRange() / 2.0;
          double deltaX = halfRange * Math.sin(theta);

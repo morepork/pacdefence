@@ -79,17 +79,16 @@ public class BasicBullet extends AbstractBullet {
       position = null;
    }
    
-   public BasicBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
+   public BasicBullet(Tower shotBy, Vector2D dir_, int turretWidth, int range,
          double speed, double damage, Point p, List<Shape> pathBounds) {
       this.shotBy = shotBy;
       int turretWidthPlusRadius = turretWidth + radius;
       this.range = range - turretWidthPlusRadius;
       this.speed = speed;
       this.damage = damage;
-      setDirections(dx, dy);
-      double divisor = Math.sqrt(dx * dx + dy * dy);
-      position = new Point2D.Double(p.getX() + turretWidthPlusRadius * dx / divisor,
-            p.getY() + turretWidthPlusRadius * dy / divisor);
+      setDirection(dir_);
+      Vector2D turretVector = new Vector2D(dir, turretWidthPlusRadius);
+      position = new Point2D.Double(p.getX() + turretVector.getX(), p.getY() + turretVector.getY());
       lastPosition = new Point2D.Double(position.getX(), position.getY());
       this.pathBounds = pathBounds;
    }
@@ -119,11 +118,8 @@ public class BasicBullet extends AbstractBullet {
       return d.getMoneyEarnt();
    }
    
-   protected void setDirections(double dx, double dy) {
-      double divisor = Math.sqrt(dx * dx + dy * dy);
-      double x = speed * dx / divisor;
-      double y = speed * dy / divisor;
-      dir = new Vector2D(x, y);
+   protected void setDirection(Vector2D direction) {
+      dir = new Vector2D(direction, speed);
    }
    
    protected double checkIfCreepIsHit(List<Creep> creeps) {

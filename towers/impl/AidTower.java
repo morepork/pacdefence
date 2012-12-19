@@ -33,6 +33,7 @@ import towers.AbstractTower;
 import towers.Bullet;
 import towers.DamageNotifier;
 import towers.Tower;
+import util.Vector2D;
 import creeps.Creep;
 
 
@@ -126,7 +127,7 @@ public class AidTower extends AbstractTower {
    }
 
    @Override
-   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
       throw new RuntimeException("makeBullet called on AidTower which doesn't shoot");
    }

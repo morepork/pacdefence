@@ -31,6 +31,14 @@ public class Vector2D {
       this.x = x;
       this.y = y;
    }
+   
+   public Vector2D(Point2D p1, Point2D p2) {
+      this(p2.getX() - p1.getX(), p2.getY() - p1.getY());
+   }
+   
+   public Vector2D(Vector2D vec, double length) {
+      this(length * vec.getX() / vec.getLength(), length * vec.getY() / vec.getLength());
+   }
 
    public double getX() {
       return x;
@@ -38,6 +46,11 @@ public class Vector2D {
    
    public double getY() {
       return y;
+   }
+   
+   public double getLength() {
+      // Maybe precompute this?
+      return Math.sqrt(x * x + y * y);
    }
    
    public static double angle(double x, double y) {

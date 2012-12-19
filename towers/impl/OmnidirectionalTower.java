@@ -54,16 +54,15 @@ public class OmnidirectionalTower extends AbstractTower {
    }
    
    @Override
-   protected List<Bullet> makeBullets(double dx, double dy, int turretWidth, int range,
+   protected List<Bullet> makeBullets(Vector2D dir, int turretWidth, int range,
          double speed, double damage, Point p, Creep c, List<Shape> pathBounds) {
       List<Bullet> bullets = new ArrayList<Bullet>();
-      double angle = Vector2D.angle(dx, dy);
+      double angle = dir.getAngle();
       double dTheta = 2 * Math.PI / numShots;
       for(int i = 0; i < numShots; i++) {
-         dx = Math.sin(angle);
-         dy = Math.cos(angle);
+         Vector2D bulletDir = new Vector2D(Math.sin(angle), Math.cos(angle));
          angle += dTheta;
-         bullets.add(makeBullet(dx, dy, turretWidth, range, speed, damage, p, c, pathBounds));
+         bullets.add(makeBullet(bulletDir, turretWidth, range, speed, damage, p, c, pathBounds));
       }
       return bullets;
    }

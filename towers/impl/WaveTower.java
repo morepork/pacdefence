@@ -78,9 +78,9 @@ public class WaveTower extends AbstractTower {
    }
 
    @Override
-   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new WaveBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, angle);
+      return new WaveBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds, angle);
    }
 
    @Override
@@ -100,11 +100,10 @@ public class WaveTower extends AbstractTower {
       private double moneyEarnt = 0;
       private final int turretWidth;
       
-      public WaveBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
+      public WaveBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
             double speed, double damage, Point p, List<Shape> pathBounds, double angle) {
-         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
-         double midAngle = Vector2D.angle(dx, dy);
-         startAngle = Math.toDegrees(midAngle) - 90 - angle / 2;
+         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
+         startAngle = Math.toDegrees(dir.getAngle()) - 90 - angle / 2;
          extentAngle = angle;
          start = p;
          this.turretWidth = turretWidth;

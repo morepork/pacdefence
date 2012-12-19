@@ -27,11 +27,12 @@ import java.util.List;
 
 import logic.Constants;
 import logic.Helper;
-import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Vector2D;
+import creeps.Creep;
 
 
 public class PoisonTower extends AbstractTower {
@@ -68,9 +69,9 @@ public class PoisonTower extends AbstractTower {
    }
 
    @Override
-   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new PoisonBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
+      return new PoisonBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds);
    }
 
    @Override
@@ -84,9 +85,9 @@ public class PoisonTower extends AbstractTower {
       private double moneyEarnt = 0;
       private int poisonTicksLeft;
       
-      public PoisonBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
+      public PoisonBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
             double speed, double damage, Point p, List<Shape> pathBounds) {
-         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
+         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
          poisonTicksLeft = (int)poisonTicks;
       }
       

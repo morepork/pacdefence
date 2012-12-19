@@ -30,11 +30,12 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.List;
 
-import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Vector2D;
+import creeps.Creep;
 
 
 public class LaserTower extends AbstractTower {
@@ -66,13 +67,13 @@ public class LaserTower extends AbstractTower {
    }
 
    @Override
-   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
-      double divisor = Math.sqrt(dx * dx + dy * dy);
-      Point2D firstPoint = new Point2D.Double(p.getX() + turretWidth * dx / divisor,
-            p.getY() + turretWidth * dy / divisor);
-      Point2D lastPoint = new Point2D.Double(p.getX() + range * dx / divisor,
-            p.getY() + range * dy / divisor);
+      double divisor = dir.getLength();
+      Point2D firstPoint = new Point2D.Double(p.getX() + turretWidth * dir.getX() / divisor,
+            p.getY() + turretWidth * dir.getY() / divisor);
+      Point2D lastPoint = new Point2D.Double(p.getX() + range * dir.getX() / divisor,
+            p.getY() + range * dir.getY() / divisor);
       return new Laser(pathBounds, this, firstPoint, lastPoint, speed, damage, range - turretWidth,
             beamLength);
    }

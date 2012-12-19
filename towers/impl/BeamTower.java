@@ -93,10 +93,10 @@ public class BeamTower extends AbstractTower {
    }
 
    @Override
-   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
-      double angle = Vector2D.angle(dx, dy);
-      return new Beam(this, p, angle, range, speed, damage, pathBounds, c, (int)beamLastTicks);
+      return new Beam(this, p, dir.getAngle(), range, speed, damage, pathBounds, c,
+            (int)beamLastTicks);
    }
    
    @Override

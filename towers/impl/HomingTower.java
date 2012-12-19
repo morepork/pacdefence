@@ -59,9 +59,9 @@ public class HomingTower extends AbstractTower {
    }
 
    @Override
-   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new HomingBullet(this, dx, dy, turretWidth, range, speed, damage, p, pathBounds, c,
+      return new HomingBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds, c,
             maxRedirectAngle);
    }
 
@@ -76,10 +76,10 @@ public class HomingTower extends AbstractTower {
       // This is in radians for convenience
       private final double maxRedirectAngle;
       
-      private HomingBullet(Tower shotBy, double dx, double dy, int turretWidth, int range,
+      private HomingBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
             double speed, double damage, Point p, List<Shape> pathBounds, Creep c,
             double maxRedirectAngle) {
-         super(shotBy, dx, dy, turretWidth, range, speed, damage, p, pathBounds);
+         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
          target = c;
          this.maxRedirectAngle = Math.toRadians(maxRedirectAngle);
       }
@@ -135,7 +135,7 @@ public class HomingTower extends AbstractTower {
             } else {
                angleToChangeTo = currentAngle + (deltaAngle > 0 ? 1 : -1) * maxRedirectAngle;
             }
-            setDirections(Math.sin(angleToChangeTo), Math.cos(angleToChangeTo));
+            setDirection(new Vector2D(Math.sin(angleToChangeTo), Math.cos(angleToChangeTo)));
          }
       }
       

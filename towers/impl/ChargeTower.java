@@ -25,10 +25,11 @@ import java.util.List;
 
 import logic.Constants;
 import logic.Helper;
-import creeps.Creep;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
+import util.Vector2D;
+import creeps.Creep;
 
 
 public class ChargeTower extends AbstractTower {
@@ -71,9 +72,9 @@ public class ChargeTower extends AbstractTower {
    }
 
    @Override
-   protected Bullet makeBullet(double dx, double dy, int turretWidth, int range, double speed,
+   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new BasicBullet(this, dx, dy, turretWidth, range, speed, getNextDamage(), p, pathBounds);
+      return new BasicBullet(this, dir, turretWidth, range, speed, getNextDamage(), p, pathBounds);
    }
 
    @Override
