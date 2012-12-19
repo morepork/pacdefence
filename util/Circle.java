@@ -201,8 +201,8 @@ public class Circle implements Shape {
       if(distance < arcRadius + radius && distance > arcRadius - radius) {
          // The distance from the centre is less than the radius of the arc
          // plus the radius of the circle
-         double angleBetween = Vector2D.angle(arcCentre, new Point2D.Double(x, y));
-         double angleToStart = Vector2D.angle(arcCentre, a.getStartPoint());
+         double angleBetween = Vector2D.angle(new Point2D.Double(x, y), arcCentre);
+         double angleToStart = Vector2D.angle(a.getStartPoint(), arcCentre);
          double extentAngle = Math.toRadians(a.getAngleExtent());
          if(extentAngle > 0 ?
                angleBetween > angleToStart && angleBetween < angleToStart + extentAngle :

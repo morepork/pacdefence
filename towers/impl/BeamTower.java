@@ -183,7 +183,7 @@ public class BeamTower extends AbstractTower {
          // A point just ahead of where the creep is now
          Point2D nextPos = new Point2D.Double(pos.getX() + Math.sin(c.getCurrentAngle()),
                pos.getY() - Math.cos(c.getCurrentAngle()));
-         return (Vector2D.angle(nextPos, centre) > Vector2D.angle(pos, centre)) ? -1 : 1;
+         return (Vector2D.angle(centre, nextPos) > Vector2D.angle(centre, pos)) ? -1 : 1;
       }
       
       private void hitCreeps(List<Creep> creeps) {

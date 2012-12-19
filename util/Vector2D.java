@@ -70,7 +70,7 @@ public class Vector2D {
    }
    
    public static double angle(Point2D p1, Point2D p2) {
-      return Vector2D.angle(p1.getX() - p2.getX(), p1.getY() - p2.getY());
+      return Vector2D.angle(p2.getX() - p1.getX(), p2.getY() - p1.getY());
    }
    
    public double getAngle() {
