@@ -76,5 +76,9 @@ public class Vector2D {
    public double getAngle() {
       return Vector2D.angle(x, y);
    }
+   
+   public Point2D addToPoint(Point2D point) {
+      return new Point2D.Double(point.getX() + x, point.getY() + y);
+   }
 
 }

@@ -88,7 +88,7 @@ public class BasicBullet extends AbstractBullet {
       this.damage = damage;
       setDirection(dir_);
       Vector2D turretVector = new Vector2D(dir, turretWidthPlusRadius);
-      position = new Point2D.Double(p.getX() + turretVector.getX(), p.getY() + turretVector.getY());
+      position = turretVector.addToPoint(p);
       lastPosition = new Point2D.Double(position.getX(), position.getY());
       this.pathBounds = pathBounds;
    }
