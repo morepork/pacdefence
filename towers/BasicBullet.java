@@ -153,42 +153,6 @@ public class BasicBullet extends AbstractBullet {
       return -1;
    }
    
-   private boolean intersectsPath(Line2D line) {
-      // Do this as line.getBounds2D() is not guaranteed to be the smallest bounding rectangle
-      double x1 = line.getX1(), x2 = line.getX2(), y1 = line.getY1(), y2 = line.getY2();
-      double width, height;
-      if(x1 < x2) {
-         width = x2 - x1;
-      } else {
-         width = x1 - x2;
-         x1 = x2;
-      }
-      if(y1 < y2) {
-         height = y2 - y1;
-      } else {
-         height = y1 - y2;
-         y1 = y2;
-      }
-      // Make sure these are non-zero as otherwise a vertical/horizontal line will have a box with
-      // no area, so won't count as intersecting the shape
-      if(width == 0) {
-         width = 0.1;
-      }
-      if(height == 0) {
-         height = 0.1;
-      }
-      assert width > 0 && height > 0 && x1 <= x2 && y1 <= y2 : "The above logic isn't working.";
-      for(Shape s : pathBounds) {
-         // The rectangle is actually larger than the line, so even though the rectangle intersects
-         // pathBounds, the line may not, but there is no Shape.intersect(Line2D) method, and it is
-         // good enough
-         if(s.intersects(x1, y1, width, height)) {
-            return true;
-         }
-      }
-      return false;
-   }
-   
    /**
     * To be overriden by subclasses whose bullets do something special on a hit
     * 
