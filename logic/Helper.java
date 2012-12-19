@@ -22,7 +22,6 @@ package logic;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Shape;
-import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
@@ -90,12 +89,6 @@ public class Helper {
       return new ArrayList<T>(Arrays.asList(ts));
    }
    
-   public static int increaseByAtLeastOne(int currentValue, double factor) {
-      int plus = currentValue + 1;
-      int times = (int)(currentValue * factor);
-      return plus > times ? plus : times;
-   }
-   
    public static void removeAll(List<?> list, List<Integer> positions) {
       // Assumes the list of Integers is sorted smallest to largest
       
@@ -125,74 +118,6 @@ public class Helper {
          }
       }
       return new DecimalFormat(pattern.toString());
-   }
-   
-   public static List<Point2D> getPointsOnArc(Arc2D a) {
-      return getPointsOnArc(a, null);
-   }
-   
-   public static List<Point2D> getPointsOnArc(Arc2D a, List<Shape> containedIn) {
-      double radius = a.getStartPoint().distance(a.getCenterX(), a.getCenterY());
-      /*double circumference = 2 * Math.PI * radius;
-      double numPoints = circumference * Math.abs(a.getAngleExtent()) / 360;
-      double deltaAngle = Math.toRadians(a.getAngleExtent() / numPoints);*/
-      // Left the above code in as it's easier to understand, though the two
-      // lines below should be faster and do the same thing.
-      double numPoints = 2 * Math.PI * radius * Math.abs(a.getAngleExtent()) / 360;
-      double deltaAngle = 1 / radius;
-      double angle = Math.toRadians(a.getAngleStart() + 90);
-      List<Point2D> points = new ArrayList<Point2D>((int) numPoints + 3);
-      Point2D p;
-      double x = a.getCenterX();
-      double y = a.getCenterY();
-      // Can premultiply by the radius which saves having to do it at each iteration
-      double sinAngle = Math.sin(angle) * radius;
-      double cosAngle = Math.cos(angle) * radius;
-      double sinDeltaAngle = Math.sin(deltaAngle);
-      double cosDeltaAngle = Math.cos(deltaAngle);
-      for(int i = 0; i < numPoints + 1; i++) {
-         //angle += deltaAngle;
-         //p = new Point2D.Double(x + radius * Math.sin(angle), y + radius * Math.cos(angle));
-         // These next few lines do the same as the above, just using a trig identity
-         // for better performance as there are no more trig calls
-         p = new Point2D.Double(x + sinAngle, y + cosAngle);
-         if(containedIn == null || containedInAShape(p, containedIn)) {
-            points.add(p);
-         }
-         // Having these after means the first point is the first point on the arc
-         double newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
-         cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
-         sinAngle = newSinAngle;
-      }
-      p = a.getEndPoint();
-      if(containedIn == null || containedInAShape(p, containedIn)) {
-         points.add(p);
-      }
-      return points;
-   }
-   
-   public static List<Point2D> getPointsOnArc(double x, double y, double radius,
-         double numPoints, double sinAngle, double cosAngle, List<Shape> containedIn) {
-      // Copied from the one above with a lot of optimisations for wave and beam towers
-      // as the arcs are the same except with different radii. Gave an ~20% improvement
-      // in a simple test for beam tower.
-      double deltaAngle = 1 / radius;
-      double sinDeltaAngle = Math.sin(deltaAngle);
-      double cosDeltaAngle = Math.cos(deltaAngle);
-      sinAngle *= radius;
-      cosAngle *= radius;
-      List<Point2D> points = new ArrayList<Point2D>((int)numPoints + 3);
-      double newSinAngle;
-      for(int i = 0; i <= numPoints + 1; i++) {
-         Point2D p = new Point2D.Double(x + sinAngle, y + cosAngle);
-         if(containedInAShape(p, containedIn)) {
-            points.add(p);
-         }
-         newSinAngle = sinAngle * cosDeltaAngle + cosAngle * sinDeltaAngle;
-         cosAngle = cosAngle * cosDeltaAngle - sinAngle * sinDeltaAngle;
-         sinAngle = newSinAngle;
-      }
-      return points;
    }
    
    public static List<Line2D> getPolygonOutline(Polygon p) {
