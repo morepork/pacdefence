@@ -27,12 +27,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import logic.Circle;
-import logic.Helper;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Circle;
+import util.Helper;
 import util.Vector2D;
 import creeps.Creep;
 

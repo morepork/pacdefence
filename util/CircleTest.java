@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
-package logic;
+package util;
 
 import java.awt.Color;
 import java.awt.Dimension;

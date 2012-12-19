@@ -29,12 +29,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import logic.Circle;
-import logic.Helper;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Circle;
+import util.Helper;
 import util.Vector2D;
 import creeps.Creep;
 import creeps.Creep.DamageReport;

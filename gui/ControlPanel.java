@@ -60,7 +60,6 @@ import javax.swing.event.ChangeListener;
 
 import logic.Constants;
 import logic.Game.ControlEventProcessor;
-import logic.Helper;
 import creeps.Creep;
 import towers.Ghost;
 import towers.Tower;
@@ -82,6 +81,7 @@ import towers.impl.SlowLengthTower;
 import towers.impl.WaveTower;
 import towers.impl.WeakenTower;
 import towers.impl.ZapperTower;
+import util.Helper;
 
 
 @SuppressWarnings("serial")

@@ -46,10 +46,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import logic.Circle;
 import logic.Constants;
 import logic.Formulae;
-import logic.Helper;
+import util.Circle;
+import util.Helper;
 import util.Vector2D;
 import creeps.Creep;
 import creeps.Creep.DistanceComparator;

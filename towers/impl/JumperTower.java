@@ -26,11 +26,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import logic.Helper;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Helper;
 import util.Vector2D;
 import creeps.Creep;
 import creeps.Creep.DistanceComparator;

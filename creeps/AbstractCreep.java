@@ -42,11 +42,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import logic.Circle;
 import logic.Formulae;
-import logic.Helper;
 import towers.DamageNotifier;
 import towers.Tower;
+import util.Circle;
+import util.Helper;
 import util.Vector2D;
 
 public abstract class AbstractCreep implements Creep, Comparable<Creep> {

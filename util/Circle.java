@@ -17,7 +17,7 @@
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
-package logic;
+package util;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -34,7 +34,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import util.Vector2D;
 
 
 public class Circle implements Shape {
