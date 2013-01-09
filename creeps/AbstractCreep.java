@@ -124,7 +124,7 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
       setBounds();
       // Use two clones here so that currentImages can be edited without
       // affecting originalImages
-      originalImages = Collections.unmodifiableList(new ArrayList<BufferedImage>(images));
+      originalImages = Collections.unmodifiableList(images);
       currentImages = new ArrayList<BufferedImage>(images);
       speed = calculateSpeed(hp);
       levelHP = hp;

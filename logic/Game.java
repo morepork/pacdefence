@@ -44,8 +44,6 @@ import java.util.prefs.BackingStoreException;
 
 import javax.swing.JPanel;
 
-import creeps.Pacman;
-import creeps.Creep;
 import towers.AbstractTower;
 import towers.Bullet;
 import towers.Ghost;
@@ -53,6 +51,8 @@ import towers.Tower;
 import towers.Tower.Attribute;
 import towers.impl.AidTower;
 import util.Helper;
+import creeps.Creep;
+import creeps.Pacman;
 
 
 public class Game {
@@ -778,7 +778,7 @@ public class Game {
          if(creepsToAdd > 0) {
             if(addCreepIn < 1) { // If the time has got to zero, add a creep
                creeps.add(new Pacman(level, levelHP,
-                     new ArrayList<Point>(gameMap.getPathPoints())));
+                     Collections.unmodifiableList(gameMap.getPathPoints())));
                // Adds a creep in somewhere between 0 and twice the designated time
                addCreepIn = (int)(Math.random() * (ticksBetweenAddCreep * 2 + 1));
                creepsToAdd--;
