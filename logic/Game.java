@@ -731,7 +731,7 @@ public class Game {
       
       private void calculateTimesTaken() {
          processTime        = insertAndReturnAverage(processTimes);
-         processCreepsTime = insertAndReturnAverage(processCreepsTimes);
+         processCreepsTime  = insertAndReturnAverage(processCreepsTimes);
          processBulletsTime = insertAndReturnAverage(processBulletsTimes);
          processTowersTime  = insertAndReturnAverage(processTowersTimes);
          drawTime           = insertAndReturnAverage(drawTimes);
