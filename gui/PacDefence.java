@@ -70,6 +70,7 @@ public class PacDefence {
          public void actionPerformed(ActionEvent e) {
             try {
                selectionScreens = selectionScreensFuture.get();
+               selectionScreensFuture = null; // Let the memory be reclaimed
             } catch(InterruptedException ex) {
                // Should never happen
                throw new RuntimeException(ex);
