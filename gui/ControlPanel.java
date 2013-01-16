@@ -60,7 +60,7 @@ import javax.swing.event.ChangeListener;
 
 import logic.Constants;
 import logic.Game.ControlEventProcessor;
-import creeps.Creep;
+import towers.ExperienceReport;
 import towers.Ghost;
 import towers.Tower;
 import towers.Tower.Attribute;
@@ -82,6 +82,7 @@ import towers.impl.WaveTower;
 import towers.impl.WeakenTower;
 import towers.impl.ZapperTower;
 import util.Helper;
+import creeps.Creep;
 
 
 @SuppressWarnings("serial")
@@ -184,10 +185,10 @@ public class ControlPanel extends JPanel {
          blankCurrentTowerInfo();
       } else {
          towerNameLabel.setText(t.getName());
-         towerLevelLabel.setText("Level: " + t.getExperienceLevel());
-         killsLabel.setText("Kills: " + t.getKills() + " (" + t.getKillsForUpgrade() + ")");
-         damageDealtLabel.setText("Dmg: " + t.getDamageDealt() + " (" +
-               t.getDamageDealtForUpgrade() + ")");
+         ExperienceReport report = t.getExperienceReport();
+         towerLevelLabel.setText("Level: " + report.level);
+         killsLabel.setText("Kills: " + report.kills + " (" + report.killsForUpgrade + ")");
+         damageDealtLabel.setText("Dmg: " + report.damage + " (" + report.damageForUpgrade + ")");
          sellButton.setEnabled(true);
          Comparator<Creep> c = t.getCreepComparator();
          if(c != null) {

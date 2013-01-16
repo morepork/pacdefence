@@ -110,11 +110,7 @@ public interface Tower extends Drawable, Cloneable {
    public void increaseDamageDealt(double damage);
    public void increaseKills(int kills);
    public void addDamageNotifier(DamageNotifier d);
-   public long getDamageDealt();
-   public long getDamageDealtForUpgrade();
-   public int getKills();
-   public int getKillsForUpgrade();
-   public int getExperienceLevel();
+   public ExperienceReport getExperienceReport();
    public BufferedImage getButtonImage();
    public void setCreepComparator(Comparator<Creep> c);
    public Comparator<Creep> getCreepComparator();

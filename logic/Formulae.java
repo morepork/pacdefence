@@ -94,7 +94,7 @@ public class Formulae {
             value += upgradeCost(i);
          }
       }
-      for(int i = 1; i < t.getExperienceLevel(); i++) {
+      for(int i = 1; i < t.getExperienceReport().level; i++) {
          value *= 1.1;
       }
       return (long)(value * 0.9);

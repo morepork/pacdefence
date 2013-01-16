@@ -440,34 +440,16 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public long getDamageDealt() {
-      return damageDealt;
-   }
-   
-   @Override
-   public long getDamageDealtForUpgrade() {
-      return nextUpgradeDamage;
-   }
-
-   @Override
-   public int getKills() {
-      return kills;
-   }
-   
-   @Override
-   public int getKillsForUpgrade() {
-      return nextUpgradeKills;
+   public ExperienceReport getExperienceReport() {
+      // -1 so it starts at level 1 (rather than level 2, which is odd)
+      int level = killsLevel + damageDealtLevel - 1;
+      return new ExperienceReport(level, kills, nextUpgradeKills, (long) damageDealt,
+            (long) nextUpgradeDamage);
    }
 
    @Override
    public BufferedImage getButtonImage() {
       return buttonImage;
-   }
-   
-   @Override
-   public int getExperienceLevel() {
-      // -1 so it starts at level 1 (rather than level 2, which is odd)
-      return killsLevel + damageDealtLevel - 1;
    }
    
    @Override

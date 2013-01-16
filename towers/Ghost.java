@@ -189,32 +189,9 @@ public class Ghost implements Tower {
    }
 
    @Override
-   public long getDamageDealt() {
-      // Ghosts don't deal any 'damage'
-      return 0;
-   }
-
-   @Override
-   public long getDamageDealtForUpgrade() {
-      // Ghosts don't get upgraded
-      return 0;
-   }
-
-   @Override
-   public int getExperienceLevel() {
-      // Ghosts don't get upgraded
-      return 0;
-   }
-
-   @Override
-   public int getKills() {
-      return hits - hitsLeft;
-   }
-
-   @Override
-   public int getKillsForUpgrade() {
-      // Ghosts don't get upgraded
-      return 0;
+   public ExperienceReport getExperienceReport() {
+      // Ghosts don't deal any 'damage', or get upgraded
+      return new ExperienceReport(0, hits - hitsLeft, 0, 0, 0);
    }
 
    @Override
