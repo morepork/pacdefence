@@ -114,7 +114,7 @@ public class PoisonTower extends AbstractTower {
                return moneyEarnt;
             }
             poisonTicksLeft--;
-            // Don't count each poisoning as a new hit
+            // Don't count each poisoning as a new hit for the multi tower bonus
             moneyEarnt += processDamageReport(poisonedCreep.hit(damagePerTick, null));
             return -1;
          }
