@@ -554,14 +554,14 @@ public class Game {
    private void signalGameOver() {
       clock.gameOver = true;
       
-      boolean isNewHighScore = false;
+      int highScorePosition = 0;
       try {
-         isNewHighScore = HighScores.addScore(gameMap.getDescription(), level);
+         highScorePosition = HighScores.addScore(gameMap.getDescription(), level);
       } catch(BackingStoreException e) {
          // Print the error and continue if this happens
          e.printStackTrace();
       }
-      gameMapPanel.signalGameOver(isNewHighScore);
+      gameMapPanel.signalGameOver(highScorePosition);
    }
    
    private class Clock extends Thread {

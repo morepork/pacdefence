@@ -93,11 +93,11 @@ public class HighScores {
    /**
     * Add the score for this map to the high scores list, if it's high enough.
     * 
-    * Returns true if the score was added, false if it wasn't good enough to be added.
+    * Returns the place of the high score, or zero if it wasn't high enough.
     */
-   public static boolean addScore(String mapName, int levelReached) throws BackingStoreException {
+   public static int addScore(String mapName, int levelReached) throws BackingStoreException {
       if(Applet.isApplet()) {
-         return false; // If an applet, return false so nothing special happens
+         return 0; // If an applet, return 0 so nothing special happens
       }
       
       List<Integer> currentScores = getHighScores(mapName);
@@ -110,7 +110,7 @@ public class HighScores {
       }
       
       if(numHigher >= NUM_HIGH_SCORES) {
-         return false; // If the table is full, and all the scores are higher than this, do nothing
+         return 0; // If the table is full, and all the scores are higher than this, do nothing
       }
       
       currentScores.add(numHigher, levelReached); // Add this score in the correct place
@@ -122,7 +122,7 @@ public class HighScores {
          mapNode.putInt(String.valueOf(i + 1), currentScores.get(i));
       }
       
-      return true;
+      return numHigher + 1;
    }
 
 }

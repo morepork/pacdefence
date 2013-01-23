@@ -131,5 +131,22 @@ public class Helper {
       }
       return outline;
    }
+   
+   public static String getNumberSuffix(int n) {
+      if (n > 9 && n < 20) { // The teens (eleventh, ...) all end in th
+         return "th";
+      }
+      // Otherwise it's based on the last digit
+      switch(n % 10) {
+      case 1:
+         return "st";
+      case 2:
+         return "nd";
+      case 3:
+         return "rd";
+      default:
+         return "th";
+      }
+   }
 
 }

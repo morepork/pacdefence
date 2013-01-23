@@ -46,6 +46,7 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import logic.Constants;
+import util.Helper;
 
 
 @SuppressWarnings("serial")
@@ -141,9 +142,9 @@ public class GameMapPanel extends JPanel {
       repaint();
    }
    
-   public void signalGameOver(boolean wasHighScore) {
+   public void signalGameOver(int highScorePosition) {
       if(gameOver == null) {
-         gameOver = new GameOver(wasHighScore);
+         gameOver = new GameOver(highScorePosition);
       }
    }
    
@@ -282,13 +283,14 @@ public class GameMapPanel extends JPanel {
    private class GameOver {
       
       private final Composite comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f);
+      private final Font font = new Font(Font.SANS_SERIF, Font.BOLD, 30);
       private final int deltaY;
       private final BufferedImage img;
       private int currentX, currentY, iterations, numTimes;
-      private boolean drawNewHighScore;
+      private int highScorePosition;
       
-      private GameOver(boolean wasHighScore) {
-         drawNewHighScore = wasHighScore;
+      private GameOver(int highScorePosition) {
+         this.highScorePosition = highScorePosition;
          deltaY = 1;
          img = ImageHelper.loadImage((int)(getWidth()*0.75), (int)(getHeight()*0.2), "other",
                "GameOver.png");
@@ -307,20 +309,35 @@ public class GameMapPanel extends JPanel {
          
          g = (Graphics2D) g.create();
          
-         if(drawNewHighScore) {
-            drawNewHighScore = false;
-            g.setColor(Color.ORANGE);
-            g.setFont(g.getFont().deriveFont(Font.BOLD).deriveFont(30f));
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                  RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            g.drawString("New High Score", 50, 50);
-         }
+         drawHighScore(g, highScorePosition);
          
          // Makes it so what is drawn is partly transparent
          g.setComposite(comp);
          g.drawImage(img, currentX, currentY, null);
          
          g.dispose();
+      }
+      
+      private void drawHighScore(Graphics2D g, int highScorePosition) {
+         if (highScorePosition <= 0) {
+            return;
+         }
+         
+         String text;
+         if(highScorePosition == 1) {
+            text = "Top High Score!";
+         }
+         else {
+            text = highScorePosition + Helper.getNumberSuffix(highScorePosition) + " Highest Score";
+         }
+         
+         g.setColor(Color.ORANGE);
+         g.setFont(font);
+         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+               RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+         g.drawString(text, 50, 50);
+         
+         highScorePosition = 0; // Only draw this once
       }
    }
 
