@@ -859,14 +859,10 @@ public class Game {
       }
       
       private void processTickFutures(List<Future<List<Integer>>> futures) {
-         List<Integer> bulletsToRemove = null;
+         List<Integer> bulletsToRemove = new ArrayList<>();
          for(Future<List<Integer>> f : futures) {
             try {
-               if(bulletsToRemove == null) {
-                  bulletsToRemove = f.get();
-               } else {
-                  bulletsToRemove.addAll(f.get());
-               }
+               bulletsToRemove.addAll(f.get());
             } catch(InterruptedException e) {
                // Should never happen
                throw new RuntimeException(e);
