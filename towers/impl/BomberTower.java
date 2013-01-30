@@ -21,7 +21,7 @@ package towers.impl;
 
 
 import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
@@ -125,7 +125,7 @@ public class BomberTower extends AbstractTower {
       }
 
       @Override
-      public void draw(Graphics g) {
+      public void draw(Graphics2D g) {
          if(exploding) {
             g.setColor(blastColour);
             blast.fill(g);

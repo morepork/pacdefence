@@ -21,7 +21,6 @@ package towers.impl;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
@@ -93,7 +92,7 @@ public class ZapperTower extends AbstractTower {
       }
       
       @Override
-      public void draw(Graphics g) {
+      public void draw(Graphics2D g) {
          // The field zap can be set to null by the tick method, messing
          // up the actual drawing, so take a copy of the pointer
          Line2D zap = this.zap;

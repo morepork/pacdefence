@@ -24,7 +24,6 @@ import images.ImageHelper;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
@@ -136,7 +135,7 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
    }
 
    @Override
-   public void draw(Graphics g) {
+   public void draw(Graphics2D g) {
       // Save these as the processing might change them in another thread, causing strange errors
       int currentHalfWidth = halfWidth;
       int currentWidth = width;
@@ -530,10 +529,10 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
       return mult;
    }
    
-   private void drawCurrentEffects(Graphics g, int radius) {
-      Graphics2D g2D = (Graphics2D) g.create();
+   private void drawCurrentEffects(Graphics2D g, int radius) {
+      g = (Graphics2D) g.create();
       
-      g2D.setComposite(effectsComposite);
+      g.setComposite(effectsComposite);
       
       // If the creep is dying, only have the circle as big as its current size, which is why a new
       // circle is created, rather than using bounds
@@ -541,11 +540,11 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
       Circle fillArea = new Circle(centre, radius + 1);
       
       for(CreepEffect se : currentEffects) {
-         g2D.setColor(effectsColours.get(se));
-         g2D.fill(fillArea);
+         g.setColor(effectsColours.get(se));
+         g.fill(fillArea);
       }
       
-      g2D.dispose();
+      g.dispose();
    }
    
    private static Map<CreepEffect, Color> createEffectsColours() {

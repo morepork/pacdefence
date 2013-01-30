@@ -21,7 +21,7 @@ package towers;
 
 import images.ImageHelper;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
@@ -101,7 +101,7 @@ public class BasicBullet extends AbstractBullet {
    }
 
    @Override
-   public void draw(Graphics g) {
+   public void draw(Graphics2D g) {
       if(draw && !checkIfBulletIsOffScreen()) {
          g.drawImage(image, (int) position.getX() - radius, (int) position.getY() - radius, null);
       }

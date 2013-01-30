@@ -190,7 +190,7 @@ public class GameMapPanel extends JPanel {
       g.dispose();
    }
    
-   private void drawDebug(Graphics g, DebugStats debugStats) {
+   private void drawDebug(Graphics2D g, DebugStats debugStats) {
       if(debugTimes) {
          g.setColor(Color.WHITE);
          g.drawString("Process time: " + debugStats.processTime, 10, 15);
@@ -210,7 +210,7 @@ public class GameMapPanel extends JPanel {
    /**
     * Test method that draws in each point on the path and links them up.
     */
-   private void drawPath(Graphics g) {
+   private void drawPath(Graphics2D g) {
       g.setColor(Color.BLACK);
       Point lastPoint = null;
       for(Point p : gameMap.getPathPoints()) {
@@ -229,7 +229,7 @@ public class GameMapPanel extends JPanel {
    /**
     * Test method that draws an outline of the path.
     */
-   private void drawPathOutline(Graphics g) {
+   private void drawPathOutline(Graphics2D g) {
       for(Polygon p : gameMap.getPath()) {
          g.setColor(Color.RED);
          g.drawPolygon(p);
@@ -238,15 +238,14 @@ public class GameMapPanel extends JPanel {
       }
    }
    
-   private void drawPathBounds(Graphics g) {
-      Graphics2D g2D = (Graphics2D) g;
-      g2D.setColor(new Color(0, 0, 255, 30));
+   private void drawPathBounds(Graphics2D g) {
+      g.setColor(new Color(0, 0, 255, 30));
       for(Shape s : gameMap.getPathBounds()) {
-         g2D.fill(s);
+         g.fill(s);
       }
-      g2D.setColor(new Color(0, 0, 255, 100));
+      g.setColor(new Color(0, 0, 255, 100));
       for(Shape s : gameMap.getPathBounds()) {
-         g2D.draw(s);
+         g.draw(s);
       }
    }
    
@@ -379,19 +378,18 @@ public class GameMapPanel extends JPanel {
          image = new BufferedImage(width - offset * 2, height, BufferedImage.TYPE_INT_ARGB_PRE);
       }
       
-      public void draw(Graphics g) {
+      public void draw(Graphics2D g) {
          if(!isOnDisplay) {
             return;
          }
          adjustImagePosition();
          // Only draw if it's still on display
          if(isOnDisplay) {
-            Graphics2D g2D = (Graphics2D) g;
             // Use a composite to make it translucent, save the previous composite to restore later
-            Composite c = g2D.getComposite();
-            g2D.setComposite(composite);
-            g2D.drawImage(image, offset, currentPosition, null);
-            g2D.setComposite(c);
+            Composite c = g.getComposite();
+            g.setComposite(composite);
+            g.drawImage(image, offset, currentPosition, null);
+            g.setComposite(c);
          }
       }
       

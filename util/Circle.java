@@ -19,7 +19,6 @@
 
 package util;
 
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
@@ -58,12 +57,12 @@ public class Circle implements Shape {
       this(centre.getX(), centre.getY(), radius);
    }
    
-   public void draw(Graphics g) {
-      ((Graphics2D) g).draw(bounds);
+   public void draw(Graphics2D g) {
+      g.draw(bounds);
    }
    
-   public void fill(Graphics g) {
-      ((Graphics2D) g).fill(bounds);
+   public void fill(Graphics2D g) {
+      g.fill(bounds);
    }
 
    @Override

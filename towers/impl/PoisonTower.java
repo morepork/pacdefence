@@ -19,7 +19,7 @@
 
 package towers.impl;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
@@ -92,7 +92,7 @@ public class PoisonTower extends AbstractTower {
       }
       
       @Override
-      public void draw(Graphics g) {
+      public void draw(Graphics2D g) {
          if(poisonedCreep == null) {
             // Creep should only be drawn if it's yet to hit a creep
             super.draw(g);

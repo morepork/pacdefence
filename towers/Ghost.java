@@ -26,7 +26,6 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
@@ -75,7 +74,7 @@ public class Ghost implements Tower {
                // Gives you the money for killing this creep
                toReturn.add(new AbstractBullet() {
                   @Override
-                  public void draw(Graphics g) {
+                  public void draw(Graphics2D g) {
                      // Does nothing as it isn't drawn
                   }
    
@@ -94,7 +93,7 @@ public class Ghost implements Tower {
    }
 
    @Override
-   public void draw(Graphics g) {
+   public void draw(Graphics2D g) {
       Graphics2D g2D = (Graphics2D) g;
       g2D.drawImage(image, centre.x - halfWidth, centre.y - halfWidth, null);
       Font f = g2D.getFont();
@@ -111,17 +110,16 @@ public class Ghost implements Tower {
    }
 
    @Override
-   public void drawShadowAt(Graphics g, Point p, boolean validPlacement) {
-      Graphics2D g2D = (Graphics2D) g;
+   public void drawShadowAt(Graphics2D g, Point p, boolean validPlacement) {
       // Save the current composite to reset back to later
-      Composite c = g2D.getComposite();
+      Composite c = g.getComposite();
       // Makes it so what is drawn is partly transparent
-      g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+      g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
             AbstractTower.shadowAmount));
-      g2D.drawImage(image, (int) p.getX() - halfWidth, (int) p.getY() - halfWidth, null);
-      g2D.setComposite(c);
+      g.drawImage(image, (int) p.getX() - halfWidth, (int) p.getY() - halfWidth, null);
+      g.setComposite(c);
       if(!validPlacement) {
-         AbstractTower.drawX(g2D, p, halfWidth);
+         AbstractTower.drawX(g, p, halfWidth);
       }
    }
    

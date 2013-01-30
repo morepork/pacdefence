@@ -21,7 +21,7 @@ package towers;
 
 import gui.Drawable;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.util.List;
 
 import creeps.Creep;
@@ -40,6 +40,6 @@ public interface Bullet extends Drawable {
     */
    public double tick(List<Creep> creeps);
    
-   public void draw(Graphics g);
+   public void draw(Graphics2D g);
 
 }

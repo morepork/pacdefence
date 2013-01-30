@@ -26,7 +26,7 @@ import gui.GameMapPanel.DebugStats;
 import gui.PacDefence.ReturnToTitleCallback;
 import gui.maps.MapParser.GameMap;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -710,7 +710,7 @@ public class Game {
          // Displays the tower on the cursor that could be built
          drawables.add(new Drawable() {
             @Override
-            public void draw(Graphics g) {
+            public void draw(Graphics2D g) {
                if(buildingTower != null && lastMousePosition != null) {
                   buildingTower.drawShadowAt(g, lastMousePosition,
                         isValidTowerPos(lastMousePosition));

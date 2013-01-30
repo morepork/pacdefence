@@ -21,7 +21,7 @@ package towers;
 
 import gui.Drawable;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Shape;
@@ -76,8 +76,9 @@ public interface Tower extends Drawable, Cloneable {
       
    };
    
-   public void draw(Graphics g);
-   public void drawShadowAt(Graphics g, Point p, boolean validPlacement);
+   @Override
+   public void draw(Graphics2D g);
+   public void drawShadowAt(Graphics2D g, Point p, boolean validPlacement);
    /**
     * 
     * @param creeps

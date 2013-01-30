@@ -21,7 +21,7 @@ package creeps;
 
 import gui.Drawable;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Arc2D;
@@ -43,7 +43,7 @@ import towers.Tower;
 public interface Creep extends Comparable<Creep>, Drawable {
    
    @Override
-   public void draw(Graphics g);
+   public void draw(Graphics2D g);
    /**
     * 
     * @return true if this Creep has finished or has been killed, false otherwise

@@ -21,7 +21,6 @@ package towers.impl;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
@@ -110,7 +109,7 @@ public class WaveTower extends AbstractTower {
       }
       
       @Override
-      public void draw(Graphics g) {
+      public void draw(Graphics2D g) {
          Graphics2D g2D = (Graphics2D) g;
          g2D.setColor(Color.PINK);
          Stroke s = g2D.getStroke();
