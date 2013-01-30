@@ -246,9 +246,7 @@ public abstract class AbstractTower implements Tower {
       Shape s = t.getBounds();
       if (s instanceof Circle) {
          Circle c = (Circle) s;
-         double distance = Point.distance(centre.getX(), centre.getY(), c.getCentre().getX(),
-               c.getCentre().getY());
-         return distance < bounds.getRadius() + c.getRadius();
+         return centre.distance(c.getCentre()) < bounds.getRadius() + c.getRadius();
       } else {
          return bounds.intersects(s.getBounds2D());
       }
