@@ -24,14 +24,12 @@ import images.ImageHelper;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -217,25 +215,25 @@ public abstract class AbstractTower implements Tower {
    @Override
    public void drawShadowAt(Graphics2D g, Point p, boolean validPlacement) {
       drawRange(g, p);
-      // Save the current composite to reset back to later
-      Composite c = g.getComposite();
+      
       // Makes it so what is drawn is partly transparent
-      g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, shadowAmount));
-      g.drawImage(currentImage, p.x - halfWidth, p.y - halfWidth, width, width, null);
-      g.setComposite(c);
+      Graphics2D gCopy = (Graphics2D) g.create();
+      gCopy.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, shadowAmount));
+      gCopy.drawImage(currentImage, p.x - halfWidth, p.y - halfWidth, width, width, null);
+      gCopy.dispose();
+      
       if(!validPlacement) {
          drawX(g, p, halfWidth);
       }
    }
    
    public static void drawX(Graphics2D g, Point p, int halfWidth) {
-      // Save the stroke to reset back to later
-      Stroke s = g.getStroke();
-      g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-      g.setColor(Color.RED);
-      g.drawLine(p.x - halfWidth, p.y - halfWidth, p.x + halfWidth, p.y + halfWidth);
-      g.drawLine(p.x - halfWidth, p.y + halfWidth, p.x + halfWidth, p.y - halfWidth);
-      g.setStroke(s);
+      Graphics2D gCopy = (Graphics2D) g.create();
+      gCopy.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+      gCopy.setColor(Color.RED);
+      gCopy.drawLine(p.x - halfWidth, p.y - halfWidth, p.x + halfWidth, p.y + halfWidth);
+      gCopy.drawLine(p.x - halfWidth, p.y + halfWidth, p.x + halfWidth, p.y - halfWidth);
+      gCopy.dispose();
    }
    
    @Override

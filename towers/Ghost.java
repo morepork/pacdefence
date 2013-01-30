@@ -23,7 +23,6 @@ import images.ImageHelper;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Composite;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -111,13 +110,13 @@ public class Ghost implements Tower {
 
    @Override
    public void drawShadowAt(Graphics2D g, Point p, boolean validPlacement) {
-      // Save the current composite to reset back to later
-      Composite c = g.getComposite();
       // Makes it so what is drawn is partly transparent
-      g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+      Graphics2D gCopy = (Graphics2D) g.create();
+      gCopy.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
             AbstractTower.shadowAmount));
-      g.drawImage(image, (int) p.getX() - halfWidth, (int) p.getY() - halfWidth, null);
-      g.setComposite(c);
+      gCopy.drawImage(image, (int) p.getX() - halfWidth, (int) p.getY() - halfWidth, null);
+      gCopy.dispose();
+      
       if(!validPlacement) {
          AbstractTower.drawX(g, p, halfWidth);
       }

@@ -385,11 +385,11 @@ public class GameMapPanel extends JPanel {
          adjustImagePosition();
          // Only draw if it's still on display
          if(isOnDisplay) {
-            // Use a composite to make it translucent, save the previous composite to restore later
-            Composite c = g.getComposite();
-            g.setComposite(composite);
-            g.drawImage(image, offset, currentPosition, null);
-            g.setComposite(c);
+            // Use a composite to make it translucent
+            Graphics2D gCopy = (Graphics2D) g.create();
+            gCopy.setComposite(composite);
+            gCopy.drawImage(image, offset, currentPosition, null);
+            gCopy.dispose();
          }
       }
       
