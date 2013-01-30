@@ -114,6 +114,7 @@ public class ImageHelper {
       g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
             RenderingHints.VALUE_INTERPOLATION_BICUBIC);
       g.drawImage(image, 0, 0, width, height, null);
+      g.dispose();
       return temp;
    }
 
@@ -123,7 +124,9 @@ public class ImageHelper {
       AffineTransform at = AffineTransform.getRotateInstance(angle, image.getWidth() / 2,
             image.getHeight() / 2);
       BufferedImageOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
-      temp.createGraphics().drawImage(image, op, 0, 0);
+      Graphics2D g = temp.createGraphics();
+      g.drawImage(image, op, 0, 0);
+      g.dispose();
       return temp;
    }
    

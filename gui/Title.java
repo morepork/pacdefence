@@ -58,6 +58,7 @@ public class Title extends JPanel {
       Graphics2D g = background.createGraphics();
       g.drawImage(ImageHelper.loadImage(width, height, "other", "hoops.png"), 0, 0, null);
       g.drawImage(ImageHelper.loadImage(width, height, "other", "title.png"), 0, 0, null);
+      g.dispose();
       
       add(createTopRow(), BorderLayout.NORTH);
       add(createBottomRow(continueListener), BorderLayout.SOUTH);

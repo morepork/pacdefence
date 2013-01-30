@@ -41,6 +41,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
 import logic.Constants;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -116,6 +117,7 @@ public class MapParser {
          g.drawImage(ImageHelper.loadImage("maps", children.item(i).getFirstChild().getNodeValue()),
                0, 0, null);
       }
+      g.dispose();
       return image;
    }
    

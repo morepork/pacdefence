@@ -90,7 +90,9 @@ public class GameMapPanel extends JPanel {
       buffer = gc.createCompatibleImage(width, height, Transparency.OPAQUE);
 
       // Draws the actual map (maze) onto the background image
-      backgroundImage.createGraphics().drawImage(map.getImage(), 0, 0, width, height, null);
+      Graphics2D g = backgroundImage.createGraphics();
+      g.drawImage(map.getImage(), 0, 0, width, height, null);
+      g.dispose();
       
       this.gameMap = map;
 
@@ -160,7 +162,9 @@ public class GameMapPanel extends JPanel {
          this.debugStatsToDraw = debugStats;
       } else {
          // Game over needs to always draw on the same buffer for its sliding effect
-         gameOver.draw(buffer.createGraphics());
+         Graphics2D g = buffer.createGraphics();
+         gameOver.draw(g);
+         g.dispose();
       }
       repaint();
       return lastPaintTime;
@@ -307,15 +311,11 @@ public class GameMapPanel extends JPanel {
          currentY += deltaY;
          iterations++;
          
-         g = (Graphics2D) g.create();
-         
          drawHighScore(g, highScorePosition);
          
          // Makes it so what is drawn is partly transparent
          g.setComposite(comp);
          g.drawImage(img, currentX, currentY, null);
-         
-         g.dispose();
       }
       
       private void drawHighScore(Graphics2D g, int highScorePosition) {
@@ -445,6 +445,8 @@ public class GameMapPanel extends JPanel {
             heightToDisplay += lineHeight;
             g.drawString(s, sideMargin, heightToDisplay);
          }
+         
+         g.dispose();
          
          heightToDisplay += belowTextMargin;
       }

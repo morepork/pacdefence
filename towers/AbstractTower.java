@@ -593,6 +593,8 @@ public abstract class AbstractTower implements Tower {
       
       g.drawImage(baseImage, 0, 0, null);
       g.drawImage(overlayImage, op, 0, 0);
+      
+      g.dispose();
       return image;
    }
    
@@ -707,6 +709,7 @@ public abstract class AbstractTower implements Tower {
       g.setColor(Color.BLACK);
       g.fillRect(width/2 - turretThickness/2, width/2 - turretWidth, turretThickness, turretWidth);
       // TODO perhaps make the end of the turret a little prettier
+      g.dispose();
       return image;
    }
    

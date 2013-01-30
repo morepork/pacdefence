@@ -98,12 +98,11 @@ public class ZapperTower extends AbstractTower {
          // up the actual drawing, so take a copy of the pointer
          Line2D zap = this.zap;
          if(zap != null) {
-            Graphics2D g2D = (Graphics2D) g;
+            Graphics2D g2D = (Graphics2D) g.create();
             g2D.setColor(zapColour);
-            Stroke s = g2D.getStroke();
             g2D.setStroke(zapStroke);
             g2D.draw(zap);
-            g2D.setStroke(s);
+            g2D.dispose();
          }
          // Draw the actual bullet over the zap, so the zap appears to come from the edge of the
          // bullet
