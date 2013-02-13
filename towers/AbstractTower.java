@@ -35,7 +35,6 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -130,8 +129,6 @@ public abstract class AbstractTower implements Tower {
    // Defaults to FirstComparator
    private Comparator<Creep> creepComparator = DEFAULT_CREEP_COMPARATOR;
    
-   private List<Bullet> bulletsToAdd = Collections.synchronizedList(new ArrayList<Bullet>());
-
    protected AbstractTower(Point p, List<Shape> pathBounds, String name, int fireRate,
          double range, double bulletSpeed, double damage, int width, int turretWidth,
          boolean hasOverlay) {
@@ -182,7 +179,7 @@ public abstract class AbstractTower implements Tower {
    public List<Bullet> tick(List<Creep> creeps, boolean levelInProgress) {
       // Decrements here so it's on every tick, not just when it is able to shoot
       timeToNextShot--;
-      List<Bullet> fired = null;
+      List<Bullet> fired = Collections.emptyList();
       if(imageRotates || timeToNextShot <= 0) {
          // The creeps are sorted by the default creep comparator in Clock, so that they don't
          // have to be resorted for any tower left on the default (which is often most of them)
@@ -193,15 +190,14 @@ public abstract class AbstractTower implements Tower {
          }
          // If the image rotates, this needs to be done to find out the direction to rotate to
          fired = fireBullets(creeps);
+         if (timeToNextShot > 0) {
+            fired = Collections.emptyList();
+         }
       }
-      if (timeToNextShot <= 0 && fired != null && fired.size() > 0) {
+      if (fired.size() > 0) {
          timeToNextShot = fireRate;
-         // Use bulletsToAdd as some towers launch bullets between ticks
-         bulletsToAdd.addAll(fired);
       }
-      List<Bullet> bulletsToReturn = bulletsToAdd;
-      bulletsToAdd = Collections.synchronizedList(new ArrayList<Bullet>());
-      return bulletsToReturn;
+      return fired;
    }
 
    @Override
@@ -559,10 +555,6 @@ public abstract class AbstractTower implements Tower {
    }
 
    protected abstract void upgradeSpecial();
-   
-   protected void addExtraBullets(Bullet... bullets) {
-      bulletsToAdd.addAll(Arrays.asList(bullets));
-   }
    
    private BufferedImage loadImage(Map<String, BufferedImage> map, int width, String... imagePath) {
       String imageName = imagePath[imagePath.length - 1];
