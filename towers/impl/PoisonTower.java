@@ -82,7 +82,7 @@ public class PoisonTower extends AbstractTower {
    private class PoisonBullet extends BasicBullet {
       
       private Creep poisonedCreep = null;
-      private double moneyEarnt = 0;
+      private double moneyEarned = 0;
       private int poisonTicksLeft;
       
       public PoisonBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
@@ -104,18 +104,18 @@ public class PoisonTower extends AbstractTower {
          if(poisonedCreep == null) {
             double tickMoney = super.doTick(creeps);
             if(tickMoney > 0) {
-               moneyEarnt += tickMoney;
+               moneyEarned += tickMoney;
             } else if(tickMoney == 0) {
                return 0;
             }
             return -1;
          } else {
             if(poisonTicksLeft <= 0 || !poisonedCreep.isAlive()) {
-               return moneyEarnt;
+               return moneyEarned;
             }
             poisonTicksLeft--;
             // Don't count each poisoning as a new hit for the multi tower bonus
-            moneyEarnt += processDamageReport(poisonedCreep.hit(damagePerTick, null));
+            moneyEarned += processDamageReport(poisonedCreep.hit(damagePerTick, null));
             return -1;
          }
       }

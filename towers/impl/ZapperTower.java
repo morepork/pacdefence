@@ -76,7 +76,7 @@ public class ZapperTower extends AbstractTower {
       private static final Random rand = new Random();
       private static final Color zapColour = new Color(255, 147, 147);
       private static final Stroke zapStroke = new BasicStroke(3);
-      private double moneyEarnt = 0;
+      private double moneyEarned = 0;
       private int numZapsLeft;
       private Line2D zap;
       private final double zapRange;
@@ -118,7 +118,7 @@ public class ZapperTower extends AbstractTower {
             zap = null;
          }
          // If value is 0, the bullet reached the edge of its range
-         return value == 0 ? moneyEarnt : -1;
+         return value == 0 ? moneyEarned : -1;
       }
       
       @Override
@@ -152,7 +152,7 @@ public class ZapperTower extends AbstractTower {
          Creep c = hittableCreeps.get(index);
          DamageReport d = c.hit(damage, shotBy.getClass());
          if(d != null) {
-            moneyEarnt += processDamageReport(d);
+            moneyEarned += processDamageReport(d);
             numZapsLeft--;
             zap = new Line2D.Double(position, c.getPosition());
          } else {

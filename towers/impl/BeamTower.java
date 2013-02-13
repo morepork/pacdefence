@@ -123,7 +123,7 @@ public class BeamTower extends AbstractTower {
       private final int range;
       private int ticksLeft;
       private final double damage;
-      private double moneyEarnt = 0;
+      private double moneyEarned = 0;
       
       private Beam(Tower t, Point2D centre, double angle, int range, double speed, double damage,
             List<Shape> pathBounds, Creep target, int numTicks) {
@@ -161,7 +161,7 @@ public class BeamTower extends AbstractTower {
       @Override
       public double tick(List<Creep> creeps) {
          if(ticksLeft <= 0) {
-            return moneyEarnt;
+            return moneyEarned;
          }
          ticksLeft--;
          currentAlpha -= deltaAlpha;
@@ -190,7 +190,7 @@ public class BeamTower extends AbstractTower {
             if(!hitCreeps.contains(c) && c.intersects(arc)) {
                DamageReport d = c.hit(damage, launchedBy.getClass());
                if(d != null) {
-                  moneyEarnt += BasicBullet.processDamageReport(d, launchedBy);
+                  moneyEarned += BasicBullet.processDamageReport(d, launchedBy);
                   hitCreeps.add(c);
                }
             }

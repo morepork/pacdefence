@@ -69,7 +69,7 @@ public class Ghost implements Tower {
          if(c.isAlive() && c.getPosition().distance(centre) < c.getHalfWidth() + halfWidth) {
             Creep.DamageReport d = c.hit(c.getHPLeft(), null);
             if(d != null) {
-               final double moneyEarnt = d.getMoneyEarnt();
+               final double moneyEarned = d.getMoneyEarned();
                // Gives you the money for killing this creep
                toReturn.add(new AbstractBullet() {
                   @Override
@@ -79,7 +79,7 @@ public class Ghost implements Tower {
    
                   @Override
                   public double tick(List<Creep> creeps) {
-                     return moneyEarnt;
+                     return moneyEarned;
                   }
                });
                if(--hitsLeft <= 0) {

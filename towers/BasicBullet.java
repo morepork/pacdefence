@@ -115,7 +115,7 @@ public class BasicBullet extends AbstractBullet {
          t.increaseKills(1);
       }
       t.increaseDamageDealt(d.getDamage());
-      return d.getMoneyEarnt();
+      return d.getMoneyEarned();
    }
    
    protected void setDirection(Vector2D direction) {

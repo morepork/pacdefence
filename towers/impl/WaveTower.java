@@ -96,7 +96,7 @@ public class WaveTower extends AbstractTower {
       // Use an ArrayList here as the overhead of a more complicated set
       // isn't really worth it as it'll never grow much larger than 50
       private final Collection<Creep> hitCreeps = new ArrayList<Creep>();
-      private double moneyEarnt = 0;
+      private double moneyEarned = 0;
       private final int turretWidth;
       
       public WaveBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
@@ -123,9 +123,9 @@ public class WaveTower extends AbstractTower {
          double value = super.doTick(creeps);
          setArc(arc, distanceTravelled + turretWidth);
          if(value > 0) {
-            moneyEarnt += value;
+            moneyEarned += value;
          } else if(value == 0) {
-            return moneyEarnt;
+            return moneyEarned;
          }
          return -1;
       }

@@ -81,7 +81,7 @@ public class BomberTower extends AbstractTower {
       private final double blastSizeIncrement;
       private final int frames = 5;
       private final Circle blast = new Circle(new Point(0, 0), 0);
-      private double moneyEarnt;
+      private double moneyEarned;
 
       public Bomb(Tower shotBy, Vector2D dir, int turretWidth, int range, double speed,
             double damage, Point p, List<Shape> pathBounds) {
@@ -103,7 +103,7 @@ public class BomberTower extends AbstractTower {
                // Shrinks twice as fast as it expands
                double newRadius = radius - blastSizeIncrement * 2;
                if(newRadius < 0) {
-                  return moneyEarnt;
+                  return moneyEarned;
                } else {
                   blast.setRadius(newRadius);
                }
@@ -116,9 +116,9 @@ public class BomberTower extends AbstractTower {
                // <= 0 means it has either it is still going, or it got to the edge of its range
                return earnings;
             } else {
-               // If it does hit something, record the money earnt, and then return -1, the bullet
+               // If it does hit something, record the money earned, and then return -1, the bullet
                // should not be removed just yet
-               moneyEarnt = earnings;
+               moneyEarned = earnings;
                return -1;
             }
          }
@@ -149,7 +149,7 @@ public class BomberTower extends AbstractTower {
                hitCreeps.add(c);
                DamageReport d = c.hit(damage / bombDamageDividend, shotBy.getClass());
                if(d != null) {
-                  moneyEarnt += processDamageReport(d);
+                  moneyEarned += processDamageReport(d);
                }
             }
          }

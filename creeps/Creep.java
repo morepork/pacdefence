@@ -212,12 +212,12 @@ public interface Creep extends Comparable<Creep>, Drawable {
    public class DamageReport {
       
       private final double damage;
-      private final double moneyEarnt;
+      private final double moneyEarned;
       private final boolean kill;
       
-      public DamageReport(double damage, double moneyEarnt, boolean kill) {
+      public DamageReport(double damage, double moneyEarned, boolean kill) {
          this.damage = damage;
-         this.moneyEarnt = moneyEarnt;
+         this.moneyEarned = moneyEarned;
          this.kill = kill;
       }
       
@@ -225,8 +225,8 @@ public interface Creep extends Comparable<Creep>, Drawable {
          return damage;
       }
       
-      public double getMoneyEarnt() {
-         return moneyEarnt;
+      public double getMoneyEarned() {
+         return moneyEarned;
       }
       
       /**

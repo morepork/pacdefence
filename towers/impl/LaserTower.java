@@ -87,7 +87,7 @@ public class LaserTower extends AbstractTower {
       private final Line2D laser;
       private final double length;
       private final Vector2D step;
-      private double moneyEarnt = 0;
+      private double moneyEarned = 0;
       
       public Laser(List<Shape> pathBounds, Tower shotBy, Point2D firstPoint, Point2D lastPoint,
             double speed, double damage, int range, double length) {
@@ -117,14 +117,14 @@ public class LaserTower extends AbstractTower {
          if(distanceTravelled >= range) {
             // Only actually finish when the point at the back of the laser crosses the range
             if(distanceTravelled >= range + length) {
-               return moneyEarnt;
+               return moneyEarned;
             } else {
                laser.setLine(laser.getP1(), lastPoint);
             }
          }
          double tickMoney = checkIfCreepIsHit(oldP1, laser.getP2(), creeps);
          if(tickMoney > 0) {
-            moneyEarnt += tickMoney;
+            moneyEarned += tickMoney;
          }
          return -1;
       }

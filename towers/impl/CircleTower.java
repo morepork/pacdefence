@@ -73,7 +73,7 @@ public class CircleTower extends AbstractTower {
       private final double endAngle;
       private double angle;
       private int hitsLeft = hits;
-      private double moneyEarntSoFar = 0;
+      private double moneyEarnedSoFar = 0;
       private Collection<Creep> hitCreeps = new ArrayList<Creep>();
 
       public CirclingBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
@@ -99,11 +99,11 @@ public class CircleTower extends AbstractTower {
       @Override
       public double doTick(List<Creep> creeps) {
          if (angle >= endAngle || hitsLeft <= 0) {
-            return moneyEarntSoFar;
+            return moneyEarnedSoFar;
          }
          List<Creep> hittableCreeps = new ArrayList<Creep>(creeps);
          hittableCreeps.removeAll(hitCreeps);
-         moneyEarntSoFar += checkIfCreepIsHit(hittableCreeps);
+         moneyEarnedSoFar += checkIfCreepIsHit(hittableCreeps);
          angle += deltaTheta;
          position.setLocation(route.getPointAt(angle));
          return -1;
@@ -112,24 +112,24 @@ public class CircleTower extends AbstractTower {
       @Override
       protected double checkIfCreepIsHit(List<Creep> creeps) {
          List<Point2D> points = makeArcPoints();
-         double moneyEarnt = 0;
+         double moneyEarned = 0;
          if(!points.isEmpty()) {
             for (Creep c : creeps) {
                for (Point2D p : points) {
                   if (c.intersects(p)) {
                      specialOnHit(p, c, creeps);
-                     moneyEarnt += processDamageReport(c.hit(getDamage(), shotBy.getClass()));
+                     moneyEarned += processDamageReport(c.hit(getDamage(), shotBy.getClass()));
                      hitCreeps.add(c);
                      hitsLeft--;
                      if (hitsLeft <= 0) {
-                        return moneyEarnt;
+                        return moneyEarned;
                      }
                      break;
                   }
                }
             }
          }
-         return moneyEarnt;
+         return moneyEarned;
       }
       
       @Override

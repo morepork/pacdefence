@@ -68,7 +68,7 @@ public class PiercerTower extends AbstractTower {
       
       private int piercesSoFar = 0;
       private Collection<Creep> creepsHit = new ArrayList<Creep>();
-      private int moneyEarnt;
+      private int moneyEarned;
 
       public PiercingBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
             double speed, double damage, Point p, List<Shape> pathBounds) {
@@ -94,12 +94,12 @@ public class PiercerTower extends AbstractTower {
             return shotResult;
          } else if(shotResult == 0) {
            // Bullet has reached the edge of its range
-           return moneyEarnt;
+           return moneyEarned;
          } else {
             // Bullet hit something
-            moneyEarnt += shotResult;
+            moneyEarned += shotResult;
             if(piercesSoFar >= pierces) {
-               return moneyEarnt;
+               return moneyEarned;
             } else {
                piercesSoFar++;
                // Removes the creep that was last hit so it can't be hit again

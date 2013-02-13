@@ -69,7 +69,7 @@ public class JumperTower extends AbstractTower {
       
       private Creep lastHit;
       private int jumpsLeft;
-      private int moneyEarnt = 0;
+      private int moneyEarned = 0;
 
       public JumpingBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
             double speed, double damage, Point p, List<Shape> pathBounds, int jumps) {
@@ -115,14 +115,14 @@ public class JumperTower extends AbstractTower {
             return result;
          } else if(result == 0) {
            // Bullet has reached the edge of its range
-           return moneyEarnt;
+           return moneyEarned;
          } else {
             // Bullet hit something
-            moneyEarnt += result;
+            moneyEarned += result;
             // (jumpsLeft == 0) means the bullet has just done its final jump,
             // so wait until it hits something before finishing it
             if(jumpsLeft < 0) {
-               return moneyEarnt;
+               return moneyEarned;
             } else {
                return -1;
             }

@@ -605,7 +605,7 @@ public class Game {
       // I know I shouldn't really use a double, but it should be fine
       // This is a field so fractional amounts can be saved between ticks and so that the
       // BulletTickCallables can access it directly, rather than having to pass the amount back
-      private volatile double moneyEarnt = 0;
+      private volatile double moneyEarned = 0;
       
       // For performance testing, goes with the code in tickBullets
 //      private long time = 0;
@@ -829,9 +829,9 @@ public class Game {
          } else {
             tickBulletsMultiThread(unmodifiableCreeps);
          }
-         increaseMoney((long)moneyEarnt);
+         increaseMoney((long)moneyEarned);
          // Fractional amounts of money are kept until the next tick
-         moneyEarnt -= (long)moneyEarnt;
+         moneyEarned -= (long)moneyEarned;
 //         if(bullets.size() > 0) {
 //            time += System.nanoTime();
 //            if(ticks == 300) {
@@ -885,7 +885,7 @@ public class Game {
          for(int i = bullets.size() - 1; i >= 0; i--) {
             double money = bullets.get(i).tick(unmodifiableCreeps);
             if(money >= 0) {
-               moneyEarnt += money;
+               moneyEarned += money;
                bullets.remove(i);
             }
          }
@@ -911,7 +911,7 @@ public class Game {
             for(int i = firstPos; i < lastPos; i++) {
                double money = bullets.get(i).tick(creeps);
                if(money >= 0) {
-                  moneyEarnt += money;
+                  moneyEarned += money;
                   toRemove.add(i);
                }
             }

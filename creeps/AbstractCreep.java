@@ -275,18 +275,18 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
             // Don't count it as a kill on the damage report
             wasKill = false;
          }
-         double moneyEarnt = Formulae.damageDollars(hp, hpFactor, currentLevel) +
+         double moneyEarned = Formulae.damageDollars(hp, hpFactor, currentLevel) +
                Formulae.killBonus(levelHP, currentLevel);
-         return new DamageReport(damageToReport, moneyEarnt, wasKill);
+         return new DamageReport(damageToReport, moneyEarned, wasKill);
       } else {
          hp -= adjustedDamage;
          if(adjustedDamageNotifier != null && adjustedDamage > damage) {
             // Notify the tower that caused the extra damage of the damage it caused
             adjustedDamageNotifier.notifyOfDamage(adjustedDamage / damageMultiplier);
          }
-         double moneyEarnt = Formulae.damageDollars(adjustedDamage, hpFactor, currentLevel);
+         double moneyEarned = Formulae.damageDollars(adjustedDamage, hpFactor, currentLevel);
          // Only report the damage actually from this shot, not the extra
-         return new DamageReport(damage, moneyEarnt, false);
+         return new DamageReport(damage, moneyEarned, false);
       }
    }
 
