@@ -130,7 +130,7 @@ public abstract class AbstractTower implements Tower {
    // Defaults to FirstComparator
    private Comparator<Creep> creepComparator = DEFAULT_CREEP_COMPARATOR;
    
-   private List<Bullet> bulletsToAdd = new ArrayList<Bullet>();
+   private List<Bullet> bulletsToAdd = Collections.synchronizedList(new ArrayList<Bullet>());
 
    protected AbstractTower(Point p, List<Shape> pathBounds, String name, int fireRate,
          double range, double bulletSpeed, double damage, int width, int turretWidth,
@@ -200,7 +200,7 @@ public abstract class AbstractTower implements Tower {
          bulletsToAdd.addAll(fired);
       }
       List<Bullet> bulletsToReturn = bulletsToAdd;
-      bulletsToAdd = new ArrayList<Bullet>();
+      bulletsToAdd = Collections.synchronizedList(new ArrayList<Bullet>());
       return bulletsToReturn;
    }
 
