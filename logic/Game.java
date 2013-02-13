@@ -711,9 +711,10 @@ public class Game {
          drawables.add(new Drawable() {
             @Override
             public void draw(Graphics2D g) {
-               if(buildingTower != null && lastMousePosition != null) {
-                  buildingTower.drawShadowAt(g, lastMousePosition,
-                        isValidTowerPos(lastMousePosition));
+               Tower t = buildingTower;
+               Point p = lastMousePosition;
+               if(t != null && p != null) {
+                  t.drawShadowAt(g, p, isValidTowerPos(p));
                }
             }
             @Override
