@@ -31,6 +31,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
@@ -517,7 +518,7 @@ public abstract class AbstractTower implements Tower {
     * @param range
     * @return
     */
-   protected boolean checkDistance(Creep c, Point p, double range) {
+   protected boolean checkDistance(Creep c, Point2D p, double range) {
       if (!c.isAlive()) {
          return false;
       }

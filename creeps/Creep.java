@@ -22,7 +22,6 @@ package creeps;
 import gui.Drawable;
 
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
@@ -178,10 +177,10 @@ public interface Creep extends Comparable<Creep>, Drawable {
    // Note, as the compare method is slow, this could cause some lag when there are lots of creeps
    public class DistanceComparator extends AbstractCreepComparator {
       
-      private final Point p;
+      private final Point2D p;
       private final boolean closestFirst;
       
-      public DistanceComparator(Point p, boolean closestFirst) {
+      public DistanceComparator(Point2D p, boolean closestFirst) {
          this.p = p;
          this.closestFirst = closestFirst;
       }

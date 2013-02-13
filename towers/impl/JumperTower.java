@@ -30,7 +30,6 @@ import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
-import util.Helper;
 import util.Vector2D;
 import creeps.Creep;
 import creeps.Creep.DistanceComparator;
@@ -88,11 +87,10 @@ public class JumperTower extends AbstractTower {
                creeps.add(lastHit);
             }
             
-            Point point = Helper.toPoint(p);
             // Make it so creeps closest to this point will be targetted first
-            Collections.sort(creeps, new DistanceComparator(point, true));
+            Collections.sort(creeps, new DistanceComparator(p, true));
             for(Creep c : creeps) {
-               if(checkDistance(c, point, range)) {
+               if(checkDistance(c, p, range)) {
                   super.setDirection(Vector2D.createFromPoints(p, c.getPosition()));
                   distanceTravelled = 0;
                }

@@ -109,7 +109,7 @@ public class HomingTower extends AbstractTower {
          if(!canTarget(target)) {
             // Copy the list as the passed list can't be modified
             creeps = new ArrayList<Creep>(creeps);
-            Collections.sort(creeps, new DistanceComparator(Helper.toPoint(position), true));
+            Collections.sort(creeps, new DistanceComparator(position, true));
             
             for(Creep c : creeps) {
                if(canTarget(c)) {

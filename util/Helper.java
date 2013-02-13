@@ -19,7 +19,6 @@
 
 package util;
 
-import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
@@ -36,10 +35,6 @@ public class Helper {
 
    private static final Map<Integer, DecimalFormat> formats =
          new HashMap<Integer, DecimalFormat>();
-   
-   public static Point toPoint(Point2D p) {
-      return new Point((int)p.getX(), (int)p.getY());
-   }
    
    public static List<Point2D> getPointsOnLine(Line2D line) {
       return getPointsOnLine(line.getP1(), line.getP2());
