@@ -580,7 +580,7 @@ public class Game {
       // In each of these the last position is used to store the last time
       // and is not used for calculating the average
       private final long[] processTimes        = new long[timesLength + 1];
-      private final long[] processCreepsTimes = new long[timesLength + 1];
+      private final long[] processCreepsTimes  = new long[timesLength + 1];
       private final long[] processBulletsTimes = new long[timesLength + 1];
       private final long[] processTowersTimes  = new long[timesLength + 1];
       private final long[] drawTimes           = new long[timesLength + 1];
