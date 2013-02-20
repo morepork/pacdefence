@@ -45,7 +45,6 @@ import java.util.prefs.BackingStoreException;
 import javax.swing.JPanel;
 
 import towers.AbstractTower;
-import towers.Bullet;
 import towers.Ghost;
 import towers.Tower;
 import towers.Tower.Attribute;
@@ -57,9 +56,7 @@ import creeps.Pacman;
 
 public class Game {
    
-   private final List<Creep> creeps = new ArrayList<Creep>();
-   private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
-   private final List<Bullet> bullets = new ArrayList<Bullet>();
+   private final Scene scene = new Scene();
    private List<Tower> towersToAdd = new ArrayList<Tower>();
    private List<Tower> towersToRemove = new ArrayList<Tower>();
    
@@ -138,9 +135,7 @@ public class Game {
    
    public void stopRunning() {
       clock.end();
-      creeps.clear();
-      towers.clear();
-      bullets.clear();
+      scene.clear();
       levelInProgress = false;
    }
    
@@ -241,18 +236,6 @@ public class Game {
       return list;
    }
    
-   private long costToUpgradeAllTowers(Attribute a) {
-      return costToUpgradeTowers(a, towers);
-   }
-   
-   private long costToUpgradeTowers(Attribute a, List<Tower> towers) {
-      long cost = 0;
-      for(Tower t : towers) {
-         cost += Formulae.upgradeCost(t.getAttributeLevel(a));
-      }
-      return cost;
-   }
-   
    private void endLevel() {
       levelInProgress = false;
       endLevelUpgradesLeft++;
@@ -275,11 +258,8 @@ public class Game {
       controlPanel.enableStartButton(true);
       
       // Remove all the ghosts at the end of the level
-      for(Tower t : towers) {
-         if(t instanceof Ghost) {
-            towersToRemove.add(t);
-         }
-      }
+      towersToRemove.addAll(scene.getAllGhosts());
+      
       // If the level is just finished it's a good time to run the garbage
       // collector rather than have it run during a level.
       System.gc();
@@ -311,9 +291,7 @@ public class Game {
    
    private void setStartingStats() {
       level = 0;
-      towers.clear();
-      bullets.clear();
-      creeps.clear();
+      scene.clear();
       upgradesSoFar.clear();
       selectedTower = null;
       buildingTower = null;
@@ -332,34 +310,28 @@ public class Game {
       if(towerType.equals(Ghost.class)) {
          return nextGhostCost;
       } else {
-         int numTowers = 0;
-         for(Tower t : towers) {
-            if(!(t instanceof Ghost)) {
-               numTowers++;
-            }
-         }
-         // Include the towers that are to be added (will be added next tick)
-         for(Tower t : towersToAdd) {
-            if(!(t instanceof Ghost)) {
-               numTowers++;
-            }
-         }
-         for(Tower t : towersToRemove) { // Likewise for those to be removed
-            if(!(t instanceof Ghost)) {
-               numTowers--;
-            }
-         }
-         return Formulae.towerCost(numTowers, numTowersOfType(towerType));
+         return Formulae.towerCost(numTowersWithoutGhosts(), numTowersOfType(towerType));
       }
    }
    
-   private int numTowersOfType(Class<? extends Tower> towerType) {
-      int num = 0;
-      for(int i = 0; i < towers.size(); i++) {
-         if(towers.get(i).getClass() == towerType) {
+   private int numTowersWithoutGhosts() {
+      int num = scene.getNumTowersWithoutGhosts();
+      // Include the towers that are to be added (will be added next tick)
+      for(Tower t : towersToAdd) {
+         if(!(t instanceof Ghost)) {
             num++;
          }
       }
+      for(Tower t : towersToRemove) { // Likewise for those to be removed
+         if(!(t instanceof Ghost)) {
+            num--;
+         }
+      }
+      return num;
+   }
+   
+   private int numTowersOfType(Class<? extends Tower> towerType) {
+      int num = scene.getNumTowersOfType(towerType);
       for(int i = 0; i < towersToAdd.size(); i++) {
          if(towersToAdd.get(i).getClass() == towerType) {
             num++;
@@ -449,7 +421,7 @@ public class Game {
    }
    
    private long sellValue(Tower t) {
-      return Formulae.sellValue(t, towers.size(), numTowersOfType(t.getClass()));
+      return Formulae.sellValue(t, numTowersWithoutGhosts(), numTowersOfType(t.getClass()));
    }
    
    private void processMouseReleased(MouseEvent e) {
@@ -464,10 +436,10 @@ public class Game {
          return;
       }
       Point p = e.getPoint();
-      Tower t = getTowerContaining(p);
+      Tower t = scene.getTowerContaining(p);
       if(t == null) {
          if(buildingTower == null) {
-            setSelectedCreep(getCreepContaining(p));
+            setSelectedCreep(scene.getCreepContaining(p));
          } else {
             tryToBuildTower(p);
          }
@@ -484,30 +456,11 @@ public class Game {
          setHoverOverTower(null);
          setHoverOverCreep(null);
       } else if (selectedTower == null && buildingTower == null) {
-         setHoverOverTower(getTowerContaining(p));
+         setHoverOverTower(scene.getTowerContaining(p));
          if(hoverOverTower == null) {
-            setHoverOverCreep(getCreepContaining(p));
+            setHoverOverCreep(scene.getCreepContaining(p));
          }
       }
-   }
-   
-   private Tower getTowerContaining(Point p) {
-      for(Tower t : towers) {
-         if(t.contains(p)) {
-            return t;
-         }
-      }
-      return null;
-   }
-   
-   private Creep getCreepContaining(Point p) {
-      for(Creep c : creeps) {
-         if(c.intersects(p)) {
-            // intersects returns false if the creep is dead so don't have to check that
-            return c;
-         }
-      }
-      return null;
    }
    
    private void tryToBuildTower(Point p) {
@@ -521,7 +474,7 @@ public class Game {
             // Have to add after telling the control panel otherwise the price will be wrong
             towersToAdd.add(toBuild);
             if(toBuild instanceof AidTower) {
-               ((AidTower) toBuild).setTowers(Collections.unmodifiableList(towers));
+               ((AidTower) toBuild).setTowers(scene.getTowers());
             } else if(toBuild instanceof Ghost) {
                nextGhostCost *= 2;
             }
@@ -542,11 +495,9 @@ public class Game {
       if(!toBuild.canTowerBeBuilt(gameMap.getPath())) {
          return false;
       }
-      for(Tower t : towers) {
-         // Checks that the point doesn't clash with another tower
-         if(t.doesTowerClashWith(toBuild)) {
-            return false;
-         }
+      // Checks that the point doesn't clash with another tower
+      if(!scene.canBuildTower(toBuild)) {
+         return false;
       }
       return true;
    }
@@ -593,23 +544,11 @@ public class Game {
       
       private boolean keepRunning = true;
 
-      // I tried 1x, 2x, 8x, 10x, 16x, and 20x and 16x was the best (then 10x, then 8x) on my dual
-      // core machine - some callables will be more work, even though they have the same number of
-      // bullets as other ones
-      // Set it to zero if only one processor to signal that single threaded versions should be used
-      private final int numCallables = MyExecutor.singleThreaded() ? 0 :
-         MyExecutor.getNumThreads() * 16;
-      
       private boolean gameOver = false;
       
-      // I know I shouldn't really use a double, but it should be fine
-      // This is a field so fractional amounts can be saved between ticks and so that the
-      // BulletTickCallables can access it directly, rather than having to pass the amount back
-      private volatile double moneyEarned = 0;
-      
-      // For performance testing, goes with the code in tickBullets
-//      private long time = 0;
-//      private int ticks = 0;
+      // I know I shouldn't really use a double, but it should be fine.
+      // This is used so fractional amounts can be saved between ticks.
+      private double moneyEarned = 0;
       
       public Clock() {
          super("Pac Defence Clock");
@@ -658,7 +597,10 @@ public class Game {
       private void doTicks() {
          int ticksToDo = fastModes[currentMode];
          for(int i = 0; i < ticksToDo; i++) {
-               tick();
+            if(levelInProgress && scene.getNumCreeps() == 0 && creepsToAdd <= 0) {
+               endLevel();
+            }
+            tickScene();
          }
          // Catches any new creeps that may have moved under the cursor
          // Save the mouse position from mouseMotionListeners rather than use getMousePosition as it
@@ -667,46 +609,66 @@ public class Game {
          updateTowerStats();
       }
       
-      private void tick() {
-         List<Creep> creepsCopy = new ArrayList<Creep>(creeps);
-         // Sort with the default comparator here (should be FirstComparator) for two reasons:
-         // Firstly, most towers should use the default comparator so don't need to resort this.
-         // Secondly, bullets will hit creeps closest to the end first when they could hit two
-         // which is a slight aid.
-         Collections.sort(creepsCopy, AbstractTower.DEFAULT_CREEP_COMPARATOR);
-         List<Creep> unmodifiableCreeps = Collections.unmodifiableList(creepsCopy);
+      private void tickScene() {
+         Scene.DebugTimes debugTimes = null;
          if(options.isDebugTimes()) {
-            // Make sure any changes here or below are reflected in both, bar the timing bits
-            long beginTime = System.nanoTime();
-            tickCreeps();
-            // Use += so the sum of all of these in the tick is calculated
-            processCreepsTimes[timesLength] += calculateElapsedTimeMillis(beginTime);
-            beginTime = System.nanoTime();
-            tickBullets(unmodifiableCreeps);
-            processBulletsTimes[timesLength] += calculateElapsedTimeMillis(beginTime);
-            beginTime = System.nanoTime();
-            tickTowers(unmodifiableCreeps);
-            processTowersTimes[timesLength] += calculateElapsedTimeMillis(beginTime);
-         } else {
-            tickCreeps();
-            tickBullets(unmodifiableCreeps);
-            tickTowers(unmodifiableCreeps);
+            debugTimes = scene.new DebugTimes();
          }
+         // Use these rather than addAll/removeAll and then clear as there's a chance a tower could
+         // be added to one of the lists before they are cleared but after the addAll/removeAll
+         // methods are finished, meaning it'd do nothing but still take/give you money.
+         List<Tower> curTowersToRemove = towersToRemove;
+         towersToRemove = new ArrayList<Tower>();
+         List<Tower> curTowersToAdd = towersToAdd;
+         towersToAdd = new ArrayList<Tower>();
+         Scene.TickResult result = scene.tick(debugTimes, levelInProgress, getNewCreep(),
+               curTowersToAdd, curTowersToRemove);
+         
+         // Deselect this creep if it is dead/finished
+         if(selectedCreep != null && (!selectedCreep.isAlive() || selectedCreep.isFinished())) {
+            setSelectedCreep(null);
+         }
+         
+         // Update the number of lives
+         controlPanel.updateNumberLeft(creepsToAdd + scene.getNumCreeps());
+         livesLostOnThisLevel += result.livesLost;
+         lives -= result.livesLost;
+         updateLives();
+         
+         // Update the amount of money
+         moneyEarned += result.moneyEarned;
+         increaseMoney((long)moneyEarned);
+         // Fractional amounts of money are kept until the next tick
+         moneyEarned -= (long)moneyEarned;
+      }
+      
+      private Creep getNewCreep() {
+         Creep creep = null;
+         if(creepsToAdd > 0) {
+            if(addCreepIn < 1) { // If the time has got to zero, add a creep
+               creep = new Pacman(level, levelHP,
+                     Collections.unmodifiableList(gameMap.getPathPoints()));
+               // Adds a creep in somewhere between 0 and twice the designated time
+               addCreepIn = (int)(Math.random() * (ticksBetweenAddCreep * 2 + 1));
+               creepsToAdd--;
+            } else { // Otherwise decrement the time until the next creep will be added
+               addCreepIn--;
+            }
+         }
+         return creep;
       }
       
       private long draw() {
          long drawingBeginTime = System.nanoTime();
          drawingBeginTime -= gameMapPanel.redraw(getDrawables(),
                new DebugStats(processTime, processCreepsTime, processBulletsTime,
-                     processTowersTime, drawTime, bullets.size()));
+                     processTowersTime, drawTime, scene.getNumBullets()));
          return drawingBeginTime;
       }
       
       private List<Drawable> getDrawables() {
          List<Drawable> drawables = new ArrayList<Drawable>();
-         drawables.addAll(creeps);
-         drawables.addAll(towers);
-         drawables.addAll(bullets);
+         drawables.addAll(scene.getDrawables());
          // Displays the tower on the cursor that could be built
          drawables.add(new Drawable() {
             @Override
@@ -748,177 +710,6 @@ public class Game {
          }
          return sum / timesLength;
       }
-      
-      private void tickCreeps() {
-         if(levelInProgress && creeps.isEmpty() && creepsToAdd <= 0) {
-            endLevel();
-         }
-         lookAfterAddingNewCreeps();
-         int livesLost = 0;
-         // Count down as creeps are being removed
-         for(int i = creeps.size() - 1; i >= 0; i--) {
-            Creep c = creeps.get(i);
-            // True if creep has either been killed and is gone from screen or has finished
-            if(c.tick()) {
-               creeps.remove(i);
-               if(c.isFinished()) { // As opposed to being killed
-                  livesLost++;
-               }
-               if(selectedCreep == c) { // Deselect this creep as it is dead/finished
-                  setSelectedCreep(null);
-               }
-            }
-         }
-         controlPanel.updateNumberLeft(creepsToAdd + creeps.size());
-         livesLostOnThisLevel += livesLost;
-         lives -= livesLost;
-         updateLives();
-      }
-      
-      private void lookAfterAddingNewCreeps() {
-         if(creepsToAdd > 0) {
-            if(addCreepIn < 1) { // If the time has got to zero, add a creep
-               creeps.add(new Pacman(level, levelHP,
-                     Collections.unmodifiableList(gameMap.getPathPoints())));
-               // Adds a creep in somewhere between 0 and twice the designated time
-               addCreepIn = (int)(Math.random() * (ticksBetweenAddCreep * 2 + 1));
-               creepsToAdd--;
-            } else { // Otherwise decrement the time until the next creep will be added
-               addCreepIn--;
-            }
-         }
-      }
-      
-      private void tickTowers(List<Creep> unmodifiableCreeps) {
-         // Use these rather than addAll/removeAll and then clear as there's a chance a tower could
-         // be added to one of the lists before they are cleared but after the addAll/removeAll
-         // methods are finished, meaning it'd do nothing but still take/give you money.
-         if(!towersToRemove.isEmpty()) {
-            List<Tower> toRemove = towersToRemove;
-            towersToRemove = new ArrayList<Tower>();
-            towers.removeAll(toRemove);
-         }
-         if(!towersToAdd.isEmpty()) {
-            List<Tower> toAdd = towersToAdd;
-            towersToAdd = new ArrayList<Tower>();
-            towers.addAll(toAdd);
-         }
-         // I tried multi-threading this but it made it slower in my limited testing
-         for(Tower t : towers) {
-            if(!towersToRemove.contains(t)) {
-               List<Bullet> toAdd = t.tick(unmodifiableCreeps, levelInProgress);
-               if(toAdd == null) {
-                  // Signals that a ghost is finished
-                  towersToRemove.add(t);
-               } else {
-                  bullets.addAll(toAdd);
-               }
-            }
-         }
-      }
-      
-      private void tickBullets(List<Creep> unmodifiableCreeps) {
-         // This and the bit at the end is performance testing - times the first x ticks
-//         if(bullets.size() > 0) {
-//            ticks++;
-//            time -= System.nanoTime();
-//         }
-         if(numCallables < 2 || bullets.size() <= 1) {
-            // If only one processor or 1 or fewer bullets this will be faster.
-            tickBulletsSingleThread(unmodifiableCreeps);
-         } else {
-            tickBulletsMultiThread(unmodifiableCreeps);
-         }
-         increaseMoney((long)moneyEarned);
-         // Fractional amounts of money are kept until the next tick
-         moneyEarned -= (long)moneyEarned;
-//         if(bullets.size() > 0) {
-//            time += System.nanoTime();
-//            if(ticks == 300) {
-//               System.out.println(time / 1000000.0);
-//            }
-//         }
-      }
-      
-      private void tickBulletsMultiThread(List<Creep> unmodifiableCreeps) {
-         int bulletsPerThread = bullets.size() / numCallables;
-         int remainder = bullets.size() % numCallables;
-         int firstPos, lastPos = 0;
-         // Each Callable returns a List of Integer positions of Bullets to be removed
-         List<Future<List<Integer>>> futures = new ArrayList<Future<List<Integer>>>();
-         // No point in making more callables than there are bullets
-         int n = Math.min(numCallables, bullets.size());
-         for(int i = 0; i < n; i++) {
-            firstPos = lastPos;
-            // Add 1 to callables 1, 2, ... , (remainder - 1), remainder
-            lastPos = firstPos + bulletsPerThread + (i < remainder ? 1 : 0);
-            // Copying the list should reduce the lag of each thread trying to access the same list
-            futures.add(MyExecutor.submit(new BulletTickCallable(firstPos, lastPos, bullets,
-                  new ArrayList<Creep>(creeps))));
-         }
-         processTickFutures(futures);
-      }
-      
-      private void processTickFutures(List<Future<List<Integer>>> futures) {
-         List<Integer> bulletsToRemove = new ArrayList<>();
-         for(Future<List<Integer>> f : futures) {
-            try {
-               bulletsToRemove.addAll(f.get());
-            } catch(InterruptedException e) {
-               // Should never happen
-               throw new RuntimeException(e);
-            } catch(ExecutionException e) {
-               // Should never happen
-               throw new RuntimeException(e);
-            }
-         }
-         // bulletsToRemove will be sorted smallest to largest as each List returned by a
-         // BulletTickCallable is ordered, and the ordering is kept in the list of Futures, so no
-         // need to sort it here
-         
-         // Remove all the completed bullets from the main list
-         Helper.removeAll(bullets, bulletsToRemove);
-      }
-      
-      private void tickBulletsSingleThread(List<Creep> unmodifiableCreeps) {
-         // Run through from last to first as bullets are being removed
-         for(int i = bullets.size() - 1; i >= 0; i--) {
-            double money = bullets.get(i).tick(unmodifiableCreeps);
-            if(money >= 0) {
-               moneyEarned += money;
-               bullets.remove(i);
-            }
-         }
-      }
-      
-      private class BulletTickCallable implements Callable<List<Integer>> {
-         
-         private final int firstPos, lastPos;
-         private final List<Bullet> bullets;
-         private final List<Creep> creeps;
-         
-         public BulletTickCallable(int firstPos, int lastPos, List<Bullet> bullets,
-               List<Creep> creeps) {
-            this.firstPos = firstPos;
-            this.lastPos = lastPos;
-            this.bullets = bullets;
-            this.creeps = creeps;
-         }
-
-         @Override
-         public List<Integer> call() {
-            List<Integer> toRemove = new ArrayList<Integer>();
-            for(int i = firstPos; i < lastPos; i++) {
-               double money = bullets.get(i).tick(creeps);
-               if(money >= 0) {
-                  moneyEarned += money;
-                  toRemove.add(i);
-               }
-            }
-            return toRemove;
-         }
-         
-      }
    }
    
    public class ControlEventProcessor {
@@ -942,12 +733,10 @@ public class Game {
          Tower toAffect = towerToAffect();
          for(int i = 0; i < numTimes; i++) {
             if(toAffect == null) {
-               long cost = costToUpgradeTowers(a, towers);
+               long cost = scene.costToUpgradeTowers(a);
                if(cost <= money) {
                   decreaseMoney(cost);
-                  for(Tower t : towers) {
-                     t.raiseAttributeLevel(a, true);
-                  }
+                  scene.raiseAllTowersAttribute(a, true);
                }
             } else {
                long cost = Formulae.upgradeCost(toAffect.getAttributeLevel(a));
@@ -967,7 +756,7 @@ public class Game {
             long cost = 0;
             if(toAffect == null) {
                description += " (all)";
-               cost = costToUpgradeAllTowers(a);
+               cost = scene.costToUpgradeTowers(a);
             } else {
                cost = Formulae.upgradeCost(toAffect.getAttributeLevel(a));
             }
@@ -1007,9 +796,7 @@ public class Game {
                   controlPanel.increaseTowersAttribute(a);
                }
                upgradesSoFar.put(a, nextValue);
-               for(Tower t : towers) {
-                  t.raiseAttributeLevel(a, false);
-               }
+               scene.raiseAllTowersAttribute(a, false);
             } else if(livesUpgrade) {
                lives += upgradeLives;
             } else if(interestUpgrade) {
