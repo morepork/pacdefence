@@ -45,7 +45,6 @@ import java.util.prefs.BackingStoreException;
 import javax.swing.JPanel;
 
 import towers.AbstractTower;
-import towers.Ghost;
 import towers.Tower;
 import towers.Tower.Attribute;
 import towers.impl.AidTower;
@@ -57,9 +56,7 @@ import creeps.Pacman;
 public class Game {
    
    private final Scene scene = new Scene();
-   private List<Tower> towersToAdd = new ArrayList<Tower>();
-   private List<Tower> towersToRemove = new ArrayList<Tower>();
-   
+
    private Clock clock;
 
    private GameMap gameMap;
@@ -80,7 +77,6 @@ public class Game {
    private int level;
    private boolean levelInProgress;
    private long money;
-   private int nextGhostCost;
    private int lives;
    private int livesLostOnThisLevel;
    private double interestRate;
@@ -258,7 +254,7 @@ public class Game {
       controlPanel.enableStartButton(true);
       
       // Remove all the ghosts at the end of the level
-      towersToRemove.addAll(scene.getAllGhosts());
+      scene.removeAllGhosts();
       
       // If the level is just finished it's a good time to run the garbage
       // collector rather than have it run during a level.
@@ -266,7 +262,7 @@ public class Game {
    }
    
    private boolean canBuildTower(Class<? extends Tower> towerType) {
-      return money >= getNextTowerCost(towerType);
+      return money >= scene.getTowerCost(towerType);
    }
    
    private void buildTower(Tower t) {
@@ -276,7 +272,7 @@ public class Game {
             t.raiseAttributeLevel(a, false);
          }
       }
-      decreaseMoney(getNextTowerCost(t.getClass()));
+      decreaseMoney(scene.getTowerCost(t.getClass()));
       updateMoney();
    }
    
@@ -298,51 +294,11 @@ public class Game {
       rolloverTower = null;
       hoverOverTower = null;
       money = 4000;
-      nextGhostCost = Formulae.towerCost(0, 0);
       lives = 25;
       livesLostOnThisLevel = 0;
       interestRate = 0.03;
       endLevelUpgradesLeft = 0;
       updateAll();
-   }
-   
-   private int getNextTowerCost(Class<? extends Tower> towerType) {
-      if(towerType.equals(Ghost.class)) {
-         return nextGhostCost;
-      } else {
-         return Formulae.towerCost(numTowersWithoutGhosts(), numTowersOfType(towerType));
-      }
-   }
-   
-   private int numTowersWithoutGhosts() {
-      int num = scene.getNumTowersWithoutGhosts();
-      // Include the towers that are to be added (will be added next tick)
-      for(Tower t : towersToAdd) {
-         if(!(t instanceof Ghost)) {
-            num++;
-         }
-      }
-      for(Tower t : towersToRemove) { // Likewise for those to be removed
-         if(!(t instanceof Ghost)) {
-            num--;
-         }
-      }
-      return num;
-   }
-   
-   private int numTowersOfType(Class<? extends Tower> towerType) {
-      int num = scene.getNumTowersOfType(towerType);
-      for(int i = 0; i < towersToAdd.size(); i++) {
-         if(towersToAdd.get(i).getClass() == towerType) {
-            num++;
-         }
-      }
-      for(int i = 0; i < towersToRemove.size(); i++) {
-         if(towersToRemove.get(i).getClass() == towerType) {
-            num--;
-         }
-      }
-      return num;
    }
    
    private void updateAll() {
@@ -398,7 +354,7 @@ public class Game {
       if(rolloverTower != null || buildingTower != null) {
          // This needs to be first as rollover tower takes precedence over selected
          t = rolloverTower != null ? rolloverTower : buildingTower;
-         controlPanel.updateCurrentCost(t.getName(), getNextTowerCost(t.getClass()));
+         controlPanel.updateCurrentCost(t.getName(), scene.getTowerCost(t.getClass()));
          controlPanel.setCurrentInfoToTower(null);
       } else if(selectedTower != null || hoverOverTower != null) {
          t = selectedTower != null ? selectedTower : hoverOverTower;
@@ -418,10 +374,6 @@ public class Game {
          c = hoverOverCreep;
       }
       controlPanel.setCurrentInfoToCreep(c);
-   }
-   
-   private long sellValue(Tower t) {
-      return Formulae.sellValue(t, numTowersWithoutGhosts(), numTowersOfType(t.getClass()));
    }
    
    private void processMouseReleased(MouseEvent e) {
@@ -472,11 +424,9 @@ public class Game {
          if(canBuildTower(toBuild.getClass())) {
             buildTower(toBuild);
             // Have to add after telling the control panel otherwise the price will be wrong
-            towersToAdd.add(toBuild);
+            scene.addTower(toBuild);
             if(toBuild instanceof AidTower) {
                ((AidTower) toBuild).setTowers(scene.getTowers());
-            } else if(toBuild instanceof Ghost) {
-               nextGhostCost *= 2;
             }
             // If another tower can't be built, set the building tower to null
             if(!canBuildTower(buildingTower.getClass())) {
@@ -614,15 +564,7 @@ public class Game {
          if(options.isDebugTimes()) {
             debugTimes = scene.new DebugTimes();
          }
-         // Use these rather than addAll/removeAll and then clear as there's a chance a tower could
-         // be added to one of the lists before they are cleared but after the addAll/removeAll
-         // methods are finished, meaning it'd do nothing but still take/give you money.
-         List<Tower> curTowersToRemove = towersToRemove;
-         towersToRemove = new ArrayList<Tower>();
-         List<Tower> curTowersToAdd = towersToAdd;
-         towersToAdd = new ArrayList<Tower>();
-         Scene.TickResult result = scene.tick(debugTimes, levelInProgress, getNewCreep(),
-               curTowersToAdd, curTowersToRemove);
+         Scene.TickResult result = scene.tick(debugTimes, levelInProgress, getNewCreep());
          
          // Deselect this creep if it is dead/finished
          if(selectedCreep != null && (!selectedCreep.isAlive() || selectedCreep.isFinished())) {
@@ -767,7 +709,7 @@ public class Game {
       }
       
       public void processTowerButtonPressed(Tower t) {
-         if(money >= getNextTowerCost(t.getClass())) {
+         if(money >= scene.getTowerCost(t.getClass())) {
             setSelectedTower(null);
             setBuildingTower(t);
             updateTowerStats();
@@ -831,9 +773,9 @@ public class Game {
       public void processSellButtonPressed() {
          Tower toAffect = towerToAffect();
          if(toAffect != null) {
-            increaseMoney(sellValue(toAffect));
+            increaseMoney(scene.getTowerSellValue(toAffect));
             toAffect.sell();
-            towersToRemove.add(toAffect);
+            scene.removeTower(toAffect);
             setSelectedTower(null);
          }
       }
@@ -841,7 +783,8 @@ public class Game {
       public void processSellButtonRollover(boolean on) {
          Tower toAffect = towerToAffect();
          if(toAffect != null && on) {
-            controlPanel.updateCurrentCost("Sell " + toAffect.getName(), sellValue(toAffect));
+            controlPanel.updateCurrentCost("Sell " + toAffect.getName(),
+                  scene.getTowerSellValue(toAffect));
          } else {
             controlPanel.clearCurrentCost();
          }

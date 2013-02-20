@@ -50,6 +50,11 @@ public class Scene {
    private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
    private final List<Bullet> bullets = new ArrayList<Bullet>();
    
+   private List<Tower> towersToAdd = new ArrayList<Tower>();
+   private List<Tower> towersToRemove = new ArrayList<Tower>();
+   
+   private int nextGhostCost;
+   
    // For performance testing, goes with the code in tickBullets
 //    private long time = 0;
 //    private int ticks = 0;
@@ -58,6 +63,20 @@ public class Scene {
       creeps.clear();
       towers.clear();
       bullets.clear();
+      towersToAdd.clear();
+      towersToRemove.clear();
+      nextGhostCost = Formulae.towerCost(0, 0);
+   }
+   
+   public void addTower(Tower t) {
+      towersToAdd.add(t);
+      if(t instanceof Ghost) {
+         nextGhostCost *= 2;
+      }
+   }
+   
+   public void removeTower(Tower t) {
+      towersToRemove.add(t);
    }
    
    public long costToUpgradeTowers(Attribute a) {
@@ -82,31 +101,65 @@ public class Scene {
       return creeps.size();
    }
    
-   public List<Tower> getAllGhosts() {
-      List<Tower> ghosts = new ArrayList<>();
+   public void removeAllGhosts() {
       for(Tower t : towers) {
          if(t instanceof Ghost) {
-            ghosts.add(t);
+            removeTower(t);
          }
       }
-      return ghosts;
    }
    
-   public int getNumTowersWithoutGhosts() {
+   public int getTowerCost(Class<? extends Tower> towerType) {
+      if(towerType.equals(Ghost.class)) {
+         return nextGhostCost;
+      } else {
+         return Formulae.towerCost(getNumTowersWithoutGhosts(), getNumTowersOfType(towerType));
+      }
+   }
+   
+   public long getTowerSellValue(Tower t) {
+      return Formulae.sellValue(t, getNumTowersWithoutGhosts(), getNumTowersOfType(t.getClass()));
+   }
+   
+   private int getNumTowersWithoutGhosts() {
       int num = 0;
       for(Tower t : towers) {
          if(!(t instanceof Ghost)) {
             num++;
          }
       }
+      // Include the towers that are to be added (will be added next tick)
+      for(Tower t : towersToAdd) {
+         if(!(t instanceof Ghost)) {
+            num++;
+         }
+      }
+      // Likewise for those to be removed
+      for(Tower t : towersToRemove) {
+         if(!(t instanceof Ghost)) {
+            num--;
+         }
+      }
       return num;
    }
    
-   public int getNumTowersOfType(Class<? extends Tower> towerType) {
+   private int getNumTowersOfType(Class<? extends Tower> towerType) {
       int num = 0;
       for(Tower t : towers) {
          if(t.getClass() == towerType) {
             num++;
+         }
+      }
+      // Include the towers that are to be added (will be added next tick)
+      for(Tower t : towersToAdd) {
+         if(t.getClass() == towerType) {
+            num++;
+         }
+      }
+      // Likewise for those to be removed
+      for(Tower t : towersToRemove) {
+         if(t.getClass() == towerType) {
+            num--;
          }
       }
       return num;
@@ -153,8 +206,7 @@ public class Scene {
       return drawables;
    }
    
-   public TickResult tick(DebugTimes debugTimes, boolean levelInProgress, Creep newCreep,
-         List<Tower> towersToAdd, List<Tower> towersToRemove) {
+   public TickResult tick(DebugTimes debugTimes, boolean levelInProgress, Creep newCreep) {
       int livesLost;
       double moneyEarned;
       List<Creep> creepsCopy = new ArrayList<Creep>(creeps);
@@ -173,12 +225,12 @@ public class Scene {
          moneyEarned = tickBullets(unmodifiableCreeps);
          debugTimes.processBulletsTime = System.nanoTime() - beginTime;
          beginTime = System.nanoTime();
-         tickTowers(levelInProgress, unmodifiableCreeps, towersToAdd, towersToRemove);
+         tickTowers(levelInProgress, unmodifiableCreeps);
          debugTimes.processTowersTime = System.nanoTime() - beginTime;
       } else {
          livesLost = tickCreeps(newCreep);
          moneyEarned = tickBullets(unmodifiableCreeps);
-         tickTowers(levelInProgress, unmodifiableCreeps, towersToAdd, towersToRemove);
+         tickTowers(levelInProgress, unmodifiableCreeps);
       }
       return new TickResult(livesLost, moneyEarned);
    }
@@ -202,10 +254,20 @@ public class Scene {
       return livesLost;
    }
    
-   private void tickTowers(boolean levelInProgress, List<Creep> unmodifiableCreeps,
-         List<Tower> towersToAdd, List<Tower> towersToRemove) {
-      towers.removeAll(towersToRemove);
-      towers.addAll(towersToAdd);
+   private void tickTowers(boolean levelInProgress, List<Creep> unmodifiableCreeps) {
+      // Use these rather than addAll/removeAll and then clear as there's a chance a tower could
+      // be added to one of the lists before they are cleared but after the addAll/removeAll
+      // methods are finished, meaning it'd do nothing but still take/give you money.
+      if (!towersToRemove.isEmpty()) {
+         List<Tower> toRemove = towersToRemove;
+         towersToRemove = new ArrayList<Tower>();
+         towers.removeAll(toRemove);
+      }
+      if (!towersToAdd.isEmpty()) {
+         List<Tower> toAdd = towersToAdd;
+         towersToAdd = new ArrayList<Tower>();
+         towers.addAll(toAdd);
+      }
       // I tried multi-threading this but it made it slower in my limited testing
       for(Tower t : towers) {
          if(!towersToRemove.contains(t)) {
