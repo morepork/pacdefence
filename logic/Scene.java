@@ -47,7 +47,7 @@ public class Scene {
    private final int numCallables = MyExecutor.singleThreaded() ? 0 :
       MyExecutor.getNumThreads() * 16;
    
-   private final List<Creep> creeps = new ArrayList<Creep>();
+   private final List<Creep> creeps = Collections.synchronizedList(new ArrayList<Creep>());
    private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
    private final List<Bullet> bullets = new ArrayList<Bullet>();
    
@@ -199,10 +199,12 @@ public class Scene {
    }
    
    public Creep getCreepContaining(Point p) {
-      for(Creep c : creeps) {
-         if(c.intersects(p)) {
-            // intersects returns false if the creep is dead so don't have to check that
-            return c;
+      synchronized(creeps) {
+         for(Creep c : creeps) {
+            if(c.intersects(p)) {
+               // intersects returns false if the creep is dead so don't have to check that
+               return c;
+            }
          }
       }
       return null;
@@ -263,13 +265,15 @@ public class Scene {
       }
       int livesLost = 0;
       // Count down as creeps are being removed
-      for(int i = creeps.size() - 1; i >= 0; i--) {
-         Creep c = creeps.get(i);
-         // True if creep has either been killed and is gone from screen or has finished
-         if(c.tick()) {
-            creeps.remove(i);
-            if(c.isFinished()) { // As opposed to being killed
-               livesLost++;
+      synchronized(creeps) {
+         for(int i = creeps.size() - 1; i >= 0; i--) {
+            Creep c = creeps.get(i);
+            // True if creep has either been killed and is gone from screen or has finished
+            if(c.tick()) {
+               creeps.remove(i);
+               if(c.isFinished()) { // As opposed to being killed
+                  livesLost++;
+               }
             }
          }
       }
