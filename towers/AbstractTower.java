@@ -291,7 +291,7 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public void raiseAttributeLevel(Attribute a, boolean boughtUpgrade) {
+   public void upgrade(Attribute a, boolean boughtUpgrade) {
       if(boughtUpgrade) {
          attributeLevels.put(a, attributeLevels.get(a) + 1);
       }

@@ -225,7 +225,7 @@ public class Ghost implements Tower {
    }
 
    @Override
-   public void raiseAttributeLevel(Attribute a, boolean boughtUpgrade) {
+   public void upgrade(Attribute a, boolean boughtUpgrade) {
       // Ghosts don't get upgrades
    }
 

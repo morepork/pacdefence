@@ -94,7 +94,7 @@ public interface Tower extends Drawable, Cloneable {
    public String getName();
    public Shape getBounds();
    public int getAttributeLevel(Attribute a);
-   public void raiseAttributeLevel(Attribute a, boolean boughtUpgrade);
+   public void upgrade(Attribute a, boolean boughtUpgrade);
    
    /**
     * Aids the specified attribute by increaseFactor.

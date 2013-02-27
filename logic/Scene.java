@@ -83,7 +83,7 @@ public class Scene {
       towersToRemove.add(t);
    }
    
-   public long costToUpgradeTowers(Attribute a) {
+   public long getUpgradeAllTowersCost(Attribute a) {
       long cost = 0;
       for(Tower t : towers) {
          cost += Formulae.upgradeCost(t.getAttributeLevel(a));
@@ -91,9 +91,9 @@ public class Scene {
       return cost;
    }
    
-   public void raiseAllTowersAttribute(Attribute a, boolean boughtUpgrade) {
+   public void upgradeAllTowers(Attribute a, boolean boughtUpgrade) {
       for(Tower t : towers) {
-         t.raiseAttributeLevel(a, boughtUpgrade);
+         t.upgrade(a, boughtUpgrade);
       }
    }
    

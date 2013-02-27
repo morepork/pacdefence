@@ -272,7 +272,7 @@ public class ControlPanel extends JPanel {
    public void increaseTowersAttribute(Attribute a) {
       for(Tower t : towerTypes.values()) {
          // So that the upgrades are shown when you are building a new tower
-         t.raiseAttributeLevel(a, false);
+         t.upgrade(a, false);
       }
    }
    

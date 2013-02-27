@@ -268,7 +268,7 @@ public class Game {
       // New towers get half the effect of all the bonus upgrades so far, rounded down
       for(Attribute a : upgradesSoFar.keySet()) {
          for(int i = 0; i < upgradesSoFar.get(a) / 2; i++) {
-            t.raiseAttributeLevel(a, false);
+            t.upgrade(a, false);
          }
       }
       decreaseMoney(scene.getTowerCost(t.getClass()));
@@ -671,16 +671,16 @@ public class Game {
          Tower toAffect = towerToAffect();
          for(int i = 0; i < numTimes; i++) {
             if(toAffect == null) {
-               long cost = scene.costToUpgradeTowers(a);
+               long cost = scene.getUpgradeAllTowersCost(a);
                if(cost <= money) {
                   decreaseMoney(cost);
-                  scene.raiseAllTowersAttribute(a, true);
+                  scene.upgradeAllTowers(a, true);
                }
             } else {
                long cost = Formulae.upgradeCost(toAffect.getAttributeLevel(a));
                if(cost <= money) {
                   decreaseMoney(cost);
-                  toAffect.raiseAttributeLevel(a, true);
+                  toAffect.upgrade(a, true);
                }
             }
          }
@@ -694,7 +694,7 @@ public class Game {
             long cost = 0;
             if(toAffect == null) {
                description += " (all)";
-               cost = scene.costToUpgradeTowers(a);
+               cost = scene.getUpgradeAllTowersCost(a);
             } else {
                cost = Formulae.upgradeCost(toAffect.getAttributeLevel(a));
             }
@@ -734,7 +734,7 @@ public class Game {
                   controlPanel.increaseTowersAttribute(a);
                }
                upgradesSoFar.put(a, nextValue);
-               scene.raiseAllTowersAttribute(a, false);
+               scene.upgradeAllTowers(a, false);
             } else if(livesUpgrade) {
                lives += upgradeLives;
             } else if(interestUpgrade) {
