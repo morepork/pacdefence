@@ -51,8 +51,8 @@ public class Scene {
    private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
    private final List<Bullet> bullets = new ArrayList<Bullet>();
    
-   private List<Tower> towersToAdd = new ArrayList<Tower>();
-   private List<Tower> towersToRemove = new ArrayList<Tower>();
+   private List<Tower> towersToAdd = Collections.synchronizedList(new ArrayList<Tower>());
+   private List<Tower> towersToRemove = Collections.synchronizedList(new ArrayList<Tower>());
    
    private int nextGhostCost;
    
@@ -85,15 +85,19 @@ public class Scene {
    
    public long getUpgradeAllTowersCost(Attribute a) {
       long cost = 0;
-      for(Tower t : towers) {
-         cost += Formulae.upgradeCost(t.getAttributeLevel(a));
+      synchronized(towers) {
+         for(Tower t : towers) {
+            cost += Formulae.upgradeCost(t.getAttributeLevel(a));
+         }
       }
       return cost;
    }
    
    public void upgradeAllTowers(Attribute a, boolean boughtUpgrade) {
-      for(Tower t : towers) {
-         t.upgrade(a, boughtUpgrade);
+      synchronized(towers) {
+         for(Tower t : towers) {
+            t.upgrade(a, boughtUpgrade);
+         }
       }
    }
    
@@ -106,9 +110,11 @@ public class Scene {
    }
    
    public void removeAllGhosts() {
-      for(Tower t : towers) {
-         if(t instanceof Ghost) {
-            removeTower(t);
+      synchronized(towers) {
+         for(Tower t : towers) {
+            if(t instanceof Ghost) {
+               removeTower(t);
+            }
          }
       }
    }
@@ -127,21 +133,27 @@ public class Scene {
    
    private int getNumTowersWithoutGhosts() {
       int num = 0;
-      for(Tower t : towers) {
-         if(!(t instanceof Ghost)) {
-            num++;
+      synchronized(towers) {
+         for(Tower t : towers) {
+            if(!(t instanceof Ghost)) {
+               num++;
+            }
          }
       }
       // Include the towers that are to be added (will be added next tick)
-      for(Tower t : towersToAdd) {
-         if(!(t instanceof Ghost)) {
-            num++;
+      synchronized(towersToAdd) {
+         for(Tower t : towersToAdd) {
+            if(!(t instanceof Ghost)) {
+               num++;
+            }
          }
       }
       // Likewise for those to be removed
-      for(Tower t : towersToRemove) {
-         if(!(t instanceof Ghost)) {
-            num--;
+      synchronized(towersToRemove) {
+         for(Tower t : towersToRemove) {
+            if(!(t instanceof Ghost)) {
+               num--;
+            }
          }
       }
       return num;
@@ -149,30 +161,38 @@ public class Scene {
    
    private int getNumTowersOfType(Class<? extends Tower> towerType) {
       int num = 0;
-      for(Tower t : towers) {
-         if(t.getClass() == towerType) {
-            num++;
+      synchronized(towers) {
+         for(Tower t : towers) {
+            if(t.getClass() == towerType) {
+               num++;
+            }
          }
       }
       // Include the towers that are to be added (will be added next tick)
-      for(Tower t : towersToAdd) {
-         if(t.getClass() == towerType) {
-            num++;
+      synchronized(towersToAdd) {
+         for(Tower t : towersToAdd) {
+            if(t.getClass() == towerType) {
+               num++;
+            }
          }
       }
-      // Likewise for those to be removed
-      for(Tower t : towersToRemove) {
-         if(t.getClass() == towerType) {
-            num--;
+      synchronized(towersToRemove) {
+         // Likewise for those to be removed
+         for(Tower t : towersToRemove) {
+            if(t.getClass() == towerType) {
+               num--;
+            }
          }
       }
       return num;
    }
    
    public Tower getTowerContaining(Point p) {
-      for(Tower t : towers) {
-         if(t.contains(p)) {
-            return t;
+      synchronized(towers) {
+         for(Tower t : towers) {
+            if(t.contains(p)) {
+               return t;
+            }
          }
       }
       return null;
@@ -189,10 +209,12 @@ public class Scene {
    }
    
    public boolean canBuildTower(Tower toBuild) {
-      for(Tower t : towers) {
-         // Checks that the point doesn't clash with another tower
-         if(t.doesTowerClashWith(toBuild)) {
-            return false;
+      synchronized(towers) {
+         for(Tower t : towers) {
+            // Checks that the point doesn't clash with another tower
+            if(t.doesTowerClashWith(toBuild)) {
+               return false;
+            }
          }
       }
       return true;
@@ -260,17 +282,17 @@ public class Scene {
       // methods are finished, meaning it'd do nothing but still take/give you money.
       if (!towersToRemove.isEmpty()) {
          List<Tower> toRemove = towersToRemove;
-         towersToRemove = new ArrayList<Tower>();
+         towersToRemove = Collections.synchronizedList(new ArrayList<Tower>());
          towers.removeAll(toRemove);
       }
       if (!towersToAdd.isEmpty()) {
          List<Tower> toAdd = towersToAdd;
-         towersToAdd = new ArrayList<Tower>();
+         towersToAdd = Collections.synchronizedList(new ArrayList<Tower>());
          towers.addAll(toAdd);
       }
       // I tried multi-threading this but it made it slower in my limited testing
-      for(Tower t : towers) {
-         if(!towersToRemove.contains(t)) {
+      synchronized(towers) {
+         for(Tower t : towers) {
             List<Bullet> toAdd = t.tick(unmodifiableCreeps, levelInProgress);
             if(toAdd == null) {
                // Signals that a ghost is finished

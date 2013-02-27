@@ -79,15 +79,17 @@ public class AidTower extends AbstractTower {
    @Override
    public synchronized List<Bullet> tick(List<Creep> creeps, boolean levelInProgress) {
       if(!isSold) {
-         for(Tower t : towers) {
-            if(!(t instanceof AidTower) && !aidingTowers.contains(t)) {
-               if(super.getCentre().distance(t.getCentre()) < getRange()) {
-                  // Synchronized as aidAll() iterates over aidingTowers
-                  synchronized(this) {
-                     aidingTowers.add(t);
+         synchronized(towers) {
+            for(Tower t : towers) {
+               if(!(t instanceof AidTower) && !aidingTowers.contains(t)) {
+                  if(super.getCentre().distance(t.getCentre()) < getRange()) {
+                     // Synchronized as aidAll() iterates over aidingTowers
+                     synchronized(this) {
+                        aidingTowers.add(t);
+                     }
+                     aid(t);
+                     t.addDamageNotifier(damageNotifier);
                   }
-                  aid(t);
-                  t.addDamageNotifier(damageNotifier);
                }
             }
          }
