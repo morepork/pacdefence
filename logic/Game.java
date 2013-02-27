@@ -47,7 +47,6 @@ import javax.swing.JPanel;
 import towers.AbstractTower;
 import towers.Tower;
 import towers.Tower.Attribute;
-import towers.impl.AidTower;
 import util.Helper;
 import creeps.Creep;
 import creeps.Pacman;
@@ -425,9 +424,6 @@ public class Game {
             buildTower(toBuild);
             // Have to add after telling the control panel otherwise the price will be wrong
             scene.addTower(toBuild);
-            if(toBuild instanceof AidTower) {
-               ((AidTower) toBuild).setTowers(scene.getTowers());
-            }
             // If another tower can't be built, set the building tower to null
             if(!canBuildTower(buildingTower.getClass())) {
                setBuildingTower(null);

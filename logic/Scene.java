@@ -34,6 +34,7 @@ import towers.Bullet;
 import towers.Ghost;
 import towers.Tower;
 import towers.Tower.Attribute;
+import towers.impl.AidTower;
 import util.Helper;
 import creeps.Creep;
 
@@ -72,6 +73,9 @@ public class Scene {
       towersToAdd.add(t);
       if(t instanceof Ghost) {
          nextGhostCost *= 2;
+      }
+      if(t instanceof AidTower) {
+         ((AidTower) t).setTowers(Collections.unmodifiableList(towers));
       }
    }
    
@@ -182,10 +186,6 @@ public class Scene {
          }
       }
       return null;
-   }
-   
-   public List<Tower> getTowers() { // TODO Would like to get rid of this
-      return Collections.unmodifiableList(towers);
    }
    
    public boolean canBuildTower(Tower toBuild) {
