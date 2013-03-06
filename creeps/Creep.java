@@ -22,6 +22,7 @@ package creeps;
 import gui.Drawable;
 
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
@@ -176,19 +177,35 @@ public interface Creep extends Comparable<Creep>, Drawable {
    
    // Note, as the compare method is slow, this could cause some lag when there are lots of creeps
    public class DistanceComparator extends AbstractCreepComparator {
+      /*
+       * Use integers here as occasionally the following exception would be
+       * raised due to representing numbers as doubles:
+       * java.lang.IllegalArgumentException: Comparison method violates its general contract!
+       */
       
-      private final Point2D p;
+      private final Point p = new Point();
       private final boolean closestFirst;
       
       public DistanceComparator(Point2D p, boolean closestFirst) {
-         this.p = p;
+         this.p.setLocation(p);
          this.closestFirst = closestFirst;
+      }
+      
+      private int distanceSq(Point p1, Point p2) {
+         int dx = p2.x - p1.x;
+         int dy = p2.y - p1.y;
+         return dx * dx + dy * dy;
       }
 
       @Override
       public int compare(Creep c1, Creep c2) {
+         Point p1 = new Point();
+         Point p2 = new Point();
+         p1.setLocation(c1.getPosition());
+         p2.setLocation(c2.getPosition());
+         
          // This distance should never be greater than an int
-         int distanceSq = (int)(c1.getPosition().distanceSq(p) - c2.getPosition().distanceSq(p));
+         int distanceSq = distanceSq(p1, p) - distanceSq(p2, p);
          return closestFirst ? distanceSq : -distanceSq;
       }
       

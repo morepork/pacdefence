@@ -225,8 +225,8 @@ public class Game {
       list.add(new Creep.SlowestComparator());
       list.add(new Creep.MostHPComparator());
       list.add(new Creep.LeastHPComparator());
-      list.add(new Creep.DistanceComparator(null, true));
-      list.add(new Creep.DistanceComparator(null, false));
+      list.add(new Creep.DistanceComparator(new Point(), true));
+      list.add(new Creep.DistanceComparator(new Point(), false));
       list.add(new Creep.RandomComparator());
       return list;
    }
