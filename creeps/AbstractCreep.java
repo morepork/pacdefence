@@ -67,9 +67,8 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
    // need to be re-rotated, but can be retrieved from here.
    // The list of images if filed under the specific class of AbstractCreep and a LooseFloat which
    // is the angle the creep is facing.
-   private static final Map<Class<? extends AbstractCreep>, Map<LooseFloat,
-         List<BufferedImage>>> rotatedImages = new HashMap<Class<? extends AbstractCreep>,
-         Map<LooseFloat, List<BufferedImage>>>();
+   private static final Map<Class<? extends AbstractCreep>,
+         Map<LooseFloat, List<BufferedImage>>> rotatedImages = new HashMap<>();
    
    private final List<BufferedImage> originalImages;
    private List<BufferedImage> currentImages;
@@ -112,7 +111,7 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
    private static final Composite effectsComposite =
          AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25F);
    
-   private final List<Class<? extends Tower>> hits = new ArrayList<Class<? extends Tower>>();
+   private final List<Class<? extends Tower>> hits = new ArrayList<>();
 
    public AbstractCreep(List<BufferedImage> images, int currentLevel, long hp, List<Point> path){
       this.currentLevel = currentLevel;

@@ -63,12 +63,9 @@ public abstract class AbstractTower implements Tower {
    public static final Comparator<Creep> DEFAULT_CREEP_COMPARATOR = new FirstComparator();
    
    // Keep track of the loaded images so they are only loaded once
-   private static final Map<String, BufferedImage> towerImages =
-         new HashMap<String, BufferedImage>();
-   private static final Map<String, BufferedImage> overlayImages =
-         new HashMap<String, BufferedImage>();
-   private static final Map<String, BufferedImage> buttonImages =
-         new HashMap<String, BufferedImage>();
+   private static final Map<String, BufferedImage> towerImages = new HashMap<>();
+   private static final Map<String, BufferedImage> overlayImages = new HashMap<>();
+   private static final Map<String, BufferedImage> buttonImages = new HashMap<>();
    
    private static final Map<Class<? extends AbstractTower>, Map<LooseFloat, BufferedImage>>
          rotatedImages = new HashMap<Class<? extends AbstractTower>, Map<LooseFloat,
@@ -77,8 +74,7 @@ public abstract class AbstractTower implements Tower {
    public static final int turretThickness = 4;
    
    // Maps the ID of an aid tower to the aid factor it gives for each attribute
-   private final Map<Integer, Map<Attribute, Double>> aidFactors =
-         new HashMap<Integer, Map<Attribute, Double>>();
+   private final Map<Integer, Map<Attribute, Double>> aidFactors = new HashMap<>();
    private final Map<Attribute, Double> currentFactors = createCurrentFactors();
 
    private Map<Attribute, Integer> attributeLevels = createAttributeLevels();

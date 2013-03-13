@@ -133,8 +133,7 @@ public class ControlPanel extends JPanel {
    // These are in the current tower stats box
    private final List<TowerStat> towerStats = new ArrayList<TowerStat>();
    private final Map<JButton, Attribute> buttonAttributeMap = new HashMap<JButton, Attribute>();
-   private final Map<Attribute, JButton> attributeButtonMap =
-         new EnumMap<Attribute, JButton>(Attribute.class);
+   private final Map<Attribute, JButton> attributeButtonMap = new EnumMap<>(Attribute.class);
    
    // These labels are in the level stats box
    private MyJLabel numCreepsLabel, timeBetweenCreepsLabel, hpLabel;
