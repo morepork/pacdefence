@@ -27,7 +27,6 @@ import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Comparator;
-import java.util.Random;
 
 import towers.DamageNotifier;
 import towers.Tower;
@@ -160,10 +159,9 @@ public interface Creep extends Comparable<Creep>, Drawable {
    }
    
    public class RandomComparator extends AbstractCreepComparator {
-      private static final Random rand = new Random();
       @Override
       public int compare(Creep c1, Creep c2) {
-         return rand.nextInt();
+         throw new RuntimeException("Not implemented");
       }
       
       @Override

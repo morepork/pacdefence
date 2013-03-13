@@ -51,6 +51,7 @@ import util.Vector2D;
 import creeps.Creep;
 import creeps.Creep.DistanceComparator;
 import creeps.Creep.FirstComparator;
+import creeps.Creep.RandomComparator;
 import creeps.LooseFloat;
 
 public abstract class AbstractTower implements Tower {
@@ -179,7 +180,11 @@ public abstract class AbstractTower implements Tower {
          if(!creepComparator.getClass().equals(DEFAULT_CREEP_COMPARATOR.getClass())) {
             // Make a copy so it can be sorted
             creeps = new ArrayList<Creep>(creeps);
-            Collections.sort(creeps, creepComparator);
+            if(creepComparator instanceof RandomComparator) {
+               Collections.shuffle(creeps);
+            } else {
+               Collections.sort(creeps, creepComparator);
+            }
          }
          // If the image rotates, this needs to be done to find out the direction to rotate to
          fired = fireBullets(creeps);
