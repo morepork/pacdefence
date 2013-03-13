@@ -87,17 +87,18 @@ public class Game {
    
    // These should only be set during a level using their set methods. Only one should be non null
    // at any particular time
-   // The currently selected tower
-   private Tower selectedTower;
-   // The tower that is being hovered over on the map
-   private Tower hoverOverTower;
    // The tower/ghost that is being built
    private Buildable selectedBuilding;
    // The tower/ghost whose button is rolled over in the control panel
    private Buildable rolloverBuilding;
-   
+   // The currently selected tower
+   private Tower selectedTower;
+   // The tower that is being rolled over on the map
+   private Tower rolloverTower;
+   // The currently selected creep
    private Creep selectedCreep;
-   private Creep hoverOverCreep;
+   // The creep that is being rolled over on the map
+   private Creep rolloverCreep;
    
    public Game(ReturnToTitleCallback returnToTitleCallback, Options options) {
       this.returnToTitleCallback = returnToTitleCallback;
@@ -161,18 +162,6 @@ public class Game {
       });
    }
    
-   private void setSelectedTower(Tower t) {
-      if(selectedTower != null) {
-         // If there was a selected tower before deselect it
-         selectedTower.select(false);
-      }
-      selectedTower = t;
-      if(selectedTower != null) {
-         // and if a tower has been selected, select it
-         selectedTower.select(true);
-      }
-   }
-   
    private void setSelectedBuilding(Buildable b) {
       if(b != null) {
          setSelectedTower(null);
@@ -185,16 +174,28 @@ public class Game {
       rolloverBuilding = b;
    }
    
-   private void setHoverOverTower(Tower t) {
-      hoverOverTower = t;
+   private void setSelectedTower(Tower t) {
+      if(selectedTower != null) {
+         // If there was a selected tower before deselect it
+         selectedTower.select(false);
+      }
+      selectedTower = t;
+      if(selectedTower != null) {
+         // and if a tower has been selected, select it
+         selectedTower.select(true);
+      }
+   }
+   
+   private void setRolloverTower(Tower t) {
+      rolloverTower = t;
    }
    
    private void setSelectedCreep(Creep c) {
       selectedCreep = c;
    }
    
-   private void setHoverOverCreep(Creep c) {
-      hoverOverCreep = c;
+   private void setRolloverCreep(Creep c) {
+      rolloverCreep = c;
    }
 
    private GameMapPanel createGameMapPanel(GameMap gm) {
@@ -294,7 +295,7 @@ public class Game {
       selectedTower = null;
       selectedBuilding = null;
       rolloverBuilding = null;
-      hoverOverTower = null;
+      rolloverTower = null;
       money = 4000;
       lives = 25;
       livesLostOnThisLevel = 0;
@@ -361,8 +362,8 @@ public class Game {
          if(b instanceof Tower) {
             t = (Tower)b;
          }
-      } else if(selectedTower != null || hoverOverTower != null) {
-         t = selectedTower != null ? selectedTower : hoverOverTower;
+      } else if(selectedTower != null || rolloverTower != null) {
+         t = selectedTower != null ? selectedTower : rolloverTower;
          controlPanel.setCurrentInfoToTower(t);
       } else {
          updateCreepInfo();
@@ -375,8 +376,8 @@ public class Game {
       if(selectedCreep != null) {
          c = selectedCreep;
       }
-      if(c == null && hoverOverCreep != null) {
-         c = hoverOverCreep;
+      if(c == null && rolloverCreep != null) {
+         c = rolloverCreep;
       }
       controlPanel.setCurrentInfoToCreep(c);
    }
@@ -408,14 +409,14 @@ public class Game {
       updateTowerStats();
    }
    
-   private void updateHoverOverStuff(Point p) {
+   private void updateRolloverStuff(Point p) {
       if(p == null) {
-         setHoverOverTower(null);
-         setHoverOverCreep(null);
+         setRolloverTower(null);
+         setRolloverCreep(null);
       } else if (selectedTower == null && selectedBuilding == null) {
-         setHoverOverTower(scene.getTowerContaining(p));
-         if(hoverOverTower == null) {
-            setHoverOverCreep(scene.getCreepContaining(p));
+         setRolloverTower(scene.getTowerContaining(p));
+         if(rolloverTower == null) {
+            setRolloverCreep(scene.getCreepContaining(p));
          }
       }
    }
@@ -557,7 +558,7 @@ public class Game {
          // Catches any new creeps that may have moved under the cursor
          // Save the mouse position from mouseMotionListeners rather than use getMousePosition as it
          // is much faster
-         updateHoverOverStuff(lastMousePosition);
+         updateRolloverStuff(lastMousePosition);
          updateTowerStats();
       }
       
@@ -793,7 +794,7 @@ public class Game {
       }
       
       public String processTargetButtonPressed(boolean direction) {
-         Tower currentTower = hoverOverTower != null ? hoverOverTower : selectedTower;
+         Tower currentTower = rolloverTower != null ? rolloverTower : selectedTower;
          Comparator<Creep> currentComparator = currentTower.getCreepComparator();
          int nextIndex = comparators.indexOf(currentComparator) + (direction ? 1 : -1);
          if(nextIndex >= comparators.size()) {
@@ -828,7 +829,7 @@ public class Game {
       
       private Tower towerToAffect() {
          return selectedTower != null ? selectedTower :
-               hoverOverTower != null ? hoverOverTower : null;
+               rolloverTower != null ? rolloverTower : null;
       }
    }
    
