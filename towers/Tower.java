@@ -21,7 +21,6 @@ package towers;
 
 import gui.Drawable;
 
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
 import java.util.Comparator;
@@ -72,9 +71,6 @@ public interface Tower extends Drawable, Buildable, Cloneable {
       Special;
       
    };
-   
-   @Override
-   public void draw(Graphics2D g);
    
    /**
     * 
