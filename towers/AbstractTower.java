@@ -231,7 +231,7 @@ public abstract class AbstractTower implements Tower {
    }
 
    @Override
-   public boolean doesTowerClashWith(Tower t) {
+   public boolean clashesWith(Tower t) {
       Shape s = t.getBounds();
       if (s instanceof Circle) {
          Circle c = (Circle) s;

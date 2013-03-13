@@ -80,7 +80,7 @@ public interface Tower extends Drawable, Buildable, Cloneable {
     *         up to this one null if the tower is to be removed
     */
    public List<Bullet> tick(List<Creep> creeps, boolean levelInProgress);
-   public boolean doesTowerClashWith(Tower t);
+   public boolean clashesWith(Tower t);
    public boolean contains(Point p);
    public Point getCentre();
    public Shape getBounds();

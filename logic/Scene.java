@@ -195,7 +195,7 @@ public class Scene {
          synchronized(towers) {
             for(Tower t : towers) {
                // Checks that the point doesn't clash with another tower
-               if(t.doesTowerClashWith((Tower)b)) {
+               if(t.clashesWith((Tower)b)) {
                   return false;
                }
             }
