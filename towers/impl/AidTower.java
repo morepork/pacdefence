@@ -20,7 +20,6 @@
 package towers.impl;
 
 import java.awt.Point;
-import java.awt.Shape;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -54,8 +53,8 @@ public class AidTower extends AbstractTower {
    private final DamageNotifier damageNotifier = new AidDamageNotifier(this, 10);
    private boolean isSold = false;
 
-   public AidTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Aid", 0, 100, 0, 0, 50, 0, false);
+   public AidTower(Point p) {
+      super(p, "Aid", 0, 100, 0, 0, 50, 0, false);
    }
    
    @Override
@@ -130,7 +129,7 @@ public class AidTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
+         double damage, Point p, Creep c) {
       throw new RuntimeException("makeBullet called on AidTower which doesn't shoot");
    }
    

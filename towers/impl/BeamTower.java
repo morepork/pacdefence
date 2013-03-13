@@ -25,7 +25,6 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
@@ -53,10 +52,10 @@ public class BeamTower extends AbstractTower {
    private static final double upgradeBeamLastTicks = startingBeamLastTicks / 10;
    private double beamLastTicks = startingBeamLastTicks;
    
-   public BeamTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Beam", 40, 80, 40, 3.9, 50, 0, false);
+   public BeamTower(Point p) {
+      super(p, "Beam", 40, 80, 40, 3.9, 50, 0, false);
       // This is a grossly overpowered version for testing performance.
-      /*super(p, pathBounds, "Beam", 0, 1000, 100, 0.05, 50, 0, false);
+      /*super(p, "Beam", 0, 1000, 100, 0.05, 50, 0, false);
       for(int i = 0; i < 20; i++) {
          upgradeSpecial();
       }*/
@@ -93,9 +92,8 @@ public class BeamTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new Beam(this, p, dir.getAngle(), range, speed, damage, pathBounds, c,
-            (int)beamLastTicks);
+         double damage, Point p, Creep c) {
+      return new Beam(this, p, dir.getAngle(), range, speed, damage, c, (int)beamLastTicks);
    }
    
    @Override
@@ -126,7 +124,7 @@ public class BeamTower extends AbstractTower {
       private double moneyEarned = 0;
       
       private Beam(Tower t, Point2D centre, double angle, int range, double speed, double damage,
-            List<Shape> pathBounds, Creep target, int numTicks) {
+            Creep target, int numTicks) {
          deltaAlpha = (1 - minAlpha) / numTicks;
          this.centre = centre;
          this.launchedBy = t;

@@ -30,7 +30,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -129,7 +128,7 @@ public class Ghost implements Drawable, Buildable {
    }
 
    @Override
-   public Buildable constructNew(Point p, List<Shape> pathBounds) {
+   public Buildable constructNew(Point p) {
       return new Ghost(p);
    }
 

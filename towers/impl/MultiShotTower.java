@@ -20,7 +20,6 @@
 package towers.impl;
 
 import java.awt.Point;
-import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +34,8 @@ public class MultiShotTower extends AbstractTower {
    private static final double speedIncreaseFactor = 1.1;
    private int shots = 5;
    
-   public MultiShotTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Multi Shot", 40, 100, 3, 1.5, 50, 5, true);
+   public MultiShotTower(Point p) {
+      super(p, "Multi Shot", 40, 100, 3, 1.5, 50, 5, true);
    }
 
    @Override
@@ -65,10 +64,10 @@ public class MultiShotTower extends AbstractTower {
    
    @Override
    protected List<Bullet> makeBullets(Vector2D dir,  int turretWidth, int range,
-         double bulletSpeed, double damage, Point p, Creep c, List<Shape> pathBounds) {
+         double bulletSpeed, double damage, Point p, Creep c) {
       List<Bullet> bullets = new ArrayList<Bullet>();
       for(int i = 0; i < shots; i++) {
-         bullets.add(makeBullet(dir, turretWidth, range, bulletSpeed, damage, p, c, pathBounds));
+         bullets.add(makeBullet(dir, turretWidth, range, bulletSpeed, damage, p, c));
          bulletSpeed *= speedIncreaseFactor;
       }
       return bullets;

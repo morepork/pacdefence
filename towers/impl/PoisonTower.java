@@ -21,7 +21,6 @@ package towers.impl;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.List;
 
@@ -43,8 +42,8 @@ public class PoisonTower extends AbstractTower {
    private double poisonTicks = Constants.CLOCK_TICKS_PER_SECOND;
    private final double poisonTicksUpgrade = Constants.CLOCK_TICKS_PER_SECOND / 10;
    
-   public PoisonTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Poison", 40, 100, 5, baseDamage, 50, 20, true);
+   public PoisonTower(Point p) {
+      super(p, "Poison", 40, 100, 5, baseDamage, 50, 20, true);
    }
 
    @Override
@@ -70,8 +69,8 @@ public class PoisonTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new PoisonBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds);
+         double damage, Point p, Creep c) {
+      return new PoisonBullet(this, dir, turretWidth, range, speed, damage, p);
    }
 
    @Override
@@ -86,8 +85,8 @@ public class PoisonTower extends AbstractTower {
       private int poisonTicksLeft;
       
       public PoisonBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
-            double speed, double damage, Point p, List<Shape> pathBounds) {
-         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
+            double speed, double damage, Point p) {
+         super(shotBy, dir, turretWidth, range, speed, damage, p);
          poisonTicksLeft = (int)poisonTicks;
       }
       

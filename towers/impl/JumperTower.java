@@ -20,7 +20,6 @@
 package towers.impl;
 
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,8 +38,8 @@ public class JumperTower extends AbstractTower {
    
    private int jumps = 2;
    
-   public JumperTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Jumper", 40, 100, 5, 5, 50, 20, true);
+   public JumperTower(Point p) {
+      super(p, "Jumper", 40, 100, 5, 5, 50, 20, true);
    }
 
    @Override
@@ -55,8 +54,8 @@ public class JumperTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new JumpingBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds, jumps);
+         double damage, Point p, Creep c) {
+      return new JumpingBullet(this, dir, turretWidth, range, speed, damage, p, jumps);
    }
 
    @Override
@@ -71,8 +70,8 @@ public class JumperTower extends AbstractTower {
       private int moneyEarned = 0;
 
       public JumpingBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
-            double speed, double damage, Point p, List<Shape> pathBounds, int jumps) {
-         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
+            double speed, double damage, Point p, int jumps) {
+         super(shotBy, dir, turretWidth, range, speed, damage, p);
          jumpsLeft = jumps;
       }
       

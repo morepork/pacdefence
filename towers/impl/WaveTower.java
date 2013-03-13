@@ -23,7 +23,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
@@ -46,11 +45,11 @@ public class WaveTower extends AbstractTower {
    private double angle = 25;
    private final double upgradeIncreaseAngle = angle / 10;
    
-   public WaveTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Wave", 40, 100, 5, 5.2, 50, 6, true);
+   public WaveTower(Point p) {
+      super(p, "Wave", 40, 100, 5, 5.2, 50, 6, true);
       // This is a grossly overpowered (but with really low damage) version for
       // performance testing purposes
-      /*super(p, pathBounds, "Wave", 1, 500, 25, 0.05, 50, 6, true);
+      /*super(p, "Wave", 1, 500, 25, 0.05, 50, 6, true);
       for(int i = 0; i < 20; i++) {
          upgradeSpecial();
       }*/
@@ -78,8 +77,8 @@ public class WaveTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new WaveBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds, angle);
+         double damage, Point p, Creep c) {
+      return new WaveBullet(this, dir, turretWidth, range, speed, damage, p, angle);
    }
 
    @Override
@@ -100,8 +99,8 @@ public class WaveTower extends AbstractTower {
       private final int turretWidth;
       
       public WaveBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
-            double speed, double damage, Point p, List<Shape> pathBounds, double angle) {
-         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
+            double speed, double damage, Point p, double angle) {
+         super(shotBy, dir, turretWidth, range, speed, damage, p);
          startAngle = Math.toDegrees(dir.getAngle()) - 90 - angle / 2;
          extentAngle = angle;
          start = p;

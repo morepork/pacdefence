@@ -21,7 +21,6 @@ package towers.impl;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +31,6 @@ import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
 import util.Circle;
-import util.Helper;
 import util.Vector2D;
 import creeps.Creep;
 
@@ -40,8 +38,8 @@ public class CircleTower extends AbstractTower {
 
    private int hits = 1;
 
-   public CircleTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Circle", 40, 100, 5, 12, 50, 0, true);
+   public CircleTower(Point p) {
+      super(p, "Circle", 40, 100, 5, 12, 50, 0, true);
    }
 
    @Override
@@ -56,8 +54,8 @@ public class CircleTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new CirclingBullet(this, dir, turretWidth, range, speed, damage, p, c, pathBounds);
+         double damage, Point p, Creep c) {
+      return new CirclingBullet(this, dir, turretWidth, range, speed, damage, p, c);
    }
 
    @Override
@@ -77,8 +75,8 @@ public class CircleTower extends AbstractTower {
       private Collection<Creep> hitCreeps = new ArrayList<Creep>();
 
       public CirclingBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
-            double speed, double damage, Point p, Creep c, List<Shape> pathBounds) {
-         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
+            double speed, double damage, Point p, Creep c) {
+         super(shotBy, dir, turretWidth, range, speed, damage, p);
          double distance = p.distance(c.getPosition()) - c.getHalfWidth();
          double angleToCreep = dir.getAngle();
          double theta = angleToCreep - Math.acos(distance / getRange());
@@ -142,10 +140,7 @@ public class CircleTower extends AbstractTower {
          List<Point2D> points = new ArrayList<Point2D>();
          double delta = deltaTheta / arcLengthPerTick;
          for (double a = angle + delta; a <= angle + deltaTheta; a += delta) {
-            Point2D p = route.getPointAt(a);
-            if(Helper.containedInAShape(p, getPathBounds())) {
-               points.add(p);
-            }
+            points.add(route.getPointAt(a));
          }
          return points;
       }

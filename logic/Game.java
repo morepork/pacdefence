@@ -427,7 +427,7 @@ public class Game {
       }
       if(isValidTowerPos(p)) {
          if(canBuild(selectedBuilding)) {
-            Buildable b = selectedBuilding.constructNew(p, gameMap.getPathBounds());
+            Buildable b = selectedBuilding.constructNew(p);
             build(b);
             // Have to add after telling the control panel otherwise the price will be wrong
             scene.addBuilding(b);
@@ -443,7 +443,7 @@ public class Game {
       if(selectedBuilding == null || p == null) {
          return false;
       }
-      Buildable b = selectedBuilding.constructNew(p, gameMap.getPathBounds());
+      Buildable b = selectedBuilding.constructNew(p);
       // Checks that the point isn't on the path
       if(!b.canBuild(gameMap.getPath())) {
          return false;

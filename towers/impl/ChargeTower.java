@@ -20,7 +20,6 @@
 package towers.impl;
 
 import java.awt.Point;
-import java.awt.Shape;
 import java.util.List;
 
 import logic.Constants;
@@ -38,8 +37,8 @@ public class ChargeTower extends AbstractTower {
    private double nextDamageMultiplier = 1;
    private static final int ticksToCharge = (int)(2 * Constants.CLOCK_TICKS_PER_SECOND);
 
-   public ChargeTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Charge", 40, 100, 5, 16, 50, 16, true);
+   public ChargeTower(Point p) {
+      super(p, "Charge", 40, 100, 5, 16, 50, 16, true);
    }
    
    @Override
@@ -73,8 +72,8 @@ public class ChargeTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new BasicBullet(this, dir, turretWidth, range, speed, getNextDamage(), p, pathBounds);
+         double damage, Point p, Creep c) {
+      return new BasicBullet(this, dir, turretWidth, range, speed, getNextDamage(), p);
    }
 
    @Override

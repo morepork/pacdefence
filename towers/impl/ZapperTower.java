@@ -23,7 +23,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -45,8 +44,8 @@ public class ZapperTower extends AbstractTower {
    private int numZaps = 5;
    private static final int upgradeIncreaseZaps = 1;
    
-   public ZapperTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Zapper", 40, 100, 1, 1.25, 50, 21, true);
+   public ZapperTower(Point p) {
+      super(p, "Zapper", 40, 100, 1, 1.25, 50, 21, true);
    }
 
 
@@ -62,8 +61,8 @@ public class ZapperTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new ZapperBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds, numZaps);
+         double damage, Point p, Creep c) {
+      return new ZapperBullet(this, dir, turretWidth, range, speed, damage, p, numZaps);
    }
 
    @Override
@@ -83,8 +82,8 @@ public class ZapperTower extends AbstractTower {
       private final int offScreenFudgeDistance;
    
       public ZapperBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
-            double speed, double damage, Point p, List<Shape> pathBounds, int numZaps) {
-         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
+            double speed, double damage, Point p, int numZaps) {
+         super(shotBy, dir, turretWidth, range, speed, damage, p);
          numZapsLeft = numZaps;
          zapRange = range / 4;
          // Bullet shouldn't be removed if it can still zap creeps

@@ -23,7 +23,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -42,8 +41,8 @@ public class LaserTower extends AbstractTower {
    private double beamLength = 20;
    private final double beamLengthUpgrade = beamLength * 2 * (upgradeIncreaseFactor - 1);
 
-   public LaserTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Laser", 40, 100, 7.5, 1.9, 50, 24, true);
+   public LaserTower(Point p) {
+      super(p, "Laser", 40, 100, 7.5, 1.9, 50, 24, true);
    }
 
    @Override
@@ -67,11 +66,10 @@ public class LaserTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
+         double damage, Point p, Creep c) {
       Point2D firstPoint = Vector2D.add(p, Vector2D.createFromVector(dir, turretWidth));
       Point2D lastPoint = Vector2D.add(p, Vector2D.createFromVector(dir, range));
-      return new Laser(pathBounds, this, firstPoint, lastPoint, speed, damage, range - turretWidth,
-            beamLength);
+      return new Laser(this, firstPoint, lastPoint, speed, damage, range - turretWidth, beamLength);
    }
 
    @Override
@@ -89,9 +87,9 @@ public class LaserTower extends AbstractTower {
       private final Vector2D step;
       private double moneyEarned = 0;
       
-      public Laser(List<Shape> pathBounds, Tower shotBy, Point2D firstPoint, Point2D lastPoint,
-            double speed, double damage, int range, double length) {
-         super(pathBounds, shotBy, damage, range, speed);
+      public Laser(Tower shotBy, Point2D firstPoint, Point2D lastPoint, double speed,
+            double damage, int range, double length) {
+         super(shotBy, damage, range, speed);
          this.lastPoint = lastPoint;
          this.length = length;
          step = Vector2D.createFromVector(Vector2D.createFromPoints(firstPoint, lastPoint), speed);

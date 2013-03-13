@@ -20,7 +20,6 @@
 package towers.impl;
 
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.List;
 
@@ -41,8 +40,8 @@ public class WeakenTower extends AbstractTower {
    private double increaseDamageFactor = 2;
    private final DamageNotifier damageNotifier = new DamageNotifier(this);
    
-   public WeakenTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Weaken", 40, 100, 5, 1, 50, 19, true);
+   public WeakenTower(Point p) {
+      super(p, "Weaken", 40, 100, 5, 1, 50, 19, true);
    }
 
    @Override
@@ -57,8 +56,8 @@ public class WeakenTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new BasicBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds){
+         double damage, Point p, Creep c) {
+      return new BasicBullet(this, dir, turretWidth, range, speed, damage, p){
          @Override
          protected void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {
             c.setDamageMultiplier(damageNotifier, increaseDamageFactor, (int)extraDamageTicks);

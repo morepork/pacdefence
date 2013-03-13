@@ -20,17 +20,14 @@
 package towers.impl;
 
 import java.awt.Point;
-import java.awt.Shape;
-import java.util.List;
 
 import logic.Constants;
 
 
 public class SlowLengthTower extends SlowTower {
    
-   public SlowLengthTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Slow", 40, 100, 5, 1, 50, 23, true, 0.5,
-              Constants.CLOCK_TICKS_PER_SECOND);
+   public SlowLengthTower(Point p) {
+      super(p, "Slow", 40, 100, 5, 1, 50, 23, true, 0.5, Constants.CLOCK_TICKS_PER_SECOND);
       // Halves the speed of the creeps it hits, and lasts for 1s
    }
 

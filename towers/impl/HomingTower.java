@@ -20,7 +20,6 @@
 package towers.impl;
 
 import java.awt.Point;
-import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,8 +42,8 @@ public class HomingTower extends AbstractTower {
    // Only increase the redirect angle by a fixed amount otherwise it quickly gets silly
    private final double upgradeIncreaseAngle = maxRedirectAngle * (upgradeIncreaseFactor - 1);
 
-   public HomingTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Homing", 40, 100, 3, 20, 50, 18, true);
+   public HomingTower(Point p) {
+      super(p, "Homing", 40, 100, 3, 20, 50, 18, true);
    }
    
    @Override
@@ -60,9 +59,8 @@ public class HomingTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new HomingBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds, c,
-            maxRedirectAngle);
+         double damage, Point p, Creep c) {
+      return new HomingBullet(this, dir, turretWidth, range, speed, damage, p, c, maxRedirectAngle);
    }
 
    @Override
@@ -77,9 +75,8 @@ public class HomingTower extends AbstractTower {
       private final double maxRedirectAngle;
       
       private HomingBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
-            double speed, double damage, Point p, List<Shape> pathBounds, Creep c,
-            double maxRedirectAngle) {
-         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
+            double speed, double damage, Point p, Creep c, double maxRedirectAngle) {
+         super(shotBy, dir, turretWidth, range, speed, damage, p);
          target = c;
          this.maxRedirectAngle = Math.toRadians(maxRedirectAngle);
       }

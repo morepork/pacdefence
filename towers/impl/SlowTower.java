@@ -20,7 +20,6 @@
 package towers.impl;
 
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.List;
 
@@ -41,11 +40,10 @@ public abstract class SlowTower extends AbstractTower {
    protected double slowTicks;
    private final double upgradeIncreaseTicks;
 
-   protected SlowTower(Point p, List<Shape> pathBounds, String name, int fireRate, int range,
-         double bulletSpeed, double damage, int width, int turretWidth, boolean hasOverlay,
-         double slowFactor, double slowTicks) {
-      super(p, pathBounds, name, fireRate, range, bulletSpeed, damage, width, turretWidth,
-            hasOverlay);
+   protected SlowTower(Point p, String name, int fireRate, int range, double bulletSpeed,
+         double damage, int width, int turretWidth, boolean hasOverlay, double slowFactor,
+         double slowTicks) {
+      super(p, name, fireRate, range, bulletSpeed, damage, width, turretWidth, hasOverlay);
       this.slowFactor = slowFactor;
       this.slowTicks = slowTicks;
       // This makes the increase decent, the base increase is just not enough
@@ -61,8 +59,8 @@ public abstract class SlowTower extends AbstractTower {
    
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new BasicBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds) {
+         double damage, Point p, Creep c) {
+      return new BasicBullet(this, dir, turretWidth, range, speed, damage, p) {
          @Override
          public void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {
             c.slow(slowFactor, (int)slowTicks);

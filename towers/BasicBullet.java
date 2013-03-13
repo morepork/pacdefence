@@ -23,7 +23,6 @@ import images.ImageHelper;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -56,21 +55,17 @@ public class BasicBullet extends AbstractBullet {
    protected final Tower shotBy;
    private static final BufferedImage image = ImageHelper.loadImage(radius * 2, radius * 2,
          "other", "bullet.png");
-   private final List<Shape> pathBounds;
    
    /**
     * Creates a new BasicBuller with fields set, but tick and draw
     * methods must be overrided.
     * 
-    * @param path
     * @param shotBy
     * @param damage
     * @param range
     * @param speed
     */
-   protected BasicBullet(List<Shape> pathBounds, Tower shotBy, double damage, int range,
-         double speed) {
-      this.pathBounds = pathBounds;
+   protected BasicBullet(Tower shotBy, double damage, int range, double speed) {
       this.shotBy = shotBy;
       this.damage = damage;
       this.range = range;
@@ -79,8 +74,8 @@ public class BasicBullet extends AbstractBullet {
       position = null;
    }
    
-   public BasicBullet(Tower shotBy, Vector2D dir_, int turretWidth, int range,
-         double speed, double damage, Point p, List<Shape> pathBounds) {
+   public BasicBullet(Tower shotBy, Vector2D dir_, int turretWidth, int range, double speed,
+         double damage, Point p) {
       this.shotBy = shotBy;
       int turretWidthPlusRadius = turretWidth + radius;
       this.range = range - turretWidthPlusRadius;
@@ -90,7 +85,6 @@ public class BasicBullet extends AbstractBullet {
       Vector2D turretVector = Vector2D.createFromVector(dir, turretWidthPlusRadius);
       position = Vector2D.add(p, turretVector);
       lastPosition = new Point2D.Double(position.getX(), position.getY());
-      this.pathBounds = pathBounds;
    }
 
    @Override
@@ -212,10 +206,6 @@ public class BasicBullet extends AbstractBullet {
     */
    protected boolean isOutOfRange() {
       return distanceTravelled > range;
-   }
-   
-   protected List<Shape> getPathBounds() {
-      return pathBounds;
    }
 
 }

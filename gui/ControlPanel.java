@@ -91,23 +91,23 @@ public class ControlPanel extends JPanel {
    
    // The tower implementations to use for the game, there should be exactly 18 here
    private static final Buildable[] buildables = {
-      new BomberTower(new Point(), null),
-      new SlowLengthTower(new Point(), null),
-      new FreezeTower(new Point(), null),
-      new JumperTower(new Point(), null),
-      new CircleTower(new Point(), null),
-      new ScatterTower(new Point(), null),
-      new MultiShotTower(new Point(), null),
-      new LaserTower(new Point(), null),
-      new PoisonTower(new Point(), null),
-      new OmnidirectionalTower(new Point(), null),
-      new WeakenTower(new Point(), null),
-      new WaveTower(new Point(), null),
-      new HomingTower(new Point(), null),
-      new ChargeTower(new Point(), null),
-      new ZapperTower(new Point(), null),
-      new BeamTower(new Point(), null),
-      new AidTower(new Point(), null),
+      new BomberTower(new Point()),
+      new SlowLengthTower(new Point()),
+      new FreezeTower(new Point()),
+      new JumperTower(new Point()),
+      new CircleTower(new Point()),
+      new ScatterTower(new Point()),
+      new MultiShotTower(new Point()),
+      new LaserTower(new Point()),
+      new PoisonTower(new Point()),
+      new OmnidirectionalTower(new Point()),
+      new WeakenTower(new Point()),
+      new WaveTower(new Point()),
+      new HomingTower(new Point()),
+      new ChargeTower(new Point()),
+      new ZapperTower(new Point()),
+      new BeamTower(new Point()),
+      new AidTower(new Point()),
       new Ghost(new Point()),
    };
    
@@ -281,7 +281,7 @@ public class ControlPanel extends JPanel {
    
    public void restart() {
       for(OverlayButton b : buildableTypes.keySet()) {
-         buildableTypes.put(b, buildableTypes.get(b).constructNew(new Point(), null));
+         buildableTypes.put(b, buildableTypes.get(b).constructNew(new Point()));
       }
       start.setEnabled(true);
       fastButton.setToDefault();

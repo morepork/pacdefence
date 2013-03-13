@@ -23,7 +23,6 @@ package towers.impl;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.HashSet;
 import java.util.List;
@@ -47,8 +46,8 @@ public class BomberTower extends AbstractTower {
    private double blastRadius = startingBlastRadius;
    private static final double bombDamageDividend = 2;
 
-   public BomberTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Bomber", 40, 100, 5, 10, 50, 15, true);
+   public BomberTower(Point p) {
+      super(p, "Bomber", 40, 100, 5, 10, 50, 15, true);
    }
 
    @Override
@@ -68,8 +67,8 @@ public class BomberTower extends AbstractTower {
 
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new Bomb(this, dir, turretWidth, range, speed, damage, p, pathBounds);
+         double damage, Point p, Creep c) {
+      return new Bomb(this, dir, turretWidth, range, speed, damage, p);
    }
 
    private class Bomb extends BasicBullet {
@@ -84,8 +83,8 @@ public class BomberTower extends AbstractTower {
       private double moneyEarned;
 
       public Bomb(Tower shotBy, Vector2D dir, int turretWidth, int range, double speed,
-            double damage, Point p, List<Shape> pathBounds) {
-         super(shotBy, dir, turretWidth, range, speed, damage, p, pathBounds);
+            double damage, Point p) {
+         super(shotBy, dir, turretWidth, range, speed, damage, p);
          blastSizeIncrement = blastRadius / frames;
       }
 

@@ -20,7 +20,6 @@
 package towers.impl;
 
 import java.awt.Point;
-import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,10 +33,10 @@ public class OmnidirectionalTower extends AbstractTower {
    
    private int numShots = 3;
    
-   public OmnidirectionalTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Omnidirectional", 40, 100, 5, 5.5, 50, 0, true);
+   public OmnidirectionalTower(Point p) {
+      super(p, "Omnidirectional", 40, 100, 5, 5.5, 50, 0, true);
       // Testing tower with way too many bullets
-      /*super(p, pathBounds, "Omnidirectional", 0, 1000, 5, 0.005, 50, 0, true);
+      /*super(p, "Omnidirectional", 0, 1000, 5, 0.005, 50, 0, true);
       for(int i = 0; i < 200; i++) {
          upgradeSpecial();
       }*/
@@ -55,14 +54,14 @@ public class OmnidirectionalTower extends AbstractTower {
    
    @Override
    protected List<Bullet> makeBullets(Vector2D dir, int turretWidth, int range,
-         double speed, double damage, Point p, Creep c, List<Shape> pathBounds) {
+         double speed, double damage, Point p, Creep c) {
       List<Bullet> bullets = new ArrayList<Bullet>();
       double angle = dir.getAngle();
       double dTheta = 2 * Math.PI / numShots;
       for(int i = 0; i < numShots; i++) {
          Vector2D bulletDir = Vector2D.createFromAngle(angle, 1);
          angle += dTheta;
-         bullets.add(makeBullet(bulletDir, turretWidth, range, speed, damage, p, c, pathBounds));
+         bullets.add(makeBullet(bulletDir, turretWidth, range, speed, damage, p, c));
       }
       return bullets;
    }

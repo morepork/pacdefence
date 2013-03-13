@@ -20,7 +20,6 @@
 package towers.impl;
 
 import java.awt.Point;
-import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +32,8 @@ public class ScatterTower extends AbstractTower {
    
    private int shots = 2;
    
-   public ScatterTower(Point p, List<Shape> pathBounds) {
-      super(p, pathBounds, "Scatter", 40, 100, 5, 5, 50, 0, true);
+   public ScatterTower(Point p) {
+      super(p, "Scatter", 40, 100, 5, 5, 50, 0, true);
    }
 
    @Override

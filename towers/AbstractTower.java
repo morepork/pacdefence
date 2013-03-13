@@ -112,8 +112,6 @@ public abstract class AbstractTower implements Tower {
    private final boolean imageRotates;
    private BufferedImage currentImage;
    private final BufferedImage buttonImage;
-   
-   private final List<Shape> pathBounds;
 
    private boolean isSelected = false;
 
@@ -130,16 +128,14 @@ public abstract class AbstractTower implements Tower {
    // Defaults to FirstComparator
    private Comparator<Creep> creepComparator = DEFAULT_CREEP_COMPARATOR;
    
-   protected AbstractTower(Point p, List<Shape> pathBounds, String name, int fireRate,
-         double range, double bulletSpeed, double damage, int width, int turretWidth,
-         boolean hasOverlay) {
+   protected AbstractTower(Point p, String name, int fireRate, double range, double bulletSpeed,
+         double damage, int width, int turretWidth, boolean hasOverlay) {
       this.width = width;
       halfWidth = width / 2;
       centre = new Point(p);
       topLeft = new Point((int) centre.getX() - halfWidth, (int) centre.getY() - halfWidth);
       bounds = new Circle(centre, halfWidth);
       setBounds(); // Sets the bounding rectangle
-      this.pathBounds = pathBounds;
       this.name = name;
       this.fireRate = fireRate;
       this.range = range;
@@ -383,9 +379,9 @@ public abstract class AbstractTower implements Tower {
    }
    
    @Override
-   public Tower constructNew(Point p, List<Shape> pathBounds) {
+   public Tower constructNew(Point p) {
       try {
-         return this.getClass().getConstructor(Point.class, List.class).newInstance(p, pathBounds);
+         return this.getClass().getConstructor(Point.class).newInstance(p);
       } catch(Exception e) {
          // No exception should be thrown if the superclass is reasonably behaved
          throw new RuntimeException("\nSuperclass of AbstractTower is not well behaved.\n" + e +
@@ -488,14 +484,13 @@ public abstract class AbstractTower implements Tower {
    protected abstract String getSpecialName();
 
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return new BasicBullet(this, dir, turretWidth, range, speed, damage, p, pathBounds);
+         double damage, Point p, Creep c) {
+      return new BasicBullet(this, dir, turretWidth, range, speed, damage, p);
    }
    
    protected List<Bullet> makeBullets(Vector2D dir, int turretWidth, int range,
-            double speed, double damage, Point p, Creep c, List<Shape> pathBounds) {
-      return Helper.makeListContaining(makeBullet(dir, turretWidth, range, speed, damage, p, c,
-            pathBounds));
+            double speed, double damage, Point p, Creep c) {
+      return Helper.makeListContaining(makeBullet(dir, turretWidth, range, speed, damage, p, c));
    }
    
    protected List<Bullet> fireBullets(List<Creep> creeps) {
@@ -535,7 +530,7 @@ public abstract class AbstractTower implements Tower {
       if(imageRotates && rotateTurret) {
          currentImage = getRotatedImage(Vector2D.angle(dir.getX(), -dir.getY()));
       }
-      return makeBullets(dir, turretWidth, (int)range, bulletSpeed, damage, p, c, pathBounds);
+      return makeBullets(dir, turretWidth, (int)range, bulletSpeed, damage, p, c);
    }
 
    protected void upgradeDamage() {
