@@ -506,8 +506,7 @@ public class ControlPanel extends JPanel {
             @Override
             public void stateChanged(ChangeEvent e) {
                JButton b = (JButton) e.getSource();
-               eventProcessor.processTowerButtonRollover(buildableTypes.get(b),
-                     checkIfRolledOver(b));
+               eventProcessor.processTowerButtonRollover(buildableTypes.get(b), isRollover(b));
             }
          });
          panel.add(button);
@@ -552,7 +551,7 @@ public class ControlPanel extends JPanel {
                OverlayButton o = (OverlayButton) e.getSource();
                eventProcessor.processEndLevelUpgradeButtonRollover(o.equals(livesUpgrade),
                      o.equals(interestUpgrade), o.equals(moneyUpgrade), getAttributeFromButton(o),
-                     checkIfRolledOver(o));
+                     isRollover(o));
             }
          });
          box.add(b);
@@ -605,8 +604,7 @@ public class ControlPanel extends JPanel {
          @Override
         public void stateChanged(ChangeEvent e) {
             JButton b = (JButton)e.getSource();
-            eventProcessor.processUpgradeButtonRollover(buttonAttributeMap.get(b),
-                  checkIfRolledOver(b));
+            eventProcessor.processUpgradeButtonRollover(buttonAttributeMap.get(b), isRollover(b));
          }
       });
       return b;
@@ -724,7 +722,7 @@ public class ControlPanel extends JPanel {
       b.addChangeListener(new ChangeListener() {
          @Override
         public void stateChanged(ChangeEvent e) {
-            eventProcessor.processSellButtonRollover(checkIfRolledOver((JButton) e.getSource()));
+            eventProcessor.processSellButtonRollover(isRollover((JButton) e.getSource()));
          }
       });
       return b;
@@ -754,7 +752,7 @@ public class ControlPanel extends JPanel {
       add(panel);
    }
    
-   private boolean checkIfRolledOver(JButton b) {
+   private boolean isRollover(JButton b) {
       return b.getModel().isRollover();
    }
 
