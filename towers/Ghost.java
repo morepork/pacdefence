@@ -19,6 +19,7 @@
 
 package towers;
 
+import gui.Drawable;
 import images.ImageHelper;
 
 import java.awt.AlphaComposite;
@@ -33,14 +34,12 @@ import java.awt.Shape;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import creeps.Creep;
 
 
-public class Ghost implements Tower {
+public class Ghost implements Drawable, Buildable {
    
    private static final int width = 40;
    private static final int halfWidth = width / 2;
@@ -59,36 +58,28 @@ public class Ghost implements Tower {
       bounds = new Rectangle(p.x - halfWidth, p.y - halfWidth, width, width);
    }
 
-   @Override
-   public List<Bullet> tick(List<Creep> creeps, boolean levelInProgress) {
+   /**
+    * Tick this ghost, returns the amount of money earned by killing creeps,
+    * or a negative value if it should be removed. 
+    */
+   public double tick(List<Creep> creeps) {
       if(hitsLeft <= 0) {
-         return null;
+         return -1;
       }
-      List<Bullet> toReturn = new ArrayList<Bullet>();
+      double moneyEarned = 0;
       for(Creep c : creeps) {
          if(c.isAlive() && c.getPosition().distance(centre) < c.getHalfWidth() + halfWidth) {
             Creep.DamageReport d = c.hit(c.getHPLeft(), null);
             if(d != null) {
-               final double moneyEarned = d.getMoneyEarned();
                // Gives you the money for killing this creep
-               toReturn.add(new AbstractBullet() {
-                  @Override
-                  public void draw(Graphics2D g) {
-                     // Does nothing as it isn't drawn
-                  }
-   
-                  @Override
-                  public double tick(List<Creep> creeps) {
-                     return moneyEarned;
-                  }
-               });
+               moneyEarned += d.getMoneyEarned();
                if(--hitsLeft <= 0) {
-                  return toReturn;
+                  break;
                }
             }
          }
       }
-      return toReturn;
+      return moneyEarned;
    }
 
    @Override
@@ -124,11 +115,11 @@ public class Ghost implements Tower {
    
    @Override
    public ZCoordinate getZ() {
-      return ZCoordinate.Tower;
+      return ZCoordinate.Ghost;
    }
    
    @Override
-   public boolean canTowerBeBuilt(List<Polygon> path) {
+   public boolean canBuild(List<Polygon> path) {
       for(Polygon p : path) {
          if(p.contains(bounds)) {
             return true;
@@ -138,41 +129,8 @@ public class Ghost implements Tower {
    }
 
    @Override
-   public Tower constructNew(Point p, List<Shape> pathBounds) {
+   public Buildable constructNew(Point p, List<Shape> pathBounds) {
       return new Ghost(p);
-   }
-
-   @Override
-   public void addDamageNotifier(DamageNotifier d) {
-      // Does nothing
-   }
-
-   @Override
-   public void aidAttribute(Attribute a, double increaseFactor, int towerID) {
-      // Does nothing
-   }
-
-   @Override
-   public boolean contains(Point p) {
-      // Ghosts don't contain anything
-      return false;
-   }
-
-   @Override
-   public boolean doesTowerClashWith(Tower t) {
-      // Ghosts can be placed on top of other ghosts
-      return false;
-   }
-
-   @Override
-   public int getAttributeLevel(Attribute a) {
-      // Attributes don't change
-      return 0;
-   }
-
-   @Override
-   public Shape getBounds() {
-      return new Rectangle(bounds);
    }
 
    @Override
@@ -181,67 +139,8 @@ public class Ghost implements Tower {
    }
 
    @Override
-   public Point getCentre() {
-      return new Point(centre);
-   }
-
-   @Override
-   public ExperienceReport getExperienceReport() {
-      // Ghosts don't deal any 'damage', or get upgraded
-      return new ExperienceReport(0, hits - hitsLeft, 0, 0, 0);
-   }
-
-   @Override
    public String getName() {
       return "Ghost";
-   }
-
-   @Override
-   public Comparator<Creep> getCreepComparator() {
-      // Ghosts don't have comparators
-      return null;
-   }
-
-   @Override
-   public String getStat(Attribute a) {
-      // Ghosts don't have stats
-      return " ";
-   }
-
-   @Override
-   public String getStatName(Attribute a) {
-      // Ghosts don't have stats
-      return a.toString();
-   }
-
-   @Override
-   public void increaseDamageDealt(double damage) {
-      // Ghosts don't get upgrades
-   }
-
-   @Override
-   public void increaseKills(int kills) {
-      // Ghosts don't get upgrades
-   }
-
-   @Override
-   public void upgrade(Attribute a, boolean boughtUpgrade) {
-      // Ghosts don't get upgrades
-   }
-
-   @Override
-   public void select(boolean select) {
-      // Ghosts can't be selected
-   }
-
-   @Override
-   public void setCreepComparator(Comparator<Creep> c) {
-      // Ghosts don't have comparators
-   }
-   
-   @Override
-   public void sell() {
-      throw new RuntimeException("Ghosts can't be sold.");
    }
 
 }

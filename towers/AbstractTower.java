@@ -250,7 +250,7 @@ public abstract class AbstractTower implements Tower {
    }
    
    @Override
-   public boolean canTowerBeBuilt(List<Polygon> path) {
+   public boolean canBuild(List<Polygon> path) {
       for(Polygon p : path) {
          if(bounds.intersects(p)) {
             return false;

@@ -23,16 +23,13 @@ import gui.Drawable;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.Shape;
-import java.awt.image.BufferedImage;
 import java.util.Comparator;
 import java.util.List;
 
 import creeps.Creep;
 
-
-public interface Tower extends Drawable, Cloneable {
+public interface Tower extends Drawable, Buildable, Cloneable {
    
    public enum Attribute{
       
@@ -78,7 +75,7 @@ public interface Tower extends Drawable, Cloneable {
    
    @Override
    public void draw(Graphics2D g);
-   public void drawShadowAt(Graphics2D g, Point p, boolean validPlacement);
+   
    /**
     * 
     * @param creeps
@@ -88,10 +85,8 @@ public interface Tower extends Drawable, Cloneable {
     */
    public List<Bullet> tick(List<Creep> creeps, boolean levelInProgress);
    public boolean doesTowerClashWith(Tower t);
-   public boolean canTowerBeBuilt(List<Polygon> path);
    public boolean contains(Point p);
    public Point getCentre();
-   public String getName();
    public Shape getBounds();
    public int getAttributeLevel(Attribute a);
    public void upgrade(Attribute a, boolean boughtUpgrade);
@@ -106,13 +101,11 @@ public interface Tower extends Drawable, Cloneable {
    public void aidAttribute(Attribute a, double increaseFactor, int towerID);
    public String getStat(Attribute a);
    public String getStatName(Attribute a);
-   public Tower constructNew(Point p, List<Shape> pathBounds);
    public void select(boolean select);
    public void increaseDamageDealt(double damage);
    public void increaseKills(int kills);
    public void addDamageNotifier(DamageNotifier d);
    public ExperienceReport getExperienceReport();
-   public BufferedImage getButtonImage();
    public void setCreepComparator(Comparator<Creep> c);
    public Comparator<Creep> getCreepComparator();
    public void sell();

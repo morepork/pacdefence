@@ -45,6 +45,7 @@ import java.util.prefs.BackingStoreException;
 import javax.swing.JPanel;
 
 import towers.AbstractTower;
+import towers.Buildable;
 import towers.Tower;
 import towers.Tower.Attribute;
 import util.Helper;
@@ -88,12 +89,12 @@ public class Game {
    // at any particular time
    // The currently selected tower
    private Tower selectedTower;
-   // The tower that is being built
-   private Tower buildingTower;
-   // The tower whose button is rolled over in the control panel
-   private Tower rolloverTower;
    // The tower that is being hovered over on the map
    private Tower hoverOverTower;
+   // The tower/ghost that is being built
+   private Buildable selectedBuilding;
+   // The tower/ghost whose button is rolled over in the control panel
+   private Buildable rolloverBuilding;
    
    private Creep selectedCreep;
    private Creep hoverOverCreep;
@@ -172,16 +173,16 @@ public class Game {
       }
    }
    
-   private void setBuildingTower(Tower t) {
-      if(t != null) {
+   private void setSelectedBuilding(Buildable b) {
+      if(b != null) {
          setSelectedTower(null);
       }
-      controlPanel.enableTowerStatsButtons(t == null);
-      buildingTower = t;
+      controlPanel.enableTowerStatsButtons(b == null);
+      selectedBuilding = b;
    }
    
-   private void setRolloverTower(Tower t) {
-      rolloverTower = t;
+   private void setRolloverBuilding(Buildable b) {
+      rolloverBuilding = b;
    }
    
    private void setHoverOverTower(Tower t) {
@@ -260,18 +261,20 @@ public class Game {
       System.gc();
    }
    
-   private boolean canBuildTower(Class<? extends Tower> towerType) {
-      return money >= scene.getTowerCost(towerType);
+   private boolean canBuild(Buildable b) {
+      return money >= scene.getBuildCost(b);
    }
    
-   private void buildTower(Tower t) {
-      // New towers get half the effect of all the bonus upgrades so far, rounded down
-      for(Attribute a : upgradesSoFar.keySet()) {
-         for(int i = 0; i < upgradesSoFar.get(a) / 2; i++) {
-            t.upgrade(a, false);
+   private void build(Buildable b) {
+      if (b instanceof Tower) {
+         // New towers get half the effect of all the bonus upgrades so far, rounded down
+         for(Attribute a : upgradesSoFar.keySet()) {
+            for(int i = 0; i < upgradesSoFar.get(a) / 2; i++) {
+               ((Tower)b).upgrade(a, false);
+            }
          }
       }
-      decreaseMoney(scene.getTowerCost(t.getClass()));
+      decreaseMoney(scene.getBuildCost(b));
       updateMoney();
    }
    
@@ -289,8 +292,8 @@ public class Game {
       scene.clear();
       upgradesSoFar.clear();
       selectedTower = null;
-      buildingTower = null;
-      rolloverTower = null;
+      selectedBuilding = null;
+      rolloverBuilding = null;
       hoverOverTower = null;
       money = 4000;
       lives = 25;
@@ -350,11 +353,14 @@ public class Game {
    
    private void updateTowerStats() {
       Tower t = null;
-      if(rolloverTower != null || buildingTower != null) {
-         // This needs to be first as rollover tower takes precedence over selected
-         t = rolloverTower != null ? rolloverTower : buildingTower;
-         controlPanel.updateCurrentCost(t.getName(), scene.getTowerCost(t.getClass()));
+      if(rolloverBuilding != null || selectedBuilding != null) {
+         // This needs to be first as rollover building takes precedence over selected tower
+         Buildable b = rolloverBuilding != null ? rolloverBuilding : selectedBuilding;
+         controlPanel.updateCurrentCost(b.getName(), scene.getBuildCost(b));
          controlPanel.setCurrentInfoToTower(null);
+         if(b instanceof Tower) {
+            t = (Tower)b;
+         }
       } else if(selectedTower != null || hoverOverTower != null) {
          t = selectedTower != null ? selectedTower : hoverOverTower;
          controlPanel.setCurrentInfoToTower(t);
@@ -383,13 +389,13 @@ public class Game {
       setSelectedCreep(null);
       if(e.getButton() == MouseEvent.BUTTON3) {
          // Stop everything if it's the right mouse button
-         setBuildingTower(null);
+         setSelectedBuilding(null);
          return;
       }
       Point p = e.getPoint();
       Tower t = scene.getTowerContaining(p);
       if(t == null) {
-         if(buildingTower == null) {
+         if(selectedBuilding == null) {
             setSelectedCreep(scene.getCreepContaining(p));
          } else {
             tryToBuildTower(p);
@@ -397,7 +403,7 @@ public class Game {
       } else {
          // Select a tower if one is clicked on
          setSelectedTower(t);
-         setBuildingTower(null);
+         setSelectedBuilding(null);
       }
       updateTowerStats();
    }
@@ -406,7 +412,7 @@ public class Game {
       if(p == null) {
          setHoverOverTower(null);
          setHoverOverCreep(null);
-      } else if (selectedTower == null && buildingTower == null) {
+      } else if (selectedTower == null && selectedBuilding == null) {
          setHoverOverTower(scene.getTowerContaining(p));
          if(hoverOverTower == null) {
             setHoverOverCreep(scene.getCreepContaining(p));
@@ -415,34 +421,34 @@ public class Game {
    }
    
    private void tryToBuildTower(Point p) {
-      if(buildingTower == null) {
+      if(selectedBuilding == null) {
          return;
       }
       if(isValidTowerPos(p)) {
-         Tower toBuild = buildingTower.constructNew(p, gameMap.getPathBounds());
-         if(canBuildTower(toBuild.getClass())) {
-            buildTower(toBuild);
+         if(canBuild(selectedBuilding)) {
+            Buildable b = selectedBuilding.constructNew(p, gameMap.getPathBounds());
+            build(b);
             // Have to add after telling the control panel otherwise the price will be wrong
-            scene.addTower(toBuild);
+            scene.addBuilding(b);
             // If another tower can't be built, set the building tower to null
-            if(!canBuildTower(buildingTower.getClass())) {
-               setBuildingTower(null);
+            if(!canBuild(selectedBuilding)) {
+               setSelectedBuilding(null);
             }
          }
       }
    }
    
    private boolean isValidTowerPos(Point p) {
-      if(buildingTower == null || p == null) {
+      if(selectedBuilding == null || p == null) {
          return false;
       }
-      Tower toBuild = buildingTower.constructNew(p, gameMap.getPathBounds());
+      Buildable b = selectedBuilding.constructNew(p, gameMap.getPathBounds());
       // Checks that the point isn't on the path
-      if(!toBuild.canTowerBeBuilt(gameMap.getPath())) {
+      if(!b.canBuild(gameMap.getPath())) {
          return false;
       }
       // Checks that the point doesn't clash with another tower
-      if(!scene.canBuildTower(toBuild)) {
+      if(!scene.canBuild(b)) {
          return false;
       }
       return true;
@@ -611,10 +617,10 @@ public class Game {
          drawables.add(new Drawable() {
             @Override
             public void draw(Graphics2D g) {
-               Tower t = buildingTower;
+               Buildable b = selectedBuilding;
                Point p = lastMousePosition;
-               if(t != null && p != null) {
-                  t.drawShadowAt(g, p, isValidTowerPos(p));
+               if(b != null && p != null) {
+                  b.drawShadowAt(g, p, isValidTowerPos(p));
                }
             }
             @Override
@@ -704,22 +710,22 @@ public class Game {
          }
       }
       
-      public void processTowerButtonPressed(Tower t) {
-         if(money >= scene.getTowerCost(t.getClass())) {
+      public void processTowerButtonPressed(Buildable b) {
+         if(money >= scene.getBuildCost(b)) {
             setSelectedTower(null);
-            setBuildingTower(t);
+            setSelectedBuilding(b);
             updateTowerStats();
          }
       }
       
-      public void processTowerButtonRollover(Tower t, boolean on) {
+      public void processTowerButtonRollover(Buildable b, boolean on) {
          if(!on) {
-            t = null;
-            if(buildingTower == null) {
+            b = null;
+            if(selectedBuilding == null) {
                controlPanel.clearCurrentCost();
             }
          }
-         setRolloverTower(t);
+         setRolloverBuilding(b);
          updateTowerStats();
       }
       

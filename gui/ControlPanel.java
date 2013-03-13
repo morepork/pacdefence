@@ -60,6 +60,7 @@ import javax.swing.event.ChangeListener;
 
 import logic.Constants;
 import logic.Game.ControlEventProcessor;
+import towers.Buildable;
 import towers.ExperienceReport;
 import towers.Ghost;
 import towers.Tower;
@@ -89,7 +90,7 @@ import creeps.Creep;
 public class ControlPanel extends JPanel {
    
    // The tower implementations to use for the game, there should be exactly 18 here
-   private static final Tower[] towerImplementations = {
+   private static final Buildable[] buildables = {
       new BomberTower(new Point(), null),
       new SlowLengthTower(new Point(), null),
       new FreezeTower(new Point(), null),
@@ -119,7 +120,7 @@ public class ControlPanel extends JPanel {
    // These are in the top stats box
    private OverlayToggleButton fastButton = createFastButton();
    private MyJLabel levelLabel, moneyLabel, livesLabel, interestLabel, upgradesLabel;
-   private final Map<OverlayButton, Tower> towerTypes = new HashMap<OverlayButton, Tower>();
+   private final Map<OverlayButton, Buildable> buildableTypes = new HashMap<>();
    private OverlayButton damageUpgrade, rangeUpgrade, rateUpgrade, speedUpgrade,
          specialUpgrade, livesUpgrade, interestUpgrade, moneyUpgrade;
    
@@ -270,15 +271,17 @@ public class ControlPanel extends JPanel {
    }
    
    public void increaseTowersAttribute(Attribute a) {
-      for(Tower t : towerTypes.values()) {
-         // So that the upgrades are shown when you are building a new tower
-         t.upgrade(a, false);
+      for(Buildable b : buildableTypes.values()) {
+         if (b instanceof Tower) {
+            // So that the upgrades are shown when you are building a new tower
+            ((Tower) b).upgrade(a, false);
+         }
       }
    }
    
    public void restart() {
-      for(OverlayButton b : towerTypes.keySet()) {
-         towerTypes.put(b, towerTypes.get(b).constructNew(new Point(), null));
+      for(OverlayButton b : buildableTypes.keySet()) {
+         buildableTypes.put(b, buildableTypes.get(b).constructNew(new Point(), null));
       }
       start.setEnabled(true);
       fastButton.setToDefault();
@@ -486,24 +489,25 @@ public class ControlPanel extends JPanel {
       GridLayout gl = new GridLayout(numY, numX);
       gl.setVgap(2);
       panel.setLayout(gl);
-      assert towerImplementations.length == total : "Number of tower implementations is " +
+      assert buildables.length == total : "Number of tower implementations is " +
             "different to number of buttons.";
       for (int a = 0; a < numY * numX; a++) {
-         Tower t = towerImplementations[a];
+         Buildable t = buildables[a];
          OverlayButton button = OverlayButton.makeTowerButton(t.getButtonImage());
-         towerTypes.put(button, t);
+         buildableTypes.put(button, t);
          button.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
                JButton b = (JButton) e.getSource();
-               eventProcessor.processTowerButtonPressed(towerTypes.get(b));
+               eventProcessor.processTowerButtonPressed(buildableTypes.get(b));
             }
          });
          button.addChangeListener(new ChangeListener(){
             @Override
             public void stateChanged(ChangeEvent e) {
                JButton b = (JButton) e.getSource();
-               eventProcessor.processTowerButtonRollover(towerTypes.get(b), checkIfRolledOver(b));
+               eventProcessor.processTowerButtonRollover(buildableTypes.get(b),
+                     checkIfRolledOver(b));
             }
          });
          panel.add(button);

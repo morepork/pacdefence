@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import towers.AbstractTower;
+import towers.Buildable;
 import towers.Bullet;
 import towers.Ghost;
 import towers.Tower;
@@ -49,10 +50,12 @@ public class Scene {
    
    private final List<Creep> creeps = Collections.synchronizedList(new ArrayList<Creep>());
    private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
+   private final List<Ghost> ghosts = Collections.synchronizedList(new ArrayList<Ghost>());
    private final List<Bullet> bullets = new ArrayList<Bullet>();
    
    private List<Tower> towersToAdd = Collections.synchronizedList(new ArrayList<Tower>());
    private List<Tower> towersToRemove = Collections.synchronizedList(new ArrayList<Tower>());
+   private List<Ghost> ghostsToAdd = Collections.synchronizedList(new ArrayList<Ghost>());
    
    private int nextGhostCost;
    
@@ -63,19 +66,24 @@ public class Scene {
    public void clear() {
       creeps.clear();
       towers.clear();
+      ghosts.clear();
       bullets.clear();
       towersToAdd.clear();
       towersToRemove.clear();
+      ghostsToAdd.clear();
       nextGhostCost = Formulae.towerCost(0, 0);
    }
    
-   public void addTower(Tower t) {
-      towersToAdd.add(t);
-      if(t instanceof Ghost) {
-         nextGhostCost *= 2;
+   public void addBuilding(Buildable b) {
+      if (b instanceof Tower) {
+         towersToAdd.add((Tower) b);
+         if(b instanceof AidTower) {
+            ((AidTower) b).setTowers(Collections.unmodifiableList(towers));
+         }
       }
-      if(t instanceof AidTower) {
-         ((AidTower) t).setTowers(Collections.unmodifiableList(towers));
+      if(b instanceof Ghost) {
+         nextGhostCost *= 2;
+         ghostsToAdd.add((Ghost) b);
       }
    }
    
@@ -110,53 +118,25 @@ public class Scene {
    }
    
    public void removeAllGhosts() {
-      synchronized(towers) {
-         for(Tower t : towers) {
-            if(t instanceof Ghost) {
-               removeTower(t);
-            }
-         }
-      }
+      ghosts.clear();
    }
    
-   public int getTowerCost(Class<? extends Tower> towerType) {
-      if(towerType.equals(Ghost.class)) {
+   public int getBuildCost(Buildable b) {
+      if(b instanceof Ghost) {
          return nextGhostCost;
-      } else {
-         return Formulae.towerCost(getNumTowersWithoutGhosts(), getNumTowersOfType(towerType));
+      } else if(b instanceof Tower) {
+         return Formulae.towerCost(getNumTowers(), getNumTowersOfType(((Tower)b).getClass()));
       }
+      throw new RuntimeException("Unknown Buildable implementation: " + b);
    }
    
    public long getTowerSellValue(Tower t) {
-      return Formulae.sellValue(t, getNumTowersWithoutGhosts(), getNumTowersOfType(t.getClass()));
+      return Formulae.sellValue(t, getNumTowers(), getNumTowersOfType(t.getClass()));
    }
    
-   private int getNumTowersWithoutGhosts() {
-      int num = 0;
-      synchronized(towers) {
-         for(Tower t : towers) {
-            if(!(t instanceof Ghost)) {
-               num++;
-            }
-         }
-      }
-      // Include the towers that are to be added (will be added next tick)
-      synchronized(towersToAdd) {
-         for(Tower t : towersToAdd) {
-            if(!(t instanceof Ghost)) {
-               num++;
-            }
-         }
-      }
-      // Likewise for those to be removed
-      synchronized(towersToRemove) {
-         for(Tower t : towersToRemove) {
-            if(!(t instanceof Ghost)) {
-               num--;
-            }
-         }
-      }
-      return num;
+   private int getNumTowers() {
+      // Include the towers to be added/remove in the next tick
+      return towers.size() + towersToAdd.size() - towersToRemove.size();
    }
    
    private int getNumTowersOfType(Class<? extends Tower> towerType) {
@@ -210,12 +190,14 @@ public class Scene {
       return null;
    }
    
-   public boolean canBuildTower(Tower toBuild) {
-      synchronized(towers) {
-         for(Tower t : towers) {
-            // Checks that the point doesn't clash with another tower
-            if(t.doesTowerClashWith(toBuild)) {
-               return false;
+   public boolean canBuild(Buildable b) {
+      if (b instanceof Tower) {
+         synchronized(towers) {
+            for(Tower t : towers) {
+               // Checks that the point doesn't clash with another tower
+               if(t.doesTowerClashWith((Tower)b)) {
+                  return false;
+               }
             }
          }
       }
@@ -226,13 +208,14 @@ public class Scene {
       List<Drawable> drawables = new ArrayList<Drawable>();
       drawables.addAll(creeps);
       drawables.addAll(towers);
+      drawables.addAll(ghosts);
       drawables.addAll(bullets);
       return drawables;
    }
    
    public TickResult tick(DebugTimes debugTimes, boolean levelInProgress, Creep newCreep) {
       int livesLost;
-      double moneyEarned;
+      double moneyEarned = 0;
       List<Creep> creepsCopy = new ArrayList<Creep>(creeps);
       // Sort with the default comparator here (should be FirstComparator) for two reasons:
       // Firstly, most towers should use the default comparator so don't need to resort this.
@@ -246,15 +229,17 @@ public class Scene {
          livesLost = tickCreeps(newCreep);
          debugTimes.processCreepsTime = System.nanoTime() - beginTime;
          beginTime = System.nanoTime();
-         moneyEarned = tickBullets(unmodifiableCreeps);
+         moneyEarned += tickBullets(unmodifiableCreeps);
          debugTimes.processBulletsTime = System.nanoTime() - beginTime;
          beginTime = System.nanoTime();
          tickTowers(levelInProgress, unmodifiableCreeps);
+         moneyEarned += tickGhosts(unmodifiableCreeps);
          debugTimes.processTowersTime = System.nanoTime() - beginTime;
       } else {
          livesLost = tickCreeps(newCreep);
-         moneyEarned = tickBullets(unmodifiableCreeps);
+         moneyEarned += tickBullets(unmodifiableCreeps);
          tickTowers(levelInProgress, unmodifiableCreeps);
+         moneyEarned += tickGhosts(unmodifiableCreeps);
       }
       return new TickResult(livesLost, moneyEarned);
    }
@@ -297,15 +282,31 @@ public class Scene {
       // I tried multi-threading this but it made it slower in my limited testing
       synchronized(towers) {
          for(Tower t : towers) {
-            List<Bullet> toAdd = t.tick(unmodifiableCreeps, levelInProgress);
-            if(toAdd == null) {
-               // Signals that a ghost is finished
-               towersToRemove.add(t);
+            bullets.addAll(t.tick(unmodifiableCreeps, levelInProgress));
+         }
+      }
+   }
+   
+   private double tickGhosts(List<Creep> unmodifiableCreeps) {
+      if (!ghostsToAdd.isEmpty()) {
+         List<Ghost> toAdd = ghostsToAdd;
+         ghostsToAdd = Collections.synchronizedList(new ArrayList<Ghost>());
+         ghosts.addAll(toAdd);
+      }
+      double totalMoneyEarned = 0;
+      synchronized(ghosts) {
+         // Iterate backwards as ghosts are being removed
+         for(int i = ghosts.size() - 1; i >= 0; i--) {
+            Ghost g = ghosts.get(i);
+            double moneyEarned = g.tick(unmodifiableCreeps);
+            if (moneyEarned < 0) {
+               ghosts.remove(i);
             } else {
-               bullets.addAll(toAdd);
+               totalMoneyEarned += moneyEarned;
             }
          }
       }
+      return totalMoneyEarned;
    }
    
    private double tickBullets(List<Creep> unmodifiableCreeps) {
