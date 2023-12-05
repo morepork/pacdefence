@@ -778,7 +778,7 @@ public class ControlPanel extends JPanel {
             label.setText(" ");
          } else {
             button.setText(t.getStatName(attrib));
-            label.setText(t.getStat(attrib));
+            label.setText(t.getStat(attrib) + " [" + t.getAttributeLevel(attrib) + "]");
          }
       }
       
