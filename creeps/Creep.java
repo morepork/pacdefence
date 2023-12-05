@@ -87,7 +87,7 @@ public interface Creep extends Comparable<Creep>, Drawable {
    public class FirstComparator extends AbstractCreepComparator {
       @Override
       public int compare(Creep c1, Creep c2) {
-         return (int) (c2.getTotalDistanceTravelled() - c1.getTotalDistanceTravelled());
+         return Double.compare(c2.getTotalDistanceTravelled(), c1.getTotalDistanceTravelled());
       }
       
       @Override
@@ -111,7 +111,7 @@ public interface Creep extends Comparable<Creep>, Drawable {
    public class FastestComparator extends AbstractCreepComparator {
       @Override
       public int compare(Creep c1, Creep c2) {
-         return (int)((c2.getSpeed() - c1.getSpeed()) * 100);
+         return Double.compare(c2.getSpeed(), c1.getSpeed());
       }
       
       @Override
@@ -135,9 +135,7 @@ public interface Creep extends Comparable<Creep>, Drawable {
    public class MostHPComparator extends AbstractCreepComparator {
       @Override
       public int compare(Creep c1, Creep c2) {
-         int sign = c2.getHPLeft() > c1.getHPLeft() ? 1 : -1;
-         // Take the log here as the hp difference can get larger than an int
-         return sign * (int)Math.log(Math.abs(c2.getHPLeft() - c1.getHPLeft()) + 1);
+         return Double.compare(c2.getHPLeft(), c1.getHPLeft());
       }
       
       @Override
@@ -172,36 +170,29 @@ public interface Creep extends Comparable<Creep>, Drawable {
    
    // Note, as the compare method is slow, this could cause some lag when there are lots of creeps
    public class DistanceComparator extends AbstractCreepComparator {
-      /*
-       * Use integers here as occasionally the following exception would be
-       * raised due to representing numbers as doubles:
-       * java.lang.IllegalArgumentException: Comparison method violates its general contract!
-       */
-      
-      private final Point p = new Point();
+      private final Point2D towerLocation = new Point2D.Double();
       private final boolean closestFirst;
       
       public DistanceComparator(Point2D p, boolean closestFirst) {
-         this.p.setLocation(p);
+         this.towerLocation.setLocation(p);
          this.closestFirst = closestFirst;
       }
       
-      private int distanceSq(Point p1, Point p2) {
-         int dx = p2.x - p1.x;
-         int dy = p2.y - p1.y;
+      private double distanceSq(Point2D p1, Point2D p2) {
+         double dx = p2.getX() - p1.getX();
+         double dy = p2.getY() - p1.getY();
          return dx * dx + dy * dy;
       }
 
       @Override
       public int compare(Creep c1, Creep c2) {
-         Point p1 = new Point();
-         Point p2 = new Point();
-         p1.setLocation(c1.getPosition());
-         p2.setLocation(c2.getPosition());
-         
-         // This distance should never be greater than an int
-         int distanceSq = distanceSq(p1, p) - distanceSq(p2, p);
-         return closestFirst ? distanceSq : -distanceSq;
+         // Find the distance (squared) to each creep. Using the square as it's not worth the extra
+         // operation to find the square root to get the actual distance when for the comparison it doesn't
+         // matter.
+         double d1 = distanceSq(c1.getPosition(), towerLocation);
+         double d2 = distanceSq(c2.getPosition(), towerLocation);
+         int val = Double.compare(d1, d2);
+         return closestFirst ? val : -val;
       }
       
       @Override
