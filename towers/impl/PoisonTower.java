@@ -93,7 +93,7 @@ public class PoisonTower extends AbstractTower {
       @Override
       public void draw(Graphics2D g) {
          if(poisonedCreep == null) {
-            // Creep should only be drawn if it's yet to hit a creep
+            // Bullet should only be drawn if it's yet to hit a creep
             super.draw(g);
          }
       }
