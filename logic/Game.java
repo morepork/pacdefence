@@ -46,8 +46,11 @@ import javax.swing.JPanel;
 
 import towers.AbstractTower;
 import towers.Buildable;
+import towers.Bullet;
 import towers.Tower;
 import towers.Tower.Attribute;
+import towers.impl.BeamTower;
+import towers.impl.WaveTower;
 import util.Helper;
 import creeps.Creep;
 import creeps.Pacman;
@@ -612,8 +615,7 @@ public class Game {
       }
       
       private List<Drawable> getDrawables() {
-         List<Drawable> drawables = new ArrayList<Drawable>();
-         drawables.addAll(scene.getDrawables());
+         List<Drawable> drawables = new ArrayList<>(scene.getDrawables());
          // Displays the tower on the cursor that could be built
          drawables.add(new Drawable() {
             @Override

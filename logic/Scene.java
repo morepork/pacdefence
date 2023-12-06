@@ -36,6 +36,9 @@ import towers.Ghost;
 import towers.Tower;
 import towers.Tower.Attribute;
 import towers.impl.AidTower;
+import towers.impl.BeamTower;
+import towers.impl.BomberTower;
+import towers.impl.WaveTower;
 import util.Helper;
 import creeps.Creep;
 
@@ -209,8 +212,53 @@ public class Scene {
       drawables.addAll(creeps);
       drawables.addAll(towers);
       drawables.addAll(ghosts);
-      drawables.addAll(bullets);
+      drawables.addAll(filterBulletsForDrawing());
       return drawables;
+   }
+
+   private List<Bullet> filterBulletsForDrawing() {
+      // In the late game when there are lots of bullets flying around it can cover the map making
+      // it hard to see anything and increasing render times. Filter out excessive numbers of
+      // bullets from the rendering step.
+
+      int maxBullets = 10_000; // this is a _lot_ of bullets
+      // These ones are particularly bad as they cover a large area so limit them even more.
+      int maxBeams = 100;
+      int maxExplodingBombs = 10;
+      int maxWaves = 100;
+
+      List<Bullet> shuffledBullets = new ArrayList<>(bullets);
+      Collections.shuffle(shuffledBullets); // so every bullet has an equal chance of being shown
+      int numBeams = 0;
+      int numExplodingBombs = 0;
+      int numWaves = 0;
+      List<Bullet> filteredBullets = new ArrayList<>(shuffledBullets.size());
+      for (Bullet b : shuffledBullets) {
+         if (b instanceof BeamTower.Beam) {
+            if (numBeams++ > maxBeams) {
+               continue;
+            }
+         }
+         if ((b instanceof BomberTower.Bomb bomb) && bomb.isExploding()) {
+            if (numExplodingBombs++ > maxExplodingBombs) {
+               continue;
+            }
+         }
+         if (b instanceof WaveTower.WaveBullet) {
+            if (numWaves++ > maxWaves) {
+               continue;
+            }
+         }
+         filteredBullets.add(b);
+      }
+      if (filteredBullets.size() > maxBullets) {
+         filteredBullets = filteredBullets.subList(0, maxBullets);
+      }
+      // if (Math.random() < 0.01) {
+      //    System.out.println("filtered bullets: " + shuffledBullets.size() + " / " + filteredBullets.size());
+      //    System.out.println("numBeams: " + numBeams + " numWaves: " + numWaves + " numExplodingBombs: " + numExplodingBombs);
+      // }
+      return filteredBullets;
    }
    
    public TickResult tick(DebugTimes debugTimes, boolean levelInProgress, Creep newCreep) {

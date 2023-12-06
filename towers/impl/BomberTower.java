@@ -68,23 +68,25 @@ public class BomberTower extends AbstractTower {
    @Override
    protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
          double damage, Point p, Creep c) {
-      return new Bomb(this, dir, turretWidth, range, speed, damage, p);
+      return new Bomb(this, dir, turretWidth, range, speed, damage, p, blastRadius);
    }
 
-   private class Bomb extends BasicBullet {
+   public static class Bomb extends BasicBullet {
 
       private boolean exploding = false;
       private boolean expanding = true;
       private Set<Creep> hitCreeps = new HashSet<Creep>();
-      private final Color blastColour = new Color(255, 0, 0, 100);
+      private final Color blastColour = new Color(255, 0, 0, 75);
+      private final double blastRadius;
       private final double blastSizeIncrement;
       private final int frames = 5;
       private final Circle blast = new Circle(new Point(0, 0), 0);
       private double moneyEarned;
 
       public Bomb(Tower shotBy, Vector2D dir, int turretWidth, int range, double speed,
-            double damage, Point p) {
+            double damage, Point p, double blastRadius) {
          super(shotBy, dir, turretWidth, range, speed, damage, p);
+         this.blastRadius = blastRadius;
          blastSizeIncrement = blastRadius / frames;
       }
 
@@ -152,6 +154,10 @@ public class BomberTower extends AbstractTower {
                }
             }
          }
+      }
+
+      public boolean isExploding() {
+         return this.exploding;
       }
 
    }
