@@ -32,8 +32,7 @@
 
 <project name="PacDefence" basedir="." default="compile">
 
-  <property name="JUnitJar" value="/usr/share/java/junit4.jar" />
-  <property name="ClassPath" location=".:${JUnitJar}" />
+  <property name="ClassPath" location=".:lib/junit4.jar:lib/hamcrest-core.jar" />
   <property name="SrcDir" location="." />
   <property name="BinDir" location="." />
   <property name="JarLocation" location="." />
