@@ -246,7 +246,7 @@ public class Game {
       if(livesLostOnThisLevel == 0) {
          text += Formulae.noEnemiesThroughBonus(level) + " (perfect) + ";
       }
-      text += interest + " (interest)";
+      text += Helper.format(interest) + " (interest)";
       
       increaseMoney(interest + levelEndBonus + noEnemiesThroughBonus);
       updateAllButLevelStats();
@@ -338,7 +338,7 @@ public class Game {
       String levelText = "Level " + level;
       String numCreeps = String.valueOf(Formulae.numCreeps(level));
       long hp = Formulae.hp(level);
-      String hpText = String.valueOf((long)(0.5 * hp) + " - " + hp * 2);
+      String hpText = String.valueOf(Helper.format(0.5 * hp) + " - " + Helper.format(hp * 2));
       String timeBetweenCreeps = "0 - " + Helper.format(Formulae.
             ticksBetweenAddCreep(level) * 2 / Constants.CLOCK_TICKS_PER_SECOND, 2) + "s";
       controlPanel.updateLevelStats(levelText, numCreeps, hpText, timeBetweenCreeps);

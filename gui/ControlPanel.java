@@ -188,7 +188,9 @@ public class ControlPanel extends JPanel {
          ExperienceReport report = t.getExperienceReport();
          towerLevelLabel.setText("Level: " + report.level);
          killsLabel.setText("Kills: " + report.kills + " (" + report.killsForUpgrade + ")");
-         damageDealtLabel.setText("Dmg: " + report.damage + " (" + report.damageForUpgrade + ")");
+         String fDamage = Helper.format(report.damage);
+         String fDamageForUpgrade = Helper.format(report.damageForUpgrade);
+         damageDealtLabel.setText("Dmg: " + fDamage + " (" + fDamageForUpgrade + ")");
          sellButton.setEnabled(true);
          Comparator<Creep> c = t.getCreepComparator();
          if(c != null) {
@@ -236,7 +238,7 @@ public class ControlPanel extends JPanel {
    }
    
    public void updateCurrentCost(String description, long cost) {
-      updateCurrentCost(description, String.valueOf(cost));
+      updateCurrentCost(description, Helper.format(cost));
    }
    
    public void updateCurrentCost(String description, String cost) {
@@ -258,7 +260,7 @@ public class ControlPanel extends JPanel {
    }
    
    public void updateMoney(long money) {
-      moneyLabel.setText(money);
+      moneyLabel.setText(Helper.format(money));
    }
    
    public void updateLives(int lives) {
@@ -778,7 +780,8 @@ public class ControlPanel extends JPanel {
             label.setText(" ");
          } else {
             button.setText(t.getStatName(attrib));
-            label.setText(t.getStat(attrib) + " [" + t.getAttributeLevel(attrib) + "]");
+            int upgradesBought = t.getAttributeLevel(attrib) - 1;
+            label.setText(t.getStat(attrib) + " [" + upgradesBought + "]");
          }
       }
       

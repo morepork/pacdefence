@@ -35,6 +35,9 @@ public class Helper {
 
    private static final Map<Integer, DecimalFormat> formats =
          new HashMap<Integer, DecimalFormat>();
+
+   private static final double scientificFormatThreshold = 1e10;
+   private static final DecimalFormat scientificFormat = new DecimalFormat("0.000E0");
    
    public static List<Point2D> getPointsOnLine(Line2D line) {
       return getPointsOnLine(line.getP1(), line.getP2());
@@ -93,9 +96,16 @@ public class Helper {
          list.remove(positions.get(i).intValue());
       }
    }
+
+   public static String format(double d) {
+      return format(d, 0);
+   }
    
-   public static String format(Double d, int decimalPlaces) {
+   public static String format(double d, int decimalPlaces) {
       assert decimalPlaces >= 0 : "decimalPlaces must be >= 0";
+      if (d > scientificFormatThreshold) {
+         return scientificFormat.format(d);
+      }
       if(!formats.containsKey(decimalPlaces)) {
          formats.put(decimalPlaces, makeFormat(decimalPlaces));
       }
@@ -104,7 +114,7 @@ public class Helper {
 
    private static DecimalFormat makeFormat(int decimalPlaces) {
       assert decimalPlaces >= 0 : "decimalPlaces must be >= 0";
-      StringBuilder pattern = new StringBuilder("#0");
+      StringBuilder pattern = new StringBuilder("###,##0");
       if(decimalPlaces > 0) {
          pattern.append(".");
          for(int i = 0; i < decimalPlaces; i++) {
