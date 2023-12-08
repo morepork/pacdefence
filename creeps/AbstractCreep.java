@@ -345,8 +345,7 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
    
    @Override
    public int compareTo(Creep c) {
-      // The speed differences should never be so large that the int wraps
-      return (int)(1e6 * (c.getSpeed() - this.getSpeed()));
+      return Double.compare(c.getSpeed(), this.getSpeed());
    }
    
    /**
