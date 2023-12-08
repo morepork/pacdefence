@@ -248,7 +248,7 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
    }
 
    @Override
-   public DamageReport hit(double damage, Class<? extends Tower> towerClass) {
+   public synchronized DamageReport hit(double damage, Class<? extends Tower> towerClass) {
       if(!alive) {
          return null;
       }
@@ -506,13 +506,15 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
       if(towerClass == null) {
          return 1;
       }
-      int index = hits.indexOf(towerClass);
+      int index = hits.lastIndexOf(towerClass);
       int numOtherTowers;
       if(index >= 0) {
          // If the tower is in the list, the number of other towers is the
          // number between the index and the end
          numOtherTowers = hits.size() - index - 1;
-         hits.clear();
+         // Remove this hit so that the list doesn't keep on growing. A new hit will be added at
+         // the end.
+         hits.remove(index);
       } else {
          // If this tower isn't in the list, the number of other towers is the
          // size of the list
