@@ -35,8 +35,10 @@ import creeps.Creep.DistanceComparator;
 
 
 public class JumperTower extends AbstractTower {
+
+   private static final int jumpRange = 50;
    
-   private int jumps = 2;
+   private int jumps = 1;
    
    public JumperTower(Point p) {
       super(p, "Jumper", 40, 100, 5, 5, 50, 20, true);
@@ -79,20 +81,28 @@ public class JumperTower extends AbstractTower {
       protected void specialOnHit(Point2D p, Creep hitCreep, List<Creep> creeps) {
          // If there are jumps left, target the closest creep, so the bullet jumps to it
          if(jumpsLeft > 0) {
-            // Can't target the creep that was just hit, but can target the one that was hit
-            // previously
-            creeps.remove(hitCreep);
-            if(lastHit != null) {
+            // Add back the creep hit on the previous jump, so it can be targeted again
+            if(lastHit != null && lastHit.isAlive()) {
                creeps.add(lastHit);
             }
             
-            // Make it so creeps closest to this point will be targetted first
+            // Make it so creeps closest to this point will be targeted first
+            boolean retargeted = false;
             Collections.sort(creeps, new DistanceComparator(p, true));
             for(Creep c : creeps) {
-               if(checkDistance(c, p, range)) {
-                  super.setDirection(Vector2D.createFromPoints(p, c.getPosition()));
-                  distanceTravelled = 0;
+               if(c.equals(hitCreep)) { // Can't target the creep that was just hit
+                  continue;
                }
+               if(checkDistance(c, p, jumpRange)) {
+                  super.setDirection(Vector2D.createFromPoints(p, c.getPosition()));
+                  distanceTravelled = range - jumpRange;
+                  retargeted = true;
+                  break;
+               }
+            }
+            // If no creeps in range, finish up
+            if(!retargeted) {
+               jumpsLeft = 0;
             }
          }
          lastHit = hitCreep;

@@ -41,11 +41,11 @@ import creeps.Creep.DamageReport;
 
 public class ZapperTower extends AbstractTower {
    
-   private int numZaps = 5;
+   private int numZaps = 2;
    private static final int upgradeIncreaseZaps = 1;
    
    public ZapperTower(Point p) {
-      super(p, "Zapper", 40, 100, 1, 1.25, 50, 21, true);
+      super(p, "Zapper", 40, 100, 1, 5, 50, 21, true);
    }
 
 
@@ -117,7 +117,10 @@ public class ZapperTower extends AbstractTower {
             zap = null;
          }
          // If value is 0, the bullet reached the edge of its range
-         return value == 0 ? moneyEarned : -1;
+         if(value == 0 || numZapsLeft <= 0) {
+            return moneyEarned;
+         }
+         return -1;
       }
       
       @Override

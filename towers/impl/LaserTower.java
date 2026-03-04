@@ -38,11 +38,11 @@ import creeps.Creep;
 
 public class LaserTower extends AbstractTower {
    
-   private double beamLength = 20;
+   private double beamLength = 10;
    private final double beamLengthUpgrade = beamLength * 2 * (upgradeIncreaseFactor - 1);
 
    public LaserTower(Point p) {
-      super(p, "Laser", 40, 100, 7.5, 1.9, 50, 24, true);
+      super(p, "Laser", 40, 100, 7.5, 12, 50, 24, true);
    }
 
    @Override

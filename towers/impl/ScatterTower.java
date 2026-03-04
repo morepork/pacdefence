@@ -30,7 +30,7 @@ import creeps.Creep;
 
 public class ScatterTower extends AbstractTower {
    
-   private int shots = 2;
+   private int numShots = 3;
    
    public ScatterTower(Point p) {
       super(p, "Scatter", 40, 100, 5, 5, 50, 0, true);
@@ -38,7 +38,7 @@ public class ScatterTower extends AbstractTower {
 
    @Override
    public String getSpecial() {
-      return Integer.toString(shots);
+      return Integer.toString(numShots);
    }
 
    @Override
@@ -52,7 +52,7 @@ public class ScatterTower extends AbstractTower {
       for (Creep c : creeps) {
          if (checkDistance(c)) {
             fired.addAll(fireBulletsAt(c, false));
-            if(fired.size() >= shots) {
+            if(fired.size() >= numShots) {
                return fired;
             }
          }
@@ -62,7 +62,7 @@ public class ScatterTower extends AbstractTower {
 
    @Override
    protected void upgradeSpecial() {
-      shots++;
+      numShots++;
    }
 
 }

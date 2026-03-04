@@ -27,8 +27,8 @@ import logic.Constants;
 public class SlowLengthTower extends SlowTower {
    
    public SlowLengthTower(Point p) {
-      super(p, "Slow", 40, 100, 5, 1, 50, 23, true, 0.5, Constants.CLOCK_TICKS_PER_SECOND);
-      // Halves the speed of the creeps it hits, and lasts for 1s
+      super(p, "Slow", 40, 100, 5, 1, 50, 23, true, 0.5, Constants.CLOCK_TICKS_PER_SECOND * 2);
+      // Halves the speed of the creeps it hits, and lasts for 2s
    }
 
    @Override

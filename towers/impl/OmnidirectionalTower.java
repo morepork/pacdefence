@@ -34,7 +34,7 @@ public class OmnidirectionalTower extends AbstractTower {
    private int numShots = 3;
    
    public OmnidirectionalTower(Point p) {
-      super(p, "Omnidirectional", 40, 100, 5, 5.5, 50, 0, true);
+      super(p, "Omnidirectional", 40, 100, 5, 10, 50, 0, true);
       // Testing tower with way too many bullets
       /*super(p, "Omnidirectional", 0, 1000, 5, 0.005, 50, 0, true);
       for(int i = 0; i < 200; i++) {
@@ -49,7 +49,7 @@ public class OmnidirectionalTower extends AbstractTower {
 
    @Override
    public String getSpecialName() {
-      return "Number of shots";
+      return "Shots";
    }
    
    @Override

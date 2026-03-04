@@ -36,10 +36,10 @@ import creeps.Creep;
 
 public class CircleTower extends AbstractTower {
 
-   private int hits = 1;
+   private int hits = 2;
 
    public CircleTower(Point p) {
-      super(p, "Circle", 40, 100, 5, 12, 50, 0, true);
+      super(p, "Circle", 40, 100, 5, 14, 50, 0, true);
    }
 
    @Override

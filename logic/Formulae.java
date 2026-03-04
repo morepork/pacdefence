@@ -49,7 +49,7 @@ public class Formulae {
    }
 
    public static int noEnemiesThroughBonus(int level) {
-      return level * 100;
+      return 100 * level;
    }
 
    public static long upgradeCost(int currentLevel) {
