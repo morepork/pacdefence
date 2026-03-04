@@ -247,7 +247,8 @@ public class Game {
       String text = "Level " + level + " complete! ";
       text += "Earned " + levelEndBonus + " + ";
       if(livesLostOnThisLevel == 0) {
-         text += Formulae.noEnemiesThroughBonus(level) + " (perfect) + ";
+         noEnemiesThroughBonus = Formulae.noEnemiesThroughBonus(level);
+         text += noEnemiesThroughBonus + " (perfect) + ";
       }
       text += Helper.format(interest) + " (interest)";
       
