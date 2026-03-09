@@ -27,18 +27,24 @@ import logic.Constants;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
+import towers.DamageNotifier;
 import util.Helper;
 import util.Vector2D;
 import creeps.Creep;
 
 
 public abstract class SlowTower extends AbstractTower {
+
+   // Get experience for this fraction of the damage and kills while a creep is slowed.
+   private static final double receiveDamageFraction = 0.1;
    
    // The amount this tower slows creeps by, generally in the range 0 - 1
    protected double slowFactor;
    // The number of ticks the slow effect lasts for
    protected double slowTicks;
    private final double upgradeIncreaseTicks;
+
+   private final DamageNotifier damageNotifier = new DamageNotifier(this, receiveDamageFraction);
 
    protected SlowTower(Point p, String name, int fireRate, int range, double bulletSpeed,
          double damage, int width, int turretWidth, boolean hasOverlay, double slowFactor,
@@ -63,7 +69,7 @@ public abstract class SlowTower extends AbstractTower {
       return new BasicBullet(this, dir, turretWidth, range, speed, damage, p) {
          @Override
          public void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {
-            c.slow(slowFactor, (int)slowTicks);
+            c.slow(slowFactor, (int)slowTicks, damageNotifier);
          }
       };
    }

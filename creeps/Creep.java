@@ -64,7 +64,7 @@ public interface Creep extends Comparable<Creep>, Drawable {
    public Point2D intersects(Line2D line);
    public boolean intersects(Arc2D a);
    
-   public void slow(double factor, int numTicks);
+   public void slow(double factor, int numTicks, DamageNotifier dn);
    public void setDamageMultiplier(DamageNotifier dn, double multiplier, int numTicks);
    public void poison(int numTicks);
    

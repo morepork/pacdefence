@@ -99,6 +99,7 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
    
    private double speedFactor = 1;
    private int adjustedSpeedTicksLeft = 0;
+   private DamageNotifier adjustedSpeedDamageNotifier;
    
    private double damageMultiplier = 1;
    private int adjustedDamageTicksLeft = 0;
@@ -274,6 +275,10 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
             // Don't count it as a kill on the damage report
             wasKill = false;
          }
+         if(this.adjustedSpeedDamageNotifier != null) {
+            this.adjustedSpeedDamageNotifier.notifyOfDamage(hp);
+            this.adjustedSpeedDamageNotifier.notifyOfKills(1);
+         }
          double moneyEarned = Formulae.damageDollars(hp, hpFactor, currentLevel) +
                Formulae.killBonus(levelHP, currentLevel);
          return new DamageReport(damageToReport, moneyEarned, wasKill);
@@ -282,6 +287,9 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
          if(adjustedDamageNotifier != null && adjustedDamage > damage) {
             // Notify the tower that caused the extra damage of the damage it caused
             adjustedDamageNotifier.notifyOfDamage(adjustedDamage / damageMultiplier);
+         }
+         if(this.adjustedSpeedDamageNotifier != null) {
+            this.adjustedSpeedDamageNotifier.notifyOfDamage(adjustedDamage);
          }
          double moneyEarned = Formulae.damageDollars(adjustedDamage, hpFactor, currentLevel);
          // Only report the damage actually from this shot, not the extra
@@ -295,7 +303,7 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
    }
    
    @Override
-   public void slow(double factor, int numTicks) {
+   public void slow(double factor, int numTicks, DamageNotifier dn) {
       if(factor >= 1) {
          throw new IllegalArgumentException("Factor must be less than 1 in order to slow.");
       }
@@ -305,12 +313,14 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
          // time. Or so I think.
          speedFactor = factor;
          adjustedSpeedTicksLeft = numTicks;
+         this.adjustedSpeedDamageNotifier = dn;
       } else if(Math.abs(factor - speedFactor) < 0.01) {
          // The new slow speed factor is basically the same as the current
          // speed, so if it is for longer, lengthen it
          if(numTicks > adjustedSpeedTicksLeft) {
             speedFactor = factor;
             adjustedSpeedTicksLeft = numTicks;
+            this.adjustedSpeedDamageNotifier = dn;
          }
       }
       // Otherwise ignore it as it would increase the creep's speed
@@ -484,6 +494,7 @@ public abstract class AbstractCreep implements Creep, Comparable<Creep> {
          if(adjustedSpeedTicksLeft <= 0) {
             currentEffects.remove(CreepEffect.SLOW);
             speedFactor = 1;
+            this.adjustedSpeedDamageNotifier = null;
          }
       }
       if(adjustedDamageTicksLeft > 0) {

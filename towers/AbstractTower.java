@@ -124,7 +124,7 @@ public abstract class AbstractTower implements Tower {
    
    // Defaults to FirstComparator
    private Comparator<Creep> creepComparator = DEFAULT_CREEP_COMPARATOR;
-   
+
    protected AbstractTower(Point p, String name, int fireRate, double range, double bulletSpeed,
          double damage, int width, int turretWidth, boolean hasOverlay) {
       this.width = width;

@@ -21,16 +21,27 @@ package towers;
 public class DamageNotifier {
 
    private final Tower tower;
+   private final double fraction;
+
+   private double fractionalKills = 0;
 
    public DamageNotifier(Tower t) {
-      this.tower = t;
+      this(t, 1.0);
    }
 
-   public void notifyOfKills(int kills) {
-      tower.increaseKills(kills);
+   public DamageNotifier(Tower t, double fraction) {
+      this.tower = t;
+      this.fraction = fraction;
+   }
+
+   public synchronized void notifyOfKills(int kills) {
+      this.fractionalKills += kills * this.fraction;
+      int intKills = (int)this.fractionalKills;
+      this.fractionalKills -= intKills;
+      tower.increaseKills(intKills);
    }
 
    public void notifyOfDamage(double damage) {
-      tower.increaseDamageDealt(damage);
+      tower.increaseDamageDealt(damage*fraction);
    }
 }
