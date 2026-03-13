@@ -33,9 +33,12 @@ import java.awt.Rectangle;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import creeps.Creep;
+import creeps.Creep.FirstComparator;
 
 
 public class Ghost implements Drawable, Buildable {
@@ -66,6 +69,8 @@ public class Ghost implements Drawable, Buildable {
          return -1;
       }
       double moneyEarned = 0;
+      creeps = new ArrayList<Creep>(creeps);
+      Collections.sort(creeps, new FirstComparator());
       for(Creep c : creeps) {
          if(c.isAlive() && c.getPosition().distance(centre) < c.getHalfWidth() + halfWidth) {
             Creep.DamageReport d = c.hit(c.getHPLeft(), null);
