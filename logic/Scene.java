@@ -60,7 +60,7 @@ public class Scene {
    private List<Tower> towersToRemove = Collections.synchronizedList(new ArrayList<Tower>());
    private List<Ghost> ghostsToAdd = Collections.synchronizedList(new ArrayList<Ghost>());
    
-   private int nextGhostCost;
+   private int ghostsUsed = 0;
    
    // For performance testing, goes with the code in tickBullets
 //    private long time = 0;
@@ -74,7 +74,7 @@ public class Scene {
       towersToAdd.clear();
       towersToRemove.clear();
       ghostsToAdd.clear();
-      nextGhostCost = Formulae.towerCost(0, 0);
+      ghostsUsed = 0;
    }
    
    public void addBuilding(Buildable b) {
@@ -84,9 +84,10 @@ public class Scene {
             ((AidTower) b).setTowers(Collections.unmodifiableList(towers));
          }
       }
-      if(b instanceof Ghost) {
-         nextGhostCost *= 2;
+      if (b instanceof Ghost) {
          ghostsToAdd.add((Ghost) b);
+         ((Ghost) b).increaseHitsLeft(ghostsUsed);
+         ghostsUsed++;
       }
    }
    
@@ -125,14 +126,18 @@ public class Scene {
    }
    
    public int getBuildCost(Buildable b) {
-      if(b instanceof Ghost) {
-         return nextGhostCost;
+      if (b instanceof Ghost) {
+         int cost = Formulae.towerCost(0, 0);
+         for (int i = 0; i < ghostsUsed; i++) {
+            cost *= 2;
+         }
+         return cost;
       } else if(b instanceof Tower) {
          return Formulae.towerCost(getNumTowers(), getNumTowersOfType(((Tower)b).getClass()));
       }
       throw new RuntimeException("Unknown Buildable implementation: " + b);
    }
-   
+
    public long getTowerSellValue(Tower t) {
       return Formulae.sellValue(t, getNumTowers(), getNumTowersOfType(t.getClass()));
    }

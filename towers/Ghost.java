@@ -50,14 +50,18 @@ public class Ghost implements Drawable, Buildable {
    private static final BufferedImage image = ImageHelper.loadImage(width, width, "towers",
          "ghost.png");
    
-   private static final int hits = 5;
-   private int hitsLeft = hits;
+   private static final int baseHits = 5;
+   private int hitsLeft = baseHits;
    private final Point centre;
    private final Rectangle bounds;
    
    public Ghost(Point p) {
       centre = p;
       bounds = new Rectangle(p.x - halfWidth, p.y - halfWidth, width, width);
+   }
+
+   public void increaseHitsLeft(int n) {
+      hitsLeft += n;
    }
 
    /**
