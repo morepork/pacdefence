@@ -272,9 +272,9 @@ public class Game {
    
    private void build(Buildable b) {
       if (b instanceof Tower) {
-         // New towers get half the effect of all the bonus upgrades so far, rounded down
+         // Ensure new towers get the effect of all the bonus upgrades so far
          for(Attribute a : upgradesSoFar.keySet()) {
-            for(int i = 0; i < upgradesSoFar.get(a) / 2; i++) {
+            for(int i = 0; i < upgradesSoFar.get(a); i++) {
                ((Tower)b).upgrade(a, false);
             }
          }
@@ -738,12 +738,8 @@ public class Game {
          if(endLevelUpgradesLeft > 0) {
             endLevelUpgradesLeft--;
             if(a != null) {
-               int nextValue = upgradesSoFar.containsKey(a) ? upgradesSoFar.get(a) + 1 : 1;
-               if(nextValue % 2 == 0) {
-                  // It is even, i.e every second time
-                  controlPanel.increaseTowersAttribute(a);
-               }
-               upgradesSoFar.put(a, nextValue);
+               controlPanel.increaseTowersAttribute(a);
+               upgradesSoFar.put(a, upgradesSoFar.containsKey(a) ? upgradesSoFar.get(a) + 1 : 1);
                scene.upgradeAllTowers(a, false);
             } else if(livesUpgrade) {
                lives += upgradeLives;
