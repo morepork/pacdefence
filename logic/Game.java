@@ -245,10 +245,10 @@ public class Game {
       int noEnemiesThroughBonus = 0;
       
       String text = "Level " + level + " complete! ";
-      text += "Earned " + levelEndBonus + " + ";
+      text += "Earned " + Helper.format(levelEndBonus) + " + ";
       if(livesLostOnThisLevel == 0) {
          noEnemiesThroughBonus = Formulae.noEnemiesThroughBonus(level);
-         text += noEnemiesThroughBonus + " (perfect) + ";
+         text += Helper.format(noEnemiesThroughBonus) + " (perfect) + ";
       }
       text += Helper.format(interest) + " (interest)";
       
