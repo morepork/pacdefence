@@ -358,7 +358,7 @@ public abstract class AbstractTower implements Tower {
          case Range:
             return Helper.format(range, 1);
          case Rate:
-            return Helper.format(fireRate / Constants.CLOCK_TICKS_PER_SECOND, 2) + "s";
+            return Helper.format(fireRate / Constants.CLOCK_TICKS_PER_SECOND, 3) + "s";
          case Speed:
             return Helper.format(bulletSpeed, 2);
          case Special:
