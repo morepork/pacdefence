@@ -172,7 +172,9 @@ public abstract class AbstractTower implements Tower {
    @Override
    public List<Bullet> tick(List<Creep> creeps, boolean levelInProgress) {
       // Decrements here so it's on every tick, not just when it is able to shoot
-      timeToNextShot--;
+      if(timeToNextShot >= 0) {
+         timeToNextShot--;
+      }
       List<Bullet> fired = Collections.emptyList();
       if(imageRotates || timeToNextShot <= 0) {
          // The creeps are sorted by the default creep comparator in Clock, so that they don't
@@ -193,7 +195,10 @@ public abstract class AbstractTower implements Tower {
          }
       }
       if (fired.size() > 0) {
-         timeToNextShot = fireRate;
+         // Instead of resetting to fireRate, increment by fireRate. This ensures fire rate
+         // upgrades continue being effective at low levels, i.e. with a fire rate of 1.5 ticks,
+         // it will shoot on ticks 2, 3, 5, 6, ...
+         timeToNextShot += fireRate;
       }
       return fired;
    }
