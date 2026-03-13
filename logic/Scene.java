@@ -237,27 +237,27 @@ public class Scene {
       int numBeams = 0;
       int numExplodingBombs = 0;
       int numWaves = 0;
+      int numOtherBullets = 0;
       List<Bullet> filteredBullets = new ArrayList<>(shuffledBullets.size());
       for (Bullet b : shuffledBullets) {
          if (b instanceof BeamTower.Beam) {
             if (numBeams++ > maxBeams) {
                continue;
             }
-         }
-         if ((b instanceof BomberTower.Bomb bomb) && bomb.isExploding()) {
+         } else if ((b instanceof BomberTower.Bomb bomb) && bomb.isExploding()) {
             if (numExplodingBombs++ > maxExplodingBombs) {
                continue;
             }
-         }
-         if (b instanceof WaveTower.WaveBullet) {
+         } else if (b instanceof WaveTower.WaveBullet) {
             if (numWaves++ > maxWaves) {
+               continue;
+            }
+         } else {
+            if (numOtherBullets++ > maxBullets) {
                continue;
             }
          }
          filteredBullets.add(b);
-      }
-      if (filteredBullets.size() > maxBullets) {
-         filteredBullets = filteredBullets.subList(0, maxBullets);
       }
       // if (Math.random() < 0.01) {
       //    System.out.println("filtered bullets: " + shuffledBullets.size() + " / " + filteredBullets.size());
