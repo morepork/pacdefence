@@ -297,8 +297,8 @@ public class ControlPanel extends JPanel {
    }
    
    public void clickFastButton(boolean normalClick) {
-      eventProcessor.processFastButtonPressed(normalClick);
-      fastButton.toggleIcons(normalClick);
+      int currentMode = eventProcessor.processFastButtonPressed(normalClick);
+      fastButton.setIcon(currentMode);
    }
    
    private void addKeyboardShortcuts(InputMap inputMap, ActionMap actionMap) {

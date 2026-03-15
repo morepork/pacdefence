@@ -545,10 +545,17 @@ public class Game {
          keepRunning = false;
       }
       
-      public void switchFastMode(boolean b) {
-         // Can't just subtract one as the % operator would leave it negative
-         currentMode += b ? 1 : fastModes.length - 1;
-         currentMode %= fastModes.length;
+      public int switchFastMode(boolean b) {
+         if (b) {
+            if (currentMode < fastModes.length - 1) {
+               currentMode++;
+            }
+         } else {
+            if (currentMode > 0) {
+               currentMode--;
+            }
+         }
+         return currentMode;
       }
       
       private void doTicks() {
@@ -806,8 +813,8 @@ public class Game {
          return c.toString();
       }
       
-      public void processFastButtonPressed(boolean wasLeftClick) {
-         clock.switchFastMode(wasLeftClick);
+      public int processFastButtonPressed(boolean wasLeftClick) {
+         return clock.switchFastMode(wasLeftClick);
       }
       
       public void processTitleButtonPressed() {

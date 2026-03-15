@@ -54,13 +54,8 @@ public class OverlayToggleButton extends OverlayButton {
       setIcons();
    }
    
-   public void toggleIcons(boolean toNext) {
-      if(toNext) {
-         currentImageIndex++;
-      } else { // Don't subtract one as if on 0 it will be left negative, which ain't good
-         currentImageIndex += icons.length - 1;
-      }
-      currentImageIndex %= icons.length;
+   public void setIcon(int currentMode) {
+      currentImageIndex = currentMode;
       setIcons();
    }
    
