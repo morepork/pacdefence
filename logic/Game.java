@@ -31,6 +31,8 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -79,7 +81,7 @@ public class Game {
    
    private int level;
    private boolean levelInProgress;
-   private long money;
+   private BigInteger money;
    private int lives;
    private int livesLostOnThisLevel;
    private double interestRate;
@@ -240,7 +242,9 @@ public class Game {
       levelInProgress = false;
       endLevelUpgradesLeft++;
       
-      long interest = (long)(money * interestRate);
+      BigInteger interest =
+            new BigDecimal(money).multiply(new BigDecimal(interestRate)).toBigInteger();
+
       int levelEndBonus = Formulae.levelEndBonus(level);
       int noEnemiesThroughBonus = 0;
       
@@ -252,7 +256,7 @@ public class Game {
       }
       text += Helper.format(interest) + " (interest)";
       
-      increaseMoney(interest + levelEndBonus + noEnemiesThroughBonus);
+      increaseMoney(interest.add(BigInteger.valueOf(levelEndBonus + noEnemiesThroughBonus)));
       updateAllButLevelStats();
       
       gameMapPanel.displayText(text);
@@ -267,7 +271,7 @@ public class Game {
    }
    
    private boolean canBuild(Buildable b) {
-      return money >= scene.getBuildCost(b);
+      return money.compareTo(BigInteger.valueOf(scene.getBuildCost(b))) >= 0;
    }
    
    private void build(Buildable b) {
@@ -283,13 +287,13 @@ public class Game {
       updateMoney();
    }
    
-   private void increaseMoney(long amount) {
-      money += amount;
+   private void increaseMoney(BigInteger amount) {
+      money = money.add(amount);
       updateMoney();
    }
    
    private void decreaseMoney(long amount) {
-      money -= amount;
+      money = money.subtract(BigInteger.valueOf(amount));
    }
    
    private void setStartingStats() {
@@ -300,7 +304,7 @@ public class Game {
       selectedBuilding = null;
       rolloverBuilding = null;
       rolloverTower = null;
-      money = 4000;
+      money = BigInteger.valueOf(4000);
       lives = 25;
       livesLostOnThisLevel = 0;
       interestRate = 0.03;
@@ -593,7 +597,7 @@ public class Game {
          
          // Update the amount of money
          moneyEarned += result.moneyEarned;
-         increaseMoney((long)moneyEarned);
+         increaseMoney(BigInteger.valueOf((long)moneyEarned));
          // Fractional amounts of money are kept until the next tick
          moneyEarned -= (long)moneyEarned;
       }
@@ -689,13 +693,13 @@ public class Game {
          for(int i = 0; i < numTimes; i++) {
             if(toAffect == null) {
                long cost = scene.getUpgradeAllTowersCost(a);
-               if(cost <= money) {
+               if(money.compareTo(BigInteger.valueOf(cost)) >= 0) {
                   decreaseMoney(cost);
                   scene.upgradeAllTowers(a, true);
                }
             } else {
                long cost = Formulae.upgradeCost(toAffect.getAttributeLevel(a));
-               if(cost <= money) {
+               if(money.compareTo(BigInteger.valueOf(cost)) >= 0) {
                   decreaseMoney(cost);
                   toAffect.upgrade(a, true);
                }
@@ -722,7 +726,7 @@ public class Game {
       }
       
       public void processTowerButtonPressed(Buildable b) {
-         if(money >= scene.getBuildCost(b)) {
+         if(canBuild(b)) {
             setSelectedTower(null);
             setSelectedBuilding(b);
             updateTowerStats();
@@ -753,7 +757,7 @@ public class Game {
             } else if(interestUpgrade) {
                interestRate += upgradeInterest;
             } else if(moneyUpgrade) {
-               increaseMoney(upgradeMoney);
+               increaseMoney(BigInteger.valueOf(upgradeMoney));
             }
             updateAllButLevelStats();
          }
@@ -782,7 +786,7 @@ public class Game {
       public void processSellButtonPressed() {
          Tower toAffect = towerToAffect();
          if(toAffect != null) {
-            increaseMoney(scene.getTowerSellValue(toAffect));
+            increaseMoney(BigInteger.valueOf(scene.getTowerSellValue(toAffect)));
             toAffect.sell();
             scene.removeTower(toAffect);
             setSelectedTower(null);

@@ -36,6 +36,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -259,7 +260,7 @@ public class ControlPanel extends JPanel {
       interestLabel.setText(value);
    }
    
-   public void updateMoney(long money) {
+   public void updateMoney(BigInteger money) {
       moneyLabel.setText(Helper.format(money));
    }
    

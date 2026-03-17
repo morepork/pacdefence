@@ -23,6 +23,7 @@ import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +37,7 @@ public class Helper {
    private static final Map<Integer, DecimalFormat> formats =
          new HashMap<Integer, DecimalFormat>();
 
-   private static final double scientificFormatThreshold = 1e10;
+   private static final long scientificFormatThreshold = 10_000_000_000L;
    private static final DecimalFormat scientificFormat = new DecimalFormat("0.000E0");
    
    public static List<Point2D> getPointsOnLine(Line2D line) {
@@ -97,6 +98,20 @@ public class Helper {
       }
    }
 
+   public static String format(long n) {
+      if (n > scientificFormatThreshold) {
+         return scientificFormat.format(n);
+      }
+      return getDecimalFormat(0).format(n);
+   }
+
+   public static String format(BigInteger n) {
+      if (n.compareTo(BigInteger.valueOf(scientificFormatThreshold)) > 0) {
+         return scientificFormat.format(n);
+      }
+      return getDecimalFormat(0).format(n);
+   }
+
    public static String format(double d) {
       return format(d, 0);
    }
@@ -106,10 +121,14 @@ public class Helper {
       if (d > scientificFormatThreshold) {
          return scientificFormat.format(d);
       }
+      return getDecimalFormat(decimalPlaces).format(d);
+   }
+
+   private static DecimalFormat getDecimalFormat(int decimalPlaces) {
       if(!formats.containsKey(decimalPlaces)) {
          formats.put(decimalPlaces, makeFormat(decimalPlaces));
       }
-      return formats.get(decimalPlaces).format(d);
+      return formats.get(decimalPlaces);
    }
 
    private static DecimalFormat makeFormat(int decimalPlaces) {
