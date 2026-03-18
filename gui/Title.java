@@ -96,10 +96,7 @@ public class Title extends JPanel {
     botRow.setOpaque(false);
     botRow.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 
-    if (!Applet.isApplet()) { // Don't show this button if it's an Applet, it won't work
-      botRow.add(createHighScoresButton(), BorderLayout.WEST);
-    }
-
+    botRow.add(createHighScoresButton(), BorderLayout.WEST);
     botRow.add(createContinueButton(continueListener), BorderLayout.EAST);
 
     return botRow;

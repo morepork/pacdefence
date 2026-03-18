@@ -19,7 +19,6 @@
 
 package logic;
 
-import gui.Applet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,29 +28,13 @@ import java.util.prefs.Preferences;
 
 public class HighScores {
 
-  // Note, these don't work if running from an Applet, so I check if it's an applet, and if so
-  // return a value signalling an error, or that nothing happened
-
   // The number of high scores to keep for each level
   public static final int NUM_HIGH_SCORES = 10;
 
-  private static final Preferences highScoresNode;
-
-  static {
-    if (Applet.isApplet()) {
-      highScoresNode = null;
-    } else {
-      highScoresNode = Preferences.userRoot().node("PacDefence/HighScores");
-    }
-  }
+  private static final Preferences highScoresNode =
+      Preferences.userRoot().node("PacDefence/HighScores");
 
   public static Map<String, List<Integer>> getHighScores() throws BackingStoreException {
-    // Note that this method should never be called from an applet, as the show high scores
-    // button isn't there and addScore() returns false straight away
-    if (Applet.isApplet()) {
-      return null;
-    }
-
     Map<String, List<Integer>> highScores = new HashMap<String, List<Integer>>();
 
     for (String mapName : highScoresNode.childrenNames()) {
@@ -62,12 +45,6 @@ public class HighScores {
   }
 
   public static List<Integer> getHighScores(String mapName) throws BackingStoreException {
-    // Note that this method should never be called from an applet, as the show high scores
-    // button isn't there and addScore() returns false straight away
-    if (Applet.isApplet()) {
-      return null;
-    }
-
     if (!highScoresNode.nodeExists(mapName)) {
       return new ArrayList<Integer>(); // Return an empty list if the node doesn't exist
     }
@@ -93,10 +70,6 @@ public class HighScores {
    * <p>Returns the place of the high score, or zero if it wasn't high enough.
    */
   public static int addScore(String mapName, int levelReached) throws BackingStoreException {
-    if (Applet.isApplet()) {
-      return 0; // If an applet, return 0 so nothing special happens
-    }
-
     List<Integer> currentScores = getHighScores(mapName);
 
     int numHigher = 0; // The number of scores higher than this one
