@@ -437,13 +437,17 @@ public class Scene {
   private double tickBulletsSingleThread(List<Creep> unmodifiableCreeps) {
     // Run through from last to first as bullets are being removed
     double moneyEarned = 0;
-    for (int i = bullets.size() - 1; i >= 0; i--) {
-      double money = bullets.get(i).tick(unmodifiableCreeps);
+    List<Bullet> remainingBullets = new ArrayList(bullets.size());
+    for (Bullet b : bullets) {
+      double money = b.tick(unmodifiableCreeps);
       if (money >= 0) {
         moneyEarned += money;
-        bullets.remove(i);
+      } else {
+        remainingBullets.add(b);
       }
     }
+    bullets.clear();
+    bullets.addAll(remainingBullets);
     return moneyEarned;
   }
 
