@@ -10,3 +10,6 @@
 
 # OSX junk
 .DS_Store
+
+# IntelliJ files
+/.idea
