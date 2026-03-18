@@ -583,6 +583,12 @@ public class Game {
             debugTimes = scene.new DebugTimes();
          }
          Scene.TickResult result = scene.tick(debugTimes, levelInProgress, getNewCreep());
+
+         if (options.isDebugTimes()) {
+            processCreepsTimes[timesLength] = debugTimes.processCreepsTime / 1_000_000;
+            processBulletsTimes[timesLength] = debugTimes.processBulletsTime / 1_000_000;
+            processTowersTimes[timesLength] = debugTimes.processTowersTime / 1_000_000;
+         }
          
          // Deselect this creep if it is dead/finished
          if(selectedCreep != null && (!selectedCreep.isAlive() || selectedCreep.isFinished())) {
