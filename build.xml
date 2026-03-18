@@ -30,7 +30,7 @@
         This contains all resources except the screenshots, and will also run Pac Defence.
   -->
 
-<project name="PacDefence" basedir="." default="compile">
+<project name="PacDefence" basedir="." default="compileAll">
 
   <property name="ClassPath" location=".:lib/junit4.jar:lib/hamcrest-core.jar" />
   <property name="SrcDir" location="." />
@@ -67,13 +67,13 @@
   </target>
 
   <target name="compile">
-    <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" />
+    <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" includeantruntime="false" />
   </target>
 
   <!-- This ensures everything is compiled by deleting all the class files then compiling
        everything. -->
   <target name="compileAll" depends="cleanClassFiles">
-    <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" />
+    <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" includeantruntime="false" />
   </target>
 
   <target name="buildJars" depends="compileAll,buildManual,makeWebPages">

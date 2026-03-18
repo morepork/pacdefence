@@ -10,12 +10,12 @@ Note that you need a Java virtual machine installed to run the game, version 6 o
 
 To compile and run the game locally, first download the junit libs into the `lib` directory, then:
 
-    ant compile
+    ant
     java gui.Application
 
 To run a test class
 
-    ant compile
+    ant
     java -cp ".:lib/*" org.junit.runner.JUnitCore creeps.DistanceComparatorTest
 
 ### Command line switches
