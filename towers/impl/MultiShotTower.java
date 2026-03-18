@@ -13,64 +13,67 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package towers.impl;
 
+import creeps.Creep;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-
 import towers.AbstractTower;
 import towers.Bullet;
 import util.Vector2D;
-import creeps.Creep;
-
 
 public class MultiShotTower extends AbstractTower {
-   
-   private static final double speedIncreaseFactor = 1.1;
-   private int numShots = 2;
-   
-   public MultiShotTower(Point p) {
-      super(p, "Multi Shot", 40, 100, 3, 5, 50, 5, true);
-   }
 
-   @Override
-   public String getSpecial() {
-      return Integer.toString(numShots);
-   }
-   
-   @Override
-   public String getStatName(Attribute a) {
-      if(a == Attribute.Speed) {
-         return "Min " + a.toString();
-      } else {
-         return super.getStatName(a);
-      }
-   }
+  private static final double speedIncreaseFactor = 1.1;
+  private int numShots = 2;
 
-   @Override
-   public String getSpecialName() {
-      return "Shots";
-   }
+  public MultiShotTower(Point p) {
+    super(p, "Multi Shot", 40, 100, 3, 5, 50, 5, true);
+  }
 
-   @Override
-   protected void upgradeSpecial() {
-      numShots++;
-   }
-   
-   @Override
-   protected List<Bullet> makeBullets(Vector2D dir,  int turretWidth, int range,
-         double bulletSpeed, double damage, Point p, Creep c) {
-      List<Bullet> bullets = new ArrayList<Bullet>();
-      for(int i = 0; i < numShots; i++) {
-         bullets.add(makeBullet(dir, turretWidth, range, bulletSpeed, damage, p, c));
-         bulletSpeed *= speedIncreaseFactor;
-      }
-      return bullets;
-   }
+  @Override
+  public String getSpecial() {
+    return Integer.toString(numShots);
+  }
 
+  @Override
+  public String getStatName(Attribute a) {
+    if (a == Attribute.Speed) {
+      return "Min " + a.toString();
+    } else {
+      return super.getStatName(a);
+    }
+  }
+
+  @Override
+  public String getSpecialName() {
+    return "Shots";
+  }
+
+  @Override
+  protected void upgradeSpecial() {
+    numShots++;
+  }
+
+  @Override
+  protected List<Bullet> makeBullets(
+      Vector2D dir,
+      int turretWidth,
+      int range,
+      double bulletSpeed,
+      double damage,
+      Point p,
+      Creep c) {
+    List<Bullet> bullets = new ArrayList<Bullet>();
+    for (int i = 0; i < numShots; i++) {
+      bullets.add(makeBullet(dir, turretWidth, range, bulletSpeed, damage, p, c));
+      bulletSpeed *= speedIncreaseFactor;
+    }
+    return bullets;
+  }
 }

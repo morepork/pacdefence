@@ -20,20 +20,19 @@
 package towers;
 
 public class ExperienceReport {
-   
-   public final int level;
-   public final int kills;
-   public final int killsForUpgrade;
-   public final long damage;
-   public final long damageForUpgrade;
-   
-   public ExperienceReport(int level, int kills, int killsForUpgrade, long damage,
-         long damageForUpgrade) {
-      this.level = level;
-      this.kills = kills;
-      this.killsForUpgrade = killsForUpgrade;
-      this.damage = damage;
-      this.damageForUpgrade = damageForUpgrade;
-   }
 
+  public final int level;
+  public final int kills;
+  public final int killsForUpgrade;
+  public final long damage;
+  public final long damageForUpgrade;
+
+  public ExperienceReport(
+      int level, int kills, int killsForUpgrade, long damage, long damageForUpgrade) {
+    this.level = level;
+    this.kills = kills;
+    this.killsForUpgrade = killsForUpgrade;
+    this.damage = damage;
+    this.damageForUpgrade = damageForUpgrade;
+  }
 }

@@ -13,129 +13,132 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package towers.impl;
 
+import creeps.Creep;
+import creeps.Creep.DistanceComparator;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
 import util.Vector2D;
-import creeps.Creep;
-import creeps.Creep.DistanceComparator;
-
 
 public class JumperTower extends AbstractTower {
 
-   private static final int jumpRange = 50;
-   
-   private int jumps = 1;
-   
-   public JumperTower(Point p) {
-      super(p, "Jumper", 40, 100, 5, 5, 50, 20, true);
-   }
+  private static final int jumpRange = 50;
 
-   @Override
-   public String getSpecial() {
-      return String.valueOf(jumps);
-   }
+  private int jumps = 1;
 
-   @Override
-   public String getSpecialName() {
-      return "Jumps";
-   }
+  public JumperTower(Point p) {
+    super(p, "Jumper", 40, 100, 5, 5, 50, 20, true);
+  }
 
-   @Override
-   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c) {
-      return new JumpingBullet(this, dir, turretWidth, range, speed, damage, p, jumps);
-   }
+  @Override
+  public String getSpecial() {
+    return String.valueOf(jumps);
+  }
 
-   @Override
-   protected void upgradeSpecial() {
-      jumps++;
-   }
-   
-   private class JumpingBullet extends BasicBullet {
-      
-      private Creep lastHit;
-      private int jumpsLeft;
-      private int moneyEarned = 0;
+  @Override
+  public String getSpecialName() {
+    return "Jumps";
+  }
 
-      public JumpingBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
-            double speed, double damage, Point p, int jumps) {
-         super(shotBy, dir, turretWidth, range, speed, damage, p);
-         jumpsLeft = jumps;
+  @Override
+  protected Bullet makeBullet(
+      Vector2D dir, int turretWidth, int range, double speed, double damage, Point p, Creep c) {
+    return new JumpingBullet(this, dir, turretWidth, range, speed, damage, p, jumps);
+  }
+
+  @Override
+  protected void upgradeSpecial() {
+    jumps++;
+  }
+
+  private class JumpingBullet extends BasicBullet {
+
+    private Creep lastHit;
+    private int jumpsLeft;
+    private int moneyEarned = 0;
+
+    public JumpingBullet(
+        Tower shotBy,
+        Vector2D dir,
+        int turretWidth,
+        int range,
+        double speed,
+        double damage,
+        Point p,
+        int jumps) {
+      super(shotBy, dir, turretWidth, range, speed, damage, p);
+      jumpsLeft = jumps;
+    }
+
+    @Override
+    protected void specialOnHit(Point2D p, Creep hitCreep, List<Creep> creeps) {
+      // If there are jumps left, target the closest creep, so the bullet jumps to it
+      if (jumpsLeft > 0) {
+        // Add back the creep hit on the previous jump, so it can be targeted again
+        if (lastHit != null && lastHit.isAlive()) {
+          creeps.add(lastHit);
+        }
+
+        // Make it so creeps closest to this point will be targeted first
+        boolean retargeted = false;
+        Collections.sort(creeps, new DistanceComparator(p, true));
+        for (Creep c : creeps) {
+          if (c.equals(hitCreep)) { // Can't target the creep that was just hit
+            continue;
+          }
+          if (checkDistance(c, p, jumpRange)) {
+            super.setDirection(Vector2D.createFromPoints(p, c.getPosition()));
+            distanceTravelled = range - jumpRange;
+            retargeted = true;
+            break;
+          }
+        }
+        // If no creeps in range, finish up
+        if (!retargeted) {
+          jumpsLeft = 0;
+        }
       }
-      
-      @Override
-      protected void specialOnHit(Point2D p, Creep hitCreep, List<Creep> creeps) {
-         // If there are jumps left, target the closest creep, so the bullet jumps to it
-         if(jumpsLeft > 0) {
-            // Add back the creep hit on the previous jump, so it can be targeted again
-            if(lastHit != null && lastHit.isAlive()) {
-               creeps.add(lastHit);
-            }
-            
-            // Make it so creeps closest to this point will be targeted first
-            boolean retargeted = false;
-            Collections.sort(creeps, new DistanceComparator(p, true));
-            for(Creep c : creeps) {
-               if(c.equals(hitCreep)) { // Can't target the creep that was just hit
-                  continue;
-               }
-               if(checkDistance(c, p, jumpRange)) {
-                  super.setDirection(Vector2D.createFromPoints(p, c.getPosition()));
-                  distanceTravelled = range - jumpRange;
-                  retargeted = true;
-                  break;
-               }
-            }
-            // If no creeps in range, finish up
-            if(!retargeted) {
-               jumpsLeft = 0;
-            }
-         }
-         lastHit = hitCreep;
-         jumpsLeft--;
-      }
-      
-      @Override
-      protected double doTick(List<Creep> creeps) {
-         // Remove the last hit creep so that it won't get hit again
-         List<Creep> newList = new ArrayList<Creep>(creeps);
-         if (lastHit != null) {
-            newList.remove(lastHit);
-         }
-         double result = super.doTick(newList);
-         if(result < 0) {
-            // Bullet didn't hit anything
-            return result;
-         } else if(result == 0) {
-           // Bullet has reached the edge of its range
-           return moneyEarned;
-         } else {
-            // Bullet hit something
-            moneyEarned += result;
-            // (jumpsLeft == 0) means the bullet has just done its final jump,
-            // so wait until it hits something before finishing it
-            if(jumpsLeft < 0) {
-               return moneyEarned;
-            } else {
-               return -1;
-            }
-         }
-      }
-      
-   }
+      lastHit = hitCreep;
+      jumpsLeft--;
+    }
 
+    @Override
+    protected double doTick(List<Creep> creeps) {
+      // Remove the last hit creep so that it won't get hit again
+      List<Creep> newList = new ArrayList<Creep>(creeps);
+      if (lastHit != null) {
+        newList.remove(lastHit);
+      }
+      double result = super.doTick(newList);
+      if (result < 0) {
+        // Bullet didn't hit anything
+        return result;
+      } else if (result == 0) {
+        // Bullet has reached the edge of its range
+        return moneyEarned;
+      } else {
+        // Bullet hit something
+        moneyEarned += result;
+        // (jumpsLeft == 0) means the bullet has just done its final jump,
+        // so wait until it hits something before finishing it
+        if (jumpsLeft < 0) {
+          return moneyEarned;
+        } else {
+          return -1;
+        }
+      }
+    }
+  }
 }

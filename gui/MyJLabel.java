@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
@@ -23,37 +23,37 @@ import javax.swing.JLabel;
 
 @SuppressWarnings("serial")
 public class MyJLabel extends JLabel {
-   // This class just makes it easier to set the values of the text fields as I
-   // can just pass a number instead of changing them to Strings all the time
-   public MyJLabel() {
-      super();
-   }
-   
-   public MyJLabel(long l) {
-      super(String.valueOf(l));
-   }
-   
-   public MyJLabel(String text) {
-      super(text);
-   }
-   
-   public void setFontSize(float size) {
-      setFont(getFont().deriveFont(size));
-   }
-   
-   public void setFontStyle(int style) {
-      setFont(getFont().deriveFont(style));
-   }
-   
-   public void setText(int i) {
-      setText(String.valueOf(i));
-   }
-   
-   public void setText(long l) {
-      setText(String.valueOf(l));
-   }
-   
-   public void setText(double d){
-      setText(String.valueOf(d));
-   }
+  // This class just makes it easier to set the values of the text fields as I
+  // can just pass a number instead of changing them to Strings all the time
+  public MyJLabel() {
+    super();
+  }
+
+  public MyJLabel(long l) {
+    super(String.valueOf(l));
+  }
+
+  public MyJLabel(String text) {
+    super(text);
+  }
+
+  public void setFontSize(float size) {
+    setFont(getFont().deriveFont(size));
+  }
+
+  public void setFontStyle(int style) {
+    setFont(getFont().deriveFont(style));
+  }
+
+  public void setText(int i) {
+    setText(String.valueOf(i));
+  }
+
+  public void setText(long l) {
+    setText(String.valueOf(l));
+  }
+
+  public void setText(double d) {
+    setText(String.valueOf(d));
+  }
 }

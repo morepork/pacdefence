@@ -13,12 +13,13 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package towers.impl;
 
+import creeps.Creep;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -29,7 +30,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import logic.Constants;
 import towers.AbstractTower;
 import towers.BasicBullet;
@@ -37,128 +37,133 @@ import towers.Bullet;
 import towers.Tower;
 import util.Helper;
 import util.Vector2D;
-import creeps.Creep;
-
 
 public class WaveTower extends AbstractTower {
-   
-   private double angle = 25;
-   private final double upgradeIncreaseAngle = angle / 10;
-   
-   public WaveTower(Point p) {
-      super(p, "Wave", 40, 100, 5, 6, 50, 6, true);
-      // This is a grossly overpowered (but with really low damage) version for
-      // performance testing purposes
-      /*super(p, "Wave", 1, 500, 25, 0.05, 50, 6, true);
-      for(int i = 0; i < 20; i++) {
-         upgradeSpecial();
-      }*/
-   }
 
-   @Override
-   public String getSpecial() {
-      // \u00b0 is the degree symbol
-      return Helper.format(angle, 1) + "\u00b0";
-   }
-   
-   @Override
-   public String getStatName(Attribute a) {
-      if(a == Attribute.Speed) {
-         return "Wave Speed";
-      } else {
-         return super.getStatName(a);
-      }
-   }
+  private double angle = 25;
+  private final double upgradeIncreaseAngle = angle / 10;
 
-   @Override
-   public String getSpecialName() {
-      return "Wave angle";
-   }
+  public WaveTower(Point p) {
+    super(p, "Wave", 40, 100, 5, 6, 50, 6, true);
+    // This is a grossly overpowered (but with really low damage) version for
+    // performance testing purposes
+    /*super(p, "Wave", 1, 500, 25, 0.05, 50, 6, true);
+    for(int i = 0; i < 20; i++) {
+       upgradeSpecial();
+    }*/
+  }
 
-   @Override
-   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c) {
-      return new WaveBullet(this, dir, turretWidth, range, speed, damage, p, angle);
-   }
+  @Override
+  public String getSpecial() {
+    // \u00b0 is the degree symbol
+    return Helper.format(angle, 1) + "\u00b0";
+  }
 
-   @Override
-   protected void upgradeSpecial() {
-      angle += upgradeIncreaseAngle;
-   }
-   
-   public static class WaveBullet extends BasicBullet {
-      
-      private final double startAngle, extentAngle;
-      private final Arc2D arc = new Arc2D.Double(Arc2D.PIE);
-      private final Arc2D lastArc = new Arc2D.Double(Arc2D.PIE);
-      private final Point2D start;
-      // Use an ArrayList here as the overhead of a more complicated set
-      // isn't really worth it as it'll never grow much larger than 50
-      private final Collection<Creep> hitCreeps = new ArrayList<Creep>();
-      private double moneyEarned = 0;
-      private final int turretWidth;
-      
-      public WaveBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
-            double speed, double damage, Point p, double angle) {
-         super(shotBy, dir, turretWidth, range, speed, damage, p);
-         startAngle = Math.toDegrees(dir.getAngle()) - 90 - angle / 2;
-         extentAngle = angle;
-         start = p;
-         this.turretWidth = turretWidth;
+  @Override
+  public String getStatName(Attribute a) {
+    if (a == Attribute.Speed) {
+      return "Wave Speed";
+    } else {
+      return super.getStatName(a);
+    }
+  }
+
+  @Override
+  public String getSpecialName() {
+    return "Wave angle";
+  }
+
+  @Override
+  protected Bullet makeBullet(
+      Vector2D dir, int turretWidth, int range, double speed, double damage, Point p, Creep c) {
+    return new WaveBullet(this, dir, turretWidth, range, speed, damage, p, angle);
+  }
+
+  @Override
+  protected void upgradeSpecial() {
+    angle += upgradeIncreaseAngle;
+  }
+
+  public static class WaveBullet extends BasicBullet {
+
+    private final double startAngle, extentAngle;
+    private final Arc2D arc = new Arc2D.Double(Arc2D.PIE);
+    private final Arc2D lastArc = new Arc2D.Double(Arc2D.PIE);
+    private final Point2D start;
+    // Use an ArrayList here as the overhead of a more complicated set
+    // isn't really worth it as it'll never grow much larger than 50
+    private final Collection<Creep> hitCreeps = new ArrayList<Creep>();
+    private double moneyEarned = 0;
+    private final int turretWidth;
+
+    public WaveBullet(
+        Tower shotBy,
+        Vector2D dir,
+        int turretWidth,
+        int range,
+        double speed,
+        double damage,
+        Point p,
+        double angle) {
+      super(shotBy, dir, turretWidth, range, speed, damage, p);
+      startAngle = Math.toDegrees(dir.getAngle()) - 90 - angle / 2;
+      extentAngle = angle;
+      start = p;
+      this.turretWidth = turretWidth;
+    }
+
+    @Override
+    public void draw(Graphics2D g) {
+      Graphics2D g2D = (Graphics2D) g;
+      g2D.setColor(Color.PINK);
+      Stroke s = g2D.getStroke();
+      g2D.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+      g2D.draw(arc);
+      g2D.setStroke(s);
+    }
+
+    @Override
+    protected double doTick(List<Creep> creeps) {
+      double value = super.doTick(creeps);
+      setArc(arc, distanceTravelled + turretWidth);
+      if (value > 0) {
+        moneyEarned += value;
+      } else if (value == 0) {
+        return moneyEarned;
       }
-      
-      @Override
-      public void draw(Graphics2D g) {
-         Graphics2D g2D = (Graphics2D) g;
-         g2D.setColor(Color.PINK);
-         Stroke s = g2D.getStroke();
-         g2D.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-         g2D.draw(arc);
-         g2D.setStroke(s);
+      return -1;
+    }
+
+    @Override
+    protected double checkIfCreepIsHit(List<Creep> creeps) {
+      if (creeps.isEmpty()) {
+        return -1;
       }
-      
-      @Override
-      protected double doTick(List<Creep> creeps) {
-         double value = super.doTick(creeps);
-         setArc(arc, distanceTravelled + turretWidth);
-         if(value > 0) {
-            moneyEarned += value;
-         } else if(value == 0) {
-            return moneyEarned;
-         }
-         return -1;
+      double d = 0;
+      Arc2D closerArc = (Arc2D) lastArc.clone();
+      closerArc.setArcType(Arc2D.OPEN);
+      for (Creep c : creeps) {
+        // It has to intersect the current arc, but not the last arc unless
+        // it intersects the open arc with the same radius as the last arc
+        if (!hitCreeps.contains(c)
+            && c.intersects(arc)
+            && (c.intersects(closerArc) || !c.intersects(lastArc))) {
+          hitCreeps.add(c);
+          d += processDamageReport(c.hit(damage, shotBy.getClass()));
+        }
       }
-      
-      @Override
-      protected double checkIfCreepIsHit(List<Creep> creeps) {
-         if(creeps.isEmpty()) {
-            return -1;
-         }
-         double d = 0;
-         Arc2D closerArc = (Arc2D)lastArc.clone();
-         closerArc.setArcType(Arc2D.OPEN);
-         for(Creep c : creeps) {
-            // It has to intersect the current arc, but not the last arc unless
-            // it intersects the open arc with the same radius as the last arc
-            if(!hitCreeps.contains(c) && c.intersects(arc) &&
-                  (c.intersects(closerArc) || !c.intersects(lastArc))) {
-               hitCreeps.add(c);
-               d += processDamageReport(c.hit(damage, shotBy.getClass()));
-            }
-         }
-         return d == 0 ? -1 : d;
-      }
-      
-      @Override
-      protected boolean canBulletBeRemovedAsOffScreen() {
-         // Need to check that the arc isn't empty as it may not have been set yet
-         return !arc.isEmpty() && !arc.intersects(0, 0, Constants.WIDTH, Constants.HEIGHT);
-      }
-      
-      private void setArc(Arc2D a, double radius) {
-         lastArc.setArc(a);
-         a.setArcByCenter(start.getX(), start.getY(), radius, startAngle, extentAngle,
-               Arc2D.OPEN);
-      }
-   }
+      return d == 0 ? -1 : d;
+    }
+
+    @Override
+    protected boolean canBulletBeRemovedAsOffScreen() {
+      // Need to check that the arc isn't empty as it may not have been set yet
+      return !arc.isEmpty() && !arc.intersects(0, 0, Constants.WIDTH, Constants.HEIGHT);
+    }
+
+    private void setArc(Arc2D a, double radius) {
+      lastArc.setArc(a);
+      a.setArcByCenter(start.getX(), start.getY(), radius, startAngle, extentAngle, Arc2D.OPEN);
+    }
+  }
 }

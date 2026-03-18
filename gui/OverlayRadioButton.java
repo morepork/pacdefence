@@ -13,35 +13,32 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package gui;
 
 import images.ImageHelper;
-
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-
 import javax.swing.JRadioButton;
 
 @SuppressWarnings("serial")
 public class OverlayRadioButton extends JRadioButton {
-   
-   public OverlayRadioButton(BufferedImage b) {
-      this(b, b.getWidth(), b.getHeight());
-   }
-   
-   public OverlayRadioButton(BufferedImage b, int width, int height) {
-      b = ImageHelper.resize(b, width, height);
-      setIcon(OverlayButton.drawOverlay(b, OverlayButton.baseColour));
-      setRolloverIcon(OverlayButton.drawOverlay(b, OverlayButton.rolloverColour));
-      setPressedIcon(OverlayButton.drawOverlay(b, OverlayButton.pressedColour));
-      setSelectedIcon(OverlayButton.drawOverlay(b, Color.GREEN));
-      setBorderPainted(false);
-      setContentAreaFilled(false);
-      setOpaque(false);
-   }
 
+  public OverlayRadioButton(BufferedImage b) {
+    this(b, b.getWidth(), b.getHeight());
+  }
+
+  public OverlayRadioButton(BufferedImage b, int width, int height) {
+    b = ImageHelper.resize(b, width, height);
+    setIcon(OverlayButton.drawOverlay(b, OverlayButton.baseColour));
+    setRolloverIcon(OverlayButton.drawOverlay(b, OverlayButton.rolloverColour));
+    setPressedIcon(OverlayButton.drawOverlay(b, OverlayButton.pressedColour));
+    setSelectedIcon(OverlayButton.drawOverlay(b, Color.GREEN));
+    setBorderPainted(false);
+    setContentAreaFilled(false);
+    setOpaque(false);
+  }
 }

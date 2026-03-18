@@ -21,20 +21,19 @@ package logic;
 
 public class Options {
 
-   private final boolean debugTimes;
-   private final boolean debugPath;
+  private final boolean debugTimes;
+  private final boolean debugPath;
 
-   public Options(boolean debugTimes, boolean debugPath) {
-      this.debugTimes = debugTimes;
-      this.debugPath = debugPath;
-   }
+  public Options(boolean debugTimes, boolean debugPath) {
+    this.debugTimes = debugTimes;
+    this.debugPath = debugPath;
+  }
 
-   public boolean isDebugTimes() {
-      return debugTimes;
-   }
+  public boolean isDebugTimes() {
+    return debugTimes;
+  }
 
-   public boolean isDebugPath() {
-      return debugPath;
-   }
-
+  public boolean isDebugPath() {
+    return debugPath;
+  }
 }

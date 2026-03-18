@@ -13,103 +13,106 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package towers.impl;
 
+import creeps.Creep;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
 import util.Vector2D;
-import creeps.Creep;
 
 // The laser tower is very similar to this so it is unneeded really
 @Deprecated
 public class PiercerTower extends AbstractTower {
-   
-   private int pierces = 1;
 
-   public PiercerTower(Point p) {
-      super(p, "Piercer", 40, 100, 5, 8, 50, 20, true);
-   }
+  private int pierces = 1;
 
-   @Override
-   public String getSpecial() {
-      return Integer.toString(pierces);
-   }
+  public PiercerTower(Point p) {
+    super(p, "Piercer", 40, 100, 5, 8, 50, 20, true);
+  }
 
-   @Override
-   public String getSpecialName() {
-      return "Pierces";
-   }
+  @Override
+  public String getSpecial() {
+    return Integer.toString(pierces);
+  }
 
-   @Override
-   protected Bullet makeBullet(Vector2D dir, int turretWidth, int range, double speed,
-         double damage, Point p, Creep c) {
-      return new PiercingBullet(this, dir, turretWidth, range, speed, damage, p);
-   }
+  @Override
+  public String getSpecialName() {
+    return "Pierces";
+  }
 
-   @Override
-   protected void upgradeSpecial() {
-      pierces++;
-   }
-   
-   private class PiercingBullet extends BasicBullet {
-      
-      private int piercesSoFar = 0;
-      private Collection<Creep> creepsHit = new ArrayList<Creep>();
-      private int moneyEarned;
+  @Override
+  protected Bullet makeBullet(
+      Vector2D dir, int turretWidth, int range, double speed, double damage, Point p, Creep c) {
+    return new PiercingBullet(this, dir, turretWidth, range, speed, damage, p);
+  }
 
-      public PiercingBullet(Tower shotBy, Vector2D dir, int turretWidth, int range,
-            double speed, double damage, Point p) {
-         super(shotBy, dir, turretWidth, range, speed, damage, p);
+  @Override
+  protected void upgradeSpecial() {
+    pierces++;
+  }
+
+  private class PiercingBullet extends BasicBullet {
+
+    private int piercesSoFar = 0;
+    private Collection<Creep> creepsHit = new ArrayList<Creep>();
+    private int moneyEarned;
+
+    public PiercingBullet(
+        Tower shotBy,
+        Vector2D dir,
+        int turretWidth,
+        int range,
+        double speed,
+        double damage,
+        Point p) {
+      super(shotBy, dir, turretWidth, range, speed, damage, p);
+    }
+
+    @Override
+    public double doTick(List<Creep> creeps) {
+      List<Creep> newCreeps = new ArrayList<Creep>(creeps);
+      // Removes all the previously hit creeps so they aren't hit again
+      newCreeps.removeAll(creepsHit);
+      return processShotResult(super.doTick(newCreeps), newCreeps);
+    }
+
+    @Override
+    public void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {
+      creepsHit.add(c);
+    }
+
+    private double processShotResult(double shotResult, List<Creep> creeps) {
+      if (shotResult < 0) {
+        // Bullet didn't hit anything
+        return shotResult;
+      } else if (shotResult == 0) {
+        // Bullet has reached the edge of its range
+        return moneyEarned;
+      } else {
+        // Bullet hit something
+        moneyEarned += shotResult;
+        if (piercesSoFar >= pierces) {
+          return moneyEarned;
+        } else {
+          piercesSoFar++;
+          // Removes the creep that was last hit so it can't be hit again
+          creeps.removeAll(creepsHit);
+          // Checks if any other creeps were hit between the last and
+          // current points, and recursively processes them.
+          return processShotResult(super.checkIfCreepIsHit(creeps), creeps);
+        }
       }
-      
-      @Override
-      public double doTick(List<Creep> creeps) {
-         List<Creep> newCreeps = new ArrayList<Creep>(creeps);
-         // Removes all the previously hit creeps so they aren't hit again
-         newCreeps.removeAll(creepsHit);
-         return processShotResult(super.doTick(newCreeps), newCreeps);
-      }
-      
-      @Override
-      public void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {
-         creepsHit.add(c);
-      }
-      
-      private double processShotResult(double shotResult, List<Creep> creeps) {
-         if(shotResult < 0) {
-            // Bullet didn't hit anything
-            return shotResult;
-         } else if(shotResult == 0) {
-           // Bullet has reached the edge of its range
-           return moneyEarned;
-         } else {
-            // Bullet hit something
-            moneyEarned += shotResult;
-            if(piercesSoFar >= pierces) {
-               return moneyEarned;
-            } else {
-               piercesSoFar++;
-               // Removes the creep that was last hit so it can't be hit again
-               creeps.removeAll(creepsHit);
-               // Checks if any other creeps were hit between the last and
-               // current points, and recursively processes them.
-               return processShotResult(super.checkIfCreepIsHit(creeps), creeps);
-            }
-         }
-      }
-      
-   }
-
+    }
+  }
 }

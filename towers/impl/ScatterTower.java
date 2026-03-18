@@ -13,56 +13,53 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package towers.impl;
 
+import creeps.Creep;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-
 import towers.AbstractTower;
 import towers.Bullet;
-import creeps.Creep;
-
 
 public class ScatterTower extends AbstractTower {
-   
-   private int numShots = 3;
-   
-   public ScatterTower(Point p) {
-      super(p, "Scatter", 40, 100, 5, 5, 50, 0, true);
-   }
 
-   @Override
-   public String getSpecial() {
-      return Integer.toString(numShots);
-   }
+  private int numShots = 3;
 
-   @Override
-   public String getSpecialName() {
-      return "Shots";
-   }
-   
-   @Override
-   protected List<Bullet> fireBullets(List<Creep> creeps) {
-      List<Bullet> fired = new ArrayList<Bullet>();
-      for (Creep c : creeps) {
-         if (checkDistance(c)) {
-            fired.addAll(fireBulletsAt(c, false));
-            if(fired.size() >= numShots) {
-               return fired;
-            }
-         }
+  public ScatterTower(Point p) {
+    super(p, "Scatter", 40, 100, 5, 5, 50, 0, true);
+  }
+
+  @Override
+  public String getSpecial() {
+    return Integer.toString(numShots);
+  }
+
+  @Override
+  public String getSpecialName() {
+    return "Shots";
+  }
+
+  @Override
+  protected List<Bullet> fireBullets(List<Creep> creeps) {
+    List<Bullet> fired = new ArrayList<Bullet>();
+    for (Creep c : creeps) {
+      if (checkDistance(c)) {
+        fired.addAll(fireBulletsAt(c, false));
+        if (fired.size() >= numShots) {
+          return fired;
+        }
       }
-      return fired;
-   }
+    }
+    return fired;
+  }
 
-   @Override
-   protected void upgradeSpecial() {
-      numShots++;
-   }
-
+  @Override
+  protected void upgradeSpecial() {
+    numShots++;
+  }
 }

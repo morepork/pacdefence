@@ -13,57 +13,54 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package gui;
 
 import images.ImageHelper;
-
 import java.awt.image.BufferedImage;
-
 import javax.swing.ImageIcon;
 
 // You need to manually tell this to toggle icons when it is pressed (which makes it easier in the
 // one place I actually use this button)
 @SuppressWarnings("serial")
 public class OverlayToggleButton extends OverlayButton {
-   
-   private ImageIcon[][] icons;
-   private int currentImageIndex = 0;
-   
-   public OverlayToggleButton(BufferedImage... images) {
-      this(images[0].getWidth(), images[0].getHeight(), images);
-   }
-   
-   public OverlayToggleButton(int width, int height, BufferedImage... images) {
-      super(images[0], width, height);
-      
-      icons = new ImageIcon[images.length][4];
-      for(int i = 0; i < images.length; i++) {
-         icons[i][0] = drawOverlay(ImageHelper.resize(images[i], width, height), baseColour);
-         icons[i][1] = drawOverlay(ImageHelper.resize(images[i], width, height), rolloverColour);
-         icons[i][2] = drawOverlay(ImageHelper.resize(images[i], width, height), pressedColour);
-         icons[i][3] = drawOverlay(ImageHelper.resize(images[i], width, height), disabledColour);
-      }
-   }
-   
-   public void setToDefault() {
-      currentImageIndex = 0;
-      setIcons();
-   }
-   
-   public void setIcon(int currentMode) {
-      currentImageIndex = currentMode;
-      setIcons();
-   }
-   
-   private void setIcons() {
-      setIcon(icons[currentImageIndex][0]);
-      setRolloverIcon(icons[currentImageIndex][1]);
-      setPressedIcon(icons[currentImageIndex][2]);
-      setDisabledIcon(icons[currentImageIndex][3]);
-   }
 
+  private ImageIcon[][] icons;
+  private int currentImageIndex = 0;
+
+  public OverlayToggleButton(BufferedImage... images) {
+    this(images[0].getWidth(), images[0].getHeight(), images);
+  }
+
+  public OverlayToggleButton(int width, int height, BufferedImage... images) {
+    super(images[0], width, height);
+
+    icons = new ImageIcon[images.length][4];
+    for (int i = 0; i < images.length; i++) {
+      icons[i][0] = drawOverlay(ImageHelper.resize(images[i], width, height), baseColour);
+      icons[i][1] = drawOverlay(ImageHelper.resize(images[i], width, height), rolloverColour);
+      icons[i][2] = drawOverlay(ImageHelper.resize(images[i], width, height), pressedColour);
+      icons[i][3] = drawOverlay(ImageHelper.resize(images[i], width, height), disabledColour);
+    }
+  }
+
+  public void setToDefault() {
+    currentImageIndex = 0;
+    setIcons();
+  }
+
+  public void setIcon(int currentMode) {
+    currentImageIndex = currentMode;
+    setIcons();
+  }
+
+  private void setIcons() {
+    setIcon(icons[currentImageIndex][0]);
+    setRolloverIcon(icons[currentImageIndex][1]);
+    setPressedIcon(icons[currentImageIndex][2]);
+    setDisabledIcon(icons[currentImageIndex][3]);
+  }
 }

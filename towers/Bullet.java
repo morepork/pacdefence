@@ -13,33 +13,27 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package towers;
 
+import creeps.Creep;
 import gui.Drawable;
-
 import java.awt.Graphics2D;
 import java.util.List;
 
-import creeps.Creep;
-
-
 public interface Bullet extends Drawable {
-   
-   /**
-    * Tick this bullet
-    * 
-    * @param creeps
-    * @return
-    *        How much money, if any, the bullet earned. A negative return value
-    *        means the bullet is still going and 0 means the bullet reached the
-    *        edge of its range.
-    */
-   public double tick(List<Creep> creeps);
-   
-   public void draw(Graphics2D g);
 
+  /**
+   * Tick this bullet
+   *
+   * @param creeps
+   * @return How much money, if any, the bullet earned. A negative return value means the bullet is
+   *     still going and 0 means the bullet reached the edge of its range.
+   */
+  public double tick(List<Creep> creeps);
+
+  public void draw(Graphics2D g);
 }

@@ -13,12 +13,11 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package images;
-
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,84 +27,78 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
 public class ImageHelperTest {
-   
-   private static JFrame frame = new JFrame("ImageHelperTest");
-   private static MyPanel panel = new MyPanel();
-   private static Scanner scan = new Scanner(System.in);
-   private BufferedImage tower;
-   private static List<BufferedImage> toDraw = new ArrayList<BufferedImage>();
 
-   @BeforeClass
-   public static void setUpBeforeClass() throws Exception {
-      frame.setSize(new Dimension(800, 600));
-      frame.add(panel);
-      frame.setVisible(true);
-      
-   }
+  private static JFrame frame = new JFrame("ImageHelperTest");
+  private static MyPanel panel = new MyPanel();
+  private static Scanner scan = new Scanner(System.in);
+  private BufferedImage tower;
+  private static List<BufferedImage> toDraw = new ArrayList<BufferedImage>();
 
-   @AfterClass
-   public static void tearDownAfterClass() throws Exception {
-      frame.dispose();
-   }
+  @BeforeClass
+  public static void setUpBeforeClass() throws Exception {
+    frame.setSize(new Dimension(800, 600));
+    frame.add(panel);
+    frame.setVisible(true);
+  }
 
-   @Before
-   public void setUp() throws Exception {
-      tower = ImageHelper.loadImage("towers", "basic.png");
-      toDraw.clear();
-   }
+  @AfterClass
+  public static void tearDownAfterClass() throws Exception {
+    frame.dispose();
+  }
 
-   @After
-   public void tearDown() throws Exception {
-      frame.repaint();
-      frame.toFront();
-      assertEquals(scan.next(), "y");
-   }
-   
-   @Test
-   public void testRotatePiOver2() {
-      toDraw.add(tower);
-      toDraw.add(ImageHelper.rotateImage(tower, Math.PI / 2));
-      System.out.println("Are two towers drawn, the right one rotated through pi/2 ? (y/n)");
-   }
-   
-   @Test
-   public void testRotateOneRadian() {
-      toDraw.add(tower);
-      toDraw.add(ImageHelper.rotateImage(tower, 1));
-      System.out.println("Are two towers drawn, the right one rotated through 1 radian? (y/n)");
-   }
-   
-   @Test
-   public void testClearImage() {
-      ImageHelper.clearImage(tower);
-      toDraw.add(tower);
-      System.out.println("Is the frame blank? (y/n)");
-   }
-   
-   @SuppressWarnings("serial")
-   private static class MyPanel extends JPanel {
-      
-      @Override
-      public void paint(Graphics g) {
-         int lastX = 5;
-         for(BufferedImage b : toDraw) {
-            g.drawImage(b, lastX, 5, null);
-            lastX += b.getWidth() + 5;
-         }
+  @Before
+  public void setUp() throws Exception {
+    tower = ImageHelper.loadImage("towers", "basic.png");
+    toDraw.clear();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    frame.repaint();
+    frame.toFront();
+    assertEquals(scan.next(), "y");
+  }
+
+  @Test
+  public void testRotatePiOver2() {
+    toDraw.add(tower);
+    toDraw.add(ImageHelper.rotateImage(tower, Math.PI / 2));
+    System.out.println("Are two towers drawn, the right one rotated through pi/2 ? (y/n)");
+  }
+
+  @Test
+  public void testRotateOneRadian() {
+    toDraw.add(tower);
+    toDraw.add(ImageHelper.rotateImage(tower, 1));
+    System.out.println("Are two towers drawn, the right one rotated through 1 radian? (y/n)");
+  }
+
+  @Test
+  public void testClearImage() {
+    ImageHelper.clearImage(tower);
+    toDraw.add(tower);
+    System.out.println("Is the frame blank? (y/n)");
+  }
+
+  @SuppressWarnings("serial")
+  private static class MyPanel extends JPanel {
+
+    @Override
+    public void paint(Graphics g) {
+      int lastX = 5;
+      for (BufferedImage b : toDraw) {
+        g.drawImage(b, lastX, 5, null);
+        lastX += b.getWidth() + 5;
       }
-      
-   }
-
+    }
+  }
 }

@@ -19,78 +19,73 @@
 
 package logic;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import towers.Tower;
 import towers.Tower.Attribute;
 
-
 public class Formulae {
 
-   public static int numCreeps(int level) {
-      return 20 + 4 * (level - 1);
-   }
+  public static int numCreeps(int level) {
+    return 20 + 4 * (level - 1);
+  }
 
-   public static int ticksBetweenAddCreep(int level) {
-      int ticks = 40;
-      for(int i = 1; i < level; i++) {
-         ticks *= 0.95;
+  public static int ticksBetweenAddCreep(int level) {
+    int ticks = 40;
+    for (int i = 1; i < level; i++) {
+      ticks *= 0.95;
+    }
+    return ticks > 1 ? ticks : 1;
+  }
+
+  public static long hp(int level) {
+    return (long) (Math.pow(1.5, level - 1) * 10);
+  }
+
+  public static int levelEndBonus(int level) {
+    return 1000 + 100 * (level - 1);
+  }
+
+  public static int noEnemiesThroughBonus(int level) {
+    return 100 * level;
+  }
+
+  public static long upgradeCost(int currentLevel) {
+    return (long) (Math.pow(1.25, currentLevel - 1) * 100);
+  }
+
+  public static double damageDollars(double hpLost, double hpFactor, int level) {
+    return hpFactor * hpLost / getMoneyDivisor(level);
+  }
+
+  public static double killBonus(long levelHP, int level) {
+    return levelHP / getMoneyDivisor(level);
+  }
+
+  private static double getMoneyDivisor(int level) {
+    return Math.pow(1.15, level - 1);
+  }
+
+  public static int nextUpgradeKills(int currentLevel) {
+    return currentLevel * currentLevel * 10;
+  }
+
+  public static long nextUpgradeDamage(int currentLevel) {
+    return (long) (Math.pow(2, currentLevel - 1)) * 250;
+  }
+
+  public static int towerCost(int numTowers, int numOfThisType) {
+    return (int) (Math.pow(1.05, numTowers) * Math.pow(1.1, numOfThisType) * 1000);
+  }
+
+  public static long sellValue(Tower t, int numTowers, int numOfThisType) {
+    double value = towerCost(numTowers - 1, numOfThisType - 1);
+    for (Attribute a : Attribute.values()) {
+      for (int i = 1; i < t.getAttributeLevel(a); i++) {
+        value += upgradeCost(i);
       }
-      return ticks > 1 ? ticks : 1;
-   }
-
-   public static long hp(int level) {
-      return (long)(Math.pow(1.5, level - 1) * 10);
-   }
-
-   public static int levelEndBonus(int level) {
-      return 1000 + 100 * (level - 1);
-   }
-
-   public static int noEnemiesThroughBonus(int level) {
-      return 100 * level;
-   }
-
-   public static long upgradeCost(int currentLevel) {
-      return (long)(Math.pow(1.25, currentLevel - 1) * 100);
-   }
-
-   public static double damageDollars(double hpLost, double hpFactor, int level) {
-      return hpFactor * hpLost / getMoneyDivisor(level);
-   }
-
-   public static double killBonus(long levelHP, int level) {
-      return levelHP / getMoneyDivisor(level);
-   }
-
-   private static double getMoneyDivisor(int level) {
-      return Math.pow(1.15, level - 1);
-   }
-
-   public static int nextUpgradeKills(int currentLevel) {
-      return currentLevel * currentLevel * 10;
-   }
-
-   public static long nextUpgradeDamage(int currentLevel) {
-      return (long)(Math.pow(2, currentLevel - 1)) * 250;
-   }
-
-   public static int towerCost(int numTowers, int numOfThisType) {
-      return (int)(Math.pow(1.05, numTowers) * Math.pow(1.1, numOfThisType) * 1000);
-   }
-
-   public static long sellValue(Tower t, int numTowers, int numOfThisType) {
-      double value = towerCost(numTowers - 1, numOfThisType - 1);
-      for(Attribute a : Attribute.values()) {
-         for(int i = 1; i < t.getAttributeLevel(a); i++) {
-            value += upgradeCost(i);
-         }
-      }
-      for(int i = 1; i < t.getExperienceReport().level; i++) {
-         value *= 1.1;
-      }
-      return (long)(value * 0.9);
-   }
-
+    }
+    for (int i = 1; i < t.getExperienceReport().level; i++) {
+      value *= 1.1;
+    }
+    return (long) (value * 0.9);
+  }
 }

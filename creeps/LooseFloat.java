@@ -13,43 +13,41 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package creeps;
 
-
 public abstract class LooseFloat implements Comparable<LooseFloat> {
-   
-   private final Double value;
-   
-   public LooseFloat(float f) {
-      value = Math.floor(f / getPrecision());
-   }
-   
-   public LooseFloat(double d) {
-      this((float)d);
-   }
-   
-   @Override
-   public boolean equals(Object obj) {
-      if(obj instanceof LooseFloat) {
-         return value.equals(((LooseFloat) obj).value);
-      }
-      return false;
-   }
-   
-   @Override
-   public int hashCode() {
-      return value.hashCode();
-   }
-   
-   @Override
-   public int compareTo(LooseFloat lf) {
-      return (int)(value - lf.value);
-   }
-   
-   protected abstract float getPrecision();
-   
+
+  private final Double value;
+
+  public LooseFloat(float f) {
+    value = Math.floor(f / getPrecision());
+  }
+
+  public LooseFloat(double d) {
+    this((float) d);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof LooseFloat) {
+      return value.equals(((LooseFloat) obj).value);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return value.hashCode();
+  }
+
+  @Override
+  public int compareTo(LooseFloat lf) {
+    return (int) (value - lf.value);
+  }
+
+  protected abstract float getPrecision();
 }

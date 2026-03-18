@@ -13,17 +13,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * (C) Liam Byrne, 2008 - 2012.
  */
 
 package towers;
 
 public abstract class AbstractBullet implements Bullet {
-   
-   @Override
-   public ZCoordinate getZ() {
-      return ZCoordinate.Bullet;
-   }
 
+  @Override
+  public ZCoordinate getZ() {
+    return ZCoordinate.Bullet;
+  }
 }

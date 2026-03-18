@@ -13,62 +13,59 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package towers.impl;
 
+import creeps.Creep;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-
 import towers.AbstractTower;
 import towers.Bullet;
 import util.Vector2D;
-import creeps.Creep;
-
 
 public class OmnidirectionalTower extends AbstractTower {
-   
-   private int numShots = 3;
-   
-   public OmnidirectionalTower(Point p) {
-      super(p, "Omnidirectional", 40, 100, 5, 10, 50, 0, true);
-      // Testing tower with way too many bullets
-      /*super(p, "Omnidirectional", 0, 1000, 5, 0.005, 50, 0, true);
-      for(int i = 0; i < 200; i++) {
-         upgradeSpecial();
-      }*/
-   }
 
-   @Override
-   public String getSpecial() {
-      return String.valueOf(numShots);
-   }
+  private int numShots = 3;
 
-   @Override
-   public String getSpecialName() {
-      return "Shots";
-   }
-   
-   @Override
-   protected List<Bullet> makeBullets(Vector2D dir, int turretWidth, int range,
-         double speed, double damage, Point p, Creep c) {
-      List<Bullet> bullets = new ArrayList<Bullet>();
-      double angle = dir.getAngle();
-      double dTheta = 2 * Math.PI / numShots;
-      for(int i = 0; i < numShots; i++) {
-         Vector2D bulletDir = Vector2D.createFromAngle(angle, 1);
-         angle += dTheta;
-         bullets.add(makeBullet(bulletDir, turretWidth, range, speed, damage, p, c));
-      }
-      return bullets;
-   }
+  public OmnidirectionalTower(Point p) {
+    super(p, "Omnidirectional", 40, 100, 5, 10, 50, 0, true);
+    // Testing tower with way too many bullets
+    /*super(p, "Omnidirectional", 0, 1000, 5, 0.005, 50, 0, true);
+    for(int i = 0; i < 200; i++) {
+       upgradeSpecial();
+    }*/
+  }
 
-   @Override
-   protected void upgradeSpecial() {
-      numShots++;
-   }
+  @Override
+  public String getSpecial() {
+    return String.valueOf(numShots);
+  }
 
+  @Override
+  public String getSpecialName() {
+    return "Shots";
+  }
+
+  @Override
+  protected List<Bullet> makeBullets(
+      Vector2D dir, int turretWidth, int range, double speed, double damage, Point p, Creep c) {
+    List<Bullet> bullets = new ArrayList<Bullet>();
+    double angle = dir.getAngle();
+    double dTheta = 2 * Math.PI / numShots;
+    for (int i = 0; i < numShots; i++) {
+      Vector2D bulletDir = Vector2D.createFromAngle(angle, 1);
+      angle += dTheta;
+      bullets.add(makeBullet(bulletDir, turretWidth, range, speed, damage, p, c));
+    }
+    return bullets;
+  }
+
+  @Override
+  protected void upgradeSpecial() {
+    numShots++;
+  }
 }

@@ -13,14 +13,13 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package creeps;
 
 import images.ImageHelper;
-
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -29,29 +28,27 @@ import java.util.List;
 
 public class Pacman extends AbstractCreep {
 
-   private static final int width = 40;
-   
-   private static final String imageName = "pacman_yellow";
-   private static final String extension = ".png";
-   private static final int numImages = 8;
-   private static final List<BufferedImage> images = Collections.unmodifiableList(makeImages());
-   
-   
-   public Pacman(int currentLevel, long hp, List<Point> path) {
-      super(images, currentLevel, hp, path);
-   }
-   
-   private static ArrayList<BufferedImage> makeImages() {
-      ArrayList<BufferedImage> images = new ArrayList<BufferedImage>();
-      for(int i = 1; i <= numImages; i++) {
-         // Adds all the images
-         images.add(ImageHelper.loadImage(width, width, "creeps", imageName + i + extension));
-      }
-      for(int i = images.size() - 2; i > 0; i--) {
-         // Adds the images from the second to last to the second again to make a cycle
-         images.add(images.get(i));
-      }
-      return images;
-   }
+  private static final int width = 40;
 
+  private static final String imageName = "pacman_yellow";
+  private static final String extension = ".png";
+  private static final int numImages = 8;
+  private static final List<BufferedImage> images = Collections.unmodifiableList(makeImages());
+
+  public Pacman(int currentLevel, long hp, List<Point> path) {
+    super(images, currentLevel, hp, path);
+  }
+
+  private static ArrayList<BufferedImage> makeImages() {
+    ArrayList<BufferedImage> images = new ArrayList<BufferedImage>();
+    for (int i = 1; i <= numImages; i++) {
+      // Adds all the images
+      images.add(ImageHelper.loadImage(width, width, "creeps", imageName + i + extension));
+    }
+    for (int i = images.size() - 2; i > 0; i--) {
+      // Adds the images from the second to last to the second again to make a cycle
+      images.add(images.get(i));
+    }
+    return images;
+  }
 }

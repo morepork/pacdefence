@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
@@ -21,7 +21,6 @@ package gui;
 
 import gui.maps.MapParser.GameMap;
 import images.ImageHelper;
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
@@ -29,9 +28,7 @@ import java.awt.event.ActionListener;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javax.swing.JPanel;
-
 import logic.Constants;
 import logic.Game;
 import logic.MyExecutor;
@@ -40,43 +37,46 @@ import towers.AbstractTower;
 
 public class PacDefence {
 
-   private final Options options;
+  private final Options options;
 
-   private final Container outerContainer;
-   private Title title = createTitle();
-   private Future<SelectionScreens> selectionScreensFuture;
-   private SelectionScreens selectionScreens;
-   
-   private Game game;
+  private final Container outerContainer;
+  private Title title = createTitle();
+  private Future<SelectionScreens> selectionScreensFuture;
+  private SelectionScreens selectionScreens;
 
-   public PacDefence(Container c, Options options) {
-      this.options = options;
-      outerContainer = c;
-      outerContainer.setLayout(new BorderLayout());
-      outerContainer.add(title);
-      MyExecutor.initialiseExecutor();
-      loadSelectionScreens();
-   }
-   
-   public void end() {
-      game.stopRunning();
-      MyExecutor.terminateExecutor();
-      outerContainer.setVisible(false);
-   }
+  private Game game;
 
-   private Title createTitle() {
-      return new Title(Constants.WIDTH, Constants.HEIGHT, new ActionListener() {
-         @Override
-         public void actionPerformed(ActionEvent e) {
+  public PacDefence(Container c, Options options) {
+    this.options = options;
+    outerContainer = c;
+    outerContainer.setLayout(new BorderLayout());
+    outerContainer.add(title);
+    MyExecutor.initialiseExecutor();
+    loadSelectionScreens();
+  }
+
+  public void end() {
+    game.stopRunning();
+    MyExecutor.terminateExecutor();
+    outerContainer.setVisible(false);
+  }
+
+  private Title createTitle() {
+    return new Title(
+        Constants.WIDTH,
+        Constants.HEIGHT,
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
             try {
-               selectionScreens = selectionScreensFuture.get();
-               selectionScreensFuture = null; // Let the memory be reclaimed
-            } catch(InterruptedException ex) {
-               // Should never happen
-               throw new RuntimeException(ex);
-            } catch(ExecutionException ex) {
-               // Hopefully this will never happen either
-               throw new RuntimeException(ex);
+              selectionScreens = selectionScreensFuture.get();
+              selectionScreensFuture = null; // Let the memory be reclaimed
+            } catch (InterruptedException ex) {
+              // Should never happen
+              throw new RuntimeException(ex);
+            } catch (ExecutionException ex) {
+              // Hopefully this will never happen either
+              throw new RuntimeException(ex);
             }
             ImageHelper.setSkin(title.getSelectedSkin());
             outerContainer.remove(title);
@@ -87,62 +87,61 @@ public class PacDefence {
             title = null;
             // Create a new game so it can load stuff asynchronously
             game = new Game(new ReturnToTitleCallback(), options);
-         }
-      });
-   }
-   
-   /**
-    * Loads the selection screens asynchronously.
-    * 
-    * It's worth doing this as previously it would pause for around a second while it was loaded,
-    * but it may as well be loaded in the background because nothing is happening while you're at
-    * the title screen.
-    */
-   private void loadSelectionScreens() {
-      selectionScreensFuture = MyExecutor.submit(new Callable<SelectionScreens>() {
-         @Override
-         public SelectionScreens call() {
-            return new SelectionScreens(Constants.WIDTH, Constants.HEIGHT, new GameStarter());
-         }
-      });
-   }
-   
-   public class GameStarter {
-      
-      public void startGame(GameMap gm) {
-         // Start the game
-         game.startGame(gm);
-         
-         outerContainer.remove(selectionScreens);
-         // Releases memory used by the images in the GameMaps, ~20 MB when last checked
-         selectionScreens = null;
-         outerContainer.add(game.getGameMapPanel(), BorderLayout.WEST);
-         outerContainer.add(game.getControlPanel(), BorderLayout.EAST);
-         outerContainer.validate();
-         outerContainer.repaint();
-         
-         game.getControlPanel().requestFocus();
+          }
+        });
+  }
+
+  /**
+   * Loads the selection screens asynchronously.
+   *
+   * <p>It's worth doing this as previously it would pause for around a second while it was loaded,
+   * but it may as well be loaded in the background because nothing is happening while you're at the
+   * title screen.
+   */
+  private void loadSelectionScreens() {
+    selectionScreensFuture =
+        MyExecutor.submit(
+            new Callable<SelectionScreens>() {
+              @Override
+              public SelectionScreens call() {
+                return new SelectionScreens(Constants.WIDTH, Constants.HEIGHT, new GameStarter());
+              }
+            });
+  }
+
+  public class GameStarter {
+
+    public void startGame(GameMap gm) {
+      // Start the game
+      game.startGame(gm);
+
+      outerContainer.remove(selectionScreens);
+      // Releases memory used by the images in the GameMaps, ~20 MB when last checked
+      selectionScreens = null;
+      outerContainer.add(game.getGameMapPanel(), BorderLayout.WEST);
+      outerContainer.add(game.getControlPanel(), BorderLayout.EAST);
+      outerContainer.validate();
+      outerContainer.repaint();
+
+      game.getControlPanel().requestFocus();
+    }
+  }
+
+  public class ReturnToTitleCallback {
+
+    public void returnToTitle(JPanel... panelsToRemove) {
+      // Need to create a new title screen as we got rid of the old one to
+      // free up memory
+      title = createTitle();
+      for (JPanel panel : panelsToRemove) {
+        outerContainer.remove(panel);
       }
-      
-   }
-
-   public class ReturnToTitleCallback {
-
-      public void returnToTitle(JPanel... panelsToRemove) {
-         // Need to create a new title screen as we got rid of the old one to
-         // free up memory
-         title = createTitle();
-         for (JPanel panel : panelsToRemove) {
-            outerContainer.remove(panel);
-         }
-         outerContainer.add(title);
-         outerContainer.invalidate();
-         outerContainer.validate();
-         outerContainer.repaint();
-         loadSelectionScreens();
-         AbstractTower.flushImageCache();
-      }
-
-   }
-
+      outerContainer.add(title);
+      outerContainer.invalidate();
+      outerContainer.validate();
+      outerContainer.repaint();
+      loadSelectionScreens();
+      AbstractTower.flushImageCache();
+    }
+  }
 }

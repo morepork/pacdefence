@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * (C) Liam Byrne, 2008 - 2013.
  */
 
@@ -26,11 +26,14 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 public interface Buildable {
-   
-   public boolean canBuild(List<Polygon> path);
-   public Buildable constructNew(Point p);
-   public void drawShadowAt(Graphics2D g, Point p, boolean validPlacement);
-   public BufferedImage getButtonImage();
-   public String getName();
 
+  public boolean canBuild(List<Polygon> path);
+
+  public Buildable constructNew(Point p);
+
+  public void drawShadowAt(Graphics2D g, Point p, boolean validPlacement);
+
+  public BufferedImage getButtonImage();
+
+  public String getName();
 }

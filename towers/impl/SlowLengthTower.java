@@ -13,27 +13,24 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package towers.impl;
 
 import java.awt.Point;
-
 import logic.Constants;
 
-
 public class SlowLengthTower extends SlowTower {
-   
-   public SlowLengthTower(Point p) {
-      super(p, "Slow", 40, 100, 5, 1, 50, 23, true, 0.5, Constants.CLOCK_TICKS_PER_SECOND * 2);
-      // Halves the speed of the creeps it hits, and lasts for 2s
-   }
 
-   @Override
-   public String getSpecialName() {
-      return "Slow Length";
-   }
+  public SlowLengthTower(Point p) {
+    super(p, "Slow", 40, 100, 5, 1, 50, 23, true, 0.5, Constants.CLOCK_TICKS_PER_SECOND * 2);
+    // Halves the speed of the creeps it hits, and lasts for 2s
+  }
 
+  @Override
+  public String getSpecialName() {
+    return "Slow Length";
+  }
 }

@@ -13,62 +13,58 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with Pac Defence.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  *  (C) Liam Byrne, 2008 - 2012.
  */
 
 package creeps;
 
 import junit.framework.Assert;
-
 import org.junit.Test;
-
 
 // Not really the greatest test method...
 public class LooseFloatTest {
-   
-   @Test
-   public void testPointOneShouldNotEqual() {
-      for(int i = 0; i < 100; i++) {
-         double random = Math.random();
-         LooseFloat lf1 = new PointOne(random);
-         LooseFloat lf2 = new PointOne(random + 0.11 + Math.random());
-         Assert.assertFalse(lf1.equals(lf2));
-      }
-   }
-   
-   @Test
-   public void testPointOneShouldEqual() {
-      for(int i = 0; i < 100; i++) {
-         double random = Math.random();
-         LooseFloat lf1 = new PointOne(random);
-         LooseFloat lf2 = new PointOne(random + Math.random() * 0.2);
-         compare(lf1, lf2);
-      }
-   }
-   
-   private void compare(LooseFloat lf1, LooseFloat lf2) {
-      if(lf1.equals(lf2)) {
-         Assert.assertEquals(lf1.compareTo(lf2), 0);
-         Assert.assertEquals(lf1.hashCode(), lf2.hashCode());
-      }
-   }
-   
-   private class PointOne extends LooseFloat {
 
-      public PointOne(float f) {
-         super(f);
-      }
-      
-      public PointOne(double d) {
-         super(d);
-      }
+  @Test
+  public void testPointOneShouldNotEqual() {
+    for (int i = 0; i < 100; i++) {
+      double random = Math.random();
+      LooseFloat lf1 = new PointOne(random);
+      LooseFloat lf2 = new PointOne(random + 0.11 + Math.random());
+      Assert.assertFalse(lf1.equals(lf2));
+    }
+  }
 
-      @Override
-      protected float getPrecision() {
-         return 0.1F;
-      }
-      
-   }
+  @Test
+  public void testPointOneShouldEqual() {
+    for (int i = 0; i < 100; i++) {
+      double random = Math.random();
+      LooseFloat lf1 = new PointOne(random);
+      LooseFloat lf2 = new PointOne(random + Math.random() * 0.2);
+      compare(lf1, lf2);
+    }
+  }
 
+  private void compare(LooseFloat lf1, LooseFloat lf2) {
+    if (lf1.equals(lf2)) {
+      Assert.assertEquals(lf1.compareTo(lf2), 0);
+      Assert.assertEquals(lf1.hashCode(), lf2.hashCode());
+    }
+  }
+
+  private class PointOne extends LooseFloat {
+
+    public PointOne(float f) {
+      super(f);
+    }
+
+    public PointOne(double d) {
+      super(d);
+    }
+
+    @Override
+    protected float getPrecision() {
+      return 0.1F;
+    }
+  }
 }
