@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 
 public class Helper {
@@ -39,38 +40,31 @@ public class Helper {
 
    private static final long scientificFormatThreshold = 10_000_000_000L;
    private static final DecimalFormat scientificFormat = new DecimalFormat("0.000E0");
-   
-   public static List<Point2D> getPointsOnLine(Line2D line) {
-      return getPointsOnLine(line.getP1(), line.getP2());
-   }
-   
-   public static List<Point2D> getPointsOnLine(Point2D p1, Point2D p2) {
-      return getPointsOnLine(p1, p2, null);
-   }
-   
-   public static List<Point2D> getPointsOnLine(Point2D p1, Point2D p2, List<Shape> containedIn) {
-      Vector2D dir = Vector2D.createFromPoints(p1, p2);
+
+   public static Iterable<Point2D> getPointsOnLine(Line2D line) {
+      Point2D p1 = line.getP1();
+      Point2D p2 = line.getP2();
       // The maximum length in either the x or y directions to divide the line
       // into points a maximum of one pixel apart in either the x or y directions
-      double absDx = Math.abs(dir.getX());
-      double absDy = Math.abs(dir.getY());
-      double length = (absDx > absDy) ? absDx : absDy;
-      Vector2D step = Vector2D.createFromVector(dir, length);
-      List<Point2D> points = new ArrayList<Point2D>((int) length + 2);
-      if(containedIn == null || containedInAShape(p1, containedIn)) {
-         points.add((Point2D) p1.clone());
+      double dx = p2.getX() - p1.getX();
+      double dy = p2.getY() - p1.getY();
+      double absDx = Math.abs(dx);
+      double absDy = Math.abs(dy);
+
+      Vector2D step;
+      int steps;
+      if(absDx > absDy) {
+         step = new Vector2D(dx > 0 ? 1 : -1, dy / absDx);
+         steps = (int)absDx;
+      } else {
+         step = new Vector2D(dx / absDy, dy > 0 ? 1 : -1);
+         steps = (int)absDy;
       }
-      Point2D lastPoint = p1;
-      for(int i = 1; i <= length; i++) {
-         lastPoint = Vector2D.add(lastPoint, step);
-         if(containedIn == null || containedInAShape(lastPoint, containedIn)) {
-            points.add(lastPoint);
-         }
-      }
-      if(containedIn == null || containedInAShape(p2, containedIn)) {
-         points.add((Point2D) p2.clone());
-      }
-      return points;
+      Stream<Point2D> stream = Stream.concat(
+              Stream.iterate((Point2D) p1.clone(), p -> Vector2D.add(p, step)).limit(steps + 1),
+              Stream.of((Point2D) p2.clone())
+      );
+      return stream::iterator;
    }
    
    public static boolean containedInAShape(Point2D p, List<Shape> shapes) {
