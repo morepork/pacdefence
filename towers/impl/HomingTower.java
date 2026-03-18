@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import logic.Constants;
+import logic.CreepGrid;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -88,10 +89,10 @@ public class HomingTower extends AbstractTower {
     }
 
     @Override
-    protected double doTick(List<Creep> creeps) {
+    protected double doTick(CreepGrid creeps) {
       double value = super.doTick(creeps);
 
-      selectNewTarget(creeps); // Selects a new target if necessary
+      selectNewTarget(creeps.allCreeps()); // Selects a new target if necessary
       retarget();
 
       return value;

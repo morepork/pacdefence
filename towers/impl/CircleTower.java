@@ -26,6 +26,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import logic.CreepGrid;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -101,27 +102,25 @@ public class CircleTower extends AbstractTower {
     }
 
     @Override
-    public double doTick(List<Creep> creeps) {
+    public double doTick(CreepGrid creeps) {
       if (angle >= endAngle || hitsLeft <= 0) {
         return moneyEarnedSoFar;
       }
-      List<Creep> hittableCreeps = new ArrayList<Creep>(creeps);
-      hittableCreeps.removeAll(hitCreeps);
-      moneyEarnedSoFar += checkIfCreepIsHit(hittableCreeps);
+      moneyEarnedSoFar += checkIfCreepIsHit(creeps.excluding(hitCreeps));
       angle += deltaTheta;
       position.setLocation(route.getPointAt(angle));
       return -1;
     }
 
     @Override
-    protected double checkIfCreepIsHit(List<Creep> creeps) {
+    protected double checkIfCreepIsHit(CreepGrid creeps) {
       List<Point2D> points = makeArcPoints();
       double moneyEarned = 0;
       if (!points.isEmpty()) {
-        for (Creep c : creeps) {
+        for (Creep c : creeps.allCreeps()) {
           for (Point2D p : points) {
             if (c.intersects(p)) {
-              specialOnHit(p, c, creeps);
+              specialOnHit(p, c, creeps.allCreeps());
               moneyEarned += processDamageReport(c.hit(getDamage(), shotBy.getClass()));
               hitCreeps.add(c);
               hitsLeft--;

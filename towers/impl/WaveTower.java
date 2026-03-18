@@ -29,8 +29,8 @@ import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import logic.Constants;
+import logic.CreepGrid;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -123,7 +123,7 @@ public class WaveTower extends AbstractTower {
     }
 
     @Override
-    protected double doTick(List<Creep> creeps) {
+    protected double doTick(CreepGrid creeps) {
       double value = super.doTick(creeps);
       setArc(arc, distanceTravelled + turretWidth);
       if (value > 0) {
@@ -135,14 +135,11 @@ public class WaveTower extends AbstractTower {
     }
 
     @Override
-    protected double checkIfCreepIsHit(List<Creep> creeps) {
-      if (creeps.isEmpty()) {
-        return -1;
-      }
+    protected double checkIfCreepIsHit(CreepGrid creeps) {
       double d = 0;
       Arc2D closerArc = (Arc2D) lastArc.clone();
       closerArc.setArcType(Arc2D.OPEN);
-      for (Creep c : creeps) {
+      for (Creep c : creeps.allCreeps()) {
         // It has to intersect the current arc, but not the last arc unless
         // it intersects the open arc with the same radius as the last arc
         if (!hitCreeps.contains(c)

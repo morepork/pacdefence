@@ -29,6 +29,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import logic.Constants;
+import logic.CreepGrid;
 import util.Vector2D;
 
 public class BasicBullet extends AbstractBullet {
@@ -90,7 +91,7 @@ public class BasicBullet extends AbstractBullet {
   }
 
   @Override
-  public final double tick(List<Creep> creeps) {
+  public final double tick(CreepGrid creeps) {
     double tick = doTick(creeps);
     draw = tick < 0;
     return tick;
@@ -118,11 +119,11 @@ public class BasicBullet extends AbstractBullet {
     dir = Vector2D.createFromVector(direction, speed);
   }
 
-  protected double checkIfCreepIsHit(List<Creep> creeps) {
+  protected double checkIfCreepIsHit(CreepGrid creeps) {
     return checkIfCreepIsHit(lastPosition, position, creeps);
   }
 
-  protected double checkIfCreepIsHit(Point2D p1, Point2D p2, List<Creep> creeps) {
+  protected double checkIfCreepIsHit(Point2D p1, Point2D p2, CreepGrid creeps) {
     // It turns out using the line is much faster than using a list of points, even though the
     // list of points must be calculated if the lines intersects the shape.
     // A number of reasons:
@@ -136,12 +137,12 @@ public class BasicBullet extends AbstractBullet {
     Line2D line = new Line2D.Double(p1, p2);
     // I used to do intersectsPath here first, but that doesn't work for a bullet that's just off
     // screen hitting a just started/nearly finished creep
-    for (Creep c : creeps) {
+    for (Creep c : creeps.filterCreeps(line)) {
       Point2D p = c.intersects(line);
       if (p != null) {
         DamageReport d = c.hit(damage, shotBy.getClass());
         if (d != null) { // Creep is not already dead, may happen due to threading
-          specialOnHit(p, c, creeps);
+          specialOnHit(p, c, creeps.allCreeps());
           return processDamageReport(d);
         }
       }
@@ -185,7 +186,7 @@ public class BasicBullet extends AbstractBullet {
     return offScreenFudgeDistance;
   }
 
-  protected double doTick(List<Creep> creeps) {
+  protected double doTick(CreepGrid creeps) {
     if (canBulletBeRemovedAsOffScreen()) {
       return 0;
     }

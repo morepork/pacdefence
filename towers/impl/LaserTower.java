@@ -27,7 +27,7 @@ import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.util.List;
+import logic.CreepGrid;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -112,7 +112,7 @@ public class LaserTower extends AbstractTower {
     }
 
     @Override
-    public double doTick(List<Creep> creeps) {
+    public double doTick(CreepGrid creeps) {
       Point2D oldP1 = laser.getP1();
       laser.setLine(Vector2D.add(laser.getP1(), step), Vector2D.add(laser.getP2(), step));
       distanceTravelled += speed;

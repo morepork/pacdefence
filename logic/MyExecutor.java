@@ -45,9 +45,9 @@ public class MyExecutor {
     if (executorService != null) {
       throw new IllegalStateException("The ExecutorService has already been initialised.");
     }
-    // If it hasn't been explicitly set, use the number of processors
+    // If it hasn't been explicitly set, use 2, this is mostly single threaded.
     if (numThreads == 0) {
-      numThreads = Runtime.getRuntime().availableProcessors();
+      numThreads = 2;
     }
     System.out.println("Using " + numThreads + " threads.");
     executorService = Executors.newFixedThreadPool(numThreads);

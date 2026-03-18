@@ -31,6 +31,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import logic.CreepGrid;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -112,11 +113,11 @@ public class ZapperTower extends AbstractTower {
     }
 
     @Override
-    protected double doTick(List<Creep> creeps) {
+    protected double doTick(CreepGrid creeps) {
       double value = super.doTick(creeps);
       // Only actually fire once every two ticks
       if (zap == null && numZapsLeft > 0) {
-        tryToFireZap(creeps);
+        tryToFireZap(creeps.allCreeps());
       } else {
         zap = null;
       }
@@ -128,7 +129,7 @@ public class ZapperTower extends AbstractTower {
     }
 
     @Override
-    protected double checkIfCreepIsHit(Point2D p1, Point2D p2, List<Creep> creeps) {
+    protected double checkIfCreepIsHit(Point2D p1, Point2D p2, CreepGrid creeps) {
       // The actual bullet never hits
       return -1;
     }

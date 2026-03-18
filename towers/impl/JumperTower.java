@@ -24,8 +24,10 @@ import creeps.Creep.DistanceComparator;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import logic.CreepGrid;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -87,6 +89,7 @@ public class JumperTower extends AbstractTower {
       // If there are jumps left, target the closest creep, so the bullet jumps to it
       if (jumpsLeft > 0) {
         // Add back the creep hit on the previous jump, so it can be targeted again
+        creeps = new ArrayList<>(creeps);
         if (lastHit != null && lastHit.isAlive()) {
           creeps.add(lastHit);
         }
@@ -115,13 +118,9 @@ public class JumperTower extends AbstractTower {
     }
 
     @Override
-    protected double doTick(List<Creep> creeps) {
+    protected double doTick(CreepGrid creeps) {
       // Remove the last hit creep so that it won't get hit again
-      List<Creep> newList = new ArrayList<Creep>(creeps);
-      if (lastHit != null) {
-        newList.remove(lastHit);
-      }
-      double result = super.doTick(newList);
+      double result = super.doTick(creeps.excluding(Arrays.asList(lastHit)));
       if (result < 0) {
         // Bullet didn't hit anything
         return result;

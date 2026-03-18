@@ -25,6 +25,7 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.List;
 import logic.Constants;
+import logic.CreepGrid;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -103,7 +104,7 @@ public class PoisonTower extends AbstractTower {
     }
 
     @Override
-    public double doTick(List<Creep> creeps) {
+    public double doTick(CreepGrid creeps) {
       if (poisonedCreep == null) {
         double tickMoney = super.doTick(creeps);
         if (tickMoney > 0) {

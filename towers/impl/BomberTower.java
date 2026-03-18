@@ -28,6 +28,7 @@ import java.awt.geom.Point2D;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import logic.CreepGrid;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -96,7 +97,7 @@ public class BomberTower extends AbstractTower {
     }
 
     @Override
-    public double doTick(List<Creep> creeps) {
+    public double doTick(CreepGrid creeps) {
       if (exploding) {
         double radius = blast.getRadius();
         if (expanding) {
@@ -114,7 +115,7 @@ public class BomberTower extends AbstractTower {
             blast.setRadius(newRadius);
           }
         }
-        checkIfCreepIsHitByBlast(creeps);
+        checkIfCreepIsHitByBlast(creeps.allCreeps());
         return -1;
       } else { // If it's not exploding, the bullet is still travelling
         double earnings = super.doTick(creeps);

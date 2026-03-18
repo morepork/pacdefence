@@ -19,10 +19,9 @@
 
 package towers;
 
-import creeps.Creep;
 import gui.Drawable;
 import java.awt.Graphics2D;
-import java.util.List;
+import logic.CreepGrid;
 
 public interface Bullet extends Drawable {
 
@@ -33,7 +32,7 @@ public interface Bullet extends Drawable {
    * @return How much money, if any, the bullet earned. A negative return value means the bullet is
    *     still going and 0 means the bullet reached the edge of its range.
    */
-  public double tick(List<Creep> creeps);
+  public double tick(CreepGrid creeps);
 
   public void draw(Graphics2D g);
 }

@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import logic.Constants;
+import logic.CreepGrid;
 import towers.AbstractBullet;
 import towers.AbstractTower;
 import towers.BasicBullet;
@@ -162,13 +163,13 @@ public class BeamTower extends AbstractTower {
     }
 
     @Override
-    public double tick(List<Creep> creeps) {
+    public double tick(CreepGrid creeps) {
       if (ticksLeft <= 0) {
         return moneyEarned;
       }
       ticksLeft--;
       currentAlpha -= deltaAlpha;
-      hitCreeps(creeps);
+      hitCreeps(creeps.allCreeps());
       arcAngle += deltaAngle;
       setBeam();
       return -1;

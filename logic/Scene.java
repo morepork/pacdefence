@@ -25,9 +25,6 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import towers.AbstractTower;
 import towers.Buildable;
 import towers.Bullet;
@@ -38,16 +35,8 @@ import towers.impl.AidTower;
 import towers.impl.BeamTower;
 import towers.impl.BomberTower;
 import towers.impl.WaveTower;
-import util.Helper;
 
 public class Scene {
-
-  // I tried 1x, 2x, 8x, 10x, 16x, and 20x and 16x was the best (then 10x, then 8x) on my dual
-  // core machine - as some callables will be more work, even though they have the same number of
-  // bullets as other ones.
-  // Set it to zero if only one processor to signal that single threaded versions should be used.
-  private final int numCallables =
-      MyExecutor.singleThreaded() ? 0 : MyExecutor.getNumThreads() * 16;
 
   private final List<Creep> creeps = Collections.synchronizedList(new ArrayList<Creep>());
   private final List<Tower> towers = Collections.synchronizedList(new ArrayList<Tower>());
@@ -59,10 +48,6 @@ public class Scene {
   private List<Ghost> ghostsToAdd = Collections.synchronizedList(new ArrayList<Ghost>());
 
   private int ghostsUsed = 0;
-
-  // For performance testing, goes with the code in tickBullets
-  //    private long time = 0;
-  //    private int ticks = 0;
 
   public void clear() {
     creeps.clear();
@@ -367,79 +352,13 @@ public class Scene {
   }
 
   private double tickBullets(List<Creep> unmodifiableCreeps) {
-    // This and the bit at the end is performance testing - times the first x ticks
-    //      if(bullets.size() > 0) {
-    //         ticks++;
-    //         time -= System.nanoTime();
-    //      }
-    double moneyEarned;
-    if (numCallables < 2 || bullets.size() <= 1) {
-      // If only one processor or 1 or fewer bullets this will be faster.
-      moneyEarned = tickBulletsSingleThread(unmodifiableCreeps);
-    } else {
-      moneyEarned = tickBulletsMultiThread(unmodifiableCreeps);
-    }
-    //      if(bullets.size() > 0) {
-    //         time += System.nanoTime();
-    //         if(ticks == 300) {
-    //            System.out.println(time / 1000000.0);
-    //         }
-    //      }
-    return moneyEarned;
-  }
+    CreepGrid creepGrid = new CreepGrid(unmodifiableCreeps);
 
-  private double tickBulletsMultiThread(List<Creep> unmodifiableCreeps) {
-    int bulletsPerThread = bullets.size() / numCallables;
-    int remainder = bullets.size() % numCallables;
-    int firstPos, lastPos = 0;
-    // Each Callable returns a List of Integer positions of Bullets to be removed
-    List<Future<BulletTickResult>> futures = new ArrayList<>();
-    // No point in making more callables than there are bullets
-    int n = Math.min(numCallables, bullets.size());
-    for (int i = 0; i < n; i++) {
-      firstPos = lastPos;
-      // Add 1 to callables 1, 2, ... , (remainder - 1), remainder
-      lastPos = firstPos + bulletsPerThread + (i < remainder ? 1 : 0);
-      // Copying the list should reduce the lag of each thread trying to access the same list
-      futures.add(
-          MyExecutor.submit(
-              new BulletTickCallable(firstPos, lastPos, bullets, new ArrayList<Creep>(creeps))));
-    }
-    return processTickFutures(futures);
-  }
-
-  private double processTickFutures(List<Future<BulletTickResult>> futures) {
-    double moneyEarned = 0;
-    List<Integer> bulletsToRemove = new ArrayList<>();
-    for (Future<BulletTickResult> f : futures) {
-      BulletTickResult result;
-      try {
-        result = f.get();
-      } catch (InterruptedException e) {
-        // Should never happen
-        throw new RuntimeException(e);
-      } catch (ExecutionException e) {
-        // Should never happen
-        throw new RuntimeException(e);
-      }
-      moneyEarned += result.moneyEarned;
-      bulletsToRemove.addAll(result.bulletsToRemove);
-    }
-    // bulletsToRemove will be sorted smallest to largest as each List returned by a
-    // BulletTickCallable is ordered, and the ordering is kept in the list of Futures, so no
-    // need to sort it here.
-
-    // Remove all the completed bullets from the main list
-    Helper.removeAll(bullets, bulletsToRemove);
-    return moneyEarned;
-  }
-
-  private double tickBulletsSingleThread(List<Creep> unmodifiableCreeps) {
     // Run through from last to first as bullets are being removed
     double moneyEarned = 0;
     List<Bullet> remainingBullets = new ArrayList(bullets.size());
     for (Bullet b : bullets) {
-      double money = b.tick(unmodifiableCreeps);
+      double money = b.tick(creepGrid);
       if (money >= 0) {
         moneyEarned += money;
       } else {
@@ -466,37 +385,5 @@ public class Scene {
     public long processCreepsTime;
     public long processBulletsTime;
     public long processTowersTime;
-  }
-
-  private class BulletTickResult {
-    public double moneyEarned = 0;
-    public List<Integer> bulletsToRemove = new ArrayList<>();
-  }
-
-  private class BulletTickCallable implements Callable<BulletTickResult> {
-
-    private final int firstPos, lastPos;
-    private final List<Bullet> bullets;
-    private final List<Creep> creeps;
-
-    public BulletTickCallable(int firstPos, int lastPos, List<Bullet> bullets, List<Creep> creeps) {
-      this.firstPos = firstPos;
-      this.lastPos = lastPos;
-      this.bullets = bullets;
-      this.creeps = creeps;
-    }
-
-    @Override
-    public BulletTickResult call() {
-      BulletTickResult result = new BulletTickResult();
-      for (int i = firstPos; i < lastPos; i++) {
-        double money = bullets.get(i).tick(creeps);
-        if (money >= 0) {
-          result.moneyEarned += money;
-          result.bulletsToRemove.add(i);
-        }
-      }
-      return result;
-    }
   }
 }

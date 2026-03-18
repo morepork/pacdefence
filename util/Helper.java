@@ -79,17 +79,6 @@ public class Helper {
     return new ArrayList<T>(Arrays.asList(ts));
   }
 
-  public static void removeAll(List<?> list, List<Integer> positions) {
-    // Assumes the list of Integers is sorted smallest to largest
-
-    // Removes from last to first as it is faster in an array backed list
-    // which is what I usually use.
-    for (int i = positions.size() - 1; i >= 0; i--) {
-      // Convert to int otherwise it calls list.remove(Object o)
-      list.remove(positions.get(i).intValue());
-    }
-  }
-
   public static String format(long n) {
     if (n > scientificFormatThreshold) {
       return scientificFormat.format(n);
