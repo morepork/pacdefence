@@ -231,6 +231,7 @@ public class Scene {
       int maxBeams = 100;
       int maxExplodingBombs = 10;
       int maxWaves = 100;
+      int totalMax = maxBullets + maxBeams + maxExplodingBombs + maxWaves;
 
       List<Bullet> shuffledBullets = new ArrayList<>(bullets);
       Collections.shuffle(shuffledBullets); // so every bullet has an equal chance of being shown
@@ -238,7 +239,7 @@ public class Scene {
       int numExplodingBombs = 0;
       int numWaves = 0;
       int numOtherBullets = 0;
-      List<Bullet> filteredBullets = new ArrayList<>(shuffledBullets.size());
+      List<Bullet> filteredBullets = new ArrayList<>(totalMax);
       for (Bullet b : shuffledBullets) {
          if (b instanceof BeamTower.Beam) {
             if (numBeams++ > maxBeams) {
@@ -258,6 +259,9 @@ public class Scene {
             }
          }
          filteredBullets.add(b);
+         if(filteredBullets.size() >= totalMax) {
+            break;
+         }
       }
       // if (Math.random() < 0.01) {
       //    System.out.println("filtered bullets: " + shuffledBullets.size() + " / " + filteredBullets.size());

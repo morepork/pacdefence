@@ -35,9 +35,8 @@ import creeps.Creep.DamageReport;
 
 public class BasicBullet extends AbstractBullet {
 
-   
    // Determined by the image
-   public static final int radius = 3;
+   private static final int radius = 3;
    // Extra distance a bullet can be off screen before it is removed. Should be greater than the
    // radius of the largest creep and the radius of the bullet
    private static final int offScreenFudgeDistance = 50 + radius;
@@ -47,7 +46,7 @@ public class BasicBullet extends AbstractBullet {
    protected Vector2D dir;
    protected final double speed;
    protected double distanceTravelled = 0;
-   protected final Point2D lastPosition;
+   private final Point2D lastPosition;
    protected final Point2D position;
    protected final int range;
    protected final double damage;
@@ -172,10 +171,11 @@ public class BasicBullet extends AbstractBullet {
    }
    
    protected boolean checkIfBulletIsOffScreen(Point2D p) {
-      return p.getX() < -getOffScreenFudgeDistance() ||
-            p.getY() < -getOffScreenFudgeDistance() ||
-            p.getX() > Constants.MAP_WIDTH + getOffScreenFudgeDistance() ||
-            p.getY() > Constants.MAP_HEIGHT + getOffScreenFudgeDistance();
+      int fudgeDistance = getOffScreenFudgeDistance();
+      return p.getX() < -fudgeDistance ||
+            p.getY() < -fudgeDistance ||
+            p.getX() > Constants.MAP_WIDTH + fudgeDistance ||
+            p.getY() > Constants.MAP_HEIGHT + fudgeDistance;
    }
    
    protected int getOffScreenFudgeDistance() {
@@ -183,7 +183,7 @@ public class BasicBullet extends AbstractBullet {
    }
    
    protected double doTick(List<Creep> creeps) {
-      if(isOutOfRange() || canBulletBeRemovedAsOffScreen()) {
+      if(canBulletBeRemovedAsOffScreen()) {
          return 0;
       }
       distanceTravelled += speed;
