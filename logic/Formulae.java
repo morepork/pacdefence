@@ -78,13 +78,13 @@ public class Formulae {
 
   public static long sellValue(Tower t, int numTowers, int numOfThisType) {
     double value = towerCost(numTowers - 1, numOfThisType - 1);
+    for (int i = 1; i < t.getExperienceReport().level; i++) {
+      value *= 1.1;
+    }
     for (Attribute a : Attribute.values()) {
       for (int i = 1; i < t.getAttributeLevel(a); i++) {
         value += upgradeCost(i);
       }
-    }
-    for (int i = 1; i < t.getExperienceReport().level; i++) {
-      value *= 1.1;
     }
     return (long) (value * 0.9);
   }
