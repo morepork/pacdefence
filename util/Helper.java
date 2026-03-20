@@ -27,6 +27,7 @@ import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,16 @@ public class Helper {
   @SafeVarargs
   public static <T> List<T> makeListContaining(T... ts) {
     return new ArrayList<T>(Arrays.asList(ts));
+  }
+
+  public static <T> List<T> filter(List<T> base, Collection<T> excluding) {
+    List<T> filtered = new ArrayList<>(base.size());
+    for (T t : base) {
+      if (!excluding.contains(t)) {
+        filtered.add(t);
+      }
+    }
+    return filtered;
   }
 
   public static String format(long n) {
@@ -152,5 +163,15 @@ public class Helper {
       default:
         return "th";
     }
+  }
+
+  public static double max(double... values) {
+    double m = values[0];
+    for (int i = 1; i < values.length; i++) {
+      if (values[i] > m) {
+        m = values[i];
+      }
+    }
+    return m;
   }
 }

@@ -76,6 +76,23 @@
     <javac srcdir="${SrcDir}" destdir="${BinDir}" classpath="${ClassPath}" includeantruntime="false" />
   </target>
 
+  <target name="test" depends="compileAll">
+    <junit printsummary="yes" fork="yes" showoutput="true">
+      <classpath>
+        <pathelement path="${ClassPath}"/>
+        <pathelement path="${BinDir}"/>
+      </classpath>
+
+      <batchtest>
+        <fileset dir="${SrcDir}">
+          <include name="**/*Test.class"/>
+        </fileset>
+      </batchtest>
+
+      <formatter type="plain"/>
+    </junit>
+  </target>
+
   <target name="buildJars" depends="compileAll,buildManual,makeWebPages">
     <delete file="${NoSrcJar}" />
     <jar destfile="${NoSrcJar}">

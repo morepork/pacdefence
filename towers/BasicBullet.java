@@ -27,7 +27,6 @@ import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.util.List;
 import logic.Constants;
 import logic.CreepGrid;
 import util.Vector2D;
@@ -137,12 +136,12 @@ public class BasicBullet extends AbstractBullet {
     Line2D line = new Line2D.Double(p1, p2);
     // I used to do intersectsPath here first, but that doesn't work for a bullet that's just off
     // screen hitting a just started/nearly finished creep
-    for (Creep c : creeps.filterCreeps(line)) {
+    for (Creep c : creeps.filter(line)) {
       Point2D p = c.intersects(line);
       if (p != null) {
         DamageReport d = c.hit(damage, shotBy.getClass());
         if (d != null) { // Creep is not already dead, may happen due to threading
-          specialOnHit(p, c, creeps.allCreeps());
+          specialOnHit(p, c, creeps);
           return processDamageReport(d);
         }
       }
@@ -155,7 +154,7 @@ public class BasicBullet extends AbstractBullet {
    *
    * @param p
    */
-  protected void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {}
+  protected void specialOnHit(Point2D p, Creep c, CreepGrid creeps) {}
 
   protected double processDamageReport(DamageReport d) {
     return processDamageReport(d, shotBy);

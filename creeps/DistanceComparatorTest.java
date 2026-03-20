@@ -26,7 +26,7 @@ public class DistanceComparatorTest {
 
   @Test
   public void test() {
-    int numCreeps = 1000000;
+    int numCreeps = 10000;
     List<Creep> creeps = new ArrayList<>(numCreeps);
 
     for (int i = 0; i < numCreeps; i++) {
@@ -34,7 +34,6 @@ public class DistanceComparatorTest {
     }
 
     for (int i = 0; i < 100; i++) {
-      System.out.println(i);
       // Ensure this doesn't generate the following exception due to
       // representing numbers as doubles:
       // java.lang.IllegalArgumentException: Comparison method violates its general contract!

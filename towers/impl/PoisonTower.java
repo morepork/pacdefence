@@ -23,7 +23,6 @@ import creeps.Creep;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.util.List;
 import logic.Constants;
 import logic.CreepGrid;
 import towers.AbstractTower;
@@ -125,7 +124,7 @@ public class PoisonTower extends AbstractTower {
     }
 
     @Override
-    protected void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {
+    protected void specialOnHit(Point2D p, Creep c, CreepGrid creeps) {
       c.poison(poisonTicksLeft);
       poisonedCreep = c;
     }

@@ -67,19 +67,11 @@ public class Vector2D {
   // Static functions ________________________________________________
 
   public static double angle(double x, double y) {
-    if (x >= 0) {
-      if (y > 0) {
-        return Math.atan(x / y);
-      } else {
-        return Math.atan(-y / x) + Math.PI / 2;
-      }
-    } else {
-      if (y > 0) {
-        return Math.atan(x / y) + twoPi;
-      } else {
-        return Math.atan(x / y) + Math.PI;
-      }
+    double a = Math.atan2(x, y);
+    if (a >= 0) {
+      return a;
     }
+    return a + 2 * Math.PI;
   }
 
   public static double angle(Point2D p1, Point2D p2) {

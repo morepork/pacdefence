@@ -13,3 +13,6 @@
 
 # IntelliJ files
 /.idea
+
+# JUnit test output
+TEST-*.txt

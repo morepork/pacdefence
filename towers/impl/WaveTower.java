@@ -27,8 +27,8 @@ import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import logic.Constants;
 import logic.CreepGrid;
 import towers.AbstractTower;
@@ -90,11 +90,10 @@ public class WaveTower extends AbstractTower {
     private final Arc2D arc = new Arc2D.Double(Arc2D.PIE);
     private final Arc2D lastArc = new Arc2D.Double(Arc2D.PIE);
     private final Point2D start;
-    // Use an ArrayList here as the overhead of a more complicated set
-    // isn't really worth it as it'll never grow much larger than 50
-    private final Collection<Creep> hitCreeps = new ArrayList<Creep>();
+    private final Collection<Creep> hitCreeps = new HashSet<>();
     private double moneyEarned = 0;
     private final int turretWidth;
+    private final double farthestMapCornerDistance;
 
     public WaveBullet(
         Tower shotBy,
@@ -110,6 +109,12 @@ public class WaveTower extends AbstractTower {
       extentAngle = angle;
       start = p;
       this.turretWidth = turretWidth;
+      this.farthestMapCornerDistance =
+          Helper.max(
+              p.distance(0, 0),
+              p.distance(0, Constants.HEIGHT),
+              p.distance(Constants.WIDTH, 0),
+              p.distance(Constants.WIDTH, Constants.HEIGHT));
     }
 
     @Override
@@ -125,7 +130,12 @@ public class WaveTower extends AbstractTower {
     @Override
     protected double doTick(CreepGrid creeps) {
       double value = super.doTick(creeps);
-      setArc(arc, distanceTravelled + turretWidth);
+
+      this.lastArc.setArc(this.arc);
+      double radius = distanceTravelled + turretWidth;
+      this.arc.setArcByCenter(
+          start.getX(), start.getY(), radius, startAngle, extentAngle, Arc2D.OPEN);
+
       if (value > 0) {
         moneyEarned += value;
       } else if (value == 0) {
@@ -139,7 +149,7 @@ public class WaveTower extends AbstractTower {
       double d = 0;
       Arc2D closerArc = (Arc2D) lastArc.clone();
       closerArc.setArcType(Arc2D.OPEN);
-      for (Creep c : creeps.allCreeps()) {
+      for (Creep c : creeps.filter(arc)) {
         // It has to intersect the current arc, but not the last arc unless
         // it intersects the open arc with the same radius as the last arc
         if (!hitCreeps.contains(c)
@@ -154,13 +164,8 @@ public class WaveTower extends AbstractTower {
 
     @Override
     protected boolean canBulletBeRemovedAsOffScreen() {
-      // Need to check that the arc isn't empty as it may not have been set yet
-      return !arc.isEmpty() && !arc.intersects(0, 0, Constants.WIDTH, Constants.HEIGHT);
-    }
-
-    private void setArc(Arc2D a, double radius) {
-      lastArc.setArc(a);
-      a.setArcByCenter(start.getX(), start.getY(), radius, startAngle, extentAngle, Arc2D.OPEN);
+      // This is an easy to calculate conservative proxy
+      return distanceTravelled + turretWidth > this.farthestMapCornerDistance;
     }
   }
 }

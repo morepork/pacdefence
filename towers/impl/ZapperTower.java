@@ -36,6 +36,7 @@ import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Circle;
 import util.Vector2D;
 
 public class ZapperTower extends AbstractTower {
@@ -117,7 +118,7 @@ public class ZapperTower extends AbstractTower {
       double value = super.doTick(creeps);
       // Only actually fire once every two ticks
       if (zap == null && numZapsLeft > 0) {
-        tryToFireZap(creeps.allCreeps());
+        tryToFireZap(creeps);
       } else {
         zap = null;
       }
@@ -139,9 +140,10 @@ public class ZapperTower extends AbstractTower {
       return offScreenFudgeDistance;
     }
 
-    private void tryToFireZap(List<Creep> creeps) {
+    private void tryToFireZap(CreepGrid creeps) {
+      Circle zapBounds = new Circle(this.position, zapRange);
       List<Creep> hittableCreeps = new ArrayList<Creep>();
-      for (Creep c : creeps) {
+      for (Creep c : creeps.filter(zapBounds)) {
         if (position.distance(c.getPosition()) < zapRange + c.getHalfWidth()) {
           hittableCreeps.add(c);
         }

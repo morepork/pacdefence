@@ -26,7 +26,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import logic.CreepGrid;
 import towers.AbstractTower;
@@ -74,7 +73,7 @@ public class BomberTower extends AbstractTower {
 
     private boolean exploding = false;
     private boolean expanding = true;
-    private Set<Creep> hitCreeps = new HashSet<Creep>();
+    private Set<Creep> hitCreeps = new HashSet<>();
     private final Color blastColour = new Color(255, 0, 0, 75);
     private final double blastRadius;
     private final double blastSizeIncrement;
@@ -115,7 +114,7 @@ public class BomberTower extends AbstractTower {
             blast.setRadius(newRadius);
           }
         }
-        checkIfCreepIsHitByBlast(creeps.allCreeps());
+        checkIfCreepIsHitByBlast(creeps);
         return -1;
       } else { // If it's not exploding, the bullet is still travelling
         double earnings = super.doTick(creeps);
@@ -142,15 +141,15 @@ public class BomberTower extends AbstractTower {
     }
 
     @Override
-    protected void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {
+    protected void specialOnHit(Point2D p, Creep c, CreepGrid creeps) {
       // System.out.println(p.getX() + " " + p.getY());
       blast.setCentre(p);
       exploding = true;
       hitCreeps.add(c);
     }
 
-    private void checkIfCreepIsHitByBlast(List<Creep> creeps) {
-      for (Creep c : creeps) {
+    private void checkIfCreepIsHitByBlast(CreepGrid creeps) {
+      for (Creep c : creeps.filter(blast)) {
         // Creeps are only affected by the blast once
         if (!hitCreeps.contains(c) && blast.intersects(c.getBounds())) {
           hitCreeps.add(c);

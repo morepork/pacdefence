@@ -25,6 +25,7 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import logic.CreepGrid;
 import towers.AbstractTower;
@@ -72,7 +73,7 @@ public class CircleTower extends AbstractTower {
     private double angle;
     private int hitsLeft = hits;
     private double moneyEarnedSoFar = 0;
-    private Collection<Creep> hitCreeps = new ArrayList<Creep>();
+    private Collection<Creep> hitCreeps = new HashSet<>();
 
     public CirclingBullet(
         Tower shotBy,
@@ -117,10 +118,10 @@ public class CircleTower extends AbstractTower {
       List<Point2D> points = makeArcPoints();
       double moneyEarned = 0;
       if (!points.isEmpty()) {
-        for (Creep c : creeps.allCreeps()) {
+        for (Creep c : creeps.filter(points)) {
           for (Point2D p : points) {
             if (c.intersects(p)) {
-              specialOnHit(p, c, creeps.allCreeps());
+              specialOnHit(p, c, creeps);
               moneyEarned += processDamageReport(c.hit(getDamage(), shotBy.getClass()));
               hitCreeps.add(c);
               hitsLeft--;

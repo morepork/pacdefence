@@ -20,18 +20,15 @@
 package towers.impl;
 
 import creeps.Creep;
-import creeps.Creep.DistanceComparator;
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import logic.CreepGrid;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
 import towers.Tower;
+import util.Circle;
 import util.Vector2D;
 
 public class JumperTower extends AbstractTower {
@@ -85,31 +82,32 @@ public class JumperTower extends AbstractTower {
     }
 
     @Override
-    protected void specialOnHit(Point2D p, Creep hitCreep, List<Creep> creeps) {
+    protected void specialOnHit(Point2D p, Creep hitCreep, CreepGrid creeps) {
       // If there are jumps left, target the closest creep, so the bullet jumps to it
       if (jumpsLeft > 0) {
-        // Add back the creep hit on the previous jump, so it can be targeted again
-        creeps = new ArrayList<>(creeps);
+        Creep closest = null;
+        double closestDistanceSq = Double.MAX_VALUE;
+        // Include the creep hit on the previous jump, so it can be targeted again
         if (lastHit != null && lastHit.isAlive()) {
-          creeps.add(lastHit);
+          closest = lastHit;
+          closestDistanceSq = p.distanceSq(lastHit.getPosition());
         }
-
-        // Make it so creeps closest to this point will be targeted first
-        boolean retargeted = false;
-        Collections.sort(creeps, new DistanceComparator(p, true));
-        for (Creep c : creeps) {
+        Circle jumpBounds = new Circle(p, jumpRange);
+        for (Creep c : creeps.filter(jumpBounds)) {
           if (c.equals(hitCreep)) { // Can't target the creep that was just hit
             continue;
           }
-          if (checkDistance(c, p, jumpRange)) {
-            super.setDirection(Vector2D.createFromPoints(p, c.getPosition()));
-            distanceTravelled = range - jumpRange;
-            retargeted = true;
-            break;
+          double distanceSq = p.distanceSq(c.getPosition());
+          if (closest == null || distanceSq < closestDistanceSq) {
+            closest = c;
+            closestDistanceSq = distanceSq;
           }
         }
-        // If no creeps in range, finish up
-        if (!retargeted) {
+        if (closest != null && checkDistance(closest, p, jumpRange)) {
+          super.setDirection(Vector2D.createFromPoints(p, closest.getPosition()));
+          distanceTravelled = range - jumpRange;
+        } else {
+          // If no creeps in range, finish up
           jumpsLeft = 0;
         }
       }

@@ -31,9 +31,8 @@ import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
 import logic.Constants;
 import logic.CreepGrid;
 import towers.AbstractBullet;
@@ -108,9 +107,7 @@ public class BeamTower extends AbstractTower {
     private static final Stroke stroke = new BasicStroke(4);
     private final float deltaAlpha;
     private final Tower launchedBy;
-    // Tried using a HashSet and a TreeMap here but there was no noticeable performance
-    // improvement even with a large number of creeps.
-    private final Collection<Creep> hitCreeps = new ArrayList<Creep>();
+    private final Collection<Creep> hitCreeps = new HashSet<>();
     // private final Line2D beam = new Line2D.Double();
     private final Point2D centre;
     private final Arc2D arc = new Arc2D.Double(Arc2D.PIE);
@@ -169,7 +166,7 @@ public class BeamTower extends AbstractTower {
       }
       ticksLeft--;
       currentAlpha -= deltaAlpha;
-      hitCreeps(creeps.allCreeps());
+      hitCreeps(creeps);
       arcAngle += deltaAngle;
       setBeam();
       return -1;
@@ -190,8 +187,8 @@ public class BeamTower extends AbstractTower {
       return (Vector2D.angle(centre, nextPos) > Vector2D.angle(centre, pos)) ? -1 : 1;
     }
 
-    private void hitCreeps(List<Creep> creeps) {
-      for (Creep c : creeps) {
+    private void hitCreeps(CreepGrid creeps) {
+      for (Creep c : creeps.filter(arc)) {
         if (!hitCreeps.contains(c) && c.intersects(arc)) {
           DamageReport d = c.hit(damage, launchedBy.getClass());
           if (d != null) {

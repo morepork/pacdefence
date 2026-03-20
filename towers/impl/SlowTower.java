@@ -22,8 +22,8 @@ package towers.impl;
 import creeps.Creep;
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.util.List;
 import logic.Constants;
+import logic.CreepGrid;
 import towers.AbstractTower;
 import towers.BasicBullet;
 import towers.Bullet;
@@ -75,7 +75,7 @@ public abstract class SlowTower extends AbstractTower {
       Vector2D dir, int turretWidth, int range, double speed, double damage, Point p, Creep c) {
     return new BasicBullet(this, dir, turretWidth, range, speed, damage, p) {
       @Override
-      public void specialOnHit(Point2D p, Creep c, List<Creep> creeps) {
+      public void specialOnHit(Point2D p, Creep c, CreepGrid creeps) {
         c.slow(slowFactor, (int) slowTicks, damageNotifier);
       }
     };

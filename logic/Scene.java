@@ -108,9 +108,9 @@ public class Scene {
     ghosts.clear();
   }
 
-  public int getBuildCost(Buildable b) {
+  public long getBuildCost(Buildable b) {
     if (b instanceof Ghost) {
-      int cost = Formulae.towerCost(0, 0);
+      long cost = Formulae.towerCost(0, 0);
       for (int i = 0; i < ghostsUsed; i++) {
         cost *= 2;
       }

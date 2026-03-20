@@ -186,20 +186,14 @@ public interface Creep extends Comparable<Creep>, Drawable {
       this.closestFirst = closestFirst;
     }
 
-    private double distanceSq(Point2D p1, Point2D p2) {
-      double dx = p2.getX() - p1.getX();
-      double dy = p2.getY() - p1.getY();
-      return dx * dx + dy * dy;
-    }
-
     @Override
     public int compare(Creep c1, Creep c2) {
       // Find the distance (squared) to each creep. Using the square as it's not worth the extra
       // operation to find the square root to get the actual distance when for the comparison it
       // doesn't
       // matter.
-      double d1 = distanceSq(c1.getPosition(), towerLocation);
-      double d2 = distanceSq(c2.getPosition(), towerLocation);
+      double d1 = c1.getPosition().distanceSq(towerLocation);
+      double d2 = c2.getPosition().distanceSq(towerLocation);
       int val = Double.compare(d1, d2);
       return closestFirst ? val : -val;
     }
