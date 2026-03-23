@@ -33,8 +33,8 @@ import util.Vector2D;
 
 public class WeakenTower extends AbstractTower {
 
-  private double extraDamageTicks = Constants.CLOCK_TICKS_PER_SECOND / 2;
-  private double upgradeIncreaseTicks = Constants.CLOCK_TICKS_PER_SECOND / 10;
+  private double extraDamageTicks = Constants.CLOCK_TICKS_PER_SECOND / 4;
+  private double upgradeIncreaseTicks = extraDamageTicks / 5;
   private double increaseDamageFactor = 2;
   private final DamageNotifier damageNotifier = new DamageNotifier(this);
 
@@ -44,7 +44,7 @@ public class WeakenTower extends AbstractTower {
 
   @Override
   public String getSpecial() {
-    return Helper.format(extraDamageTicks / Constants.CLOCK_TICKS_PER_SECOND, 1) + "s";
+    return Helper.format(extraDamageTicks / Constants.CLOCK_TICKS_PER_SECOND, 2) + "s";
   }
 
   @Override

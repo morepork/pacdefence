@@ -45,7 +45,7 @@ public class BomberTower extends AbstractTower {
   private static final double bombDamageDividend = 2;
 
   public BomberTower(Point p) {
-    super(p, "Bomber", 40, 100, 5, 10, 50, 15, true);
+    super(p, "Bomber", 40, 100, 5, 8, 50, 15, true);
   }
 
   @Override

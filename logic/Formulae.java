@@ -61,7 +61,7 @@ public class Formulae {
   }
 
   private static double getMoneyDivisor(int level) {
-    return Math.pow(1.15, level - 1);
+    return Math.pow(1.2, level - 1);
   }
 
   public static int nextUpgradeKills(int currentLevel) {
@@ -69,11 +69,11 @@ public class Formulae {
   }
 
   public static long nextUpgradeDamage(int currentLevel) {
-    return (long) (Math.pow(2, currentLevel - 1)) * 250;
+    return (long) (Math.pow(2, currentLevel - 1)) * 1000;
   }
 
   public static long towerCost(int numTowers, int numOfThisType) {
-    return (long) (Math.pow(1.05, numTowers) * Math.pow(1.1, numOfThisType) * 1000);
+    return (long) (Math.pow(1.1, numTowers) * Math.pow(1.2, numOfThisType) * 1000);
   }
 
   public static long sellValue(Tower t, int numTowers, int numOfThisType) {

@@ -25,8 +25,8 @@ import logic.Constants;
 public class FreezeTower extends SlowTower {
 
   public FreezeTower(Point p) {
-    super(p, "Freeze", 40, 100, 5, 1, 50, 22, true, 0, Constants.CLOCK_TICKS_PER_SECOND / 2.0);
-    // Reduces the speed of the creeps it hits to 0, and lasts for 0.5s
+    super(p, "Freeze", 40, 100, 5, 1, 50, 22, true, 0, Constants.CLOCK_TICKS_PER_SECOND / 4);
+    // Reduces the speed of the creeps it hits to 0, and lasts for 0.25s
   }
 
   @Override

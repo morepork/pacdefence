@@ -62,12 +62,12 @@ public abstract class SlowTower extends AbstractTower {
     // This makes the increase decent, the base increase is just not enough
     // Also having it increase by a fixed amount, rather than go up exponentially stops freeze
     // towers being ridiculously powerful if they get upgraded a lot
-    upgradeIncreaseTicks = slowTicks * 4 * (upgradeIncreaseFactor - 1);
+    upgradeIncreaseTicks = slowTicks / 5;
   }
 
   @Override
   public String getSpecial() {
-    return Helper.format(slowTicks / Constants.CLOCK_TICKS_PER_SECOND, 1) + "s";
+    return Helper.format(slowTicks / Constants.CLOCK_TICKS_PER_SECOND, 2) + "s";
   }
 
   @Override

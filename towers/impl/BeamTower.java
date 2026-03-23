@@ -51,7 +51,7 @@ public class BeamTower extends AbstractTower {
   private double beamLastTicks = startingBeamLastTicks;
 
   public BeamTower(Point p) {
-    super(p, "Beam", 40, 80, 40, 4, 50, 0, false);
+    super(p, "Beam", 40, 80, 40, 3, 50, 0, false);
     // This is a grossly overpowered version for testing performance.
     /*super(p, "Beam", 0, 1000, 100, 0.05, 50, 0, false);
     for(int i = 0; i < 20; i++) {

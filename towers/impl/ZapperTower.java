@@ -45,7 +45,7 @@ public class ZapperTower extends AbstractTower {
   private static final int upgradeIncreaseZaps = 1;
 
   public ZapperTower(Point p) {
-    super(p, "Zapper", 40, 100, 1, 5, 50, 21, true);
+    super(p, "Zapper", 40, 100, 0.5, 4, 50, 21, true);
   }
 
   @Override
@@ -72,12 +72,13 @@ public class ZapperTower extends AbstractTower {
   private static class ZapperBullet extends BasicBullet {
 
     private static final Random rand = new Random();
-    private static final Color zapColour = new Color(255, 147, 147);
+    private static final double zapRange = 40;
+    private static final Color zapColour = new Color(20, 255, 50);
     private static final Stroke zapStroke = new BasicStroke(3);
+
     private double moneyEarned = 0;
     private int numZapsLeft;
     private Line2D zap;
-    private final double zapRange;
     private final int offScreenFudgeDistance;
 
     public ZapperBullet(
@@ -91,7 +92,6 @@ public class ZapperTower extends AbstractTower {
         int numZaps) {
       super(shotBy, dir, turretWidth, range, speed, damage, p);
       numZapsLeft = numZaps;
-      zapRange = range / 4;
       // Bullet shouldn't be removed if it can still zap creeps
       offScreenFudgeDistance = super.getOffScreenFudgeDistance() + (int) zapRange;
     }

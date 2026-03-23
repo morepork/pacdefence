@@ -33,7 +33,7 @@ public class MultiShotTower extends AbstractTower {
   private int numShots = 2;
 
   public MultiShotTower(Point p) {
-    super(p, "Multi Shot", 40, 100, 3, 5, 50, 5, true);
+    super(p, "Multi Shot", 40, 100, 3, 4, 50, 5, true);
   }
 
   @Override
