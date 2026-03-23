@@ -481,7 +481,7 @@ public class Game {
 
   private class Clock extends Thread {
 
-    private final int[] fastModes = new int[] {1, 2, 10};
+    private final int[] fastModes = new int[] {1, 2, 10, 100};
     private int currentMode = 0;
 
     private int creepsToAdd;

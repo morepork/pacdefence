@@ -450,7 +450,7 @@ public class ControlPanel extends JPanel {
   }
 
   private OverlayToggleButton createFastButton() {
-    BufferedImage[] images = new BufferedImage[3];
+    BufferedImage[] images = new BufferedImage[4];
     for (int i = 1; i <= images.length; i++) {
       images[i - 1] = ImageHelper.loadImage("buttons", "fast" + i + ".png");
     }
